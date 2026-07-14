@@ -1,0 +1,61 @@
+[project]
+name = "open_site_clipper"
+version = "0.1.0"
+description = "정부·공공기관 공지를 수집해 하나의 보고서로 만드는 공공누리(KOGL) 라이선스 인식 도구"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "corey1-cmd" }]
+keywords = ["government", "open-data", "korea", "kogl", "rss", "report", "civic-tech"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: Korean",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Text Processing :: Markup",
+]
+# 런타임 의존성 0 — 파이썬 표준 라이브러리만 사용한다.
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/corey1-cmd/open_site_clipper"
+Repository = "https://github.com/corey1-cmd/open_site_clipper"
+Issues = "https://github.com/corey1-cmd/open_site_clipper/issues"
+
+[project.scripts]
+open_site_clipper = "open_site_clipper.cli:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.6",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/open_site_clipper"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/open_site_clipper", "tests", "README.md", "LICENSE"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "RUF"]
+ignore = [
+    "E501",   # 줄 길이는 포매터가 관리
+    "RUF001", # 한국어 문자열의 모호 유니코드 — 의도된 것
+    "RUF002",
+    "RUF003",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

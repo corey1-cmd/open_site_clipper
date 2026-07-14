@@ -1,0 +1,22 @@
+{
+  "response": {
+    "header": { "resultCode": "00", "resultMsg": "NORMAL SERVICE." },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "title": "제2차 정보보호산업 진흥 계획 발표",
+            "detailUrl": "https://apis.data.go.kr/notice/2001",
+            "regDate": "2025-07-06",
+            "cn": "정보보호 산업의 자생력 강화를 위한 5개년 계획을 공개합니다."
+          },
+          {
+            "nttSj": "디지털 신기술 인재양성 공모 안내",
+            "link": "https://apis.data.go.kr/notice/2002",
+            "frstRegistDt": "20250703"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "title": "정부·공공기관 공지 보고서",
+  "generated_at": "2026-07-14T12:48:27+09:00",
+  "since_days": null,
+  "count": 5,
+  "agencies": [
+    "과학기술정보통신부",
+    "행정안전부"
+  ],
+  "failed_sources": [],
+  "notices": [
+    {
+      "title": "재난안전데이터 공유 플랫폼 정식 개통",
+      "url": "https://www.mois.go.kr/notice/1001",
+      "agency": "행정안전부",
+      "published": "2025-07-07",
+      "summary": "행정안전부는 부처·지자체가 재난안전 데이터를 실시간 공유하는 플랫폼을 정식 개통했다고 밝혔다.",
+      "category": "보도자료",
+      "rights": "kogl_type1",
+      "rights_label": "공공누리 제1유형 — 출처표시(상업적 이용·변형 허용)"
+    },
+    {
+      "title": "제2차 정보보호산업 진흥 계획 발표",
+      "url": "https://apis.data.go.kr/notice/2001",
+      "agency": "과학기술정보통신부",
+      "published": "2025-07-06",
+      "summary": "정보보호 산업의 자생력 강화를 위한 5개년 계획을 공개합니다.",
+      "category": "보도자료",
+      "rights": "kogl_type1",
+      "rights_label": "공공누리 제1유형 — 출처표시(상업적 이용·변형 허용)"
+    },
+    {
+      "title": "여름철 집중호우 대비 국민행동요령 안내",
+      "url": "https://www.mois.go.kr/notice/1002",
+      "agency": "행정안전부",
+      "published": "2025-07-04",
+      "summary": "집중호우 시 저지대·하천변 대피 요령과 비상 연락 체계를 안내합니다.",
+      "category": "보도자료",
+      "rights": "kogl_type1",
+      "rights_label": "공공누리 제1유형 — 출처표시(상업적 이용·변형 허용)"
+    },
+    {
+      "title": "디지털 신기술 인재양성 공모 안내",
+      "url": "https://apis.data.go.kr/notice/2002",
+      "agency": "과학기술정보통신부",
+      "published": "2025-07-03",
+      "summary": "",
+      "category": "보도자료",
+      "rights": "kogl_type1",
+      "rights_label": "공공누리 제1유형 — 출처표시(상업적 이용·변형 허용)"
+    },
+    {
+      "title": "2025년 지방자치단체 합동평가 결과 발표",
+      "url": "https://www.mois.go.kr/notice/1003",
+      "agency": "행정안전부",
+      "published": "2025-07-02",
+      "summary": "243개 지방자치단체를 대상으로 한 합동평가 결과를 공개합니다.",
+      "category": "보도자료",
+      "rights": "kogl_type1",
+      "rights_label": "공공누리 제1유형 — 출처표시(상업적 이용·변형 허용)"
+    }
+  ]
+}

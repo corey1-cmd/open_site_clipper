@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>행정안전부 보도자료</title>
+    <link>https://www.mois.go.kr/</link>
+    <description>행정안전부 보도자료 RSS (govbrief 데모 샘플)</description>
+    <item>
+      <title>재난안전데이터 공유 플랫폼 정식 개통</title>
+      <link>https://www.mois.go.kr/notice/1001</link>
+      <description>&lt;p&gt;행정안전부는 부처·지자체가 재난안전 데이터를 실시간 공유하는 플랫폼을 정식 개통했다고 밝혔다.&lt;/p&gt;</description>
+      <pubDate>Mon, 07 Jul 2025 09:00:00 +0900</pubDate>
+    </item>
+    <item>
+      <title>여름철 집중호우 대비 국민행동요령 안내</title>
+      <link>https://www.mois.go.kr/notice/1002</link>
+      <description>집중호우 시 저지대·하천변 대피 요령과 비상 연락 체계를 안내합니다.</description>
+      <pubDate>Fri, 04 Jul 2025 14:30:00 +0900</pubDate>
+    </item>
+    <item>
+      <title>2025년 지방자치단체 합동평가 결과 발표</title>
+      <link>https://www.mois.go.kr/notice/1003</link>
+      <description>243개 지방자치단체를 대상으로 한 합동평가 결과를 공개합니다.</description>
+      <pubDate>Wed, 02 Jul 2025 10:00:00 +0900</pubDate>
+    </item>
+  </channel>
+</rss>
