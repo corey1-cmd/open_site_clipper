@@ -4,6 +4,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import date
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:  # pragma: no cover — 런타임 순환 임포트 회피
+    from .digest import Digest
 
 
 @dataclass(frozen=True, slots=True)
@@ -45,6 +49,9 @@ class Report:
     title: str = "정부·공공기관 공지 보고서"
     since_days: int | None = None  # 조회 기간(일) — 표지에 표기
     failed_sources: list[str] = field(default_factory=list)  # 수집 실패 출처명
+    # 기간 요약(digest.build 결과). None이면 렌더러가 요약 섹션을 생략한다.
+    # (digest 모듈이 Notice를 임포트하므로 순환을 피해 문자열 애너테이션.)
+    digest: Digest | None = None
 
     @property
     def agencies(self) -> list[str]:

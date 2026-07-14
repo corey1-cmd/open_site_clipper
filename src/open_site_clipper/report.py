@@ -40,6 +40,18 @@ def render_markdown(report: Report) -> str:
         lines.append(f"- ⚠ 수집 실패 출처: {', '.join(report.failed_sources)}")
     lines.append("")
 
+    if report.digest and not report.digest.is_empty():
+        d = report.digest
+        lines.append("## 기간 요약")
+        lines.append("")
+        if d.agencies:
+            lines.append("- 기관: " + " · ".join(f"{a} {c}건" for a, c in d.agencies))
+        if d.categories:
+            lines.append("- 분류: " + " · ".join(f"{a} {c}건" for a, c in d.categories))
+        if d.keywords:
+            lines.append("- 키워드: " + " · ".join(f"{w}({c})" for w, c in d.keywords))
+        lines.append("")
+
     if not report.notices:
         lines.append("_수집된 공지가 없습니다._")
         return "\n".join(lines) + "\n"
@@ -85,6 +97,15 @@ def render_json(report: Report) -> str:
         "new_count": report.new_count,
         "agencies": report.agencies,
         "failed_sources": report.failed_sources,
+        "digest": (
+            {
+                "agencies": [list(x) for x in report.digest.agencies],
+                "categories": [list(x) for x in report.digest.categories],
+                "keywords": [list(x) for x in report.digest.keywords],
+            }
+            if report.digest and not report.digest.is_empty()
+            else None
+        ),
         "notices": [
             {
                 "title": n.title,
@@ -130,6 +151,15 @@ a:hover { text-decoration: underline; }
 .badge.unknown { background: #eee; color: #667; }
 .badge.new { background: #e8f7ee; color: #0b7a3b; }
 .stat.new { background: #e8f7ee; }
+.digest { background: #f8f9fc; border: 1px solid #eef; border-radius: 12px;
+  padding: .2rem 1rem .8rem; margin: 0 0 1.5rem; }
+.digest h2 { border: none; margin: .8rem 0 .4rem; font-size: 1rem; }
+.digest dl { display: grid; grid-template-columns: 4rem 1fr; gap: .3rem .6rem; margin: 0; font-size: .9rem; }
+.digest dt { color: #667; font-weight: 600; }
+.digest dd { margin: 0; }
+.chip { display: inline-block; background: rgba(25,25,112,.07); border-radius: 999px;
+  padding: .05rem .55rem; margin: 0 .25rem .25rem 0; }
+.chip b { color: #191970; }
 footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eef; font-size: .85rem; color: #556; }
 footer ul { padding-left: 1.1rem; }
 @media (prefers-color-scheme: dark) {
@@ -140,6 +170,8 @@ footer ul { padding-left: 1.1rem; }
   .badge { background: rgba(154,168,255,.15); color: #9aa8ff; }
   .badge.new { background: rgba(52,199,123,.15); color: #57d78f; }
   .stat.new { background: rgba(52,199,123,.12); }
+  .digest { background: #12151c; border-color: #262a35; }
+  .chip { background: rgba(154,168,255,.12); } .chip b { color: #9aa8ff; }
 }
 """.strip()
 
@@ -174,6 +206,20 @@ def render_html(report: Report) -> str:
             f'<p class="warn">⚠ 수집 실패 출처: {esc(", ".join(report.failed_sources))} '
             "(해외 IP 차단·URL 변경 등 — 나머지 출처로 보고서를 완성했습니다)</p>"
         )
+
+    if report.digest and not report.digest.is_empty():
+        d = report.digest
+        parts.append('<section class="digest"><h2>기간 요약</h2><dl>')
+        if d.agencies:
+            v = " · ".join(f"{esc(a)} {c}건" for a, c in d.agencies)
+            parts.append(f"<dt>기관</dt><dd>{v}</dd>")
+        if d.categories:
+            v = " · ".join(f"{esc(a)} {c}건" for a, c in d.categories)
+            parts.append(f"<dt>분류</dt><dd>{v}</dd>")
+        if d.keywords:
+            chips = "".join(f'<span class="chip">{esc(w)} <b>{c}</b></span>' for w, c in d.keywords)
+            parts.append(f"<dt>키워드</dt><dd>{chips}</dd>")
+        parts.append("</dl></section>")
 
     if not report.notices:
         parts.append("<p>수집된 공지가 없습니다.</p>")

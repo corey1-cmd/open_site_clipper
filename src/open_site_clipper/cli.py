@@ -17,7 +17,7 @@ import sys
 from importlib import resources
 from pathlib import Path
 
-from . import __version__, collect, report, sources, state
+from . import __version__, collect, digest, report, sources, state
 from .collect import local_fetcher
 
 _FMT_ALIASES = {"md": "markdown", "markdown": "markdown", "html": "html", "json": "json"}
@@ -62,6 +62,12 @@ def _build_parser() -> argparse.ArgumentParser:
         "--only-new",
         action="store_true",
         help="--state 기준 신규 공지만으로 보고서를 만든다",
+    )
+    p.add_argument(
+        "--digest",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="보고서 상단 기간 요약(기관·분류·키워드) — 규칙 기반, LLM 없음 (기본: 포함)",
     )
     p.add_argument("--list-sources", action="store_true", help="설정된 출처를 출력하고 종료")
     p.add_argument("--title", metavar="TEXT", help="보고서 제목 재정의")
@@ -130,6 +136,9 @@ def main(argv: list[str] | None = None) -> int:
             rep.notices = state.mark_new(rep.notices, seen)
         if args.only_new:
             rep.notices = [n for n in rep.notices if n.is_new]
+
+    if args.digest and rep.notices:
+        rep.digest = digest.build(rep.notices)
 
     text = report.render(rep, _FMT_ALIASES[args.format])
 
