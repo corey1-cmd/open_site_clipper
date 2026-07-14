@@ -116,6 +116,9 @@ def collect(
             # 제목·링크·출처만 남기고 요약 발췌를 비운다(rights.py 정책의 강제).
             if notice.summary and not rights.allows_derivative(notice.rights):
                 notice = replace(notice, summary="")
+            if source.topics:
+                # 출처의 정체성을 항목에 승계 — 관련성 가점·주제 섹션화의 축.
+                notice = replace(notice, topics=source.topics)
             collected.append(notice)
 
     collected.sort(key=lambda n: (n.published or date.min, n.agency), reverse=True)

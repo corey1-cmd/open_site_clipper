@@ -29,6 +29,9 @@ class Source:
     rights: str = rights.UNKNOWN
     category: str = ""
     enabled: bool = True
+    # 출처의 정체성 — 이 출처가 주로 다루는 주제 태그. 관련성 판정(relevance)의
+    # 가점과 주제별 자동 섹션화(--group-by topic)의 축으로 쓰인다.
+    topics: tuple[str, ...] = ()
 
 
 # 기본 출처 — 공개 RSS 위주(인증키 불필요). data.go.kr 채널은 예시로 꺼둔 채
@@ -61,6 +64,7 @@ DEFAULT_SOURCES: tuple[Source, ...] = (
         url="https://www.mois.go.kr/gpms/view/jsp/rss/rss.jsp?ctxCd=1012",
         rights=rights.KOGL_TYPE1,
         category="보도자료",
+        topics=("재난안전", "지방행정", "디지털정부"),
     ),
     Source(
         id="mcst",
@@ -69,6 +73,7 @@ DEFAULT_SOURCES: tuple[Source, ...] = (
         url="https://www.mcst.go.kr/common/rss/press.jsp",
         rights=rights.KOGL_TYPE1,
         category="보도자료",
+        topics=("문화", "체육", "관광"),
     ),
     Source(
         id="kisa",
@@ -77,6 +82,7 @@ DEFAULT_SOURCES: tuple[Source, ...] = (
         url="https://www.kisa.or.kr/rss/401",
         rights=rights.KOGL_TYPE1,
         category="공지",
+        topics=("정보보호", "인터넷"),
     ),
     Source(
         id="mss",
@@ -85,6 +91,7 @@ DEFAULT_SOURCES: tuple[Source, ...] = (
         url="https://www.mss.go.kr/rss/smba/board/86.do",
         rights=rights.KOGL_TYPE1,
         category="보도자료",
+        topics=("중소기업", "창업"),
     ),
     Source(
         id="gg",
@@ -93,6 +100,7 @@ DEFAULT_SOURCES: tuple[Source, ...] = (
         url="https://gnews.gg.go.kr/rss/gnews_rss_main.do",
         rights=rights.KOGL_TYPE1,
         category="지자체",
+        topics=("지자체",),
     ),
     # data.go.kr OpenAPI 예시(꺼짐). OSC_DATAGO_KEY 발급 후 enabled=True로.
     Source(
@@ -103,6 +111,7 @@ DEFAULT_SOURCES: tuple[Source, ...] = (
         rights=rights.KOGL_TYPE1,
         category="보도자료",
         enabled=False,
+        topics=("과학기술", "정보통신"),
     ),
 )
 
@@ -125,6 +134,7 @@ def demo_sources() -> list[Source]:
             url="sample://mois",
             rights=rights.KOGL_TYPE1,
             category="보도자료",
+            topics=("재난안전", "지방행정", "데이터"),
         ),
         Source(
             id="datago-example",
@@ -133,6 +143,7 @@ def demo_sources() -> list[Source]:
             url="sample://datago",
             rights=rights.KOGL_TYPE1,
             category="보도자료",
+            topics=("과학기술", "정보보호", "디지털"),
         ),
     ]
 
@@ -160,6 +171,11 @@ def from_dicts(items: list[dict[str, object]]) -> list[Source]:
                 rights=rights.normalize(str(raw.get("rights") or rights.UNKNOWN)),
                 category=str(raw.get("category") or ""),
                 enabled=bool(raw.get("enabled", True)),
+                topics=tuple(
+                    str(t).strip()
+                    for t in (raw.get("topics") or [])
+                    if isinstance(t, (str, int)) and str(t).strip()
+                ),
             )
         )
     return out

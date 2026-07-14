@@ -133,6 +133,7 @@ def render_json(report: Report) -> str:
                 "agency": n.agency,
                 "published": n.published.isoformat() if n.published else None,
                 "new": n.is_new,
+                "topics": list(n.topics),
                 "summary": n.summary,
                 "category": n.category,
                 "rights": rights.normalize(n.rights),

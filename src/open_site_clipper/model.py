@@ -27,6 +27,7 @@ class Notice:
     category: str = ""  # 분류 라벨 (선택)
     rights: str = "unknown"  # 공공누리 등급 (rights.py 상수)
     is_new: bool = False  # 이전 실행(--state) 대비 신규 여부 — state.mark_new가 채운다
+    topics: tuple[str, ...] = ()  # 출처의 정체성 태그 승계 — collect가 채운다
 
     def dedup_key(self) -> str:
         """중복 판정 키 — 링크 우선, 없으면 (기관+제목).
