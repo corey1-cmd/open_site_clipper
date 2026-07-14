@@ -32,7 +32,10 @@ def render_markdown(report: Report) -> str:
         f"- 생성 시각: {report.generated_at or '미상'}"
         + (f" · 최근 {report.since_days}일" if report.since_days is not None else "")
     )
-    lines.append(f"- 공지 {len(report.notices)}건 · 기관 {len(report.agencies)}곳")
+    counts = f"- 공지 {len(report.notices)}건 · 기관 {len(report.agencies)}곳"
+    if report.new_count:
+        counts += f" · 🆕 신규 {report.new_count}건"
+    lines.append(counts)
     if report.failed_sources:
         lines.append(f"- ⚠ 수집 실패 출처: {', '.join(report.failed_sources)}")
     lines.append("")
@@ -49,6 +52,8 @@ def render_markdown(report: Report) -> str:
         for n in items:
             title = _md_escape(n.title)
             link = f"[{title}]({n.url})" if n.url else title
+            if n.is_new:
+                link = f"🆕 {link}"
             lines.append(f"| {_fmt_date(n)} | {link} | {rights.badge(n.rights)} |")
         lines.append("")
 
@@ -77,6 +82,7 @@ def render_json(report: Report) -> str:
         "generated_at": report.generated_at,
         "since_days": report.since_days,
         "count": len(report.notices),
+        "new_count": report.new_count,
         "agencies": report.agencies,
         "failed_sources": report.failed_sources,
         "notices": [
@@ -85,6 +91,7 @@ def render_json(report: Report) -> str:
                 "url": n.url,
                 "agency": n.agency,
                 "published": n.published.isoformat() if n.published else None,
+                "new": n.is_new,
                 "summary": n.summary,
                 "category": n.category,
                 "rights": rights.normalize(n.rights),
@@ -121,6 +128,8 @@ a:hover { text-decoration: underline; }
 .badge { display: inline-block; font-size: .72rem; font-weight: 700; white-space: nowrap;
   padding: .1rem .5rem; border-radius: 999px; background: rgba(25,25,112,.1); color: #191970; }
 .badge.unknown { background: #eee; color: #667; }
+.badge.new { background: #e8f7ee; color: #0b7a3b; }
+.stat.new { background: #e8f7ee; }
 footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eef; font-size: .85rem; color: #556; }
 footer ul { padding-left: 1.1rem; }
 @media (prefers-color-scheme: dark) {
@@ -129,6 +138,8 @@ footer ul { padding-left: 1.1rem; }
   .stat { background: #1e2330; } th, td { border-color: #262a35; }
   a, h2 { color: #9aa8ff; } h2 { border-color: #9aa8ff; }
   .badge { background: rgba(154,168,255,.15); color: #9aa8ff; }
+  .badge.new { background: rgba(52,199,123,.15); color: #57d78f; }
+  .stat.new { background: rgba(52,199,123,.12); }
 }
 """.strip()
 
@@ -152,6 +163,8 @@ def render_html(report: Report) -> str:
     parts.append('<div class="stats">')
     parts.append(f'<div class="stat"><b>{len(report.notices)}</b>공지</div>')
     parts.append(f'<div class="stat"><b>{len(report.agencies)}</b>기관</div>')
+    if report.new_count:
+        parts.append(f'<div class="stat new"><b>{report.new_count}</b>신규</div>')
     if report.failed_sources:
         parts.append(f'<div class="stat warn"><b>{len(report.failed_sources)}</b>수집 실패</div>')
     parts.append("</div>")
@@ -172,13 +185,14 @@ def render_html(report: Report) -> str:
             )
             for n in items:
                 cls = "badge unknown" if rights.normalize(n.rights) == rights.UNKNOWN else "badge"
+                new_html = '<span class="badge new">NEW</span> ' if n.is_new else ""
                 title_html = (
                     f'<a href="{esc(n.url)}" target="_blank" rel="noopener noreferrer">{esc(n.title)}</a>'
                     if n.url
                     else esc(n.title)
                 )
                 parts.append(
-                    f'<tr><td class="date">{_fmt_date(n)}</td><td>{title_html}</td>'
+                    f'<tr><td class="date">{_fmt_date(n)}</td><td>{new_html}{title_html}</td>'
                     f'<td><span class="{cls}" title="{esc(rights.label(n.rights))}">'
                     f"{esc(rights.badge(n.rights))}</span></td></tr>"
                 )

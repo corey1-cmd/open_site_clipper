@@ -17,7 +17,7 @@ import sys
 from importlib import resources
 from pathlib import Path
 
-from . import __version__, collect, report, sources
+from . import __version__, collect, report, sources, state
 from .collect import local_fetcher
 
 _FMT_ALIASES = {"md": "markdown", "markdown": "markdown", "html": "html", "json": "json"}
@@ -51,6 +51,17 @@ def _build_parser() -> argparse.ArgumentParser:
         "--demo",
         action="store_true",
         help="번들된 샘플 피드로 오프라인 보고서를 만든다(네트워크·설치 검증용)",
+    )
+    p.add_argument(
+        "--state",
+        metavar="FILE",
+        help="실행 간 상태 파일(JSON) — 이전 실행에 없던 공지를 🆕로 표기하고, "
+        "이번 실행 결과를 저장한다. 파일이 없으면 첫 실행(기준선)으로 취급",
+    )
+    p.add_argument(
+        "--only-new",
+        action="store_true",
+        help="--state 기준 신규 공지만으로 보고서를 만든다",
     )
     p.add_argument("--list-sources", action="store_true", help="설정된 출처를 출력하고 종료")
     p.add_argument("--title", metavar="TEXT", help="보고서 제목 재정의")
@@ -98,9 +109,27 @@ def main(argv: list[str] | None = None) -> int:
         _print_sources(srcs)
         return 0
 
+    if args.only_new and not args.state:
+        raise SystemExit("--only-new 은 --state FILE 과 함께 써야 합니다.")
+
     rep = collect.collect(srcs, since_days=args.since, agency=args.agency, fetcher=fetcher)
     if args.title:
         rep.title = args.title
+
+    seen: list[str] | None = None
+    all_keys: set[str] = set()
+    if args.state:
+        seen = state.load(args.state)
+        all_keys = {n.dedup_key() for n in rep.notices}
+        if seen is None:
+            print(
+                f"상태 파일이 없어 첫 실행(기준선)으로 저장합니다: {args.state}",
+                file=sys.stderr,
+            )
+        else:
+            rep.notices = state.mark_new(rep.notices, seen)
+        if args.only_new:
+            rep.notices = [n for n in rep.notices if n.is_new]
 
     text = report.render(rep, _FMT_ALIASES[args.format])
 
@@ -115,6 +144,9 @@ def main(argv: list[str] | None = None) -> int:
         )
     else:
         sys.stdout.write(text)
+
+    if args.state:
+        state.save(args.state, current_keys=all_keys, previous=seen, updated_at=rep.generated_at)
     return 0
 
 

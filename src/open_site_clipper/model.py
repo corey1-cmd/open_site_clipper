@@ -22,6 +22,7 @@ class Notice:
     summary: str = ""  # 짧은 발췌 요약 (없으면 빈 문자열)
     category: str = ""  # 분류 라벨 (선택)
     rights: str = "unknown"  # 공공누리 등급 (rights.py 상수)
+    is_new: bool = False  # 이전 실행(--state) 대비 신규 여부 — state.mark_new가 채운다
 
     def dedup_key(self) -> str:
         """중복 판정 키 — 링크 우선, 없으면 (기관+제목).
@@ -49,6 +50,11 @@ class Report:
     def agencies(self) -> list[str]:
         """등장한 기관명 목록(정렬)."""
         return sorted({n.agency for n in self.notices})
+
+    @property
+    def new_count(self) -> int:
+        """이전 실행 대비 신규 공지 수(--state 미사용 시 0)."""
+        return sum(1 for n in self.notices if n.is_new)
 
     def by_agency(self) -> dict[str, list[Notice]]:
         """기관별로 묶은 공지(기관명 정렬, 각 묶음은 발행일 내림차순)."""
