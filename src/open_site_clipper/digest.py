@@ -74,6 +74,21 @@ def _top(counter: Counter[str], n: int) -> list[tuple[str, int]]:
     return sorted(counter.items(), key=lambda kv: (-kv[1], kv[0]))[:n]
 
 
+def title_tokens(text: str) -> frozenset[str]:
+    """제목류 텍스트의 내용 토큰 집합(소문자화) — 2자 이상·숫자/상투어 제외.
+
+    digest 키워드 집계와 cluster(유사 사안 묶음), insight(신규 키워드)가
+    같은 기준으로 토큰을 보게 하는 공용 함수.
+    """
+    out: set[str] = set()
+    for tok in _TOKEN_RE.findall(text):
+        low = tok.casefold()
+        if len(tok) < 2 or tok.isdigit() or low in _STOPWORDS or _ORDINAL_RE.match(tok):
+            continue
+        out.add(low)
+    return frozenset(out)
+
+
 def _keywords(notices: list[Notice], agencies: set[str], n: int) -> list[tuple[str, int]]:
     # 기관명(과 그 구성 토큰)은 주제가 아니라 발신자라 키워드에서 뺀다.
     skip = set(_STOPWORDS) | {a.casefold() for a in agencies}
