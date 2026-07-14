@@ -8,10 +8,11 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from dataclasses import replace
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
-from . import parse
+from . import parse, rights
 from .model import Notice, Report
 from .sources import Source
 
@@ -22,9 +23,16 @@ KST = timezone(timedelta(hours=9))
 
 
 def _live_fetcher(source: Source) -> bytes | None:
-    from .fetch import fetch_url
+    from .fetch import datago_url, fetch_url
 
-    return fetch_url(source.url)
+    url = source.url
+    if source.kind == "datago":
+        # 인증키(OSC_DATAGO_KEY) 주입. 키가 없으면 네트워크를 두드리지 않고
+        # 바로 실패시킨다 — collect()가 "인증키 미설정"으로 구분 표기한다.
+        url = datago_url(url)
+        if url is None:
+            return None
+    return fetch_url(url)
 
 
 def local_fetcher(input_dir: str | Path) -> Fetcher:
@@ -45,6 +53,16 @@ def local_fetcher(input_dir: str | Path) -> Fetcher:
         return read_local(exact) if exact.exists() else None
 
     return _read
+
+
+def _failure_label(source: Source, *, live: bool) -> str:
+    """실패 출처 표기 — datago 인증키 미설정은 네트워크 실패와 구분해 알린다."""
+    if live and source.kind == "datago":
+        from .fetch import DATAGO_KEY_ENV, datago_url
+
+        if datago_url(source.url) is None:
+            return f"{source.name} (인증키 미설정: {DATAGO_KEY_ENV})"
+    return source.name
 
 
 def _parse_source(source: Source, data: bytes) -> list[Notice]:
@@ -69,6 +87,7 @@ def collect(
     agency: 기관명 부분일치 필터(예: "행안" → 행정안전부).
     fetcher: 바이트 획득 함수(테스트·오프라인 주입). 기본은 실시간 HTTP.
     """
+    live = fetcher is None
     fetch = fetcher or _live_fetcher
     today = now or datetime.now(KST).date()
     cutoff = today - timedelta(days=since_days) if since_days is not None else None
@@ -82,7 +101,7 @@ def collect(
             continue
         data = fetch(source)
         if not data:
-            failed.append(source.name)
+            failed.append(_failure_label(source, live=live))
             continue
         for notice in _parse_source(source, data):
             if cutoff is not None and notice.published is not None and notice.published < cutoff:
@@ -93,6 +112,10 @@ def collect(
             if key in seen:
                 continue
             seen.add(key)
+            # 보수적 인용 — 변형(요약·발췌)이 금지된 등급(3·4유형·미상)은
+            # 제목·링크·출처만 남기고 요약 발췌를 비운다(rights.py 정책의 강제).
+            if notice.summary and not rights.allows_derivative(notice.rights):
+                notice = replace(notice, summary="")
             collected.append(notice)
 
     collected.sort(key=lambda n: (n.published or date.min, n.agency), reverse=True)

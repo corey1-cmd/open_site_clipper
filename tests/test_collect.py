@@ -53,6 +53,43 @@ def test_agency_filter():
     assert {n.agency for n in rep.notices} == {"행정안전부"}
 
 
+RSS_WITH_SUMMARY = """<?xml version="1.0"?><rss><channel>
+  <item><title>요약있는 공지</title><link>https://g/s</link>
+    <description>본문 발췌입니다</description></item>
+</channel></rss>"""
+
+
+def test_no_derivative_tiers_drop_summary():
+    """3·4유형·미상은 '제목·링크·출처만 보수적 인용' — 요약 발췌를 비운다."""
+
+    def fx(_s: Source) -> bytes:
+        return RSS_WITH_SUMMARY.encode()
+
+    for tier, kept in [
+        (rights.KOGL_TYPE1, True),
+        (rights.KOGL_TYPE2, True),
+        (rights.KOGL_TYPE3, False),
+        (rights.KOGL_TYPE4, False),
+        (rights.UNKNOWN, False),
+    ]:
+        src = Source(id="s", name="기관", kind="rss", url="x", rights=tier)
+        (n,) = collect.collect([src], fetcher=fx).notices
+        assert bool(n.summary) is kept, tier
+
+
+def test_datago_without_key_labeled_distinctly(monkeypatch):
+    """인증키 미설정 datago 출처는 네트워크를 두드리지 않고 사유를 구분 표기한다."""
+    from open_site_clipper.fetch import DATAGO_KEY_ENV
+
+    monkeypatch.delenv(DATAGO_KEY_ENV, raising=False)
+    src = Source(
+        id="d", name="공공데이터포털", kind="datago", url="https://apis.data.go.kr/x/getList"
+    )
+    rep = collect.collect([src])  # fetcher=None → 실시간 경로(키 검사에서 즉시 실패)
+    assert rep.notices == []
+    assert rep.failed_sources == [f"공공데이터포털 (인증키 미설정: {DATAGO_KEY_ENV})"]
+
+
 def test_by_agency_grouping():
     rep = collect.collect(_sources(), fetcher=_fetcher, now=date(2025, 7, 7))
     grouped = rep.by_agency()

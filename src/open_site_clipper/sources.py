@@ -32,7 +32,7 @@ class Source:
 
 
 # 기본 출처 — 공개 RSS 위주(인증키 불필요). data.go.kr 채널은 예시로 꺼둔 채
-# 심어 두고, 사용자가 인증키(GOVBRIEF_DATAGO_KEY)를 넣고 켜면 동작한다.
+# 심어 두고, 사용자가 인증키(OSC_DATAGO_KEY)를 넣고 켜면 동작한다.
 #
 # 주의: 일부 정부 서버(korea.kr 등)는 해외 IP를 차단할 수 있다. 국내에서
 # 실행하면 정상 수집되고, 수집 실패한 출처는 보고서 표지에 "수집 실패"로
@@ -94,7 +94,7 @@ DEFAULT_SOURCES: tuple[Source, ...] = (
         rights=rights.KOGL_TYPE1,
         category="지자체",
     ),
-    # data.go.kr OpenAPI 예시(꺼짐). GOVBRIEF_DATAGO_KEY 발급 후 enabled=True로.
+    # data.go.kr OpenAPI 예시(꺼짐). OSC_DATAGO_KEY 발급 후 enabled=True로.
     Source(
         id="datago-example",
         name="공공데이터포털 예시",
