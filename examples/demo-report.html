@@ -25,6 +25,17 @@ a:hover { text-decoration: underline; }
 .badge { display: inline-block; font-size: .72rem; font-weight: 700; white-space: nowrap;
   padding: .1rem .5rem; border-radius: 999px; background: rgba(25,25,112,.1); color: #191970; }
 .badge.unknown { background: #eee; color: #667; }
+.badge.new { background: #e8f7ee; color: #0b7a3b; }
+.stat.new { background: #e8f7ee; }
+.digest { background: #f8f9fc; border: 1px solid #eef; border-radius: 12px;
+  padding: .2rem 1rem .8rem; margin: 0 0 1.5rem; }
+.digest h2 { border: none; margin: .8rem 0 .4rem; font-size: 1rem; }
+.digest dl { display: grid; grid-template-columns: 4rem 1fr; gap: .3rem .6rem; margin: 0; font-size: .9rem; }
+.digest dt { color: #667; font-weight: 600; }
+.digest dd { margin: 0; }
+.chip { display: inline-block; background: rgba(25,25,112,.07); border-radius: 999px;
+  padding: .05rem .55rem; margin: 0 .25rem .25rem 0; }
+.chip b { color: #191970; }
 footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eef; font-size: .85rem; color: #556; }
 footer ul { padding-left: 1.1rem; }
 @media (prefers-color-scheme: dark) {
@@ -33,13 +44,21 @@ footer ul { padding-left: 1.1rem; }
   .stat { background: #1e2330; } th, td { border-color: #262a35; }
   a, h2 { color: #9aa8ff; } h2 { border-color: #9aa8ff; }
   .badge { background: rgba(154,168,255,.15); color: #9aa8ff; }
+  .badge.new { background: rgba(52,199,123,.15); color: #57d78f; }
+  .stat.new { background: rgba(52,199,123,.12); }
+  .digest { background: #12151c; border-color: #262a35; }
+  .chip { background: rgba(154,168,255,.12); } .chip b { color: #9aa8ff; }
 }</style></head><body><main>
 <h1>정부·공공기관 공지 보고서</h1>
-<div class="meta">생성 시각 2026-07-14T12:48:27+09:00</div>
+<div class="meta">생성 시각 2025-07-07T09:00:00+09:00</div>
 <div class="stats">
 <div class="stat"><b>5</b>공지</div>
 <div class="stat"><b>2</b>기관</div>
 </div>
+<section class="digest"><h2>기간 요약</h2><dl>
+<dt>기관</dt><dd>행정안전부 3건 · 과학기술정보통신부 2건</dd>
+<dt>분류</dt><dd>보도자료 5건</dd>
+</dl></section>
 <h2>과학기술정보통신부 <small>(2건)</small></h2>
 <table><thead><tr><th>발행일</th><th>제목</th><th>등급</th></tr></thead><tbody>
 <tr><td class="date">2025-07-06</td><td><a href="https://apis.data.go.kr/notice/2001" target="_blank" rel="noopener noreferrer">제2차 정보보호산업 진흥 계획 발표</a></td><td><span class="badge" title="공공누리 제1유형 — 출처표시(상업적 이용·변형 허용)">KOGL-1</span></td></tr>

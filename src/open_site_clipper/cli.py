@@ -118,6 +118,10 @@ def main(argv: list[str] | None = None) -> int:
         fetcher = local_fetcher(args.input) if args.input else None
 
     if args.list_sources:
+        # 목록 조회는 꺼진 출처도 [off]로 보여준다 — datago 예시와 인증키 상태를
+        # 사용자가 발견할 수 있게(수집 자체는 여전히 enabled만 돈다).
+        if not args.demo and not args.sources:
+            srcs = sources.default_sources(include_disabled=True)
         _print_sources(srcs)
         return 0
 

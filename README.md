@@ -28,6 +28,9 @@
 - 📴 **오프라인 동작** — 모델·외부 API 없음. 저장한 피드로 재현 가능(`--input`)
 - 🧾 **공공누리(KOGL) 인식** — 제7조·1~4유형 등급을 배지·범례로 표기
 - 🛡 **견고한 파싱** — RSS 2.0 / Atom / data.go.kr(표준·odcloud) + XML 폭탄 차단
+- 🔔 **변경 감지** — `--state`로 이전 실행에 없던 공지만 🆕 표기, `--only-new` 필터
+- 📊 **기간 요약** — LLM 없이 규칙(빈도)만으로 기관·분류·키워드 다이제스트
+- 📐 **사용자 템플릿** — `$title` `$body_md` 마커 치환으로 조직 서식 그대로 출력
 - 🩹 **fail-open** — 한 출처가 죽어도(해외 IP 차단·URL 변경) 나머지로 보고서 완성,
   실패 출처는 표지에 투명 표기
 - 🎨 **자체 완결형 HTML** — 인라인 CSS·다크모드 대응, 그대로 열람·인쇄·공유
@@ -54,6 +57,12 @@ open_site_clipper --since 7 --agency 행정안전부 -o mois.html
 
 # 설정된 출처 확인
 open_site_clipper --list-sources
+
+# 이전 실행 대비 신규 공지만 (첫 실행은 기준선 저장)
+open_site_clipper --state state.json --only-new -o new.html
+
+# 사내 회람 서식으로 출력
+open_site_clipper --template examples/circular-template.tmpl -o circular.md
 ```
 
 ### 예시 출력 (`--demo --format markdown`)
@@ -63,6 +72,11 @@ open_site_clipper --list-sources
 
 - 생성 시각: 2025-07-07T09:00:00+09:00
 - 공지 5건 · 기관 2곳
+
+## 기간 요약
+
+- 기관: 행정안전부 3건 · 과학기술정보통신부 2건
+- 분류: 보도자료 5건
 
 ## 행정안전부 (3건)
 
@@ -90,9 +104,57 @@ open_site_clipper [옵션]
       --sources FILE                     사용자 정의 출처 JSON
       --input DIR                        오프라인 모드(저장한 피드 디렉터리)
       --demo                             번들 샘플로 오프라인 보고서
+      --state FILE                       실행 간 상태(JSON) — 신규 공지 🆕 표기·저장
+      --only-new                         신규 공지만(--state 필수)
+      --digest / --no-digest             기간 요약(기관·분류·키워드) 포함 여부 (기본: 포함)
+      --template FILE                    사용자 템플릿 출력(지정 시 --format 무시)
       --list-sources                     설정된 출처 출력
       --title TEXT                       보고서 제목 재정의
 ```
+
+### data.go.kr 인증키
+
+공공데이터포털(`kind: "datago"`) 출처는 [data.go.kr](https://www.data.go.kr)에서
+발급받은 인증키가 필요합니다. 키는 저장소·출처 파일에 적지 말고 환경변수로만
+넘기세요.
+
+```bash
+export OSC_DATAGO_KEY="발급받은-serviceKey"      # 인코딩/디코딩 키 모두 가능
+open_site_clipper --sources my.json -o report.html
+```
+
+URL에 `serviceKey`를 직접 쓴 경우 그 값을 존중하며, 형식 파라미터(`type` 등)가
+없으면 `type=json`을 붙입니다(파서는 JSON만 읽음). 키가 없으면 해당 출처는
+네트워크를 두드리지 않고 보고서 표지에 **"인증키 미설정"** 으로 구분 표기됩니다.
+
+### 실행 간 변경 감지 (`--state`)
+
+`--state FILE`을 주면 이전 실행에서 본 공지 목록(JSON)을 기억해, 이번에 처음
+등장한 공지를 🆕(MD)·NEW 배지(HTML)·`"new": true`(JSON)로 표기하고 실행 후
+상태를 갱신합니다. 파일이 없으면 **첫 실행(기준선)** 으로 간주해 아무것도 신규
+표기하지 않습니다 — 첫 보고서 전체가 🆕로 도배되는 오탐을 막습니다.
+`--only-new`는 신규 공지만으로 보고서를 만듭니다(크론 알림용).
+
+### 기간 요약 (`--digest`)
+
+보고서 상단에 기관별 건수·분류 분포·제목 키워드 상위를 붙입니다. 모델·외부
+API 없이 순수 빈도 집계라 같은 입력이면 항상 같은 요약이 나옵니다(재현 가능).
+상투어(안내·공고 등)·숫자·회차·기관명은 키워드에서 제외합니다. 끄려면
+`--no-digest`.
+
+### 사용자 템플릿 (`--template`)
+
+조직 서식(회람·공문 틀)에 수집 결과만 끼워 넣고 싶을 때 씁니다. 표준
+`string.Template` 문법으로, 템플릿 속 `$마커`가 치환됩니다(`$$`는 `$`로,
+모르는 마커는 원문 유지). 예시는 [`examples/circular-template.tmpl`](examples/circular-template.tmpl).
+
+| 마커 | 내용 |
+|---|---|
+| `$title` `$generated_at` | 제목 · 생성 시각 |
+| `$count` `$agency_count` `$new_count` | 공지·기관·신규 건수 |
+| `$agencies` `$failed_sources` `$since_days` | 기관 목록 · 실패 출처 · 조회 기간 |
+| `$body_md` `$digest_md` `$legend_md` | 본문 표·기간 요약·범례 (Markdown) |
+| `$body_html` `$digest_html` `$legend_html` | 위와 동일 (HTML 조각) |
 
 ### 사용자 정의 출처
 
@@ -146,7 +208,9 @@ sources ──▶ fetch ──▶ parse ──▶ collect ──▶ report
 - `fetch.py` — 표준 urllib 수집(http/https만, fail-open) + 로컬 파일 읽기
 - `parse.py` — RSS/Atom·data.go.kr 파싱, HTML 정리, 날짜 정규화, XML 폭탄 차단
 - `collect.py` — 오케스트레이션(페처 주입 → 테스트·오프라인이 같은 경로)
-- `report.py` — Markdown · 자체 완결형 HTML · JSON 렌더러
+- `state.py` — 실행 간 상태(신규 감지) — 순수 JSON, 첫 실행은 기준선
+- `digest.py` — 규칙 기반 기간 요약(기관·분류·키워드) — LLM 없음
+- `report.py` — Markdown · 자체 완결형 HTML · JSON · 사용자 템플릿 렌더러
 - `rights.py` — 공공누리 등급 상수·라벨·판정
 
 ## 개발
