@@ -69,6 +69,12 @@ def _build_parser() -> argparse.ArgumentParser:
         default=True,
         help="보고서 상단 기간 요약(기관·분류·키워드) — 규칙 기반, LLM 없음 (기본: 포함)",
     )
+    p.add_argument(
+        "--template",
+        metavar="FILE",
+        help="사용자 템플릿 파일 — $title·$body_md 등 마커를 치환해 조직 서식 그대로 "
+        "출력한다(지정 시 --format 무시). 마커 목록은 README 참고",
+    )
     p.add_argument("--list-sources", action="store_true", help="설정된 출처를 출력하고 종료")
     p.add_argument("--title", metavar="TEXT", help="보고서 제목 재정의")
     return p
@@ -140,7 +146,14 @@ def main(argv: list[str] | None = None) -> int:
     if args.digest and rep.notices:
         rep.digest = digest.build(rep.notices)
 
-    text = report.render(rep, _FMT_ALIASES[args.format])
+    if args.template:
+        try:
+            tmpl = Path(args.template).read_text(encoding="utf-8")
+        except OSError as e:
+            raise SystemExit(f"템플릿 파일을 읽을 수 없습니다: {e}") from e
+        text = report.render_template(rep, tmpl)
+    else:
+        text = report.render(rep, _FMT_ALIASES[args.format])
 
     if args.output:
         Path(args.output).write_text(text, encoding="utf-8")

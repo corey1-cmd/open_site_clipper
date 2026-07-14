@@ -4,6 +4,7 @@
   - markdown : 문서·이슈에 붙이기 좋은 표 형식(기관별 그룹)
   - html     : 자체 완결형(인라인 CSS) 보고서 — 그대로 열람·인쇄 가능
   - json     : 기계 판독용(다른 파이프라인 연동)
+  - template : 사용자 템플릿($marker 치환) — 조직 서식 그대로 출력
 
 모든 형식은 출처(기관·발행일·원문 링크)와 공공누리(KOGL) 등급을 절대 생략하지
 않는다 — 개방 자료의 재이용 조건을 독자가 바로 알 수 있게 하는 것이 이 도구의
@@ -14,6 +15,7 @@ from __future__ import annotations
 
 import html
 import json
+import string
 
 from . import rights
 from .model import Notice, Report
@@ -40,47 +42,65 @@ def render_markdown(report: Report) -> str:
         lines.append(f"- ⚠ 수집 실패 출처: {', '.join(report.failed_sources)}")
     lines.append("")
 
-    if report.digest and not report.digest.is_empty():
-        d = report.digest
-        lines.append("## 기간 요약")
-        lines.append("")
-        if d.agencies:
-            lines.append("- 기관: " + " · ".join(f"{a} {c}건" for a, c in d.agencies))
-        if d.categories:
-            lines.append("- 분류: " + " · ".join(f"{a} {c}건" for a, c in d.categories))
-        if d.keywords:
-            lines.append("- 키워드: " + " · ".join(f"{w}({c})" for w, c in d.keywords))
+    dg = _digest_markdown(report)
+    if dg:
+        lines.append(dg)
         lines.append("")
 
     if not report.notices:
-        lines.append("_수집된 공지가 없습니다._")
+        lines.append(_body_markdown(report))
         return "\n".join(lines) + "\n"
 
-    for agency, items in report.by_agency().items():
-        lines.append(f"## {agency} ({len(items)}건)")
-        lines.append("")
-        lines.append("| 발행일 | 제목 | 등급 |")
-        lines.append("|---|---|---|")
-        for n in items:
-            title = _md_escape(n.title)
-            link = f"[{title}]({n.url})" if n.url else title
-            if n.is_new:
-                link = f"🆕 {link}"
-            lines.append(f"| {_fmt_date(n)} | {link} | {rights.badge(n.rights)} |")
-        lines.append("")
-
+    lines.append(_body_markdown(report))
+    lines.append("")
     lines.append("---")
     lines.append("")
-    lines.append("### 출처 및 재이용 조건")
-    lines.append("")
-    for tier in _tiers_present(report):
-        lines.append(f"- **{rights.badge(tier)}** — {rights.label(tier)}")
+    lines.append(_legend_markdown(report))
     lines.append("")
     lines.append(
         "> 본 보고서는 각 기관이 공개한 자료의 제목·링크·발행일 메타데이터를 모은 것입니다. "
         "재이용 시 위 공공누리 등급과 출처 표시 조건을 따르세요."
     )
     return "\n".join(lines) + "\n"
+
+
+def _digest_markdown(report: Report) -> str:
+    """기간 요약 마크다운 조각(없으면 "") — render_markdown과 $digest_md가 공유."""
+    if not (report.digest and not report.digest.is_empty()):
+        return ""
+    d = report.digest
+    lines = ["## 기간 요약", ""]
+    if d.agencies:
+        lines.append("- 기관: " + " · ".join(f"{a} {c}건" for a, c in d.agencies))
+    if d.categories:
+        lines.append("- 분류: " + " · ".join(f"{a} {c}건" for a, c in d.categories))
+    if d.keywords:
+        lines.append("- 키워드: " + " · ".join(f"{w}({c})" for w, c in d.keywords))
+    return "\n".join(lines)
+
+
+def _body_markdown(report: Report) -> str:
+    """기관별 공지 표 조각 — render_markdown과 $body_md가 공유."""
+    if not report.notices:
+        return "_수집된 공지가 없습니다._"
+    sections: list[str] = []
+    for agency, items in report.by_agency().items():
+        seg = [f"## {agency} ({len(items)}건)", "", "| 발행일 | 제목 | 등급 |", "|---|---|---|"]
+        for n in items:
+            title = _md_escape(n.title)
+            link = f"[{title}]({n.url})" if n.url else title
+            if n.is_new:
+                link = f"🆕 {link}"
+            seg.append(f"| {_fmt_date(n)} | {link} | {rights.badge(n.rights)} |")
+        sections.append("\n".join(seg))
+    return "\n\n".join(sections)
+
+
+def _legend_markdown(report: Report) -> str:
+    """재이용 조건 범례 조각(등장 등급만) — render_markdown과 $legend_md가 공유."""
+    lines = ["### 출처 및 재이용 조건", ""]
+    lines.extend(f"- **{rights.badge(t)}** — {rights.label(t)}" for t in _tiers_present(report))
+    return "\n".join(lines)
 
 
 def _md_escape(text: str) -> str:
@@ -176,10 +196,12 @@ footer ul { padding-left: 1.1rem; }
 """.strip()
 
 
-def render_html(report: Report) -> str:
-    def esc(s: str) -> str:
-        return html.escape(s, quote=True)
+def _esc(s: str) -> str:
+    return html.escape(s, quote=True)
 
+
+def render_html(report: Report) -> str:
+    esc = _esc
     parts: list[str] = []
     parts.append("<!doctype html>")
     parts.append('<html lang="ko"><head><meta charset="utf-8">')
@@ -207,47 +229,13 @@ def render_html(report: Report) -> str:
             "(해외 IP 차단·URL 변경 등 — 나머지 출처로 보고서를 완성했습니다)</p>"
         )
 
-    if report.digest and not report.digest.is_empty():
-        d = report.digest
-        parts.append('<section class="digest"><h2>기간 요약</h2><dl>')
-        if d.agencies:
-            v = " · ".join(f"{esc(a)} {c}건" for a, c in d.agencies)
-            parts.append(f"<dt>기관</dt><dd>{v}</dd>")
-        if d.categories:
-            v = " · ".join(f"{esc(a)} {c}건" for a, c in d.categories)
-            parts.append(f"<dt>분류</dt><dd>{v}</dd>")
-        if d.keywords:
-            chips = "".join(f'<span class="chip">{esc(w)} <b>{c}</b></span>' for w, c in d.keywords)
-            parts.append(f"<dt>키워드</dt><dd>{chips}</dd>")
-        parts.append("</dl></section>")
+    dg = _digest_html(report)
+    if dg:
+        parts.append(dg)
 
-    if not report.notices:
-        parts.append("<p>수집된 공지가 없습니다.</p>")
-    else:
-        for agency, items in report.by_agency().items():
-            parts.append(f"<h2>{esc(agency)} <small>({len(items)}건)</small></h2>")
-            parts.append(
-                "<table><thead><tr><th>발행일</th><th>제목</th><th>등급</th></tr></thead><tbody>"
-            )
-            for n in items:
-                cls = "badge unknown" if rights.normalize(n.rights) == rights.UNKNOWN else "badge"
-                new_html = '<span class="badge new">NEW</span> ' if n.is_new else ""
-                title_html = (
-                    f'<a href="{esc(n.url)}" target="_blank" rel="noopener noreferrer">{esc(n.title)}</a>'
-                    if n.url
-                    else esc(n.title)
-                )
-                parts.append(
-                    f'<tr><td class="date">{_fmt_date(n)}</td><td>{new_html}{title_html}</td>'
-                    f'<td><span class="{cls}" title="{esc(rights.label(n.rights))}">'
-                    f"{esc(rights.badge(n.rights))}</span></td></tr>"
-                )
-            parts.append("</tbody></table>")
+    parts.append(_body_html(report))
 
-    parts.append("<footer><strong>출처 및 재이용 조건</strong><ul>")
-    for tier in _tiers_present(report):
-        parts.append(f"<li><b>{esc(rights.badge(tier))}</b> — {esc(rights.label(tier))}</li>")
-    parts.append("</ul>")
+    parts.append("<footer>" + _legend_html(report))
     parts.append(
         "<p>본 보고서는 각 기관이 공개한 자료의 제목·링크·발행일 메타데이터를 모은 것입니다. "
         "재이용 시 위 공공누리 등급과 출처 표시 조건을 따르세요.</p>"
@@ -257,6 +245,63 @@ def render_html(report: Report) -> str:
     )
     parts.append("</footer></main></body></html>")
     return "\n".join(parts) + "\n"
+
+
+def _digest_html(report: Report) -> str:
+    """기간 요약 HTML 조각(없으면 "") — render_html과 $digest_html이 공유."""
+    if not (report.digest and not report.digest.is_empty()):
+        return ""
+    d = report.digest
+    parts = ['<section class="digest"><h2>기간 요약</h2><dl>']
+    if d.agencies:
+        v = " · ".join(f"{_esc(a)} {c}건" for a, c in d.agencies)
+        parts.append(f"<dt>기관</dt><dd>{v}</dd>")
+    if d.categories:
+        v = " · ".join(f"{_esc(a)} {c}건" for a, c in d.categories)
+        parts.append(f"<dt>분류</dt><dd>{v}</dd>")
+    if d.keywords:
+        chips = "".join(f'<span class="chip">{_esc(w)} <b>{c}</b></span>' for w, c in d.keywords)
+        parts.append(f"<dt>키워드</dt><dd>{chips}</dd>")
+    parts.append("</dl></section>")
+    return "\n".join(parts)
+
+
+def _body_html(report: Report) -> str:
+    """기관별 공지 표 HTML 조각 — render_html과 $body_html이 공유."""
+    if not report.notices:
+        return "<p>수집된 공지가 없습니다.</p>"
+    parts: list[str] = []
+    for agency, items in report.by_agency().items():
+        parts.append(f"<h2>{_esc(agency)} <small>({len(items)}건)</small></h2>")
+        parts.append(
+            "<table><thead><tr><th>발행일</th><th>제목</th><th>등급</th></tr></thead><tbody>"
+        )
+        for n in items:
+            cls = "badge unknown" if rights.normalize(n.rights) == rights.UNKNOWN else "badge"
+            new_html = '<span class="badge new">NEW</span> ' if n.is_new else ""
+            title_html = (
+                f'<a href="{_esc(n.url)}" target="_blank" rel="noopener noreferrer">{_esc(n.title)}</a>'
+                if n.url
+                else _esc(n.title)
+            )
+            parts.append(
+                f'<tr><td class="date">{_fmt_date(n)}</td><td>{new_html}{title_html}</td>'
+                f'<td><span class="{cls}" title="{_esc(rights.label(n.rights))}">'
+                f"{_esc(rights.badge(n.rights))}</span></td></tr>"
+            )
+        parts.append("</tbody></table>")
+    return "\n".join(parts)
+
+
+def _legend_html(report: Report) -> str:
+    """재이용 조건 범례 HTML 조각 — render_html과 $legend_html이 공유."""
+    parts = ["<strong>출처 및 재이용 조건</strong><ul>"]
+    parts.extend(
+        f"<li><b>{_esc(rights.badge(t))}</b> — {_esc(rights.label(t))}</li>"
+        for t in _tiers_present(report)
+    )
+    parts.append("</ul>")
+    return "\n".join(parts)
 
 
 def _tiers_present(report: Report) -> list[str]:
@@ -271,6 +316,51 @@ def _tiers_present(report: Report) -> list[str]:
         rights.UNKNOWN,
     ]
     return [t for t in order if t in present]
+
+
+# ── 사용자 템플릿 (--template) ────────────────────────────────────────────────
+TEMPLATE_MARKERS = (
+    "title",
+    "generated_at",
+    "count",
+    "agency_count",
+    "new_count",
+    "agencies",
+    "since_days",
+    "failed_sources",
+    "body_md",
+    "digest_md",
+    "legend_md",
+    "body_html",
+    "digest_html",
+    "legend_html",
+)
+
+
+def render_template(report: Report, template_text: str) -> str:
+    """사용자 템플릿에 $마커를 치환한다 — 조직 서식(회람·공문 틀)을 그대로 살린다.
+
+    carbone의 {d.field} 마커 발상을 표준 라이브러리 string.Template로 경량화했다.
+    safe_substitute라 미지 마커($없는말)는 원문 그대로 남고, '$$'는 '$'가 된다.
+    쓸 수 있는 마커는 TEMPLATE_MARKERS 참고(md·html 본문 조각을 함께 제공).
+    """
+    mapping = {
+        "title": report.title,
+        "generated_at": report.generated_at or "미상",
+        "count": str(len(report.notices)),
+        "agency_count": str(len(report.agencies)),
+        "new_count": str(report.new_count),
+        "agencies": ", ".join(report.agencies),
+        "since_days": "" if report.since_days is None else str(report.since_days),
+        "failed_sources": ", ".join(report.failed_sources),
+        "body_md": _body_markdown(report),
+        "digest_md": _digest_markdown(report),
+        "legend_md": _legend_markdown(report),
+        "body_html": _body_html(report),
+        "digest_html": _digest_html(report),
+        "legend_html": _legend_html(report),
+    }
+    return string.Template(template_text).safe_substitute(mapping)
 
 
 FORMATS = ("markdown", "html", "json")

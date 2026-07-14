@@ -83,6 +83,40 @@ def test_render_dispatch_and_unknown_format():
         raise AssertionError("unknown format should raise")
 
 
+def test_template_substitutes_markers():
+    from open_site_clipper.report import render_template
+
+    tmpl = (
+        "# $title\n"
+        "공지 $count건 / $agency_count기관 / 신규 $new_count건 / 기간 $since_days일\n"
+        "기관: $agencies\n실패: $failed_sources\n\n$body_md\n\n$legend_md\n"
+    )
+    out = render_template(_report(), tmpl)
+    assert "# 정부·공공기관 공지 보고서" in out
+    assert "공지 2건 / 2기관 / 신규 0건 / 기간 7일" in out
+    assert "기관: 어느기관, 행정안전부" in out
+    assert "실패: 죽은출처" in out
+    assert "| 발행일 | 제목 | 등급 |" in out  # $body_md
+    assert "https://g/1" in out  # 원문 링크 무생략
+    assert "### 출처 및 재이용 조건" in out  # $legend_md
+
+
+def test_template_preserves_unknown_and_escapes_dollar():
+    from open_site_clipper.report import render_template
+
+    out = render_template(_report(), "$title / $없는마커 / 예산 $$1,000")
+    assert out == "정부·공공기관 공지 보고서 / $없는마커 / 예산 $1,000"
+
+
+def test_template_html_fragments_and_empty_report():
+    from open_site_clipper.report import render_template
+
+    out = render_template(_report(), "$body_html|$legend_html")
+    assert "<table>" in out and "재이용 조건" in out
+    empty = render_template(Report(generated_at="t"), "[$body_md][$digest_md][$since_days]")
+    assert empty == "[_수집된 공지가 없습니다._][][]"
+
+
 def test_empty_report_renders():
     from open_site_clipper.report import render_html, render_markdown
 
