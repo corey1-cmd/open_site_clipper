@@ -99,6 +99,12 @@ def _build_parser() -> argparse.ArgumentParser:
         help=f"테마 관련성 채택 하한 (기본 {relevance.DEFAULT_MIN_SCORE}점 = 제목 1회 적중)",
     )
     p.add_argument(
+        "--group-by",
+        choices=("agency", "topic"),
+        default="agency",
+        help="보고서 섹션 축 — agency(기관별, 기본) | topic(출처 정체성 주제별)",
+    )
+    p.add_argument(
         "--deep-links",
         action="store_true",
         help="공지 본문 페이지에서 관련 자료·첨부 링크만 추가 수집(본문은 가져오지 않음). "
@@ -165,6 +171,7 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit("--only-new 은 --state FILE 과 함께 써야 합니다.")
 
     rep = collect.collect(srcs, since_days=args.since, agency=args.agency, fetcher=fetcher)
+    rep.group_by = args.group_by
     if args.title:
         rep.title = args.title
 

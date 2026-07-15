@@ -79,12 +79,17 @@ def _digest_markdown(report: Report) -> str:
     return "\n".join(lines)
 
 
+def _groups(report: Report) -> dict[str, list[Notice]]:
+    """섹션 축 선택 — 기본은 기관, --group-by topic 이면 주제."""
+    return report.by_topic() if report.group_by == "topic" else report.by_agency()
+
+
 def _body_markdown(report: Report) -> str:
-    """기관별 공지 표 조각 — render_markdown과 $body_md가 공유."""
+    """공지 표 조각(기관 또는 주제별) — render_markdown과 $body_md가 공유."""
     if not report.notices:
         return "_수집된 공지가 없습니다._"
     sections: list[str] = []
-    for agency, items in report.by_agency().items():
+    for agency, items in _groups(report).items():
         seg = [f"## {agency} ({len(items)}건)", "", "| 발행일 | 제목 | 등급 |", "|---|---|---|"]
         for n in items:
             title = _md_escape(n.title)
@@ -275,7 +280,7 @@ def _body_html(report: Report) -> str:
     if not report.notices:
         return "<p>수집된 공지가 없습니다.</p>"
     parts: list[str] = []
-    for agency, items in report.by_agency().items():
+    for agency, items in _groups(report).items():
         parts.append(f"<h2>{_esc(agency)} <small>({len(items)}건)</small></h2>")
         parts.append(
             "<table><thead><tr><th>발행일</th><th>제목</th><th>등급</th></tr></thead><tbody>"

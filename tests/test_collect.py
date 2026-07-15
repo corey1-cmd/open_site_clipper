@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import date
 
 from open_site_clipper import collect, rights
+from open_site_clipper.model import Notice, Report
 from open_site_clipper.sources import Source
 
 RSS_A = """<?xml version="1.0"?><rss><channel>
@@ -88,6 +89,28 @@ def test_datago_without_key_labeled_distinctly(monkeypatch):
     rep = collect.collect([src])  # fetcher=None → 실시간 경로(키 검사에서 즉시 실패)
     assert rep.notices == []
     assert rep.failed_sources == [f"공공데이터포털 (인증키 미설정: {DATAGO_KEY_ENV})"]
+
+
+def test_by_topic_grouping():
+    """주제 축 — 한 공지가 여러 주제에 중복 등장하고, 태그 없으면 '기타'."""
+    tagged = Notice(title="a", url="https://g/1", agency="A부", topics=("우주", "산업"))
+    plain = Notice(title="b", url="https://g/2", agency="B청")
+    rep = Report(notices=[tagged, plain])
+    groups = rep.by_topic()
+    # 건수 내림차순 → 이름순, '기타'는 항상 마지막.
+    assert list(groups) == ["산업", "우주", "기타"]
+    assert groups["우주"] == [tagged] and groups["기타"] == [plain]
+
+
+def test_group_by_switches_render_axis():
+    from open_site_clipper.report import render_markdown
+
+    n = Notice(title="a", url="https://g/1", agency="A부", topics=("우주",))
+    rep = Report(notices=[n], generated_at="t")
+    assert "## A부 (1건)" in render_markdown(rep)
+    rep.group_by = "topic"
+    md = render_markdown(rep)
+    assert "## 우주 (1건)" in md and "## A부" not in md
 
 
 def test_by_agency_grouping():

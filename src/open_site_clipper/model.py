@@ -53,6 +53,8 @@ class Report:
     title: str = "정부·공공기관 공지 보고서"
     since_days: int | None = None  # 조회 기간(일) — 표지에 표기
     failed_sources: list[str] = field(default_factory=list)  # 수집 실패 출처명
+    # 섹션 축 — "agency"(기본) | "topic". 렌더러가 이 값으로 그룹을 고른다.
+    group_by: str = "agency"
     # 기간 요약(digest.build 결과). None이면 렌더러가 요약 섹션을 생략한다.
     # (digest 모듈이 Notice를 임포트하므로 순환을 피해 문자열 애너테이션.)
     digest: Digest | None = None
@@ -66,6 +68,23 @@ class Report:
     def new_count(self) -> int:
         """이전 실행 대비 신규 공지 수(--state 미사용 시 0)."""
         return sum(1 for n in self.notices if n.is_new)
+
+    def by_topic(self) -> dict[str, list[Notice]]:
+        """주제(출처 정체성)별로 묶은 공지 — 한 공지가 여러 주제에 속할 수 있다.
+
+        기관 축(by_agency)의 대안. 여러 기관이 같은 주제를 다루는 브리핑에서
+        '무엇에 관한 소식인지'로 읽히게 한다. 주제 태그가 없는 공지는 '기타'로
+        모은다. 정렬은 건수 내림차순 → 주제명(결정론), 각 묶음은 발행일 내림차순.
+        """
+        grouped: dict[str, list[Notice]] = {}
+        for n in self.notices:
+            for topic in n.topics or ("기타",):
+                grouped.setdefault(topic, []).append(n)
+        for items in grouped.values():
+            items.sort(key=_sort_key, reverse=True)
+        return {
+            k: grouped[k] for k in sorted(grouped, key=lambda k: (k == "기타", -len(grouped[k]), k))
+        }
 
     def by_agency(self) -> dict[str, list[Notice]]:
         """기관별로 묶은 공지(기관명 정렬, 각 묶음은 발행일 내림차순)."""
