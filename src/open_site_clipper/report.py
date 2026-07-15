@@ -136,6 +136,7 @@ def render_json(report: Report) -> str:
                 "published": n.published.isoformat() if n.published else None,
                 "new": n.is_new,
                 "topics": list(n.topics),
+                "links": [{"label": x.label, "url": x.url, "kind": x.kind} for x in n.links],
                 "summary": n.summary,
                 "category": n.category,
                 "rights": rights.normalize(n.rights),

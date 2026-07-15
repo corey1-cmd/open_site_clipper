@@ -98,6 +98,19 @@ def _build_parser() -> argparse.ArgumentParser:
         metavar="N",
         help=f"테마 관련성 채택 하한 (기본 {relevance.DEFAULT_MIN_SCORE}점 = 제목 1회 적중)",
     )
+    p.add_argument(
+        "--deep-links",
+        action="store_true",
+        help="공지 본문 페이지에서 관련 자료·첨부 링크만 추가 수집(본문은 가져오지 않음). "
+        "공지마다 요청이 늘어 느려지며, 변형 금지 등급은 건너뛴다",
+    )
+    p.add_argument(
+        "--deep-links-limit",
+        type=int,
+        default=20,
+        metavar="N",
+        help="--deep-links로 본문을 열어볼 공지 수 상한 (기본 20)",
+    )
     p.add_argument("--list-sources", action="store_true", help="설정된 출처를 출력하고 종료")
     p.add_argument("--title", metavar="TEXT", help="보고서 제목 재정의")
     return p
@@ -169,6 +182,15 @@ def main(argv: list[str] | None = None) -> int:
             rep.notices = state.mark_new(rep.notices, seen)
         if args.only_new:
             rep.notices = [n for n in rep.notices if n.is_new]
+
+    if args.deep_links and rep.notices:
+        if args.demo or args.input:
+            print(
+                "--deep-links 는 실시간 수집에서만 동작합니다(오프라인 모드에서는 건너뜁니다).",
+                file=sys.stderr,
+            )
+        else:
+            rep.notices = collect.enrich_links(rep.notices, limit=args.deep_links_limit)
 
     if args.digest and rep.notices:
         rep.digest = digest.build(rep.notices)

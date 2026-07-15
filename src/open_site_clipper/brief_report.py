@@ -69,6 +69,11 @@ def render_markdown(brief: Brief) -> str:
             )
             if n.summary:
                 out.append(f"- {_md_escape(n.summary)}")
+            if n.links:
+                out.append(
+                    "- 관련 자료: "
+                    + " · ".join(f"[{_md_escape(x.label)}]({x.url}) ({x.kind})" for x in n.links)
+                )
             if issue.related:
                 out.append(f"- 같은 사안 {len(issue.related)}건:")
                 for r in issue.related:
@@ -252,6 +257,13 @@ def _issue_html(issue: Issue) -> str:
     ]
     if n.summary:
         out.append(f"<p>{_esc(n.summary)}</p>")
+    if n.links:
+        chips = " ".join(
+            f'<a href="{_esc(x.url)}" target="_blank" rel="noopener noreferrer" '
+            f'class="evidence">{_esc(x.label)} ({_esc(x.kind)})</a>'
+            for x in n.links
+        )
+        out.append(f'<p class="line">관련 자료: {chips}</p>')
     if issue.related:
         out.append(f'<ul class="related"><li>같은 사안 {len(issue.related)}건</li>')
         for r in issue.related:
@@ -387,6 +399,7 @@ def _match_json(m) -> dict[str, object]:
         "new": n.is_new,
         "score": m.score,
         "matched": list(m.matched),
+        "links": [{"label": x.label, "url": x.url, "kind": x.kind} for x in n.links],
     }
 
 

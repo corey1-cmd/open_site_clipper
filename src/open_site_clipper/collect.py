@@ -129,3 +129,42 @@ def collect(
         since_days=since_days,
         failed_sources=failed,
     )
+
+
+def enrich_links(
+    notices: list[Notice],
+    *,
+    fetcher: Callable[[str], bytes | None] | None = None,
+    limit: int = 20,
+) -> list[Notice]:
+    """공지 본문에서 관련 자료 링크만 캐 Notice.links에 채운다(--deep-links).
+
+    본문 페이지를 공지마다 한 번씩 받아오므로 비용이 크다. 그래서:
+      - 앞에서부터 limit개까지만(기본 20) — 보고서 상단에 올 항목만 보강
+      - 변형 금지 등급(3·4유형·미상)은 건너뛴다. 첨부는 원문 자체이므로
+        보수적 인용 정책(제목·링크·출처만)의 취지를 링크 수집에도 적용한다
+      - 실패한 페이지는 조용히 건너뛴다(fail-open) — 링크가 없을 뿐이다
+    """
+    from . import deeplink
+
+    fetch = fetcher or _live_page_fetcher
+    out: list[Notice] = []
+    budget = limit
+    for n in notices:
+        if budget <= 0 or not n.url or not rights.allows_derivative(n.rights):
+            out.append(n)
+            continue
+        budget -= 1
+        data = fetch(n.url)
+        if not data:
+            out.append(n)
+            continue
+        links = deeplink.extract(data, n.url)
+        out.append(replace(n, links=tuple(links)) if links else n)
+    return out
+
+
+def _live_page_fetcher(url: str) -> bytes | None:
+    from .fetch import fetch_url
+
+    return fetch_url(url)
