@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>데이터·디지털 브리프</title>
+<style>:root { color-scheme: light dark; }
+* { box-sizing: border-box; }
+body { font-family: -apple-system, "Segoe UI", "Malgun Gothic", sans-serif;
+  line-height: 1.6; margin: 0; padding: 2rem 1rem; background: #f6f7f9; color: #1a1a2e; }
+main { max-width: 900px; margin: 0 auto; background: #fff; border: 1px solid #e5e7eb;
+  border-radius: 16px; padding: 2rem; }
+h1 { font-size: 1.6rem; margin: 0 0 .5rem; }
+.meta { color: #556; font-size: .9rem; margin-bottom: 1.5rem; }
+.warn { color: #b00020; }
+.stats { display: flex; gap: 1rem; flex-wrap: wrap; margin: 1rem 0 2rem; }
+.stat { background: #eef2ff; border-radius: 12px; padding: .6rem 1rem; }
+.stat b { display: block; font-size: 1.4rem; }
+h2 { font-size: 1.15rem; margin: 1.8rem 0 .6rem; padding-bottom: .3rem;
+  border-bottom: 2px solid #191970; }
+table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+th, td { text-align: left; padding: .5rem .4rem; border-bottom: 1px solid #eef; vertical-align: top; }
+th { color: #667; font-weight: 600; }
+td.date { white-space: nowrap; color: #556; width: 6.5rem; }
+a { color: #191970; text-decoration: none; }
+a:hover { text-decoration: underline; }
+.badge { display: inline-block; font-size: .72rem; font-weight: 700; white-space: nowrap;
+  padding: .1rem .5rem; border-radius: 999px; background: rgba(25,25,112,.1); color: #191970; }
+.badge.unknown { background: #eee; color: #667; }
+.badge.new { background: #e8f7ee; color: #0b7a3b; }
+.stat.new { background: #e8f7ee; }
+.digest { background: #f8f9fc; border: 1px solid #eef; border-radius: 12px;
+  padding: .2rem 1rem .8rem; margin: 0 0 1.5rem; }
+.digest h2 { border: none; margin: .8rem 0 .4rem; font-size: 1rem; }
+.digest dl { display: grid; grid-template-columns: 4rem 1fr; gap: .3rem .6rem; margin: 0; font-size: .9rem; }
+.digest dt { color: #667; font-weight: 600; }
+.digest dd { margin: 0; }
+.chip { display: inline-block; background: rgba(25,25,112,.07); border-radius: 999px;
+  padding: .05rem .55rem; margin: 0 .25rem .25rem 0; }
+.chip b { color: #191970; }
+footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eef; font-size: .85rem; color: #556; }
+footer ul { padding-left: 1.1rem; }
+@media (prefers-color-scheme: dark) {
+  body { background: #0f1117; color: #e6e8ef; }
+  main { background: #171a21; border-color: #262a35; }
+  .stat { background: #1e2330; } th, td { border-color: #262a35; }
+  a, h2 { color: #9aa8ff; } h2 { border-color: #9aa8ff; }
+  .badge { background: rgba(154,168,255,.15); color: #9aa8ff; }
+  .badge.new { background: rgba(52,199,123,.15); color: #57d78f; }
+  .stat.new { background: rgba(52,199,123,.12); }
+  .digest { background: #12151c; border-color: #262a35; }
+  .chip { background: rgba(154,168,255,.12); } .chip b { color: #9aa8ff; }
+}
+.theme-box { background: #eef2ff; border-left: 4px solid #191970; border-radius: 8px;
+  padding: .9rem 1.1rem; margin: 0 0 1.5rem; }
+.theme-box .lead { font-weight: 600; margin: 0 0 .3rem; }
+.theme-box .kw { font-size: .85rem; color: #445; }
+.layout { display: grid; grid-template-columns: 1fr 210px; gap: 1.6rem; align-items: start; }
+aside .card { background: #f8f9fc; border: 1px solid #eef; border-radius: 10px;
+  padding: .7rem .9rem; margin-bottom: 1rem; font-size: .82rem; }
+aside h3 { font-size: .8rem; margin: 0 0 .4rem; color: #667; text-transform: uppercase;
+  letter-spacing: .04em; }
+aside dt { font-weight: 700; color: #191970; margin-top: .5rem; }
+aside dd { margin: 0; color: #445; }
+.issue { border-bottom: 1px solid #eef; padding: .9rem 0; }
+.issue:last-child { border-bottom: none; }
+.issue h3 { font-size: 1rem; margin: 0 0 .3rem; }
+.issue .line { font-size: .82rem; color: #667; margin-bottom: .35rem; }
+.issue p { margin: .3rem 0; font-size: .9rem; }
+.issue .related { margin: .4rem 0 0; padding-left: 1rem; font-size: .84rem; color: #556; }
+.evidence { background: rgba(25,25,112,.06); border-radius: 999px; padding: .05rem .5rem;
+  font-size: .74rem; color: #191970; }
+.chart { margin: .6rem 0 1.2rem; overflow-x: auto; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+@media print { body { background: #fff; padding: 0; } main { border: none; border-radius: 0; }
+  .layout { grid-template-columns: 1fr 180px; } a { color: #000; } }
+@media (max-width: 720px) { .layout, .grid2 { grid-template-columns: 1fr; } }
+@media (prefers-color-scheme: dark) {
+  .theme-box { background: rgba(154,168,255,.1); border-left-color: #9aa8ff; }
+  .theme-box .kw, .issue .line, aside dd { color: #9aa5b4; }
+  aside .card { background: #12151c; border-color: #262a35; }
+  aside dt { color: #9aa8ff; }
+  .evidence { background: rgba(154,168,255,.15); color: #9aa8ff; }
+}
+</style></head><body><main>
+<h1>데이터·디지털 브리프</h1>
+<p class="meta">생성 시각: 2025-07-07T09:00:00+09:00</p>
+<div class="theme-box">
+<p class="lead">공공데이터 개방과 디지털 정부·정보보호 동향을 한 편으로</p>
+<p class="kw">관련 자료 <b>3</b>건 · 사안 <b>3</b>건 · 기관 <b>2</b>곳 (검토 5건 중 관련성 3점 이상)</p>
+<p class="kw">핵심 키워드: <span class="evidence">개방</span> <span class="evidence">공모</span> <span class="evidence">데이터</span> <span class="evidence">디지털</span> <span class="evidence">신기술</span> <span class="evidence">인재양성</span> </p>
+<div class="chart"><svg xmlns="http://www.w3.org/2000/svg" width="140" height="30" viewBox="0 0 140 30" role="img"><polyline points="3.0,27.0 22.1,27.0 41.3,27.0 60.4,27.0 79.6,27.0 98.7,27.0 117.9,3.0 137.0,15.0" fill="none" stroke="#191970" stroke-width="1.5"/><circle cx="137.0" cy="15.0" r="2.2" fill="#191970"/></svg></div>
+</div>
+<div class="layout"><div>
+<h2>[정보보호] <small>(1건)</small></h2>
+<article class="issue">
+<h3><a href="https://apis.data.go.kr/notice/2001" target="_blank" rel="noopener noreferrer">제2차 정보보호산업 진흥 계획 발표</a></h3>
+<p class="line">과학기술정보통신부 · 2025-07-06 · <span class="badge" title="공공누리 제1유형 — 출처표시(상업적 이용·변형 허용)">KOGL-1</span> · 관련성 6점 · <span class="evidence">정보보호 · 개방</span></p>
+<p>정보보호 산업의 자생력 강화를 위한 5개년 계획을 공개합니다.</p>
+</article>
+<h2>[인재·산업] <small>(1건)</small></h2>
+<article class="issue">
+<h3><a href="https://apis.data.go.kr/notice/2002" target="_blank" rel="noopener noreferrer">디지털 신기술 인재양성 공모 안내</a></h3>
+<p class="line">과학기술정보통신부 · 2025-07-03 · <span class="badge" title="공공누리 제1유형 — 출처표시(상업적 이용·변형 허용)">KOGL-1</span> · 관련성 13점 · <span class="evidence">공모 · 디지털 · 신기술</span></p>
+</article>
+<h2>[기타] <small>(1건)</small></h2>
+<article class="issue">
+<h3><a href="https://www.mois.go.kr/notice/1001" target="_blank" rel="noopener noreferrer">재난안전데이터 공유 플랫폼 정식 개통</a></h3>
+<p class="line">행정안전부 · 2025-07-07 · <span class="badge" title="공공누리 제1유형 — 출처표시(상업적 이용·변형 허용)">KOGL-1</span> · 관련성 5점 · <span class="evidence">데이터</span></p>
+<p>행정안전부는 부처·지자체가 재난안전 데이터를 실시간 공유하는 플랫폼을 정식 개통했다고 밝혔다.</p>
+</article>
+<h2>해석</h2>
+<p>최근 4주에 발행이 새로 시작됐습니다(3건).</p>
+<div class="chart"><svg xmlns="http://www.w3.org/2000/svg" width="560" height="200" viewBox="0 0 560 200" role="img" font-family="sans-serif"><text x="34" y="14" font-size="11" font-weight="600" fill="#445">주별 발행 추이</text><line x1="34" y1="178.0" x2="552" y2="178.0" stroke="#e3e6ef" stroke-width="1"/><text x="30" y="181.5" text-anchor="end" font-size="9" fill="#445">0</text><line x1="34" y1="102.0" x2="552" y2="102.0" stroke="#e3e6ef" stroke-width="1"/><text x="30" y="105.5" text-anchor="end" font-size="9" fill="#445">1</text><line x1="34" y1="26.0" x2="552" y2="26.0" stroke="#e3e6ef" stroke-width="1"/><text x="30" y="29.5" text-anchor="end" font-size="9" fill="#445">2</text><rect x="46.3" y="178.0" width="40.1" height="0.0" rx="2" fill="#191970"/><text x="66.4" y="192" text-anchor="middle" font-size="9" fill="#445">05/19</text><rect x="111.1" y="178.0" width="40.1" height="0.0" rx="2" fill="#191970"/><text x="131.1" y="192" text-anchor="middle" font-size="9" fill="#445">05/26</text><rect x="175.8" y="178.0" width="40.1" height="0.0" rx="2" fill="#191970"/><text x="195.9" y="192" text-anchor="middle" font-size="9" fill="#445">06/02</text><rect x="240.6" y="178.0" width="40.1" height="0.0" rx="2" fill="#191970"/><text x="260.6" y="192" text-anchor="middle" font-size="9" fill="#445">06/09</text><rect x="305.3" y="178.0" width="40.1" height="0.0" rx="2" fill="#191970"/><text x="325.4" y="192" text-anchor="middle" font-size="9" fill="#445">06/16</text><rect x="370.1" y="178.0" width="40.1" height="0.0" rx="2" fill="#191970"/><text x="390.1" y="192" text-anchor="middle" font-size="9" fill="#445">06/23</text><rect x="434.8" y="26.0" width="40.1" height="152.0" rx="2" fill="#191970"/><text x="454.9" y="23.0" text-anchor="middle" font-size="9" fill="#445">2건</text><text x="454.9" y="192" text-anchor="middle" font-size="9" fill="#445">06/30</text><rect x="499.6" y="102.0" width="40.1" height="76.0" rx="2" fill="#191970"/><text x="519.6" y="99.0" text-anchor="middle" font-size="9" fill="#445">1건</text><text x="519.6" y="192" text-anchor="middle" font-size="9" fill="#445">07/07</text></svg></div>
+<div class="chart"><svg xmlns="http://www.w3.org/2000/svg" width="560" height="82" viewBox="0 0 560 82" role="img" font-family="sans-serif"><text x="8" y="14" font-size="11" font-weight="600" fill="#445">기관별 활동</text><text x="142" y="41.5" text-anchor="end" font-size="10" fill="#445">과학기술정보통신부</text><rect x="148" y="30.0" width="378.0" height="16" rx="2" fill="#191970"/><text x="530.0" y="41.5" font-size="9" fill="#445">2건</text><text x="142" y="65.5" text-anchor="end" font-size="10" fill="#445">행정안전부</text><rect x="148" y="54.0" width="189.0" height="16" rx="2" fill="#191970"/><text x="341.0" y="65.5" font-size="9" fill="#445">1건</text></svg></div>
+<table><thead><tr><th>기관</th><th>건수</th><th>최근 발행</th></tr></thead><tbody>
+<tr><td>과학기술정보통신부</td><td>2</td><td>2025-07-06</td></tr>
+<tr><td>행정안전부</td><td>1</td><td>2025-07-07</td></tr>
+</tbody></table>
+</div>
+<aside>
+<div class="card"><h3>관련 기관</h3>
+<div>과학기술정보통신부 · 행정안전부</div></div>
+<div class="card"><h3>용어</h3><dl>
+<dt>공공누리</dt><dd>공공저작물 자유이용 허락 표시 — 1~4유형으로 재이용 조건을 구분</dd>
+<dt>KOGL</dt><dd>Korea Open Government License, 공공누리의 영문 명칭</dd>
+<dt>공공데이터포털</dt><dd>data.go.kr — 정부·공공기관이 개방한 데이터·API를 모아 제공</dd>
+</dl></div>
+</aside></div>
+<footer><strong>출처 및 재이용 조건</strong><ul>
+<li><b>KOGL-1</b> — 공공누리 제1유형 — 출처표시(상업적 이용·변형 허용)</li>
+</ul>
+<p>각 기관이 공개한 자료를 테마 기준으로 선별했습니다. 관련성 판정은 키워드 규칙 기반이며 채택 근거를 항목마다 표기했습니다. 재이용 시 위 공공누리 등급과 출처 표시 조건을 따르세요.</p></footer>
+</main></body></html>

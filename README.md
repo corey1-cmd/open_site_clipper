@@ -31,6 +31,10 @@
 - 🔔 **변경 감지** — `--state`로 이전 실행에 없던 공지만 🆕 표기, `--only-new` 필터
 - 📊 **기간 요약** — LLM 없이 규칙(빈도)만으로 기관·분류·키워드 다이제스트
 - 📐 **사용자 템플릿** — `$title` `$body_md` 마커 치환으로 조직 서식 그대로 출력
+- 🎯 **정체성 기반 선별** — 출처의 주제 태그와 테마 정의로 *관련 있는 자료만* 골라냄(근거 키워드 표기)
+- 🗂 **테마 브리프** — 관련 자료를 섹션·사안 단위로 묶은 브리핑 (`--theme`)
+- 📈 **해석** — 발행 추이·기관 활동·주요 사안·타임라인을 표와 SVG 그래프로 (LLM 없이 계산)
+- 📎 **관련 자료 링크** — 본문 속 첨부(PDF·HWP)만 캐옴, 본문 복제 없음 (`--deep-links`)
 - 🩹 **fail-open** — 한 출처가 죽어도(해외 IP 차단·URL 변경) 나머지로 보고서 완성,
   실패 출처는 표지에 투명 표기
 - 🎨 **자체 완결형 HTML** — 인라인 CSS·다크모드 대응, 그대로 열람·인쇄·공유
@@ -63,6 +67,9 @@ open_site_clipper --state state.json --only-new -o new.html
 
 # 사내 회람 서식으로 출력
 open_site_clipper --template examples/circular-template.tmpl -o circular.md
+
+# 테마 브리프 — 관련 자료만 골라 섹션·해석까지
+open_site_clipper --theme examples/theme-data-digital.json -o brief.html
 ```
 
 ### 예시 출력 (`--demo --format markdown`)
@@ -90,7 +97,7 @@ open_site_clipper --template examples/circular-template.tmpl -o circular.md
 - **KOGL-1** — 공공누리 제1유형 — 출처표시(상업적 이용·변형 허용)
 ```
 
-실제 렌더링 결과는 [`examples/`](examples/) 폴더의 `demo-report.html` · `.md` · `.json`를 참고하세요.
+실제 렌더링 결과는 [`examples/`](examples/) 폴더를 참고하세요 — 공지 보고서 `demo-report.html` · `.md` · `.json`, 테마 브리프 `demo-brief.html` · `.md`.
 
 ## 사용법
 
@@ -108,6 +115,11 @@ open_site_clipper [옵션]
       --only-new                         신규 공지만(--state 필수)
       --digest / --no-digest             기간 요약(기관·분류·키워드) 포함 여부 (기본: 포함)
       --template FILE                    사용자 템플릿 출력(지정 시 --format 무시)
+      --theme FILE                       테마 브리프 — 관련 자료만 선별·섹션화·해석
+      --min-score N                      테마 관련성 채택 하한 (기본 3)
+      --group-by agency|topic            섹션 축 (기본 agency)
+      --deep-links                       본문에서 첨부·관련 자료 링크 수집
+      --deep-links-limit N               본문을 열어볼 공지 수 상한 (기본 20)
       --list-sources                     설정된 출처 출력
       --title TEXT                       보고서 제목 재정의
 ```
@@ -141,6 +153,70 @@ URL에 `serviceKey`를 직접 쓴 경우 그 값을 존중하며, 형식 파라�
 API 없이 순수 빈도 집계라 같은 입력이면 항상 같은 요약이 나옵니다(재현 가능).
 상투어(안내·공고 등)·숫자·회차·기관명은 키워드에서 제외합니다. 끄려면
 `--no-digest`.
+
+### 테마 브리프 (`--theme`)
+
+수집한 공지 **전부**를 나열하는 대신, **테마에 관련된 자료만** 골라 섹션 브리핑을
+만듭니다. 관련성 판정은 키워드 규칙(무LLM)이라 같은 입력이면 같은 결과가 나오고,
+**채택 근거 키워드와 점수를 항목마다 표기**하므로 왜 이 자료가 실렸는지 검증할 수
+있습니다.
+
+```bash
+open_site_clipper --theme examples/theme-data-digital.json -o brief.html
+open_site_clipper --theme my-theme.json --min-score 5 --only-new --state s.json
+```
+
+테마 파일:
+
+```json
+{
+  "name": "우주",
+  "description": "발사체·위성 동향",
+  "keywords": { "우주": ["space", "항공우주"] },
+  "sections": [
+    { "name": "발사체", "keywords": { "발사체": ["로켓"], "재사용": [] } },
+    { "name": "위성", "keywords": { "위성": ["satellite", "군집위성"] } }
+  ],
+  "glossary": { "LEO": "지구 저궤도 — 고도 2,000km 이하" }
+}
+```
+
+- `keywords`의 키가 **정준 키워드**, 값 배열이 동의어(영문 표기 포함).
+- 점수: 제목 3점 · 분류 2점 · 요약 1점, 출처 주제 태그가 겹치면 +1. 기본 하한 3점
+  (= 제목 1회 적중)이며 `--min-score`로 조절합니다.
+- 같은 사안을 여러 기관이 낸 경우 **대표 1건 + "같은 사안 N건"** 으로 접습니다.
+- `sections`가 브리프의 묶음·순서이고, 어디에도 안 맞으면 `기타`로 갑니다.
+- `glossary`는 보고서 옆 **용어 각주**로 렌더됩니다.
+
+### 해석 (표·그래프)
+
+브리프에는 계산으로 얻은 해석이 함께 붙습니다 — 서술이 아니라 수치입니다.
+
+- **주별 발행 추이** + 증감 정형 문장(예: 최근 4주 발행량은 이전 4주 대비 +40%…)
+- **기관별 활동**(건수·최근 발행일), **주요 사안**(다기관 보도 묶음 크기)
+- **최대 사안 타임라인**, `--state` 사용 시 **이번에 새로 등장한 키워드**
+
+그래프는 표준 라이브러리만으로 조립한 **인라인 SVG**라 HTML 파일 하나로 자체
+완결되며(외부 요청 0), 같은 입력이면 같은 그림이 나옵니다.
+
+### 출처 정체성 (`topics`) 과 `--group-by`
+
+출처마다 주로 다루는 주제를 태그로 달아 두면(`topics`), 관련성 판정의 가점과
+주제별 섹션화에 쓰입니다.
+
+```json
+{ "name": "과학기술정보통신부", "kind": "rss", "url": "...", "topics": ["과학기술", "정보보호"] }
+```
+
+`--group-by topic`을 주면 기관 대신 **주제별**로 묶은 보고서가 나옵니다.
+
+### 관련 자료 링크 (`--deep-links`)
+
+공지 본문 페이지를 열어 **첨부·관련 자료 링크만** 캐옵니다(보도자료 PDF, 설명자료
+HWP 등). **본문 텍스트는 가져오지 않습니다** — 원문 복제를 하지 않는다는 원칙과
+등급별 보수적 인용 정책을 그대로 지키며, 변형이 금지된 등급(3·4유형·미상)은
+링크 수집도 건너뜁니다. 공지마다 요청이 늘어 느려지므로 기본은 꺼짐이고
+`--deep-links-limit`(기본 20건)로 상한을 둡니다.
 
 ### 사용자 템플릿 (`--template`)
 
@@ -210,6 +286,12 @@ sources ──▶ fetch ──▶ parse ──▶ collect ──▶ report
 - `collect.py` — 오케스트레이션(페처 주입 → 테스트·오프라인이 같은 경로)
 - `state.py` — 실행 간 상태(신규 감지) — 순수 JSON, 첫 실행은 기준선
 - `digest.py` — 규칙 기반 기간 요약(기관·분류·키워드) — LLM 없음
+- `theme.py` — 테마 정의(정준 키워드→동의어·섹션·용어)
+- `relevance.py` — 관련성 판정(가중치·근거 기록) — LLM 없음
+- `cluster.py` — 유사 사안 묶음(자카드) — LLM 없음
+- `insight.py` · `chart.py` — 해석 계산과 인라인 SVG 그래프
+- `deeplink.py` — 본문 속 첨부·관련 자료 링크 추출(본문 복제 없음)
+- `brief.py` · `brief_report.py` — 테마 브리프 조립·렌더
 - `report.py` — Markdown · 자체 완결형 HTML · JSON · 사용자 템플릿 렌더러
 - `rights.py` — 공공누리 등급 상수·라벨·판정
 
