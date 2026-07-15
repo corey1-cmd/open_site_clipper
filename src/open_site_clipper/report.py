@@ -85,9 +85,11 @@ def _groups(report: Report) -> dict[str, list[Notice]]:
 
 
 def _body_markdown(report: Report) -> str:
-    """공지 표 조각(기관 또는 주제별) — render_markdown과 $body_md가 공유."""
+    """공지 표 조각(기관/주제/기관계층별) — render_markdown과 $body_md가 공유."""
     if not report.notices:
         return "_수집된 공지가 없습니다._"
+    if report.group_by == "org":
+        return _body_markdown_org(report)
     sections: list[str] = []
     for agency, items in _groups(report).items():
         seg = [f"## {agency} ({len(items)}건)", "", "| 발행일 | 제목 | 등급 |", "|---|---|---|"]
@@ -98,6 +100,29 @@ def _body_markdown(report: Report) -> str:
                 link = f"🆕 {link}"
             seg.append(f"| {_fmt_date(n)} | {link} | {rights.badge(n.rights)} |")
         sections.append("\n".join(seg))
+    return "\n\n".join(sections)
+
+
+def _body_markdown_org(report: Report) -> str:
+    """기관 → 사이트 2단 표 — 흩어진 사이트를 한 기관 아래로 모아 보여준다."""
+    sections: list[str] = []
+    for org, sites in report.by_org().items():
+        total = sum(len(v) for v in sites.values())
+        seg = [f"## {org} ({total}건 · 사이트 {len(sites)}곳)", ""]
+        for site, items in sites.items():
+            seg.append(f"### {site} ({len(items)}건)")
+            seg.append("")
+            seg.append("| 발행일 | 제목 | 부서 | 등급 |")
+            seg.append("|---|---|---|---|")
+            for n in items:
+                title = _md_escape(n.title)
+                link = f"[{title}]({n.url})" if n.url else title
+                if n.is_new:
+                    link = f"🆕 {link}"
+                unit = _md_escape(n.unit or "-")
+                seg.append(f"| {_fmt_date(n)} | {link} | {unit} | {rights.badge(n.rights)} |")
+            seg.append("")
+        sections.append("\n".join(seg).rstrip())
     return "\n\n".join(sections)
 
 
@@ -141,6 +166,9 @@ def render_json(report: Report) -> str:
                 "published": n.published.isoformat() if n.published else None,
                 "new": n.is_new,
                 "topics": list(n.topics),
+                "org": n.org,
+                "site": n.site,
+                "unit": n.unit,
                 "links": [{"label": x.label, "url": x.url, "kind": x.kind} for x in n.links],
                 "summary": n.summary,
                 "category": n.category,
@@ -280,6 +308,34 @@ def _body_html(report: Report) -> str:
     if not report.notices:
         return "<p>수집된 공지가 없습니다.</p>"
     parts: list[str] = []
+    if report.group_by == "org":
+        for org, sites in report.by_org().items():
+            total = sum(len(v) for v in sites.values())
+            parts.append(f"<h2>{_esc(org)} <small>({total}건 · 사이트 {len(sites)}곳)</small></h2>")
+            for site, items in sites.items():
+                parts.append(f"<h3>{_esc(site)} <small>({len(items)}건)</small></h3>")
+                parts.append(
+                    "<table><thead><tr><th>발행일</th><th>제목</th><th>부서</th>"
+                    "<th>등급</th></tr></thead><tbody>"
+                )
+                for n in items:
+                    cls = (
+                        "badge unknown" if rights.normalize(n.rights) == rights.UNKNOWN else "badge"
+                    )
+                    new_html = '<span class="badge new">NEW</span> ' if n.is_new else ""
+                    title_html = (
+                        f'<a href="{_esc(n.url)}" target="_blank" rel="noopener noreferrer">'
+                        f"{_esc(n.title)}</a>"
+                        if n.url
+                        else _esc(n.title)
+                    )
+                    parts.append(
+                        f'<tr><td class="date">{_fmt_date(n)}</td>'
+                        f"<td>{new_html}{title_html}</td><td>{_esc(n.unit or '-')}</td>"
+                        f'<td><span class="{cls}">{_esc(rights.badge(n.rights))}</span></td></tr>'
+                    )
+                parts.append("</tbody></table>")
+        return "\n".join(parts)
     for agency, items in _groups(report).items():
         parts.append(f"<h2>{_esc(agency)} <small>({len(items)}건)</small></h2>")
         parts.append(

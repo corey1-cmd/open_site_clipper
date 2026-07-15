@@ -55,6 +55,27 @@ def local_fetcher(input_dir: str | Path) -> Fetcher:
     return _read
 
 
+def _collect_k2web(source: Source, *, fetcher: Fetcher | None, failed: list[str]) -> list[Notice]:
+    """K2Web 출처를 캐스케이드로 수집하고, 실패 시 시도 이력을 실패 목록에 남긴다."""
+    from . import k2web
+
+    if fetcher is not None:
+        # 오프라인(--input/--demo): 주입된 페처는 Source 단위라 캐스케이드를 쓰지 않는다.
+        data = fetcher(source)
+        if not data:
+            failed.append(source.name)
+            return []
+        return _parse_source(source, data)
+
+    from .fetch import fetch_url
+
+    outcome = k2web.collect_board(source, fetcher=fetch_url)
+    if not outcome.notices:
+        # 어느 수단이 왜 실패했는지 그대로 보고서에 남긴다(조용한 실패 금지).
+        failed.append(f"{source.name} ({outcome.trail()})")
+    return outcome.notices
+
+
 def _failure_label(source: Source, *, live: bool) -> str:
     """실패 출처 표기 — datago 인증키 미설정은 네트워크 실패와 구분해 알린다."""
     if live and source.kind == "datago":
@@ -99,11 +120,18 @@ def collect(
     for source in sources:
         if not source.enabled:
             continue
-        data = fetch(source)
-        if not data:
-            failed.append(_failure_label(source, live=live))
-            continue
-        for notice in _parse_source(source, data):
+
+        if source.kind == "k2web":
+            # 단계적 폴백(RSS → 목록 → 메뉴). 오프라인 모드에서는 기존 페처를 쓴다.
+            parsed = _collect_k2web(source, fetcher=fetcher, failed=failed)
+        else:
+            data = fetch(source)
+            if not data:
+                failed.append(_failure_label(source, live=live))
+                continue
+            parsed = _parse_source(source, data)
+
+        for notice in parsed:
             if cutoff is not None and notice.published is not None and notice.published < cutoff:
                 continue
             if agency and agency not in notice.agency:
@@ -119,6 +147,14 @@ def collect(
             if source.topics:
                 # 출처의 정체성을 항목에 승계 — 관련성 가점·주제 섹션화의 축.
                 notice = replace(notice, topics=source.topics)
+            if source.org and not notice.org:
+                # 기관 계층 승계(k2web 은 이미 채워 온다).
+                notice = replace(
+                    notice,
+                    org=source.org,
+                    site=source.site or source.name,
+                    unit=notice.unit or source.site or source.name,
+                )
             collected.append(notice)
 
     collected.sort(key=lambda n: (n.published or date.min, n.agency), reverse=True)

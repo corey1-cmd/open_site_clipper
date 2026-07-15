@@ -1,0 +1,119 @@
+{
+  "_comment": [
+    "한국외국어대학교 통합 수집 프리셋.",
+    "kind=k2web 는 URL 대신 좌표(host·site_id·board_id)를 준다. 도구가 알아서",
+    "  1순위 https://{host}/bbs/{site_id}/{board_id}/rssList.do?row=50",
+    "  2순위 https://{host}/bbs/{site_id}/{board_id}/artclList.do",
+    "  3순위 https://{host}/{site_id}/{menu_no}/subview.do",
+    "순으로 시도하고, 앞 수단이 robots 차단·응답 없음·0건이면 다음으로 넘어간다.",
+    "아래 board_id/menu_no 는 2026-07 기준 실측값이다. gra·def·sccs·bme 는",
+    "게시판 번호를 아직 확인하지 못해 넣지 않았다 — 추정해서 넣으면 조용히",
+    "틀린 데이터가 들어오므로, 각 사이트의 공지 메뉴에서 번호를 확인해 추가할 것."
+  ],
+  "sources": [
+    {
+      "id": "hufs-notice",
+      "org": "한국외국어대학교",
+      "site": "대학본부",
+      "name": "한국외국어대학교 대학본부",
+      "kind": "k2web",
+      "host": "www.hufs.ac.kr",
+      "site_id": "hufs",
+      "board_id": 2180,
+      "menu_no": 11281,
+      "category": "공지",
+      "topics": ["공지", "학사행정"]
+    },
+    {
+      "id": "hufs-academic",
+      "org": "한국외국어대학교",
+      "site": "대학본부",
+      "name": "한국외국어대학교 대학본부",
+      "kind": "k2web",
+      "host": "www.hufs.ac.kr",
+      "site_id": "hufs",
+      "board_id": 2181,
+      "menu_no": 11282,
+      "category": "학사",
+      "topics": ["학사", "수강", "졸업"]
+    },
+    {
+      "id": "hufs-scholarship",
+      "org": "한국외국어대학교",
+      "site": "대학본부",
+      "name": "한국외국어대학교 대학본부",
+      "kind": "k2web",
+      "host": "www.hufs.ac.kr",
+      "site_id": "hufs",
+      "board_id": 2182,
+      "menu_no": 11283,
+      "category": "장학",
+      "topics": ["장학", "학자금"]
+    },
+    {
+      "id": "hufs-job",
+      "org": "한국외국어대학교",
+      "site": "대학본부",
+      "name": "한국외국어대학교 대학본부",
+      "kind": "k2web",
+      "host": "www.hufs.ac.kr",
+      "site_id": "hufs",
+      "board_id": 2183,
+      "menu_no": 11284,
+      "category": "채용",
+      "topics": ["채용", "모집"]
+    },
+    {
+      "id": "hufs-today",
+      "org": "한국외국어대학교",
+      "site": "대학본부",
+      "name": "한국외국어대학교 대학본부",
+      "kind": "k2web",
+      "host": "www.hufs.ac.kr",
+      "site_id": "hufs",
+      "board_id": 2187,
+      "menu_no": 11403,
+      "category": "HUFS Today",
+      "topics": ["소식", "홍보"]
+    },
+    {
+      "id": "hufs-seminar",
+      "org": "한국외국어대학교",
+      "site": "대학본부",
+      "name": "한국외국어대학교 대학본부",
+      "kind": "k2web",
+      "host": "www.hufs.ac.kr",
+      "site_id": "hufs",
+      "board_id": 2188,
+      "menu_no": 11404,
+      "category": "학술·세미나",
+      "topics": ["학술", "세미나", "연구"]
+    },
+    {
+      "id": "hufs-student-activity",
+      "org": "한국외국어대학교",
+      "site": "학생지원·장학팀",
+      "name": "학생지원·장학팀",
+      "kind": "k2web",
+      "host": "student.hufs.ac.kr",
+      "site_id": "student",
+      "board_id": 2436,
+      "menu_no": 12769,
+      "category": "학생활동",
+      "topics": ["학생활동", "공모", "모집"]
+    },
+    {
+      "id": "hufs-student-scholarship",
+      "org": "한국외국어대학교",
+      "site": "학생지원·장학팀",
+      "name": "학생지원·장학팀",
+      "kind": "k2web",
+      "host": "student.hufs.ac.kr",
+      "site_id": "student",
+      "board_id": 2431,
+      "menu_no": 12767,
+      "category": "장학",
+      "topics": ["장학", "학자금"]
+    }
+  ]
+}

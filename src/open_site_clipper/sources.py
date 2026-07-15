@@ -32,6 +32,15 @@ class Source:
     # 출처의 정체성 — 이 출처가 주로 다루는 주제 태그. 관련성 판정(relevance)의
     # 가점과 주제별 자동 섹션화(--group-by topic)의 축으로 쓰인다.
     topics: tuple[str, ...] = ()
+    # 기관 계층 — org(기관명)과 site(사이트 표시명). 비우면 기존처럼 name만 쓴다.
+    org: str = ""
+    site: str = ""
+    # K2Web 좌표(kind="k2web") — URL 대신 이 좌표로 여러 수단의 주소를 조립한다.
+    host: str = ""
+    site_id: str = ""
+    board_id: int | None = None
+    menu_no: int | None = None  # 3순위(subview.do) 폴백용. 없으면 그 단계는 건너뜀
+    row: int = 50  # RSS 요청 건수
 
 
 # 기본 출처 — 공개 RSS 위주(인증키 불필요). data.go.kr 채널은 예시로 꺼둔 채
@@ -160,7 +169,15 @@ def from_dicts(items: list[dict[str, object]]) -> list[Source]:
         name = str(raw.get("name") or "").strip()
         url = str(raw.get("url") or "").strip()
         kind = str(raw.get("kind") or "rss").strip().lower()
-        if not name or not url or kind not in ("rss", "datago"):
+        if kind not in ("rss", "datago", "k2web"):
+            continue
+        if not name:
+            continue
+        # k2web은 URL 대신 좌표(host·site_id·board_id)로 주소를 조립한다.
+        if kind == "k2web":
+            if not (raw.get("host") and raw.get("site_id") and raw.get("board_id") is not None):
+                continue
+        elif not url:
             continue
         out.append(
             Source(
@@ -176,6 +193,20 @@ def from_dicts(items: list[dict[str, object]]) -> list[Source]:
                     for t in (raw.get("topics") or [])
                     if isinstance(t, (str, int)) and str(t).strip()
                 ),
+                org=str(raw.get("org") or ""),
+                site=str(raw.get("site") or ""),
+                host=str(raw.get("host") or ""),
+                site_id=str(raw.get("site_id") or ""),
+                board_id=_int_or_none(raw.get("board_id")),
+                menu_no=_int_or_none(raw.get("menu_no")),
+                row=_int_or_none(raw.get("row")) or 50,
             )
         )
     return out
+
+
+def _int_or_none(v: object) -> int | None:
+    try:
+        return int(str(v))
+    except (TypeError, ValueError):
+        return None

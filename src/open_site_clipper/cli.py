@@ -100,9 +100,9 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     p.add_argument(
         "--group-by",
-        choices=("agency", "topic"),
+        choices=("agency", "topic", "org"),
         default="agency",
-        help="보고서 섹션 축 — agency(기관별, 기본) | topic(출처 정체성 주제별)",
+        help="보고서 섹션 축 — agency(기본) | topic(주제별) | org(기관→사이트→부서)",
     )
     p.add_argument(
         "--deep-links",

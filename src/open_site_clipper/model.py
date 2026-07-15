@@ -29,6 +29,12 @@ class Notice:
     rights: str = "unknown"  # 공공누리 등급 (rights.py 상수)
     is_new: bool = False  # 이전 실행(--state) 대비 신규 여부 — state.mark_new가 채운다
     topics: tuple[str, ...] = ()  # 출처의 정체성 태그 승계 — collect가 채운다
+    # 기관 계층 — 한 기관이 사이트를 여러 개 운영하고, 사이트 안에 부서가 여럿이다.
+    #   org  "한국외국어대학교"  site "대학본부"  unit "행정지원처"
+    # org이 비면 기존(0.3.0)과 동일하게 agency 축으로만 동작한다(하위 호환).
+    org: str = ""
+    site: str = ""
+    unit: str = ""
     # 본문에서 캔 관련 자료 링크(--deep-links). 링크만 담고 본문은 담지 않는다.
     links: tuple[Link, ...] = ()
 
@@ -68,6 +74,25 @@ class Report:
     def new_count(self) -> int:
         """이전 실행 대비 신규 공지 수(--state 미사용 시 0)."""
         return sum(1 for n in self.notices if n.is_new)
+
+    def by_org(self) -> dict[str, dict[str, list[Notice]]]:
+        """기관 → 사이트 → 공지 2단 그룹. 흩어진 사이트를 한 기관으로 묶어 보여준다.
+
+        org이 없는 공지는 agency를 기관으로 삼아(기존 동작 보존) 사이트 칸에는
+        site 또는 agency가 들어간다. 정렬은 건수 내림차순 → 이름순(결정론).
+        """
+        grouped: dict[str, dict[str, list[Notice]]] = {}
+        for n in self.notices:
+            org = n.org or n.agency
+            site = n.site or n.agency
+            grouped.setdefault(org, {}).setdefault(site, []).append(n)
+        out: dict[str, dict[str, list[Notice]]] = {}
+        for org in sorted(grouped, key=lambda o: (-sum(len(v) for v in grouped[o].values()), o)):
+            sites = grouped[org]
+            for items in sites.values():
+                items.sort(key=_sort_key, reverse=True)
+            out[org] = {s: sites[s] for s in sorted(sites, key=lambda x: (-len(sites[x]), x))}
+        return out
 
     def by_topic(self) -> dict[str, list[Notice]]:
         """주제(출처 정체성)별로 묶은 공지 — 한 공지가 여러 주제에 속할 수 있다.
