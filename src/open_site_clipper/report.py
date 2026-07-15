@@ -99,7 +99,9 @@ def _body_markdown(report: Report) -> str:
 def _legend_markdown(report: Report) -> str:
     """재이용 조건 범례 조각(등장 등급만) — render_markdown과 $legend_md가 공유."""
     lines = ["### 출처 및 재이용 조건", ""]
-    lines.extend(f"- **{rights.badge(t)}** — {rights.label(t)}" for t in _tiers_present(report))
+    lines.extend(
+        f"- **{rights.badge(t)}** — {rights.label(t)}" for t in _tiers_present(report.notices)
+    )
     return "\n".join(lines)
 
 
@@ -299,15 +301,15 @@ def _legend_html(report: Report) -> str:
     parts = ["<strong>출처 및 재이용 조건</strong><ul>"]
     parts.extend(
         f"<li><b>{_esc(rights.badge(t))}</b> — {_esc(rights.label(t))}</li>"
-        for t in _tiers_present(report)
+        for t in _tiers_present(report.notices)
     )
     parts.append("</ul>")
     return "\n".join(parts)
 
 
-def _tiers_present(report: Report) -> list[str]:
-    """보고서에 실제 등장한 등급만(범례가 불필요하게 길어지지 않게)."""
-    present = {rights.normalize(n.rights) for n in report.notices}
+def _tiers_present(notices) -> list[str]:
+    """목록에 실제 등장한 등급만(범례가 불필요하게 길어지지 않게) — brief도 공유."""
+    present = {rights.normalize(n.rights) for n in notices}
     order = [
         rights.PUBLIC_DOMAIN,
         rights.KOGL_TYPE1,

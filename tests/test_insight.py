@@ -30,7 +30,10 @@ def test_weekly_buckets_zero_filled_and_anchored_on_data():
 
 
 def test_trend_sentences():
-    up = [_n(f"u{i}", date(2026, 6, 22) + (date(2026, 6, 29) - date(2026, 6, 22)) * 0) for i in range(3)]
+    up = [
+        _n(f"u{i}", date(2026, 6, 22) + (date(2026, 6, 29) - date(2026, 6, 22)) * 0)
+        for i in range(3)
+    ]
     old = [_n("o", date(2026, 5, 4))]
     ins = insight.build(old + up, weeks=8)
     assert "대비" in ins.trend and "%" in ins.trend

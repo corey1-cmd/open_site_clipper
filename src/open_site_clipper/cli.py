@@ -17,7 +17,18 @@ import sys
 from importlib import resources
 from pathlib import Path
 
-from . import __version__, collect, digest, report, sources, state
+from . import (
+    __version__,
+    brief,
+    brief_report,
+    collect,
+    digest,
+    relevance,
+    report,
+    sources,
+    state,
+    theme,
+)
 from .collect import local_fetcher
 
 _FMT_ALIASES = {"md": "markdown", "markdown": "markdown", "html": "html", "json": "json"}
@@ -74,6 +85,18 @@ def _build_parser() -> argparse.ArgumentParser:
         metavar="FILE",
         help="사용자 템플릿 파일 — $title·$body_md 등 마커를 치환해 조직 서식 그대로 "
         "출력한다(지정 시 --format 무시). 마커 목록은 README 참고",
+    )
+    p.add_argument(
+        "--theme",
+        metavar="FILE",
+        help="테마 정의(JSON) — 이 테마에 관련된 자료만 골라 섹션 브리프로 만든다"
+        "(신한 '글로벌 이슈'류). 해석 표·그래프 포함",
+    )
+    p.add_argument(
+        "--min-score",
+        type=int,
+        metavar="N",
+        help=f"테마 관련성 채택 하한 (기본 {relevance.DEFAULT_MIN_SCORE}점 = 제목 1회 적중)",
     )
     p.add_argument("--list-sources", action="store_true", help="설정된 출처를 출력하고 종료")
     p.add_argument("--title", metavar="TEXT", help="보고서 제목 재정의")
@@ -150,24 +173,49 @@ def main(argv: list[str] | None = None) -> int:
     if args.digest and rep.notices:
         rep.digest = digest.build(rep.notices)
 
-    if args.template:
+    if args.theme:
+        if args.template:
+            raise SystemExit("--theme 과 --template 은 함께 쓸 수 없습니다.")
+        try:
+            th = theme.load(args.theme)
+        except ValueError as e:
+            raise SystemExit(str(e)) from e
+        bf = brief.build(
+            rep.notices,
+            th,
+            min_score=args.min_score,
+            generated_at=rep.generated_at,
+            since_days=rep.since_days,
+            failed_sources=rep.failed_sources,
+            with_digest=rep.digest,
+        )
+        text = brief_report.render(bf, _FMT_ALIASES[args.format])
+        summary = (
+            f"브리프 저장: {args.output} (테마 '{th.name}' · 관련 자료 "
+            f"{len(bf.notices)}건 · 사안 {bf.issue_count}건 / 검토 {bf.considered}건)"
+        )
+    elif args.template:
         try:
             tmpl = Path(args.template).read_text(encoding="utf-8")
         except OSError as e:
             raise SystemExit(f"템플릿 파일을 읽을 수 없습니다: {e}") from e
         text = report.render_template(rep, tmpl)
+        summary = ""
     else:
         text = report.render(rep, _FMT_ALIASES[args.format])
+        summary = ""
 
-    if args.output:
-        Path(args.output).write_text(text, encoding="utf-8")
-        print(
+    if not summary:
+        summary = (
             f"보고서 저장: {args.output} "
             f"(공지 {len(rep.notices)}건 · 기관 {len(rep.agencies)}곳"
             + (f" · 수집 실패 {len(rep.failed_sources)}곳" if rep.failed_sources else "")
-            + ")",
-            file=sys.stderr,
+            + ")"
         )
+
+    if args.output:
+        Path(args.output).write_text(text, encoding="utf-8")
+        print(summary, file=sys.stderr)
     else:
         sys.stdout.write(text)
 

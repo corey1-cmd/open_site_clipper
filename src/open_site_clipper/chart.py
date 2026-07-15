@@ -122,8 +122,7 @@ def hbar(
     ]
     if title:
         parts.append(
-            f'<text x="8" y="14" font-size="11" font-weight="600" '
-            f'fill="{INK}">{_esc(title)}</text>'
+            f'<text x="8" y="14" font-size="11" font-weight="600" fill="{INK}">{_esc(title)}</text>'
         )
     for i, (label, v) in enumerate(zip(labels, values, strict=True)):
         y = top + row_h * i

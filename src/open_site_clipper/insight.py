@@ -76,9 +76,7 @@ def _agencies(notices: list[Notice], top: int) -> tuple[tuple[str, int, str], ..
         if n.published and (n.agency not in latest or n.published > latest[n.agency]):
             latest[n.agency] = n.published
     ranked = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))[:top]
-    return tuple(
-        (a, c, latest[a].isoformat() if a in latest else "") for a, c in ranked
-    )
+    return tuple((a, c, latest[a].isoformat() if a in latest else "") for a, c in ranked)
 
 
 def _new_keywords(notices: list[Notice], top: int = 6) -> tuple[str, ...]:
@@ -107,28 +105,23 @@ def build(
     if not notices:
         return Insight()
     if clusters is None:
-        clusters = cluster.group(
-            notices, text_of=lambda n: n.title, date_of=lambda n: n.published
-        )
+        clusters = cluster.group(notices, text_of=lambda n: n.title, date_of=lambda n: n.published)
 
     weekly = _weekly([n.published for n in notices if n.published], weeks)
 
     issues = tuple(
-        (c[0].title, len(c), len({n.agency for n in c}))
-        for c in clusters
-        if len(c) >= 2
+        (c[0].title, len(c), len({n.agency for n in c})) for c in clusters if len(c) >= 2
     )[:top_issues]
 
     timeline: tuple[tuple[str, str, str], ...] = ()
     multi = [c for c in clusters if len(c) >= 2]
     if multi:
         biggest = multi[0]
-        ordered = sorted(
-            biggest, key=lambda n: ((n.published or date.max).toordinal(), n.title)
-        )[:6]
+        ordered = sorted(biggest, key=lambda n: ((n.published or date.max).toordinal(), n.title))[
+            :6
+        ]
         timeline = tuple(
-            (n.published.isoformat() if n.published else "미상", n.title, n.agency)
-            for n in ordered
+            (n.published.isoformat() if n.published else "미상", n.title, n.agency) for n in ordered
         )
 
     return Insight(
