@@ -35,6 +35,7 @@
 - 🗂 **테마 브리프** — 관련 자료를 섹션·사안 단위로 묶은 브리핑 (`--theme`)
 - 📈 **해석** — 발행 추이·기관 활동·주요 사안·타임라인을 표와 SVG 그래프로 (LLM 없이 계산)
 - 📎 **관련 자료 링크** — 본문 속 첨부(PDF·HWP)만 캐옴, 본문 복제 없음 (`--deep-links`)
+- 🔎 **목적 검색** — `--query 고용` 한 줄로 관련 공지만(동의어 자동 확장, 파일 불필요)
 - 🏛 **기관 단위 통합** — 본부·처·팀·대학원이 사이트를 따로 써도 한 기관으로 묶어 부서까지 표시 (`--group-by org`)
 - 🪜 **단계적 폴백** — RSS → 목록 → JSON API → 메뉴 순으로 시도, 앞이 막혀도 멈추지 않고 시도 이력을 남김
 - 🤖 **robots.txt 준수** — 표준 robotparser로 우리 UA 기준 판정(무시 옵션 없음)
@@ -76,6 +77,9 @@ open_site_clipper --theme examples/theme-data-digital.json -o brief.html
 
 # 한국외대 전 사이트를 한 기관으로 — 기관→사이트→부서 보고서
 open_site_clipper --sources examples/sources-hufs.json --group-by org -o hufs.html
+
+# 목적으로 검색 — '고용' 한 마디가 채용·모집·공채·인턴으로 확장
+open_site_clipper --sources examples/sources-hufs.json --query 고용 -o 고용.html
 ```
 
 ### 예시 출력 (`--demo --format markdown`)
@@ -121,6 +125,7 @@ open_site_clipper [옵션]
       --only-new                         신규 공지만(--state 필수)
       --digest / --no-digest             기간 요약(기관·분류·키워드) 포함 여부 (기본: 포함)
       --template FILE                    사용자 템플릿 출력(지정 시 --format 무시)
+      --query TERMS                      목적·키워드 즉석 검색(동의어 확장, --theme 배타)
       --theme FILE                       테마 브리프 — 관련 자료만 선별·섹션화·해석
       --min-score N                      테마 관련성 채택 하한 (기본 3)
       --group-by agency|topic            섹션 축 (기본 agency)
@@ -159,6 +164,39 @@ URL에 `serviceKey`를 직접 쓴 경우 그 값을 존중하며, 형식 파라�
 API 없이 순수 빈도 집계라 같은 입력이면 항상 같은 요약이 나옵니다(재현 가능).
 상투어(안내·공고 등)·숫자·회차·기관명은 키워드에서 제외합니다. 끄려면
 `--no-digest`.
+
+### 목적·키워드 즉석 검색 (`--query`)
+
+테마 파일 없이 **목적어 한 마디**로 검색합니다. 목적 사전에 있는 말은 동의어로
+자동 확장되고, 없는 말(예: `AI`, `반도체`)은 그 말 자체가 키워드가 됩니다.
+여러 개를 나열하면 각각이 브리프의 [섹션]이 됩니다.
+
+```bash
+open_site_clipper --sources knou.json --query 고용 -o 고용.html
+open_site_clipper --sources knou.json --query "고용 장학" --state s.json --only-new
+```
+
+| 목적어 | 자동 확장되는 동의어 |
+|---|---|
+| `고용` | 채용 · 모집 · 공채 · 임용 · 인턴 · 일자리 · 취업 · 구인 · 신입 · 경력 |
+| `복지` | 장학 · 지원금 · 학자금 · 생활비 · 기숙사 · 상담 · 의료 · 건강 · 보험 · 돌봄 |
+| `안전` | 재난 · 화재 · 지진 · 호우 · 안전점검 · 행동요령 · 대피 |
+| `입찰` | 공고 · 낙찰 · 계약 · 조달 · 발주 · 제안요청 · RFP |
+| `장학` | 장학금 · 학자금 · 등록금 · 면제 · 감면 · 국가장학 |
+| `정부투자` | 공모 · 지원사업 · 국고 · 연구비 · R&D · 과제 · 예산 · 출연 · 보조금 · 투자 |
+| `학사` | 수강 · 성적 · 졸업 · 등록 · 휴학 · 복학 · 계절학기 · 시험 · 학점 |
+| `행사` | 세미나 · 특강 · 설명회 · 박람회 · 포럼 · 축제 · 경진대회 · 공모전 · 워크숍 |
+
+확장 근거는 항목마다 **근거 키워드**로 표기되어 왜 뽑혔는지 검증할 수 있습니다.
+동의어 사전은 규칙 기반(무LLM)이며 `purposes.py`에서 수정·추가할 수 있습니다.
+
+> **한국어 처리에 관하여** — 형태소 분석기 pynori(KoreanTokenizer)를 코드
+> 수준에서 분석했습니다. 격자 탐색·TRIE 최장일치의 품질 원천은 93MB
+> mecab-ko-dic 사전이었고, 스타순 상위 대안(soynlp·Kiwi·KoNLPy)도 대사전·
+> 말뭉치·네이티브 코드를 요구합니다. 의존성 0 원칙에 따라 **원리만 증류**해,
+> 닫힌 품사(다문자 조사·어미) 최장일치 정규화기(`korean.py`)로 축소
+> 구현했습니다 — "지원하는/지원하며"가 집계에서 "지원"으로 합쳐집니다.
+> 관련성 매칭 자체는 부분 문자열이라 "채용을·모집합니다"도 원래 잡힙니다.
 
 ### 기관 단위 통합 수집 — K2Web 캐스케이드 (`kind: "k2web"`)
 
@@ -349,6 +387,8 @@ sources ──▶ fetch ──▶ parse ──▶ collect ──▶ report
 - `brief.py` · `brief_report.py` — 테마 브리프 조립·렌더
 - `k2web.py` · `k2web_parse.py` · `jsonapi.py` — 기관 CMS 어댑터(4단 폴백)와 목록·JSON 파서
 - `robots.py` — robots.txt 준수(호스트별 캐시, fail-open)
+- `purposes.py` — 목적 동의어 사전(--query 즉석 테마)
+- `korean.py` — 닫힌 접미(조사·어미) 최장일치 정규화 — pynori 분석의 증류판
 - `report.py` — Markdown · 자체 완결형 HTML · JSON · 사용자 템플릿 렌더러
 - `rights.py` — 공공누리 등급 상수·라벨·판정
 
