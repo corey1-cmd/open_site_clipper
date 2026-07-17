@@ -35,6 +35,9 @@
 - 🗂 **테마 브리프** — 관련 자료를 섹션·사안 단위로 묶은 브리핑 (`--theme`)
 - 📈 **해석** — 발행 추이·기관 활동·주요 사안·타임라인을 표와 SVG 그래프로 (LLM 없이 계산)
 - 📎 **관련 자료 링크** — 본문 속 첨부(PDF·HWP)만 캐옴, 본문 복제 없음 (`--deep-links`)
+- 🏛 **기관 단위 통합** — 본부·처·팀·대학원이 사이트를 따로 써도 한 기관으로 묶어 부서까지 표시 (`--group-by org`)
+- 🪜 **단계적 폴백** — RSS → 목록 → JSON API → 메뉴 순으로 시도, 앞이 막혀도 멈추지 않고 시도 이력을 남김
+- 🤖 **robots.txt 준수** — 표준 robotparser로 우리 UA 기준 판정(무시 옵션 없음)
 - 🩹 **fail-open** — 한 출처가 죽어도(해외 IP 차단·URL 변경) 나머지로 보고서 완성,
   실패 출처는 표지에 투명 표기
 - 🎨 **자체 완결형 HTML** — 인라인 CSS·다크모드 대응, 그대로 열람·인쇄·공유
@@ -70,6 +73,9 @@ open_site_clipper --template examples/circular-template.tmpl -o circular.md
 
 # 테마 브리프 — 관련 자료만 골라 섹션·해석까지
 open_site_clipper --theme examples/theme-data-digital.json -o brief.html
+
+# 한국외대 전 사이트를 한 기관으로 — 기관→사이트→부서 보고서
+open_site_clipper --sources examples/sources-hufs.json --group-by org -o hufs.html
 ```
 
 ### 예시 출력 (`--demo --format markdown`)
@@ -153,6 +159,55 @@ URL에 `serviceKey`를 직접 쓴 경우 그 값을 존중하며, 형식 파라�
 API 없이 순수 빈도 집계라 같은 입력이면 항상 같은 요약이 나옵니다(재현 가능).
 상투어(안내·공고 등)·숫자·회차·기관명은 키워드에서 제외합니다. 끄려면
 `--no-digest`.
+
+### 기관 단위 통합 수집 — K2Web 캐스케이드 (`kind: "k2web"`)
+
+한국외국어대학교처럼 본부·처·팀·대학원·연구소가 홈페이지를 따로 운영해도,
+같은 CMS(K2Web Wizard)를 쓰므로 **좌표만 주면** 한 기관으로 묶어 수집합니다.
+좌표는 URL 세 조각입니다: `host`(도메인), `site_id`(경로의 사이트 코드),
+`board_id`(게시판 번호 — 게시판 목록 주소 `/bbs/{site_id}/{board_id}/artclList.do`에서 확인).
+
+```json
+{
+  "org": "한국외국어대학교", "site": "대학본부",
+  "name": "한국외국어대학교 대학본부", "kind": "k2web",
+  "host": "www.hufs.ac.kr", "site_id": "hufs",
+  "board_id": 2180, "menu_no": 11281, "category": "공지"
+}
+```
+
+수집은 **네 수단을 순서대로** 시도하고, 앞이 막혀도 멈추지 않습니다.
+
+| 순위 | 수단 | 주소 | 특징 |
+|---|---|---|---|
+| 1 | `rss` | `/bbs/{site}/{board}/rssList.do?row=50` | 구조화·발췌 포함 |
+| 2 | `list` | `/bbs/{site}/{board}/artclList.do` | 목록 표 — **작성 부서를 줌** |
+| 3 | `api` | 출처에 설정한 JSON API (선택) | 응답 골격을 경로로 지정 |
+| 4 | `page` | `/{site_id}/{menu_no}/subview.do` | `/bbs/`가 막혀도 사는 경로 |
+
+다음 수단으로 넘어가는 조건은 셋입니다 — **robots.txt 차단 · 응답 없음 · 파싱 0건**.
+robots 판정은 표준 `urllib.robotparser`로 실행 시점에 우리 User-Agent 기준으로
+묻고(무시 옵션은 없음), 전부 실패하면 보고서 표지에 시도 이력이 그대로 남습니다:
+
+```
+⚠ 수집 실패 출처: 대학본부 (rss: robots.txt 차단 → list: 응답 없음 → api: 글 0건 → page: 응답 없음)
+```
+
+3순위 JSON API는 사이트가 게시판 JSON을 줄 때만 설정합니다. 코드가 아니라
+**점 표기 경로**로 응답 골격을 가리킵니다:
+
+```json
+"api_url": "https://www.hufs.ac.kr/…/board.do?bbsId=2180",
+"api_paths": {
+  "items": "data.list", "title": "artclNm",
+  "url": "artclUrl", "article_no": "artclNo",
+  "date": "regDt", "unit": "deptNm"
+}
+```
+
+`url`이 없으면 `article_no`(글번호)로 정식 글 주소를 조립합니다. 결과 보고서는
+`--group-by org`로 **기관 → 사이트 → 부서** 3단으로 봅니다. 실측 좌표가 담긴
+프리셋은 [`examples/sources-hufs.json`](examples/sources-hufs.json).
 
 ### 테마 브리프 (`--theme`)
 
@@ -292,6 +347,8 @@ sources ──▶ fetch ──▶ parse ──▶ collect ──▶ report
 - `insight.py` · `chart.py` — 해석 계산과 인라인 SVG 그래프
 - `deeplink.py` — 본문 속 첨부·관련 자료 링크 추출(본문 복제 없음)
 - `brief.py` · `brief_report.py` — 테마 브리프 조립·렌더
+- `k2web.py` · `k2web_parse.py` · `jsonapi.py` — 기관 CMS 어댑터(4단 폴백)와 목록·JSON 파서
+- `robots.py` — robots.txt 준수(호스트별 캐시, fail-open)
 - `report.py` — Markdown · 자체 완결형 HTML · JSON · 사용자 템플릿 렌더러
 - `rights.py` — 공공누리 등급 상수·라벨·판정
 
