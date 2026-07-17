@@ -6,8 +6,12 @@
 
   1순위 rss   {host}/bbs/{site}/{board}/rssList.do?row=N   구조화돼 있어 가장 정확
   2순위 list  {host}/bbs/{site}/{board}/artclList.do        목록 표(부서명 포함)
-  3순위 page  {host}/{site}/{menu}/subview.do               메뉴 페이지에 목록이 박혀 있음
+  3순위 api   출처에 설정한 JSON API(api_url + api_paths)   응답 골격을 경로로 지정
+  4순위 page  {host}/{site}/{menu}/subview.do               메뉴 페이지에 목록이 박혀 있음
                                                             (/bbs/ 가 막혀도 살아있는 경로)
+
+api 단계는 api_url 이 설정된 출처에서만 시도한다. 필수 경로(items·title·
+url|article_no)가 빠진 설정 오류는 요청 전에 걸러 사유로 남긴다.
 
 각 단계는 이런 이유로 다음으로 넘어간다:
   - robots.txt가 그 경로를 막음        → 다음 수단
@@ -23,14 +27,14 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass, field, replace
 
-from . import k2web_parse, parse, robots
+from . import jsonapi, k2web_parse, parse, robots
 from .model import Notice
 from .sources import Source
 
 DEFAULT_ROW = 50
 
-# 수단 이름
-RSS, LIST, PAGE = "rss", "list", "page"
+# 수단 이름 — 시도 순서이기도 하다.
+RSS, LIST, API, PAGE = "rss", "list", "api", "page"
 
 # 실패 사유
 ROBOTS_BLOCKED = "robots.txt 차단"
@@ -82,6 +86,11 @@ def list_url(host: str, site_id: str, board_id: int | str) -> str:
     return f"https://{host}/bbs/{site_id}/{board_id}/artclList.do"
 
 
+def article_url(host: str, site_id: str, board_id: int | str, article_no: str) -> str:
+    """글번호로 K2Web 정식 글 주소를 조립 — JSON API가 번호만 줄 때 쓴다."""
+    return f"https://{host}/bbs/{site_id}/{board_id}/{article_no}/artclView.do"
+
+
 def page_url(host: str, site_id: str, menu_no: int | str) -> str:
     return f"https://{host}/{site_id}/{menu_no}/subview.do"
 
@@ -95,6 +104,8 @@ def candidates(source: Source) -> list[tuple[str, str]]:
         (RSS, rss_url(host, site_id, source.board_id, source.row)),
         (LIST, list_url(host, site_id, source.board_id)),
     ]
+    if source.api_url:
+        out.append((API, source.api_url))
     if source.menu_no is not None:
         out.append((PAGE, page_url(host, site_id, source.menu_no)))
     return out
@@ -132,6 +143,12 @@ def collect_board(
         return outcome
 
     for strategy, url in cands:
+        if strategy == API:
+            # 필수 경로 없이는 응답을 해석할 수 없다 — 요청 전에 사유를 남기고 통과.
+            missing = jsonapi.required_missing(dict(source.api_paths))
+            if missing:
+                outcome.attempts.append(Attempt(strategy, url, reason=missing))
+                continue
         if check_robots and not robots.allowed(url):
             outcome.attempts.append(Attempt(strategy, url, reason=ROBOTS_BLOCKED))
             continue
@@ -153,6 +170,16 @@ def collect_board(
                 replace(n, org=source.org, site=source.site, unit=source.site or source.name)
                 for n in parsed
             ]
+        elif strategy == API:
+            rows = jsonapi.parse_items(
+                data,
+                paths=dict(source.api_paths),
+                base_url=url,
+                article_url=lambda no: article_url(
+                    source.host, source.site_id, source.board_id, no
+                ),
+            )
+            notices = _to_notices(source, rows)
         else:
             notices = _to_notices(source, k2web_parse.parse_list(data, url))
 

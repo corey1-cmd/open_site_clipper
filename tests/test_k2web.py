@@ -132,6 +132,126 @@ def test_cascade_all_fail_reports_full_trail():
     assert out.trail() == "rss: 응답 없음 → list: 응답 없음 → page: 응답 없음"
 
 
+API_JSON = """{
+  "result": "ok",
+  "data": {
+    "list": [
+      {"artclNm": " 하계  계절학기 안내 ", "artclNo": 258901,
+       "regDt": "2026.07.01", "deptNm": "학사종합지원센터"},
+      {"artclNm": "링크형 항목", "artclUrl": "/bbs/hufs/2180/258902/artclView.do",
+       "regDt": "2026-07-03", "deptNm": "교무처"},
+      {"artclNm": "", "artclNo": 1},
+      {"artclNo": 999},
+      "문자열 항목은 무시"
+    ]
+  }
+}"""
+
+API_SRC_FIELDS = {
+    "api_url": "https://www.hufs.ac.kr/api/board.do?bbsId=2180",
+    "api_paths": (
+        ("article_no", "artclNo"),
+        ("date", "regDt"),
+        ("items", "data.list"),
+        ("title", "artclNm"),
+        ("unit", "deptNm"),
+        ("url", "artclUrl"),
+    ),
+}
+
+
+def test_candidates_include_api_between_list_and_page():
+    from dataclasses import replace
+
+    with_api = replace(SRC, **API_SRC_FIELDS)
+    assert [c[0] for c in k2web.candidates(with_api)] == ["rss", "list", "api", "page"]
+    # api_url 이 없으면(기존 출처) 순서는 그대로 3단.
+    assert [c[0] for c in k2web.candidates(SRC)] == ["rss", "list", "page"]
+
+
+def test_jsonapi_parses_paths_and_builds_article_url():
+    from open_site_clipper import jsonapi
+
+    rows = jsonapi.parse_items(
+        API_JSON.encode(),
+        paths=dict(API_SRC_FIELDS["api_paths"]),
+        base_url="https://www.hufs.ac.kr/api/board.do",
+        article_url=lambda no: k2web.article_url("www.hufs.ac.kr", "hufs", 2180, no),
+    )
+    assert len(rows) == 2  # 제목 없는 항목·dict 아닌 항목은 걸러진다
+    first = rows[0]
+    assert first.title == "하계 계절학기 안내"  # 공백 정규화
+    assert first.url == "https://www.hufs.ac.kr/bbs/hufs/2180/258901/artclView.do"
+    assert first.unit == "학사종합지원센터" and str(first.published) == "2026-07-01"
+    # url 경로가 있으면 그대로(상대→절대), article_no 조립보다 우선.
+    assert rows[1].url.endswith("/bbs/hufs/2180/258902/artclView.do")
+    # 깨진 JSON·경로 불일치는 빈 목록(fail-open).
+    assert (
+        jsonapi.parse_items(
+            b"not json", paths=dict(API_SRC_FIELDS["api_paths"]), base_url="https://h/"
+        )
+        == []
+    )
+    assert (
+        jsonapi.parse_items(
+            b'{"data": {}}', paths=dict(API_SRC_FIELDS["api_paths"]), base_url="https://h/"
+        )
+        == []
+    )
+
+
+def test_cascade_uses_api_when_rss_and_list_fail():
+    from dataclasses import replace
+
+    src = replace(SRC, **API_SRC_FIELDS)
+
+    def fx(url: str) -> bytes | None:
+        if "rssList" in url or "artclList" in url:
+            return None
+        return API_JSON.encode()
+
+    out = k2web.collect_board(src, fetcher=fx, check_robots=False)
+    assert out.strategy == "api" and len(out.notices) == 2
+    assert out.trail() == "rss: 응답 없음 → list: 응답 없음 → api: 2건"
+    assert out.notices[0].unit == "학사종합지원센터"  # JSON이 부서를 준다
+    assert out.notices[0].org == "한국외국어대학교"
+
+
+def test_cascade_api_misconfig_skips_without_request():
+    from dataclasses import replace
+
+    calls: list[str] = []
+
+    def fx(url: str) -> bytes | None:
+        calls.append(url)
+        return None
+
+    # items·title 경로 없이 api_url 만 설정 → 요청 없이 사유를 남기고 page 로.
+    src = replace(SRC, api_url="https://h/api.do", api_paths=(("date", "regDt"),))
+    out = k2web.collect_board(src, fetcher=fx, check_robots=False)
+    api_attempt = next(a for a in out.attempts if a.strategy == "api")
+    assert "api_paths 미설정" in api_attempt.reason
+    assert "items" in api_attempt.reason and "title" in api_attempt.reason
+    assert "https://h/api.do" not in calls  # 헛 요청을 만들지 않는다
+
+
+def test_cascade_api_bad_json_falls_to_page():
+    from dataclasses import replace
+
+    src = replace(SRC, **API_SRC_FIELDS)
+
+    def fx(url: str) -> bytes | None:
+        if "rssList" in url or "artclList" in url:
+            return None
+        if "api/board" in url:
+            return "<html>JSON 아님</html>".encode()
+        return LIST_HTML.encode()
+
+    out = k2web.collect_board(src, fetcher=fx, check_robots=False)
+    assert out.strategy == "page"
+    assert out.trail() == ("rss: 응답 없음 → list: 응답 없음 → api: 글 0건 → page: 2건")
+
+
 def test_from_dicts_accepts_k2web_coordinates():
     (src,) = from_dicts(
         [
@@ -149,6 +269,22 @@ def test_from_dicts_accepts_k2web_coordinates():
     )
     assert src.board_id == 2180 and src.menu_no == 11281 and src.row == 50
     assert src.org == "한국외국어대학교"
+    # api 설정도 좌표로 들어온다(정렬된 튜플 쌍 — frozen 호환).
+    (with_api,) = from_dicts(
+        [
+            {
+                "name": "본부",
+                "kind": "k2web",
+                "host": "h",
+                "site_id": "s",
+                "board_id": 1,
+                "api_url": "https://h/api.do",
+                "api_paths": {"items": "list", "title": "nm", "article_no": "no"},
+            }
+        ]
+    )
+    assert with_api.api_url == "https://h/api.do"
+    assert dict(with_api.api_paths) == {"items": "list", "title": "nm", "article_no": "no"}
     # 좌표가 모자라면 채택하지 않는다(URL도 없으므로 시도할 방법이 없다).
     assert from_dicts([{"name": "x", "kind": "k2web", "host": "h"}]) == []
 

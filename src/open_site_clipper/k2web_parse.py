@@ -79,12 +79,24 @@ class _RowParser(HTMLParser):
             self._row = None
 
 
+def coerce_date(text: str) -> date | None:
+    """'2026.07.02'·'2026-07-02'·'2026/07/02' 등 흔한 표기에서 날짜를 캔다.
+
+    목록 표(_row_date)와 JSON API 응답(jsonapi)이 같은 규칙을 쓰게 하는 공용
+    함수. 날짜꼴이 없으면 None — 없는 날짜를 지어내지 않는다.
+    """
+    m = _DATE_RE.search(text or "")
+    if not m:
+        return None
+    y, mo, d = (int(x) for x in m.groups())
+    return parse_date(f"{y:04d}-{mo:02d}-{d:02d}")
+
+
 def _row_date(cells: list[tuple[str, str]]) -> date | None:
     for text, _ in cells:
-        m = _DATE_RE.search(text)
-        if m:
-            y, mo, d = (int(x) for x in m.groups())
-            return parse_date(f"{y:04d}-{mo:02d}-{d:02d}")
+        found = coerce_date(text)
+        if found:
+            return found
     return None
 
 

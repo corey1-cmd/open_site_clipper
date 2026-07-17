@@ -39,8 +39,12 @@ class Source:
     host: str = ""
     site_id: str = ""
     board_id: int | None = None
-    menu_no: int | None = None  # 3순위(subview.do) 폴백용. 없으면 그 단계는 건너뜀
+    menu_no: int | None = None  # 4순위(subview.do) 폴백용. 없으면 그 단계는 건너뜀
     row: int = 50  # RSS 요청 건수
+    # 3순위 JSON API(선택) — 사이트가 게시판 JSON을 주면 좌표 대신/보완으로 쓴다.
+    # api_paths 는 점 표기 경로 쌍: (("items","data.list"),("title","artclNm"),…)
+    api_url: str = ""
+    api_paths: tuple[tuple[str, str], ...] = ()
 
 
 # 기본 출처 — 공개 RSS 위주(인증키 불필요). data.go.kr 채널은 예시로 꺼둔 채
@@ -200,6 +204,16 @@ def from_dicts(items: list[dict[str, object]]) -> list[Source]:
                 board_id=_int_or_none(raw.get("board_id")),
                 menu_no=_int_or_none(raw.get("menu_no")),
                 row=_int_or_none(raw.get("row")) or 50,
+                api_url=str(raw.get("api_url") or ""),
+                api_paths=tuple(
+                    sorted(
+                        (str(k), str(v))
+                        for k, v in (raw.get("api_paths") or {}).items()
+                        if str(k).strip() and str(v).strip()
+                    )
+                )
+                if isinstance(raw.get("api_paths"), dict)
+                else (),
             )
         )
     return out
