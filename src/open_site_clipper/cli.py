@@ -146,7 +146,14 @@ def _print_sources(srcs: list[sources.Source]) -> None:
         if s.kind == "datago":
             key = " · 인증키 OK" if datago_url(s.url) else f" · 인증키 미설정({DATAGO_KEY_ENV})"
         print(f"[{state}] {s.id:<16} {s.kind:<6} {rights.badge(s.rights):<7} {s.name}{key}")
-        print(f"        {s.url}")
+        if s.kind == "k2web":
+            from . import k2web
+
+            trail = " → ".join(f"{name}" for name, _ in k2web.candidates(s))
+            first = next((u for _, u in k2web.candidates(s)), "")
+            print(f"        {first}  (폴백: {trail})")
+        else:
+            print(f"        {s.url}")
 
 
 def main(argv: list[str] | None = None) -> int:
