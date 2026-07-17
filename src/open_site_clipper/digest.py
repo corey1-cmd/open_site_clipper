@@ -80,8 +80,12 @@ def title_tokens(text: str) -> frozenset[str]:
     digest 키워드 집계와 cluster(유사 사안 묶음), insight(신규 키워드)가
     같은 기준으로 토큰을 보게 하는 공용 함수.
     """
+    from .korean import normalize
+
     out: set[str] = set()
     for tok in _TOKEN_RE.findall(text):
+        # 닫힌 접미(조사·어미) 최장일치 정규화 — "지원하는/지원하며"를 "지원"으로.
+        tok = normalize(tok)
         low = tok.casefold()
         if len(tok) < 2 or tok.isdigit() or low in _STOPWORDS or _ORDINAL_RE.match(tok):
             continue

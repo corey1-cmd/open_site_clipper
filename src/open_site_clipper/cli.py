@@ -23,6 +23,7 @@ from . import (
     brief_report,
     collect,
     digest,
+    purposes,
     relevance,
     report,
     sources,
@@ -91,6 +92,13 @@ def _build_parser() -> argparse.ArgumentParser:
         metavar="FILE",
         help="테마 정의(JSON) — 이 테마에 관련된 자료만 골라 섹션 브리프로 만든다"
         "(신한 '글로벌 이슈'류). 해석 표·그래프 포함",
+    )
+    p.add_argument(
+        "--query",
+        metavar="TERMS",
+        help='목적·키워드 즉석 검색(파일 불필요) — 예: --query 고용, --query "고용 복지", '
+        '--query "AI 반도체". 목적어(' + " ".join(purposes.available()) + ")는 "
+        "동의어로 자동 확장. --theme 과는 함께 쓸 수 없음",
     )
     p.add_argument(
         "--min-score",
@@ -209,11 +217,16 @@ def main(argv: list[str] | None = None) -> int:
     if args.digest and rep.notices:
         rep.digest = digest.build(rep.notices)
 
-    if args.theme:
+    if args.theme and args.query:
+        raise SystemExit(
+            "--theme 과 --query 는 함께 쓸 수 없습니다(테마 파일이 우선이면 파일에 키워드를 넣으세요)."
+        )
+
+    if args.theme or args.query:
         if args.template:
-            raise SystemExit("--theme 과 --template 은 함께 쓸 수 없습니다.")
+            raise SystemExit("--theme/--query 와 --template 은 함께 쓸 수 없습니다.")
         try:
-            th = theme.load(args.theme)
+            th = theme.load(args.theme) if args.theme else purposes.build_theme(args.query)
         except ValueError as e:
             raise SystemExit(str(e)) from e
         bf = brief.build(
