@@ -36,6 +36,7 @@
 - 📈 **해석** — 발행 추이·기관 활동·주요 사안·타임라인을 표와 SVG 그래프로 (LLM 없이 계산)
 - 📎 **관련 자료 링크** — 본문 속 첨부(PDF·HWP)만 캐옴, 본문 복제 없음 (`--deep-links`)
 - 🔎 **목적 검색** — `--query 고용` 한 줄로 관련 공지만(동의어 자동 확장, 파일 불필요)
+- 🔎 **출처 자동 탐지** — 홈페이지 주소 하나로 RSS·K2Web 좌표 초안 생성, 근거·검증 표시 (`--discover`)
 - 🏛 **기관 단위 통합** — 본부·처·팀·대학원이 사이트를 따로 써도 한 기관으로 묶어 부서까지 표시 (`--group-by org`)
 - 🪜 **단계적 폴백** — RSS → 목록 → JSON API → 메뉴 순으로 시도, 앞이 막혀도 멈추지 않고 시도 이력을 남김
 - 🤖 **robots.txt 준수** — 표준 robotparser로 우리 UA 기준 판정(무시 옵션 없음)
@@ -247,6 +248,30 @@ robots 판정은 표준 `urllib.robotparser`로 실행 시점에 우리 User-Age
 `--group-by org`로 **기관 → 사이트 → 부서** 3단으로 봅니다. 실측 좌표가 담긴
 프리셋은 [`examples/sources-hufs.json`](examples/sources-hufs.json).
 
+### 출처 자동 탐지 (`--discover`)
+
+새 대학·기관을 추가할 때 좌표를 손으로 캐는 대신, **홈페이지 주소 하나**를 줍니다.
+
+```bash
+open_site_clipper --discover https://www.knou.ac.kr/knou/index.do -o knou.json
+# 탐지 완료: 후보 4건(검증 4건) · 요청 5회 · 기관명 추정 '한국방송통신대학교'
+```
+
+무엇을 찾는지 — ① 표준 RSS 자동발견(`<link rel="alternate">`), ② K2Web 좌표
+(페이지에 노출된 `artclList/rssList` 링크 + '공지·소식'류 메뉴를 예산 내에서 **한
+단계만** 따라가 게시판 번호를 캐냄), ③ 둘 다 없으면 관용 경로(`/rss`, `/feed` 등)
+추측. 후보마다 실제로 받아 RSS 여부를 스니핑해 `_verified`로 표시하고, 어디서
+찾았는지 `_evidence`에 남깁니다.
+
+결과는 **초안**입니다 — 그대로 `--sources`로 읽히지만, `org·name`을 다듬고
+`_verified: false` 항목은 직접 확인하는 것을 전제합니다. robots.txt를 지키고 총
+요청 수에 예산(기본 12회)을 두며, JS로만 그리는 메뉴나 비지원 CMS는 못 찾을 수
+있습니다(그 경우 게시판 페이지 주소를 직접 `--discover`에 주면 됩니다).
+
+> 설계 출처: autoscraper('예시 하나→재사용 규칙' — K2Web에선 URL 문법이 곧 규칙),
+> feed_seeker(탐지 3원·제한 따라가기), feedfinder(후보·검증 분리). 셋 다
+> requests·bs4 의존이라 원리만 표준 라이브러리로 이식했습니다.
+
 ### 테마 브리프 (`--theme`)
 
 수집한 공지 **전부**를 나열하는 대신, **테마에 관련된 자료만** 골라 섹션 브리핑을
@@ -387,6 +412,7 @@ sources ──▶ fetch ──▶ parse ──▶ collect ──▶ report
 - `brief.py` · `brief_report.py` — 테마 브리프 조립·렌더
 - `k2web.py` · `k2web_parse.py` · `jsonapi.py` — 기관 CMS 어댑터(4단 폴백)와 목록·JSON 파서
 - `robots.py` — robots.txt 준수(호스트별 캐시, fail-open)
+- `discover.py` — 출처 자동 탐지(RSS 자동발견·K2Web 좌표·검증 스니핑)
 - `purposes.py` — 목적 동의어 사전(--query 즉석 테마)
 - `korean.py` — 닫힌 접미(조사·어미) 최장일치 정규화 — pynori 분석의 증류판
 - `report.py` — Markdown · 자체 완결형 HTML · JSON · 사용자 템플릿 렌더러
