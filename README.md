@@ -244,7 +244,10 @@ robots 판정은 표준 `urllib.robotparser`로 실행 시점에 우리 User-Age
 }
 ```
 
-`url`이 없으면 `article_no`(글번호)로 정식 글 주소를 조립합니다. 결과 보고서는
+`url`이 없으면 `article_no`(글번호)로 정식 글 주소를 조립합니다. 대학·교내
+공지처럼 공공누리 표기 관행이 없는 곳은 등급이 전부 '미상'이라 기본 인용
+정책이 발췌를 비우므로, `--quote-mode full`을 함께 쓰면 발췌가 유지됩니다.
+결과 보고서는
 `--group-by org`로 **기관 → 사이트 → 부서** 3단으로 봅니다. 실측 좌표가 담긴
 프리셋은 [`examples/sources-hufs.json`](examples/sources-hufs.json).
 
