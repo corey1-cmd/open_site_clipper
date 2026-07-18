@@ -30,6 +30,7 @@ from dataclasses import dataclass, field
 from html.parser import HTMLParser
 
 from . import robots
+from .fetch import decode_text
 from .k2web_parse import ARTICLE_RE
 
 PageFetcher = Callable[[str], "bytes | None"]
@@ -172,6 +173,8 @@ def discover(
     budget: int = DEFAULT_BUDGET,
 ) -> Discovery:
     """홈페이지 한 장에서 출발해 RSS·K2Web 출처 초안을 모은다."""
+    if "://" not in url:
+        url = "https://" + url  # 스킴 생략 입력('www.knou.ac.kr')을 조용히 보정
     result = Discovery(start_url=url)
     session = _Session(fetcher, check_robots, budget)
     parts = urllib.parse.urlsplit(url)
@@ -186,7 +189,7 @@ def discover(
 
     page = _Page()
     try:
-        page.feed(data.decode("utf-8", errors="replace"))
+        page.feed(decode_text(data))
     except Exception:
         result.notes.append("시작 페이지 HTML 파싱 실패 — 탐지 결과가 없을 수 있습니다.")
     result.org = _clean_org(page.title, host)
@@ -263,7 +266,7 @@ def _find_k2web(
         sub = session.get(menu_url)
         if not sub:
             continue
-        bm = _BOARD_RE.search(sub.decode("utf-8", errors="replace"))
+        bm = _BOARD_RE.search(decode_text(sub))
         if bm:
             add(
                 bm.group(1),

@@ -12,6 +12,7 @@
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import sys
 from importlib import resources
@@ -50,7 +51,7 @@ def _build_parser() -> argparse.ArgumentParser:
         help="보고서 형식 (기본: html)",
     )
     p.add_argument("-o", "--output", metavar="FILE", help="출력 파일 경로 (기본: 표준 출력)")
-    p.add_argument("--since", type=int, metavar="DAYS", help="최근 N일 이내 공지만")
+    p.add_argument("--since", type=_nonneg, metavar="DAYS", help="최근 N일 이내 공지만")
     p.add_argument("--agency", metavar="NAME", help="기관명 부분일치 필터")
     p.add_argument(
         "--sources", metavar="FILE", help="사용자 정의 출처 JSON(목록). 없으면 기본 출처"
@@ -134,7 +135,7 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     p.add_argument(
         "--deep-links-limit",
-        type=int,
+        type=_nonneg,
         default=20,
         metavar="N",
         help="--deep-links로 본문을 열어볼 공지 수 상한 (기본 20)",
@@ -178,7 +179,34 @@ def _print_sources(srcs: list[sources.Source]) -> None:
             print(f"        {s.url}")
 
 
+def _utf8_console() -> None:
+    """한글 Windows 콘솔(cp949) 방어 — 🆕 같은 문자가 출력 크래시를 내지 않게.
+
+    reconfigure 가 없는 스트림(파이프·구형 환경)은 조용히 넘어간다. 실패해도
+    도구가 죽는 것보다 글자 하나 치환되는 쪽이 낫다.
+    """
+    for stream in (sys.stdout, sys.stderr):
+        with contextlib.suppress(Exception):
+            stream.reconfigure(encoding="utf-8", errors="replace")
+
+
+def _write_output(path: str, text: str) -> None:
+    """출력 파일 쓰기 — 폴더 없음·권한 문제를 traceback 대신 한 줄로."""
+    try:
+        Path(path).write_text(text, encoding="utf-8")
+    except OSError as e:
+        raise SystemExit(f"출력 파일을 쓸 수 없습니다: {e}") from e
+
+
+def _nonneg(value: str) -> int:
+    n = int(value)
+    if n < 0:
+        raise argparse.ArgumentTypeError(f"음수는 쓸 수 없습니다: {value}")
+    return n
+
+
 def main(argv: list[str] | None = None) -> int:
+    _utf8_console()
     args = _build_parser().parse_args(argv)
 
     if args.demo:
@@ -198,7 +226,7 @@ def main(argv: list[str] | None = None) -> int:
             f"요청 {res.fetched}회 · 기관명 추정 '{res.org}'"
         )
         if args.output:
-            Path(args.output).write_text(text, encoding="utf-8")
+            _write_output(args.output, text)
             print(f"{summary} → {args.output}", file=sys.stderr)
         else:
             print(summary, file=sys.stderr)
@@ -302,13 +330,22 @@ def main(argv: list[str] | None = None) -> int:
         )
 
     if args.output:
-        Path(args.output).write_text(text, encoding="utf-8")
+        _write_output(args.output, text)
         print(summary, file=sys.stderr)
     else:
         sys.stdout.write(text)
 
     if args.state:
-        state.save(args.state, current_keys=all_keys, previous=seen, updated_at=rep.generated_at)
+        try:
+            state.save(
+                args.state, current_keys=all_keys, previous=seen, updated_at=rep.generated_at
+            )
+        except OSError as e:
+            # 보고서는 이미 전달됐다 — 상태만 못 남긴 것이니 죽지 말고 알린다.
+            print(
+                f"경고: 상태 파일을 저장하지 못했습니다({e}) — 다음 실행에서 신규 판정이 어긋날 수 있습니다.",
+                file=sys.stderr,
+            )
     return 0
 
 

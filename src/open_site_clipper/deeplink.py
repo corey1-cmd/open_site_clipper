@@ -106,9 +106,11 @@ def extract(html_bytes: bytes, base_url: str, *, limit: int = MAX_LINKS_PER_NOTI
     - http(s)만 허용(javascript:·file: 등 차단 — fetch와 같은 방침).
     - 같은 URL 중복 제거, 라벨 없으면 파일명으로 대체, limit개까지.
     """
+    from .fetch import decode_text
+
     try:
-        text = html_bytes.decode("utf-8", errors="replace")
-    except (UnicodeDecodeError, AttributeError):
+        text = decode_text(html_bytes)
+    except AttributeError:
         return []
     parser = _AnchorParser()
     try:

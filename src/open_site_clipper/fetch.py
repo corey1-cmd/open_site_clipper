@@ -77,6 +77,22 @@ def datago_url(url: str, key: str | None = None) -> str | None:
     return out
 
 
+def decode_text(data: bytes) -> str:
+    """HTML/텍스트 바이트를 한국 웹 현실에 맞게 디코딩한다.
+
+    구형 대학·기관 사이트는 아직 EUC-KR(CP949)이 남아 있다. utf-8 로만 읽으면
+    제목·부서명이 통째로 깨진(모지바케) 채 파싱돼 조용히 틀린 데이터가 된다.
+    순서: utf-8 엄격 → cp949 엄격 → utf-8 관용(치환). 앞 둘이 엄격인 이유는
+    '성공했지만 깨진' 디코딩을 걸러 다음 후보에 기회를 주기 위해서다.
+    """
+    for enc in ("utf-8", "cp949"):
+        try:
+            return data.decode(enc)
+        except (UnicodeDecodeError, AttributeError):
+            continue
+    return data.decode("utf-8", errors="replace")
+
+
 def read_local(path: str | Path) -> bytes | None:
     """로컬 파일에서 피드를 읽는다(--input 오프라인 모드). 실패 시 None."""
     try:

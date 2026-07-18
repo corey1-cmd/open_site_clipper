@@ -126,9 +126,11 @@ def parse_list(html_bytes: bytes, base_url: str) -> list[Row]:
     """
     import urllib.parse
 
+    from .fetch import decode_text
+
     try:
-        text = html_bytes.decode("utf-8", errors="replace")
-    except (AttributeError, UnicodeDecodeError):
+        text = decode_text(html_bytes)
+    except AttributeError:
         return []
     parser = _RowParser()
     try:
