@@ -23,6 +23,7 @@ from . import (
     brief_report,
     collect,
     digest,
+    discover,
     purposes,
     relevance,
     report,
@@ -92,6 +93,12 @@ def _build_parser() -> argparse.ArgumentParser:
         metavar="FILE",
         help="테마 정의(JSON) — 이 테마에 관련된 자료만 골라 섹션 브리프로 만든다"
         "(신한 '글로벌 이슈'류). 해석 표·그래프 포함",
+    )
+    p.add_argument(
+        "--discover",
+        metavar="URL",
+        help="홈페이지 주소에서 출처 초안 자동 탐지(RSS 자동발견 + K2Web 좌표) — "
+        "-o 로 파일 저장, 없으면 화면 출력. 초안은 검토 후 --sources 로 사용",
     )
     p.add_argument(
         "--query",
@@ -173,6 +180,23 @@ def main(argv: list[str] | None = None) -> int:
     else:
         srcs = _load_sources(args)
         fetcher = local_fetcher(args.input) if args.input else None
+
+    if args.discover:
+        res = discover.discover(args.discover)
+        text = res.to_sources_json()
+        for note in res.notes:
+            print(f"· {note}", file=sys.stderr)
+        summary = (
+            f"탐지 완료: 후보 {len(res.entries)}건(검증 {res.verified_count}건) · "
+            f"요청 {res.fetched}회 · 기관명 추정 '{res.org}'"
+        )
+        if args.output:
+            Path(args.output).write_text(text, encoding="utf-8")
+            print(f"{summary} → {args.output}", file=sys.stderr)
+        else:
+            print(summary, file=sys.stderr)
+            sys.stdout.write(text)
+        return 0
 
     if args.list_sources:
         # 목록 조회는 꺼진 출처도 [off]로 보여준다 — datago 예시와 인증키 상태를
