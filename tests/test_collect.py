@@ -91,6 +91,38 @@ def test_datago_without_key_labeled_distinctly(monkeypatch):
     assert rep.failed_sources == [f"공공데이터포털 (인증키 미설정: {DATAGO_KEY_ENV})"]
 
 
+def test_quote_mode_full_keeps_summary_for_unknown_tier():
+    """대학 공지(전부 '미상')의 발췌가 빈칸이 되던 결함 — full 이면 유지된다."""
+
+    def fx(_s: Source) -> bytes:
+        return RSS_WITH_SUMMARY.encode()
+
+    src = Source(id="s", name="대학", kind="rss", url="x", rights=rights.UNKNOWN)
+    (kept,) = collect.collect([src], fetcher=fx, quote_mode=collect.QUOTE_FULL).notices
+    assert kept.summary == "본문 발췌입니다"
+    # 기본값(conservative)은 기존 정책 그대로 — 미상이면 비운다.
+    (gated,) = collect.collect([src], fetcher=fx).notices
+    assert gated.summary == ""
+    # 단, full 이어도 명시적 변형 금지 등급(3유형)은 계속 비운다? — 아니다.
+    # full 은 '표기 관행이 없어 미상'인 맥락용이므로 등급 게이트 전체를 끈다.
+    src3 = Source(id="s3", name="기관", kind="rss", url="x", rights=rights.KOGL_TYPE3)
+    (t3,) = collect.collect([src3], fetcher=fx, quote_mode=collect.QUOTE_FULL).notices
+    assert t3.summary == "본문 발췌입니다"
+
+
+def test_quote_mode_full_unlocks_deep_links_for_unknown_tier():
+    """같은 뿌리의 결함 — 미상 등급이면 딥링크 수집도 전부 건너뛰던 것."""
+    from tests.test_deeplink import PAGE
+
+    n = Notice(title="t", url="https://u.ac.kr/n/1", agency="대학", rights=rights.UNKNOWN)
+    gated = collect.enrich_links([n], fetcher=lambda _u: PAGE.encode())
+    assert gated[0].links == ()  # 기본값: 미상 → 본문을 아예 열지 않는다
+    full = collect.enrich_links(
+        [n], fetcher=lambda _u: PAGE.encode(), quote_mode=collect.QUOTE_FULL
+    )
+    assert len(full[0].links) == 4
+
+
 def test_by_topic_grouping():
     """주제 축 — 한 공지가 여러 주제에 중복 등장하고, 태그 없으면 '기타'."""
     tagged = Notice(title="a", url="https://g/1", agency="A부", topics=("우주", "산업"))

@@ -120,6 +120,13 @@ def _build_parser() -> argparse.ArgumentParser:
         help="보고서 섹션 축 — agency(기본) | topic(주제별) | org(기관→사이트→부서)",
     )
     p.add_argument(
+        "--quote-mode",
+        choices=collect.QUOTE_MODES,
+        default=collect.QUOTE_CONSERVATIVE,
+        help="발췌 정책 — conservative(기본): 공공누리가 변형을 허락할 때만 발췌 유지 / "
+        "full: 등급 미상이어도 발췌 유지(공공누리 표기 관행이 없는 대학·교내 공지용)",
+    )
+    p.add_argument(
         "--deep-links",
         action="store_true",
         help="공지 본문 페이지에서 관련 자료·첨부 링크만 추가 수집(본문은 가져오지 않음). "
@@ -209,7 +216,13 @@ def main(argv: list[str] | None = None) -> int:
     if args.only_new and not args.state:
         raise SystemExit("--only-new 은 --state FILE 과 함께 써야 합니다.")
 
-    rep = collect.collect(srcs, since_days=args.since, agency=args.agency, fetcher=fetcher)
+    rep = collect.collect(
+        srcs,
+        since_days=args.since,
+        agency=args.agency,
+        fetcher=fetcher,
+        quote_mode=args.quote_mode,
+    )
     rep.group_by = args.group_by
     if args.title:
         rep.title = args.title
@@ -236,7 +249,9 @@ def main(argv: list[str] | None = None) -> int:
                 file=sys.stderr,
             )
         else:
-            rep.notices = collect.enrich_links(rep.notices, limit=args.deep_links_limit)
+            rep.notices = collect.enrich_links(
+                rep.notices, limit=args.deep_links_limit, quote_mode=args.quote_mode
+            )
 
     if args.digest and rep.notices:
         rep.digest = digest.build(rep.notices)

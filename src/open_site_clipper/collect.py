@@ -94,6 +94,11 @@ def _parse_source(source: Source, data: bytes) -> list[Notice]:
     return parse.parse_rss(data, agency=source.name, rights=source.rights, category=source.category)
 
 
+QUOTE_CONSERVATIVE = "conservative"  # 등급이 변형을 허락할 때만 발췌(기본)
+QUOTE_FULL = "full"  # 등급 미상이어도 발췌 유지 — 교내 공지처럼 표기 관행이 없는 곳용
+QUOTE_MODES = (QUOTE_CONSERVATIVE, QUOTE_FULL)
+
+
 def collect(
     sources: list[Source],
     *,
@@ -101,6 +106,7 @@ def collect(
     agency: str | None = None,
     fetcher: Fetcher | None = None,
     now: date | None = None,
+    quote_mode: str = QUOTE_CONSERVATIVE,
 ) -> Report:
     """출처를 수집해 Report를 만든다.
 
@@ -140,9 +146,15 @@ def collect(
             if key in seen:
                 continue
             seen.add(key)
-            # 보수적 인용 — 변형(요약·발췌)이 금지된 등급(3·4유형·미상)은
-            # 제목·링크·출처만 남기고 요약 발췌를 비운다(rights.py 정책의 강제).
-            if notice.summary and not rights.allows_derivative(notice.rights):
+            # 인용 정책 — 기본(conservative)은 변형이 금지된 등급(3·4유형·미상)의
+            # 요약 발췌를 비운다(rights.py 정책의 강제). 대학·교내 공지처럼 공공누리
+            # 표기 관행 자체가 없는 곳은 전부 '미상'이라 발췌가 항상 빈칸이 되므로,
+            # 그런 맥락에서는 quote_mode="full" 로 발췌를 유지한다(사용자 선택).
+            if (
+                quote_mode != QUOTE_FULL
+                and notice.summary
+                and not rights.allows_derivative(notice.rights)
+            ):
                 notice = replace(notice, summary="")
             if source.topics:
                 # 출처의 정체성을 항목에 승계 — 관련성 가점·주제 섹션화의 축.
@@ -172,6 +184,7 @@ def enrich_links(
     *,
     fetcher: Callable[[str], bytes | None] | None = None,
     limit: int = 20,
+    quote_mode: str = QUOTE_CONSERVATIVE,
 ) -> list[Notice]:
     """공지 본문에서 관련 자료 링크만 캐 Notice.links에 채운다(--deep-links).
 
@@ -187,7 +200,8 @@ def enrich_links(
     out: list[Notice] = []
     budget = limit
     for n in notices:
-        if budget <= 0 or not n.url or not rights.allows_derivative(n.rights):
+        gated = quote_mode != QUOTE_FULL and not rights.allows_derivative(n.rights)
+        if budget <= 0 or not n.url or gated:
             out.append(n)
             continue
         budget -= 1
