@@ -12,13 +12,6 @@ def test_normalize_unknown_folds_to_unknown():
     assert rights.normalize(None) == rights.UNKNOWN
 
 
-def test_open_tiers():
-    assert rights.is_open(rights.PUBLIC_DOMAIN)
-    assert rights.is_open(rights.KOGL_TYPE1)
-    assert not rights.is_open(rights.KOGL_TYPE2)
-    assert not rights.is_open(rights.UNKNOWN)
-
-
 def test_derivative_gate():
     # 변형 허용: 제7조·1·2유형
     assert rights.allows_derivative(rights.PUBLIC_DOMAIN)

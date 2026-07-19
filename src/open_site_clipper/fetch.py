@@ -16,7 +16,7 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
-_UA = "open_site_clipper/0.6 (+https://github.com/corey1-cmd/open_site_clipper)"
+USER_AGENT = "open_site_clipper/0.6 (+https://github.com/corey1-cmd/open_site_clipper)"
 _DEFAULT_TIMEOUT = 15.0
 _MAX_BYTES = 8 * 1024 * 1024  # 8MB — 피드 한 건이 이보다 크면 비정상
 
@@ -29,7 +29,7 @@ def fetch_url(url: str, *, timeout: float = _DEFAULT_TIMEOUT) -> bytes | None:
     # http(s)만 허용 — file://·ftp:// 등 로컬/우회 스킴을 원천 차단(SSRF 방지).
     if not (url.startswith("http://") or url.startswith("https://")):
         return None
-    req = urllib.request.Request(url, headers={"User-Agent": _UA})
+    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
     try:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             return resp.read(_MAX_BYTES)

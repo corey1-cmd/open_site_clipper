@@ -15,7 +15,6 @@ from dataclasses import dataclass, field
 from datetime import date
 
 from . import cluster, insight, relevance
-from .digest import Digest
 from .model import Notice
 from .relevance import Match
 from .theme import OTHER_SECTION, Theme
@@ -56,7 +55,6 @@ class Brief:
     theme: Theme
     sections: list[Section] = field(default_factory=list)
     insight: insight.Insight | None = None
-    digest: Digest | None = None
     generated_at: str = ""
     since_days: int | None = None
     failed_sources: list[str] = field(default_factory=list)
@@ -116,8 +114,6 @@ def build(
     generated_at: str = "",
     since_days: int | None = None,
     failed_sources: list[str] | None = None,
-    with_insight: bool = True,
-    with_digest: Digest | None = None,
 ) -> Brief:
     """공지 목록에서 테마 관련 자료만 골라 섹션 브리프로 조립한다."""
     floor = relevance.DEFAULT_MIN_SCORE if min_score is None else min_score
@@ -164,15 +160,12 @@ def build(
         sections.append(Section(name=name, issues=tuple(issues)))
 
     picked_notices = [m.notice for m in picked]
-    ins = None
-    if with_insight and picked_notices:
-        ins = insight.build(picked_notices)
+    ins = insight.build(picked_notices) if picked_notices else None
 
     return Brief(
         theme=theme,
         sections=sections,
         insight=ins,
-        digest=with_digest,
         generated_at=generated_at,
         since_days=since_days,
         failed_sources=list(failed_sources or []),

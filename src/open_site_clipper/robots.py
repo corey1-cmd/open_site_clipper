@@ -18,7 +18,7 @@ import urllib.parse
 import urllib.request
 from urllib.robotparser import RobotFileParser
 
-from .fetch import _UA
+from .fetch import USER_AGENT
 
 # 호스트(scheme+netloc) → 파서 또는 None(규칙 없음/조회 실패 = 허용)
 _CACHE: dict[str, RobotFileParser | None] = {}
@@ -29,7 +29,9 @@ _TIMEOUT = 10
 def _load(origin: str) -> RobotFileParser | None:
     parser = RobotFileParser()
     parser.set_url(f"{origin}/robots.txt")
-    req = urllib.request.Request(f"{origin}/robots.txt", headers={"User-Agent": _UA}, method="GET")
+    req = urllib.request.Request(
+        f"{origin}/robots.txt", headers={"User-Agent": USER_AGENT}, method="GET"
+    )
     try:
         with urllib.request.urlopen(req, timeout=_TIMEOUT) as resp:
             if resp.status != 200:
@@ -41,7 +43,7 @@ def _load(origin: str) -> RobotFileParser | None:
     return parser
 
 
-def allowed(url: str, *, user_agent: str = _UA) -> bool:
+def allowed(url: str, *, user_agent: str = USER_AGENT) -> bool:
     """이 URL을 우리 UA로 가져가도 되는지. 규칙이 없으면 True."""
     parts = urllib.parse.urlsplit(url)
     if parts.scheme not in ("http", "https") or not parts.netloc:

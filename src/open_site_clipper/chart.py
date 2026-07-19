@@ -16,6 +16,8 @@ INK = "#445"
 
 
 def _esc(s: str) -> str:
+    # report._esc 와 같은 1줄이지만, 저수준 chart 가 고수준 report 를 임포트하는
+    # 계층 역전을 피하려고 의도적으로 남긴 유일한 중복이다.
     return html.escape(s, quote=True)
 
 

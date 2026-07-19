@@ -13,14 +13,14 @@ from open_site_clipper.model import Notice
 
 def test_normalize_longest_match_and_safeguards():
     # 최장일치: '에서의'(3자)가 '에서'(2자)보다 먼저 떨어진다.
-    assert korean.normalize("플랫폼에서의") == "플랫폼"
-    assert korean.normalize("지원하는") == "지원"
-    assert korean.normalize("모집합니다") == "모집"
-    assert korean.normalize("확대되었습니다") == "확대"
+    assert korean.strip_suffix("플랫폼에서의") == "플랫폼"
+    assert korean.strip_suffix("지원하는") == "지원"
+    assert korean.strip_suffix("모집합니다") == "모집"
+    assert korean.strip_suffix("확대되었습니다") == "확대"
     # 보호 장치: 단일 문자 조사는 안 뗌, 어간이 1자가 되면 안 뗌, 접미 없으면 그대로.
-    assert korean.normalize("마을") == "마을"
-    assert korean.normalize("하는") == "하는"
-    assert korean.normalize("데이터") == "데이터"
+    assert korean.strip_suffix("마을") == "마을"
+    assert korean.strip_suffix("하는") == "하는"
+    assert korean.strip_suffix("데이터") == "데이터"
 
 
 def test_title_tokens_merge_inflected_forms():

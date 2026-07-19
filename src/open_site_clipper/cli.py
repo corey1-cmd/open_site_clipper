@@ -303,7 +303,6 @@ def main(argv: list[str] | None = None) -> int:
             generated_at=rep.generated_at,
             since_days=rep.since_days,
             failed_sources=rep.failed_sources,
-            with_digest=rep.digest,
         )
         text = brief_report.render(bf, _FMT_ALIASES[args.format])
         summary = (

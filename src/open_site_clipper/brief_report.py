@@ -7,18 +7,13 @@
 
 from __future__ import annotations
 
-import html
 import json
 
 from . import chart, rights
 from .brief import Brief, Issue
-from .report import _CSS, _fmt_date, _md_escape, _tiers_present
+from .report import _CSS, _esc, _fmt_date, _md_escape, _tiers_present
 
 FORMATS = ("markdown", "html", "json")
-
-
-def _esc(s: str) -> str:
-    return html.escape(s, quote=True)
 
 
 def _evidence(issue: Issue, limit: int = 3) -> str:

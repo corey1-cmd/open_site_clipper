@@ -384,30 +384,12 @@ def _tiers_present(notices) -> list[str]:
 
 
 # ── 사용자 템플릿 (--template) ────────────────────────────────────────────────
-TEMPLATE_MARKERS = (
-    "title",
-    "generated_at",
-    "count",
-    "agency_count",
-    "new_count",
-    "agencies",
-    "since_days",
-    "failed_sources",
-    "body_md",
-    "digest_md",
-    "legend_md",
-    "body_html",
-    "digest_html",
-    "legend_html",
-)
-
-
 def render_template(report: Report, template_text: str) -> str:
     """사용자 템플릿에 $마커를 치환한다 — 조직 서식(회람·공문 틀)을 그대로 살린다.
 
     carbone의 {d.field} 마커 발상을 표준 라이브러리 string.Template로 경량화했다.
     safe_substitute라 미지 마커($없는말)는 원문 그대로 남고, '$$'는 '$'가 된다.
-    쓸 수 있는 마커는 TEMPLATE_MARKERS 참고(md·html 본문 조각을 함께 제공).
+    쓸 수 있는 마커 14종은 README의 표 참고(md·html 본문 조각을 함께 제공).
     """
     mapping = {
         "title": report.title,

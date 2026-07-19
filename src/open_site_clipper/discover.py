@@ -281,11 +281,12 @@ def _find_rss(result: Discovery, session: _Session, page: _Page, base_url: str, 
     """표준 RSS 자동발견 → (아무것도 없으면) 관용 경로 추측."""
     seen_urls = {e.get("url") for e in result.entries}
 
-    def add(feed_url: str, title: str, evidence: str) -> None:
+    def add(feed_url: str, title: str, evidence: str, *, verified: bool | None = None) -> None:
         if feed_url in seen_urls:
             return
         seen_urls.add(feed_url)
-        verified = _is_feed(session.get(feed_url))
+        if verified is None:
+            verified = _is_feed(session.get(feed_url))
         result.entries.append(
             {
                 "id": _slug(f"rss-{urllib.parse.urlsplit(feed_url).path}"),
@@ -308,16 +309,4 @@ def _find_rss(result: Discovery, session: _Session, page: _Page, base_url: str, 
             guess = f"{urllib.parse.urlsplit(base_url).scheme}://{host}{path}"
             data = session.get(guess)
             if _is_feed(data):
-                add_url = guess
-                seen_urls.add(add_url)
-                result.entries.append(
-                    {
-                        "id": _slug(f"rss{path}"),
-                        "org": result.org,
-                        "name": f"{result.org} RSS",
-                        "kind": "rss",
-                        "url": add_url,
-                        "_evidence": f"관용 경로 추측 적중: {path}",
-                        "_verified": True,
-                    }
-                )
+                add(guess, "", f"관용 경로 추측 적중: {path}", verified=True)

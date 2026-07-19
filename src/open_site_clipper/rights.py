@@ -67,11 +67,6 @@ def badge(tier: str | None) -> str:
     return BADGES[normalize(tier)]
 
 
-def is_open(tier: str | None) -> bool:
-    """출처표시만으로 상업적 이용·변형까지 되는 개방 등급인가."""
-    return normalize(tier) in _OPEN
-
-
 def allows_derivative(tier: str | None) -> bool:
     """요약·번역 등 '변형'이 허용되는 등급인가(3·4유형·미상은 금지)."""
     return normalize(tier) not in _NO_DERIV

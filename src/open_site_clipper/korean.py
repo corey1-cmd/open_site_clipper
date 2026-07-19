@@ -96,7 +96,7 @@ SUFFIXES: tuple[str, ...] = tuple(sorted(_RAW_SUFFIXES, key=len, reverse=True))
 MIN_STEM = 2
 
 
-def normalize(token: str) -> str:
+def strip_suffix(token: str) -> str:
     """어절에서 닫힌 접미 하나를 최장일치로 뗀다. 확신이 없으면 그대로 둔다.
 
     예: 지원하는→지원, 플랫폼에서→플랫폼, 모집합니다→모집.
