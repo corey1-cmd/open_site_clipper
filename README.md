@@ -1,8 +1,11 @@
 # open_site_clipper
 
-**정부·공공기관 공지를 수집해 하나의 보고서로.**
-공개 RSS/OpenAPI로 흩어진 정부·지자체 공지를 모아, 출처와 **공공누리(KOGL)
-라이선스 등급**을 명시한 단일 보고서(Markdown · HTML · JSON)로 만듭니다.
+**흩어진 조직의 공지를 한 편의 보고서로.**
+정부·공공기관의 RSS/OpenAPI 는 물론, 한국외국어대학교처럼 본부·처·팀이
+홈페이지를 따로 쓰는 조직도 **한 기관으로 묶어** 수집합니다. 필요한 목적
+(고용·장학·정부투자…)만 골라 브리프로 만들고, 모든 출력에 출처와
+**공공누리(KOGL) 등급**을 남깁니다. Markdown · HTML · JSON, 그리고
+브라우저에서 클릭으로 쓰는 로컬 웹 UI(`--serve`)까지 — 런타임 의존성 0.
 
 [![CI](https://github.com/corey1-cmd/open_site_clipper/actions/workflows/ci.yml/badge.svg)](https://github.com/corey1-cmd/open_site_clipper/actions/workflows/ci.yml)
 ![python](https://img.shields.io/badge/python-3.10%2B-blue)
@@ -153,6 +156,26 @@ open_site_clipper --sources examples/sources-hufs.json --query 고용 -o 고용.
 
 실제 렌더링 결과는 [`examples/`](examples/) 폴더를 참고하세요 — 공지 보고서 `demo-report.html` · `.md` · `.json`, 테마 브리프 `demo-brief.html` · `.md`.
 
+## 실전 검증
+
+단위 테스트 121개(전부 오프라인, 페처 주입)에 더해 **실제 사이트에서 끝까지**
+확인했습니다.
+
+- **한국외국어대학교 실수집** — K2Web 사이트 프리셋으로 한 번에 **공지 88건**,
+  기관→사이트→부서 3단 보고서. 목록의 작성자 칸에서 행정지원처·전략기획팀·
+  장학팀 같은 실제 부서명이 그대로 추출됩니다.
+- **폴백 실동작** — hufs.ac.kr 의 robots.txt 는 `/bbs/*` 를 차단합니다. RSS·목록이
+  막히자 캐스케이드가 다음 수단으로 넘어가 수집했고, 그 이력이 보고서에 그대로
+  남습니다(조용한 실패 금지):
+
+  ```
+  rss: robots.txt 차단 → list: robots.txt 차단 → page: 60건
+  ```
+
+- **타 대학 호환** — 한국방송통신대학교 게시판이 같은 CMS(K2Web Wizard)·같은 칸
+  구조임을 확인. 좌표만 바꾸면 코드 수정 없이 동작하며, 고려대·전북대 등도 같은
+  CMS 를 씁니다.
+
 ## 사용법
 
 ```
@@ -172,11 +195,15 @@ open_site_clipper [옵션]
       --query TERMS                      목적·키워드 즉석 검색(동의어 확장, --theme 배타)
       --theme FILE                       테마 브리프 — 관련 자료만 선별·섹션화·해석
       --min-score N                      테마 관련성 채택 하한 (기본 3)
-      --group-by agency|topic            섹션 축 (기본 agency)
+      --group-by agency|topic|org        섹션 축 — org 는 기관→사이트→부서 (기본 agency)
+      --quote-mode conservative|full     발췌 정책 — full 은 등급 미상(대학 공지)도 발췌 유지
       --deep-links                       본문에서 첨부·관련 자료 링크 수집
       --deep-links-limit N               본문을 열어볼 공지 수 상한 (기본 20)
       --list-sources                     설정된 출처 출력
       --title TEXT                       보고서 제목 재정의
+      --discover URL                     홈페이지 주소로 출처 초안 자동 탐지
+      --serve                            로컬 웹 UI 시작(브라우저 자동 오픈)
+      --port N                           --serve 포트 (기본 8765)
 ```
 
 ### data.go.kr 인증키
@@ -484,15 +511,29 @@ sources ──▶ fetch ──▶ parse ──▶ collect ──▶ report
 - `korean.py` — 닫힌 접미(조사·어미) 최장일치 정규화 — pynori 분석의 증류판
 - `report.py` — Markdown · 자체 완결형 HTML · JSON · 사용자 템플릿 렌더러
 - `rights.py` — 공공누리 등급 상수·라벨·판정
+- `model.py` — 도메인 모델(Notice·Report)과 그룹 축(by_agency/by_topic/by_org)
+- `cli.py` — 명령줄 진입점(인자 검증·한글 콘솔 방어·친절한 오류)
 
 ## 개발
 
 ```bash
 pip install -e ".[dev]"
-pytest -q            # 테스트
+pytest -q            # 테스트 121개 — 전부 네트워크 없이 동작(페처 주입)
 ruff check src tests # 린트
 ruff format src tests
 ```
+
+CI(GitHub Actions)가 Python 3.10·3.11·3.12 매트릭스로 같은 검사를 돌립니다.
+
+## 한계
+
+- 게시판을 JavaScript 로만 그리는 사이트나 K2Web 이 아닌 CMS 는 `--discover` 가
+  못 찾을 수 있습니다 — 그 경우 게시판 페이지 주소를 직접 지정하세요.
+- 무LLM 원칙상 문단형 요약문은 생성하지 않습니다. 해석은 수치(추이·분포·유사
+  묶음)와 정형 문장까지이고, 발췌는 원문 그대로만 씁니다.
+- robots.txt 가 모든 경로를 막으면 수집하지 않습니다(우회 옵션을 두지 않음).
+  실시간 모니터링이 아닌 실행형 배치 도구입니다.
+- 로컬 웹 UI 는 127.0.0.1 전용 개인 도구입니다 — 다중 사용자·원격 접속·인증 없음.
 
 ## 라이선스
 
