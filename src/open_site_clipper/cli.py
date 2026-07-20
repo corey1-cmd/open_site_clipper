@@ -96,6 +96,19 @@ def _build_parser() -> argparse.ArgumentParser:
         "(신한 '글로벌 이슈'류). 해석 표·그래프 포함",
     )
     p.add_argument(
+        "--serve",
+        action="store_true",
+        help="로컬 웹 UI 시작 — 브라우저에서 조직을 골라 클릭으로 사용"
+        "(127.0.0.1 전용, 다른 옵션은 무시됨)",
+    )
+    p.add_argument(
+        "--port",
+        type=_nonneg,
+        default=8765,
+        metavar="N",
+        help="--serve 포트 (기본 8765)",
+    )
+    p.add_argument(
         "--discover",
         metavar="URL",
         help="홈페이지 주소에서 출처 초안 자동 탐지(RSS 자동발견 + K2Web 좌표) — "
@@ -215,6 +228,12 @@ def main(argv: list[str] | None = None) -> int:
     else:
         srcs = _load_sources(args)
         fetcher = local_fetcher(args.input) if args.input else None
+
+    if args.serve:
+        from . import webui
+
+        webui.serve(args.port)
+        return 0
 
     if args.discover:
         res = discover.discover(args.discover)
