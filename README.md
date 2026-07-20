@@ -47,11 +47,53 @@
 
 ## 설치
 
-```bash
-pip install .            # 저장소 루트에서
-# 또는 개발용
+**필요한 것**: Python 3.10 이상 (없으면 [python.org](https://www.python.org/downloads/)에서 설치 —
+Windows 는 설치 중 **"Add Python to PATH"** 를 반드시 체크).
+
+### 1) 내려받기
+
+- **git 있으면**:
+  ```bash
+  git clone https://github.com/corey1-cmd/open_site_clipper.git
+  cd open_site_clipper
+  ```
+- **git 없으면**: GitHub 저장소에서 초록색 **Code → Download ZIP** → 압축 해제 →
+  그 폴더로 이동. `dir`(Windows) / `ls`(Mac) 했을 때 **`pyproject.toml`·`src`·`examples`**
+  가 보이는 위치가 맞습니다. 한 겹 더 안쪽 폴더에 있으면 `cd` 로 더 들어가세요.
+
+### 2) 설치 (세 줄, 한 줄씩)
+
+**Windows (명령 프롬프트)**
+```bat
+python -m venv .venv
+.venv\Scripts\activate
 pip install -e ".[dev]"
 ```
+
+**Mac / Linux (터미널)**
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev]"
+```
+
+가운데 줄이 성공하면 프롬프트 앞에 `(.venv)` 가 붙습니다. 이후 새 터미널을 열 때마다
+그 activate 줄만 다시 실행하면 됩니다.
+
+### 3) 확인
+
+```bash
+open_site_clipper --version      # open_site_clipper 0.7.0
+python -m pytest -q              # 121 passed (인터넷 불필요)
+```
+
+### 4) 바로 써보기
+
+```bash
+open_site_clipper --serve        # 브라우저가 http://127.0.0.1:8765 로 자동으로 열립니다
+```
+명령줄이 편하면 아래 [빠른 시작](#빠른-시작)의 예시를 쓰세요. `--serve` 사용법은
+[로컬 웹 UI](#로컬-웹-ui---serve) 참고.
 
 ## 빠른 시작
 
