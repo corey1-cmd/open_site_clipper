@@ -116,6 +116,18 @@ def _build_parser() -> argparse.ArgumentParser:
         "-o 로 파일 저장, 없으면 화면 출력. 초안은 검토 후 --sources 로 사용",
     )
     p.add_argument(
+        "--discover-org",
+        metavar="URL",
+        help="조직 대표 주소 하나로 산하 여러 사이트(서브도메인)까지 훑어 출처 초안 생성",
+    )
+    p.add_argument(
+        "--max-sites",
+        type=_nonneg,
+        default=6,
+        metavar="N",
+        help="--discover-org 가 훑을 서로 다른 사이트 최대 수 (기본 6)",
+    )
+    p.add_argument(
         "--query",
         metavar="TERMS",
         help='목적·키워드 즉석 검색(파일 불필요) — 예: --query 고용, --query "고용 복지", '
