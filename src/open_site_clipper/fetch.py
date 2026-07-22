@@ -16,7 +16,7 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
-USER_AGENT = "open_site_clipper/0.7 (+https://github.com/corey1-cmd/open_site_clipper)"
+USER_AGENT = "open_site_clipper/0.8 (+https://github.com/corey1-cmd/open_site_clipper)"
 _DEFAULT_TIMEOUT = 15.0
 _MAX_BYTES = 8 * 1024 * 1024  # 8MB — 피드 한 건이 이보다 크면 비정상
 
