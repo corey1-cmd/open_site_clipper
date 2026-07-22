@@ -6,6 +6,7 @@
   open_site_clipper --since 7 --agency 행정안전부   # 최근 7일 · 특정 기관만
   open_site_clipper --input ./feeds --format html  # 저장해 둔 피드로 오프라인 생성
   open_site_clipper --sources my_sources.json      # 사용자 정의 출처
+  open_site_clipper --discover-org hufs.ac.kr      # 조직 산하 여러 사이트까지 탐지
   open_site_clipper --list-sources                 # 설정된 출처 확인
 """
 

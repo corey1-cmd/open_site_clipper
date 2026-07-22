@@ -36,6 +36,27 @@ from .k2web_parse import ARTICLE_RE
 PageFetcher = Callable[[str], "bytes | None"]
 
 DEFAULT_BUDGET = 12  # 시작 페이지 포함 총 요청 상한 — 폭주 방지
+ORG_BUDGET = 40  # discover_org 전체 요청 상한(여러 사이트 합산)
+DEFAULT_MAX_SITES = 6  # discover_org 가 훑을 서로 다른 호스트 최대 수
+
+# 국내에서 흔한 2단 접미사 — 이 경우 뿌리는 마지막 3라벨(hufs.ac.kr).
+_TWO_LABEL_TLDS = frozenset(
+    {"ac.kr", "go.kr", "co.kr", "or.kr", "ne.kr", "re.kr", "pe.kr", "hs.kr", "ms.kr", "es.kr"}
+)
+
+
+def _site_root(host: str) -> str:
+    """두 호스트가 '같은 조직'인지 비교하기 위한 뿌리 도메인.
+
+    www.hufs.ac.kr 와 student.hufs.ac.kr 은 같은 hufs.ac.kr 로 묶여야 한다.
+    ac.kr·go.kr 같은 2단 접미사는 마지막 3라벨을, 그 외(example.com)는 마지막
+    2라벨을 뿌리로 본다.
+    """
+    labels = host.lower().split(".")
+    if len(labels) >= 3 and ".".join(labels[-2:]) in _TWO_LABEL_TLDS:
+        return ".".join(labels[-3:])
+    return ".".join(labels[-2:]) if len(labels) >= 2 else host
+
 
 # K2Web 좌표가 드러나는 링크 문법들.
 _BOARD_RE = re.compile(r"/bbs/([A-Za-z0-9_\-]+)/(\d+)/(?:artclList|rssList)\.do", re.I)
@@ -109,21 +130,26 @@ class Discovery:
     entries: list[dict] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
     fetched: int = 0
+    sites: list[str] = field(default_factory=list)  # 훑은 호스트들(discover_org)
+    _last_hosts: list[str] = field(default_factory=list)  # 직전 페이지의 동일조직 링크
 
     @property
     def verified_count(self) -> int:
         return sum(1 for e in self.entries if e.get("_verified"))
 
     def to_sources_json(self) -> str:
-        payload = {
-            "_comment": [
-                f"--discover {self.start_url} 가 만든 출처 초안 — 사람 검토 후 사용하세요.",
-                "org·site·name·category 를 다듬고, _verified 가 false 인 항목은 주소를 직접 확인하세요.",
-                "'_'로 시작하는 필드는 탐지 근거 기록이며 수집 시 무시됩니다.",
-                *self.notes,
-            ],
-            "sources": self.entries,
-        }
+        comment = [
+            f"--discover {self.start_url} 가 만든 출처 초안 — 사람 검토 후 사용하세요.",
+            "org·site·name·category 를 다듬고, _verified 가 false 인 항목은 주소를 직접 확인하세요.",
+            "'_'로 시작하는 필드는 탐지 근거 기록이며 수집 시 무시됩니다.",
+        ]
+        if len(self.sites) > 1:
+            comment.append(
+                "여러 사이트를 훑었습니다: " + ", ".join(self.sites) + ". "
+                "필요없는 항목은 지우거나 enabled:false 로 꺼두세요."
+            )
+        comment.extend(self.notes)
+        payload = {"_comment": comment, "sources": self.entries}
         return json.dumps(payload, ensure_ascii=False, indent=2) + "\n"
 
 
@@ -165,25 +191,44 @@ def _clean_org(title: str, host: str) -> str:
     return head or host
 
 
+def _same_org_hosts(page: _Page, base_url: str, root: str) -> list[str]:
+    """페이지의 절대 링크 중 시작과 같은 뿌리 도메인인 '다른 호스트'들."""
+    out: list[str] = []
+    seen: set[str] = set()
+    for href, _ in page.anchors:
+        netloc = urllib.parse.urlsplit(urllib.parse.urljoin(base_url, href)).netloc
+        if not netloc or netloc in seen:
+            continue
+        seen.add(netloc)
+        if _site_root(netloc) == root and netloc != urllib.parse.urlsplit(base_url).netloc:
+            out.append(netloc)
+    return out
+
+
 def discover(
     url: str,
     *,
     fetcher: PageFetcher | None = None,
     check_robots: bool = True,
     budget: int = DEFAULT_BUDGET,
+    _session: _Session | None = None,
+    _result: Discovery | None = None,
 ) -> Discovery:
-    """홈페이지 한 장에서 출발해 RSS·K2Web 출처 초안을 모은다."""
+    """홈페이지 한 장에서 출발해 RSS·K2Web 출처 초안을 모은다.
+
+    _session·_result 는 discover_org 가 예산과 누적 결과를 여러 사이트에 걸쳐
+    공유하기 위한 내부 인자다(단독 호출 시 무시).
+    """
     if "://" not in url:
         url = "https://" + url  # 스킴 생략 입력('www.knou.ac.kr')을 조용히 보정
-    result = Discovery(start_url=url)
-    session = _Session(fetcher, check_robots, budget)
-    parts = urllib.parse.urlsplit(url)
-    host = parts.netloc
+    result = _result or Discovery(start_url=url)
+    session = _session or _Session(fetcher, check_robots, budget)
+    host = urllib.parse.urlsplit(url).netloc
 
     data = session.get(url)
     if data is None:
         reason = "robots.txt 차단" if session.blocked else "응답 없음"
-        result.notes.append(f"시작 페이지를 열지 못했습니다({reason}): {url}")
+        result.notes.append(f"페이지를 열지 못했습니다({reason}): {url}")
         result.fetched = session.fetched
         return result
 
@@ -191,38 +236,56 @@ def discover(
     try:
         page.feed(decode_text(data))
     except Exception:
-        result.notes.append("시작 페이지 HTML 파싱 실패 — 탐지 결과가 없을 수 있습니다.")
-    result.org = _clean_org(page.title, host)
+        result.notes.append(f"HTML 파싱 실패({url}) — 이 사이트의 결과가 없을 수 있습니다.")
+    if not result.org:
+        result.org = _clean_org(page.title, host)
+    result._last_hosts = _same_org_hosts(page, url, _site_root(host))  # discover_org 용
 
     _find_k2web(result, session, page, url, host)
     _find_rss(result, session, page, url, host)
 
-    if not result.entries:
-        result.notes.append(
-            "지원 형식(RSS 자동발견·K2Web 문법)을 찾지 못했습니다 — JS로만 그리는 메뉴이거나 "
-            "다른 CMS 일 수 있습니다. 게시판 페이지 주소를 직접 --discover 에 줘 보세요."
-        )
-    if session.blocked:
-        result.notes.append(f"robots.txt 로 건너뛴 주소 {len(session.blocked)}건")
-    if session.budget <= 0:
-        result.notes.append(f"요청 예산({budget}회) 소진 — 일부 후보는 확인하지 못했습니다.")
+    if _result is None:  # 단독 호출일 때만 종합 메모(org 순회는 자체 메모를 단다)
+        if not result.entries:
+            result.notes.append(
+                "지원 형식(RSS 자동발견·K2Web 문법)을 찾지 못했습니다 — JS로만 그리는 메뉴이거나 "
+                "다른 CMS 일 수 있습니다. 게시판 페이지 주소를 직접 --discover 에 줘 보세요."
+            )
+        if session.blocked:
+            result.notes.append(f"robots.txt 로 건너뛴 주소 {len(session.blocked)}건")
+        if session.budget <= 0:
+            result.notes.append(f"요청 예산({budget}회) 소진 — 일부 후보는 확인하지 못했습니다.")
     result.fetched = session.fetched
     return result
+
+
+def _entry_key(entry: dict) -> tuple:
+    """출처 초안 하나의 고유 키 — 여러 사이트 결과를 합쳐도 중복을 막는다."""
+    if entry.get("kind") == "k2web":
+        return ("k2web", entry.get("host"), entry.get("site_id"), entry.get("board_id"))
+    return ("rss", entry.get("url"))
 
 
 def _find_k2web(
     result: Discovery, session: _Session, page: _Page, base_url: str, host: str
 ) -> None:
-    """K2Web 좌표 수집 — 직접 노출 링크 + 게시판스러운 메뉴 한 단계 따라가기."""
-    is_k2web = "k2web" in page.generator.lower()
-    seen: set[tuple[str, str, str]] = set()
+    """K2Web 좌표 수집 — 직접 노출 링크 + 게시판스러운 메뉴 한 단계 따라가기.
 
-    def add(site_id: str, board_id: str, name: str, menu_no: int | None, evidence: str) -> None:
-        key = (host, site_id, board_id)
+    좌표를 조립할 host 는 시작 페이지가 아니라 **그 링크가 실제로 가리키는
+    호스트**를 쓴다. 대학 홈페이지에는 student.·grad. 같은 다른 서브도메인의
+    게시판 링크가 섞여 있어서, 시작 host 로 조립하면 엉뚱한 도메인 주소가 된다.
+    """
+    is_k2web = "k2web" in page.generator.lower()
+    # 이미 쌓인 항목으로 중복셋을 초기화 — 여러 사이트를 병합해도 누적이 안전하다.
+    seen: set[tuple] = {_entry_key(e) for e in result.entries}
+
+    def add(
+        link_host: str, site_id: str, board_id: str, name: str, menu_no: int | None, evidence: str
+    ) -> None:
+        key = ("k2web", link_host, site_id, int(board_id))
         if key in seen:
             return
         seen.add(key)
-        rss = f"https://{host}/bbs/{site_id}/{board_id}/rssList.do?row=50"
+        rss = f"https://{link_host}/bbs/{site_id}/{board_id}/rssList.do?row=50"
         verified = _is_feed(session.get(rss))
         entry: dict = {
             "id": _slug(f"{site_id}-{board_id}"),
@@ -230,7 +293,7 @@ def _find_k2web(
             "site": result.org,
             "name": f"{result.org} {name}".strip(),
             "kind": "k2web",
-            "host": host,
+            "host": link_host,
             "site_id": site_id,
             "board_id": int(board_id),
             "category": name,
@@ -247,28 +310,32 @@ def _find_k2web(
         if m:
             is_k2web = True
             name = (text or "게시판")[:30]
-            add(m.group(1), m.group(2), name, None, f"시작 페이지 링크: {href}")
+            link_host = urllib.parse.urlsplit(urllib.parse.urljoin(base_url, href)).netloc or host
+            add(link_host, m.group(1), m.group(2), name, None, f"시작 페이지 링크: {href}")
 
     if not is_k2web and not any(_MENU_RE.search(h) for h, _ in page.anchors):
         return  # K2Web 흔적이 전혀 없으면 따라가지 않는다
 
     # ② 게시판스러운 메뉴(subview.do)를 예산 내에서 한 단계 따라가 좌표를 캔다.
-    followed: set[str] = set()
+    followed: set[tuple[str, str]] = set()
     for href, text in page.anchors:
         m = _MENU_RE.search(href)
         if not m or not any(h in text.lower() for h in _BOARD_HINTS):
             continue
-        menu_key = m.group(0)
+        menu_url = urllib.parse.urljoin(base_url, href)
+        menu_host = urllib.parse.urlsplit(menu_url).netloc or host
+        menu_key = (menu_host, m.group(0))
         if menu_key in followed:
             continue
         followed.add(menu_key)
-        menu_url = urllib.parse.urljoin(base_url, href)
         sub = session.get(menu_url)
         if not sub:
             continue
+        # 따라간 페이지의 실제 호스트로 좌표를 조립한다(리다이렉트·상대경로 대비).
         bm = _BOARD_RE.search(decode_text(sub))
         if bm:
             add(
+                menu_host,
                 bm.group(1),
                 bm.group(2),
                 (text or "게시판")[:30],
@@ -310,3 +377,74 @@ def _find_rss(result: Discovery, session: _Session, page: _Page, base_url: str, 
             data = session.get(guess)
             if _is_feed(data):
                 add(guess, "", f"관용 경로 추측 적중: {path}", verified=True)
+
+
+def discover_org(
+    url: str,
+    *,
+    fetcher: PageFetcher | None = None,
+    check_robots: bool = True,
+    budget: int = ORG_BUDGET,
+    max_sites: int = DEFAULT_MAX_SITES,
+) -> Discovery:
+    """조직 대표 주소 하나에서 산하 여러 사이트(서브도메인)를 훑어 전부 병합한다.
+
+    시작 URL 을 탐지하며 같은 뿌리 도메인(_site_root)의 다른 호스트 링크를 만나면
+    큐에 넣고, 그 사이트도 홈페이지부터 다시 탐지해 하나의 Discovery 로 합친다.
+    외부 검색 없이 링크만 따라가며, 전체 요청 예산(budget)과 사이트 수(max_sites)
+    두 상한으로 폭주를 막는다. 초안이므로 사람이 검토 후 쓰는 전제는 그대로다.
+    """
+    if "://" not in url:
+        url = "https://" + url
+    start_host = urllib.parse.urlsplit(url).netloc
+    root = _site_root(start_host)
+
+    result = Discovery(start_url=url)
+    session = _Session(fetcher, check_robots, budget)
+
+    queue: list[str] = [url]
+    # 사용자가 등록도메인만 준 경우(hufs.ac.kr), www. 변형도 시드에 넣어 본다
+    # — 많은 대학이 대표 콘텐츠를 www 에 두고 나체 도메인은 리다이렉트만 한다.
+    if start_host == root:
+        queue.append(f"https://www.{root}/")
+    visited: set[str] = set()
+    capped = False  # max_sites 때문에 남은 사이트를 못 본 적이 있는가
+
+    while queue:
+        if len(visited) >= max_sites or session.budget <= 0:
+            capped = capped or bool(queue)
+            break
+        site_url = queue.pop(0)
+        host = urllib.parse.urlsplit(site_url).netloc
+        if host in visited:
+            continue
+        visited.add(host)
+        result.sites.append(host)
+
+        discover(site_url, _session=session, _result=result)
+
+        # 이 사이트에서 본 '같은 조직의 다른 호스트'를 큐에 추가한다.
+        for h in result._last_hosts:
+            if (
+                h not in visited
+                and _site_root(h) == root
+                and h not in {urllib.parse.urlsplit(q).netloc for q in queue}
+            ):
+                queue.append(f"https://{h}/")
+
+    if not result.entries:
+        result.notes.append(
+            "산하 사이트에서 지원 형식을 찾지 못했습니다 — 대표 홈페이지 대신 게시판이 "
+            "있는 서브도메인 주소를 직접 넣어 보세요."
+        )
+    if session.blocked:
+        result.notes.append(f"robots.txt 로 건너뛴 주소 {len(session.blocked)}건")
+    if capped and session.budget > 0:
+        result.notes.append(
+            f"사이트 상한({max_sites}곳)에 도달 — 훑지 못한 서브도메인이 남았습니다"
+            "(--max-sites 로 늘릴 수 있습니다)."
+        )
+    if session.budget <= 0:
+        result.notes.append(f"요청 예산({budget}회) 소진 — 일부 후보는 확인하지 못했습니다.")
+    result.fetched = session.fetched
+    return result
