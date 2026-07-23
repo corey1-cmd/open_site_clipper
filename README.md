@@ -42,6 +42,7 @@
 - 🖱 **로컬 웹 UI** — `--serve` 한 번이면 브라우저에서 조직을 골라 클릭으로 수집·검색 (127.0.0.1 전용)
 - 🔎 **출처 자동 탐지** — 홈페이지 주소 하나로 RSS·K2Web 좌표 초안 생성, 근거·검증 표시 (`--discover`)
 - 🏛 **기관 단위 통합** — 본부·처·팀·대학원이 사이트를 따로 써도 한 기관으로 묶어 부서까지 표시 (`--group-by org`)
+- 🏛 **정부 부처 통합** — 공지·인사·보도자료는 RSS 로, RSS 가 없는 채용·입찰은 게시판 목록으로 (`kind: "govweb"`)
 - 🪜 **단계적 폴백** — RSS → 목록 → JSON API → 메뉴 순으로 시도, 앞이 막혀도 멈추지 않고 시도 이력을 남김
 - 🤖 **robots.txt 준수** — 표준 robotparser로 우리 UA 기준 판정(무시 옵션 없음)
 - 🩹 **fail-open** — 한 출처가 죽어도(해외 IP 차단·URL 변경) 나머지로 보고서 완성,
@@ -382,6 +383,37 @@ open_site_clipper --discover https://www.mcst.go.kr/site/s_etc/rss/rssService.js
 > feed_seeker(탐지 3원·제한 따라가기), feedfinder(후보·검증 분리). 셋 다
 > requests·bs4 의존이라 원리만 표준 라이브러리로 이식했습니다.
 
+### 정부 부처 한 기관 통합 (`kind: "govweb"`)
+
+부처는 **공지·인사·보도자료·언론설명**을 RSS 로 공개합니다(각 사이트의
+"정보구독서비스" 페이지). 반면 **채용·입찰은 RSS 가 없는 경우가 많아**
+목록 페이지를 직접 읽어야 합니다 — 그때 `kind: "govweb"` 을 씁니다.
+좌표가 필요 없고 **목록 주소만** 적으면 됩니다.
+
+```json
+{ "org": "문화체육관광부", "name": "문화체육관광부", "kind": "govweb",
+  "url": "https://www.mcst.go.kr/site/s_notice/notice/jobList.jsp",
+  "category": "채용", "rights": "kogl_type1" }
+```
+
+```bash
+# RSS 4종 + 채용·입찰 2종을 한 기관으로
+open_site_clipper --sources examples/sources-mcst.json --group-by org -o mcst.html
+
+# 목적으로 좁혀 보기
+open_site_clipper --sources examples/sources-mcst.json --query 채용 -o 채용.html
+```
+
+파서는 **상세 링크 문법에 의존하지 않습니다.** 이 게시판들은 소속·공공기관
+공고를 각 기관 누리집과 연동해 보여주기 때문에 링크가 제각각입니다. 대신 표의
+칸 순서(번호→제목→게시일→마감일→조회)에 기대어, 행에서 실제 링크를 단 가장 긴
+텍스트 칸을 제목으로, 그 뒤 첫 날짜를 게시일로 읽습니다. 제목 앞 `[기관명]`
+접두는 부서로 뽑습니다.
+
+한계: 목록이 표가 아니거나 JavaScript 로만 그려지는 게시판은 읽지 못합니다.
+부처마다 RSS 제공 범위가 달라, 있는 것은 RSS 로 없는 것만 `govweb` 으로 채우는
+방식이 안전합니다.
+
 ### 테마 브리프 (`--theme`)
 
 수집한 공지 **전부**를 나열하는 대신, **테마에 관련된 자료만** 골라 섹션 브리핑을
@@ -524,6 +556,7 @@ sources ──▶ fetch ──▶ parse ──▶ collect ──▶ report
 - `robots.py` — robots.txt 준수(호스트별 캐시, fail-open)
 - `discover.py` — 출처 자동 탐지(RSS 자동발견·K2Web 좌표·검증 스니핑)
 - `webui.py` — 로컬 웹 UI(조직 선택→수집·검색·탐지, 표준 http.server)
+- `govweb.py` — 정부 표준홈페이지 게시판 파서(채용·입찰 등 RSS 미제공 목록)
 - `purposes.py` — 목적 동의어 사전(--query 즉석 테마)
 - `korean.py` — 닫힌 접미(조사·어미) 최장일치 정규화 — pynori 분석의 증류판
 - `report.py` — Markdown · 자체 완결형 HTML · JSON · 사용자 템플릿 렌더러
@@ -546,6 +579,7 @@ CI(GitHub Actions)가 Python 3.10·3.11·3.12 매트릭스로 같은 검사를 �
 
 - 게시판을 JavaScript 로만 그리는 사이트나 K2Web 이 아닌 CMS 는 `--discover` 가
   못 찾을 수 있습니다 — 그 경우 게시판 페이지 주소를 직접 지정하세요.
+- 부처마다 RSS 제공 범위가 다릅니다(문체부는 채용·입찰이 RSS 에 없어 `govweb` 필요).
 - 무LLM 원칙상 문단형 요약문은 생성하지 않습니다. 해석은 수치(추이·분포·유사
   묶음)와 정형 문장까지이고, 발췌는 원문 그대로만 씁니다.
 - robots.txt 가 모든 경로를 막으면 수집하지 않습니다(우회 옵션을 두지 않음).
