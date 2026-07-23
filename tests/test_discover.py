@@ -49,7 +49,7 @@ def test_discovers_k2web_and_rss_with_verification():
     assert board57["category"] == "공지사항" and board57["_verified"] is True
     rss = next(e for e in res.entries if e["kind"] == "rss")
     assert rss["url"].endswith("/bbs/knou/90/rssList.do?row=50")
-    assert rss["name"] == "보도자료 RSS" and rss["_verified"] is True
+    assert rss["name"] == "한국방송통신대학교 보도자료 RSS" and rss["_verified"] is True
     # '오시는 길' 메뉴는 게시판 문구가 아니라 따라가지 않고, 중복 메뉴는 1회만.
     assert res.fetched == 1 + 1 + 3  # 시작 + subview(57) + rss 검증 3회
     assert res.verified_count == 3
@@ -199,3 +199,102 @@ def test_discover_org_bare_domain_seeds_www():
     res = discover.discover("https://plain.example/", fetcher=pages.get, check_robots=False)
     assert res.entries == []
     assert any("지원 형식" in n for n in res.notes)
+
+
+# ── 피드 목록 페이지(S-A) — korea.kr·부처 '정보구독서비스' 공통 패턴 ──────────
+# 실측 구조: 표 한 행에 (이름 | 피드 주소 | 주소복사 버튼). 앵커 텍스트가 전부
+# "RSS복사"라서 이름은 같은 행의 링크 없는 첫 칸에서 가져와야 한다.
+KOREA_INDEX = """<html><head><title>RSS 서비스 | 대한민국 정책브리핑</title></head><body>
+<table><tbody>
+<tr><td>국무조정실</td>
+    <td><a href="https://www.korea.kr/rss/dept_opm.xml">https://www.korea.kr/rss/dept_opm.xml</a></td>
+    <td><a href="#copy">RSS복사</a></td></tr>
+<tr><td>산업통상부</td>
+    <td><a href="https://www.korea.kr/rss/dept_motir.xml">https://www.korea.kr/rss/dept_motir.xml</a></td>
+    <td><a href="#copy">RSS복사</a></td></tr>
+<tr><td>고용노동부</td>
+    <td><a href="https://www.korea.kr/rss/dept_moel.xml">https://www.korea.kr/rss/dept_moel.xml</a></td>
+    <td><a href="#copy">RSS복사</a></td></tr>
+</tbody></table></body></html>"""
+
+# 문체부 '정보구독서비스' 실측 구조 — 이름이 'A > B > 공지' 형태이고 .jsp 피드다.
+MCST_INDEX = """<html><head><title>서비스 안내 - 정보구독서비스 | 문화체육관광부</title></head><body>
+<table><tbody>
+<tr><td>알림·소식 &gt; 알림 &gt; 공지</td>
+    <td><a href="https://www.mcst.go.kr/common/rss/notice.jsp">주소</a></td>
+    <td><a href="http://www.mcst.go.kr/common/rss/notice.jsp">주소복사</a></td></tr>
+<tr><td>알림·소식 &gt; 알림 &gt; 인사</td>
+    <td><a href="https://www.mcst.go.kr/common/rss/noticePerson.jsp">주소</a></td>
+    <td><a href="#">주소복사</a></td></tr>
+<tr><td>알림·소식 &gt; 보도·뉴스 &gt; 보도자료</td>
+    <td><a href="https://www.mcst.go.kr/common/rss/press.jsp">주소</a></td>
+    <td><a href="#">주소복사</a></td></tr>
+</tbody></table></body></html>"""
+
+REAL_RSS = (
+    b'<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel>'
+    b"<title>x</title><item><title>a</title></item></channel></rss>"
+)
+
+
+def test_feed_index_page_yields_each_department():
+    """korea.kr RSS 목록 한 장에서 부처 피드를 전부 캐낸다(하드코딩 없이)."""
+    pages = {"https://www.korea.kr/etc/rss.do": KOREA_INDEX.encode()}
+
+    def fx(u: str) -> bytes | None:
+        return pages.get(u) or (REAL_RSS if u.endswith(".xml") else None)
+
+    res = discover.discover("https://www.korea.kr/etc/rss.do", fetcher=fx, check_robots=False)
+    urls = {e["url"] for e in res.entries}
+    assert urls == {
+        "https://www.korea.kr/rss/dept_opm.xml",
+        "https://www.korea.kr/rss/dept_motir.xml",
+        "https://www.korea.kr/rss/dept_moel.xml",
+    }
+    # 이름은 앵커('RSS복사')가 아니라 같은 행 첫 칸(기관명)에서 온다.
+    names = {e["category"] for e in res.entries}
+    assert names == {"국무조정실", "산업통상부", "고용노동부"}
+    assert all(e["_verified"] for e in res.entries)
+    assert all("피드 목록 표" in e["_evidence"] for e in res.entries)
+    # 초안이 그대로 유효한 출처 파일이 된다.
+    payload = json.loads(res.to_sources_json())
+    assert len(sources.from_dicts(payload["sources"])) == 3
+
+
+def test_ministry_subscription_page_yields_notice_and_hr():
+    """부처 '정보구독서비스' 페이지에서 공지·인사·보도자료를 캐낸다(같은 코드)."""
+    pages = {"https://www.mcst.go.kr/site/s_etc/rss/rssService.jsp": MCST_INDEX.encode()}
+
+    def fx(u: str) -> bytes | None:
+        return pages.get(u) or (REAL_RSS if u.endswith(".jsp") else None)
+
+    res = discover.discover(
+        "https://www.mcst.go.kr/site/s_etc/rss/rssService.jsp", fetcher=fx, check_robots=False
+    )
+    cats = {e["category"] for e in res.entries}
+    assert cats == {"공지", "인사", "보도자료"}  # 'A > B > 공지' 에서 마지막 조각만
+    assert any(e["url"].endswith("/common/rss/notice.jsp") for e in res.entries)
+    assert all(e["_verified"] for e in res.entries)
+
+
+def test_guess_paths_skipped_when_index_found():
+    """인덱스에서 후보를 찾았으면 관용 경로 추측은 아예 하지 않는다."""
+    calls: list[str] = []
+
+    def fx(u: str) -> bytes | None:
+        calls.append(u)
+        if u == "https://www.korea.kr/etc/rss.do":
+            return KOREA_INDEX.encode()
+        return REAL_RSS if u.endswith(".xml") else None
+
+    discover.discover("https://www.korea.kr/etc/rss.do", fetcher=fx, check_robots=False)
+    assert not any(c.endswith(("/rss", "/feed", "/index.xml", "/feed.xml")) for c in calls)
+
+
+def test_is_feed_rejects_html_page_mentioning_rss():
+    """S-C: 루트 태그만 흉내낸 응답을 피드로 오인하지 않는다."""
+    assert discover._is_feed(REAL_RSS) is True
+    # 본문 요소(item·entry·channel)가 없으면 거부.
+    assert discover._is_feed(b"<rss>\xed\x95\x9c\xea\xb8\x80</rss>") is False
+    assert discover._is_feed(b"<html><body>RSS feed guide</body></html>") is False
+    assert discover._is_feed(None) is False

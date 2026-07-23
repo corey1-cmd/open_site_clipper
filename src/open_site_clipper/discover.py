@@ -29,7 +29,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from html.parser import HTMLParser
 
-from . import robots
+from . import k2web_parse, robots
 from .fetch import decode_text
 from .k2web_parse import ARTICLE_RE
 
@@ -69,11 +69,31 @@ _BOARD_HINTS = ("공지", "알림", "소식", "뉴스", "공고", "자료", "보
 _GUESS_PATHS = ("/rss", "/feed", "/rss.xml", "/atom.xml", "/index.xml", "/feed.xml")
 
 _FEED_HINT_RE = re.compile(rb"<(rss|feed|rdf)[\s>:]", re.I)
+# 루트 태그만으로는 부족하다 — 'RSS 안내' 같은 HTML 문서도 통과할 수 있어서,
+# 실제 피드라면 반드시 있는 본문 요소(item·entry·channel)를 함께 요구한다.
+_FEED_BODY_RE = re.compile(rb"<(item|entry|channel)[\s>]", re.I)
+
+# 주소 모양만으로 '피드일 가능성'을 거르는 1차 필터(확정은 스니핑이 한다).
+#   /rss/dept_motir.xml · /common/rss/notice.jsp · /feed · news.rss
+_FEED_URL_RE = re.compile(
+    r"(\.xml(\?|$)|\.rss(\?|$)|/rss/|/rss(\?|$)|rss[a-z]*\.jsp|/feed(/|\?|$))", re.I
+)
+
+
+def _looks_like_feed_url(href: str) -> bool:
+    return bool(_FEED_URL_RE.search(href))
 
 
 def _is_feed(data: bytes | None) -> bool:
-    """앞부분 스니핑으로 RSS/Atom 여부 판정(feedfinder validators 방식)."""
-    return bool(data) and bool(_FEED_HINT_RE.search(data[:2048]))
+    """스니핑으로 RSS/Atom 여부 판정(feedfinder validators 방식 + 본문 확인).
+
+    루트 태그(<rss·<feed·<rdf)가 앞부분에 있고 **동시에** 피드 본문 요소가
+    있어야 참으로 본다. 관용 경로 추측이 엉뚱한 200 응답을 피드로 오인해
+    유령 출처를 만드는 것을 막는다.
+    """
+    if not data:
+        return False
+    return bool(_FEED_HINT_RE.search(data[:2048])) and bool(_FEED_BODY_RE.search(data[:65536]))
 
 
 class _Page(HTMLParser):
@@ -242,7 +262,7 @@ def discover(
     result._last_hosts = _same_org_hosts(page, url, _site_root(host))  # discover_org 용
 
     _find_k2web(result, session, page, url, host)
-    _find_rss(result, session, page, url, host)
+    _find_rss(result, session, page, url, host, page_bytes=data)
 
     if _result is None:  # 단독 호출일 때만 종합 메모(org 순회는 자체 메모를 단다)
         if not result.entries:
@@ -344,8 +364,40 @@ def _find_k2web(
             )
 
 
-def _find_rss(result: Discovery, session: _Session, page: _Page, base_url: str, host: str) -> None:
-    """표준 RSS 자동발견 → (아무것도 없으면) 관용 경로 추측."""
+def _feed_index_rows(page_bytes: bytes, base_url: str) -> list[tuple[str, str]]:
+    """'피드 목록' 페이지의 표에서 (이름, 피드 주소)를 캔다.
+
+    korea.kr `/etc/rss.do` 와 각 부처의 '정보구독서비스' 페이지가 같은 모양이다 —
+    표 한 행에 (메뉴·기관 이름 | 피드 주소 | 주소복사 버튼). 이름을 앵커 텍스트에서
+    가져오면 전부 "RSS복사"·"주소복사"가 되므로, **같은 행에서 링크 없는 첫 칸**을
+    이름으로 쓴다(k2web_parse 의 '칸 순서로 읽는다' 원리 재사용).
+    """
+    out: list[tuple[str, str]] = []
+    seen: set[str] = set()
+    for cells in k2web_parse.parse_rows(page_bytes):
+        href = next((h for _, h in cells if h and _looks_like_feed_url(h)), "")
+        if not href:
+            continue
+        url = urllib.parse.urljoin(base_url, href)
+        if url in seen:
+            continue
+        seen.add(url)
+        # 이름 = 같은 행에서 링크가 없는 첫 텍스트 칸. 'A > B > 공지' 는 마지막 조각만.
+        label = next((t for t, h in cells if t and not h), "")
+        name = label.split(">")[-1].strip()[:40]
+        out.append((name, url))
+    return out
+
+
+def _find_rss(
+    result: Discovery,
+    session: _Session,
+    page: _Page,
+    base_url: str,
+    host: str,
+    page_bytes: bytes | None = None,
+) -> None:
+    """RSS 자동발견 → 피드 목록 표 → (그래도 없으면) 관용 경로 추측."""
     seen_urls = {e.get("url") for e in result.entries}
 
     def add(feed_url: str, title: str, evidence: str, *, verified: bool | None = None) -> None:
@@ -358,18 +410,29 @@ def _find_rss(result: Discovery, session: _Session, page: _Page, base_url: str, 
             {
                 "id": _slug(f"rss-{urllib.parse.urlsplit(feed_url).path}"),
                 "org": result.org,
-                "name": title or f"{result.org} RSS",
+                "name": f"{result.org} {title}".strip() if title else f"{result.org} RSS",
                 "kind": "rss",
                 "url": feed_url,
+                "category": title,
                 "_evidence": evidence,
                 "_verified": verified,
             }
         )
 
+    # ① 표준 자동발견
     for href, title in page.alternates:
         add(urllib.parse.urljoin(base_url, href), title, "<link rel=alternate> 자동발견")
 
-    if not result.entries:  # rel 도 K2Web 도 없을 때만 추측(feed_seeker 방식)
+    # ② 피드 목록 페이지(표) — korea.kr·부처 '정보구독서비스' 공통 패턴
+    if page_bytes:
+        for name, url in _feed_index_rows(page_bytes, base_url):
+            if session.budget <= 0:
+                result.notes.append("피드 목록이 예산보다 많아 일부는 확인하지 못했습니다.")
+                break
+            add(url, name, f"피드 목록 표의 '{name}' 항목")
+
+    # ③ 아무것도 못 찾았을 때만 추측(feed_seeker 방식)
+    if not result.entries:
         for path in _GUESS_PATHS:
             if session.budget <= 0:
                 break

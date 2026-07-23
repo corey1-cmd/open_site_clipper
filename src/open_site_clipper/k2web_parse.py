@@ -119,13 +119,13 @@ def _row_unit(cells: list[tuple[str, str]], title_idx: int) -> str:
     return ""
 
 
-def parse_list(html_bytes: bytes, base_url: str) -> list[Row]:
-    """게시판 목록/메뉴 페이지 HTML에서 글 행을 뽑는다.
+def parse_rows(html_bytes: bytes) -> list[list[tuple[str, str]]]:
+    """표의 행들을 (칸 텍스트, 칸의 첫 링크) 목록으로 돌려준다.
 
-    같은 글이 상단 고정(공지)과 본문에 중복 등장하므로 URL 기준으로 1회만 남긴다.
+    게시판 목록(parse_list)과 피드 목록 페이지(discover) 가 같은 원리 —
+    "행 안에서 칸 순서로 읽는다" — 를 공유하기 위한 공개 함수. 깨진 HTML 은
+    빈 목록으로 끝난다(fail-open).
     """
-    import urllib.parse
-
     from .fetch import decode_text
 
     try:
@@ -137,10 +137,21 @@ def parse_list(html_bytes: bytes, base_url: str) -> list[Row]:
         parser.feed(text)
     except Exception:
         return []
+    return parser.rows
+
+
+def parse_list(html_bytes: bytes, base_url: str) -> list[Row]:
+    """게시판 목록/메뉴 페이지 HTML에서 글 행을 뽑는다.
+
+    같은 글이 상단 고정(공지)과 본문에 중복 등장하므로 URL 기준으로 1회만 남긴다.
+    """
+    import urllib.parse
+
+    rows = parse_rows(html_bytes)
 
     out: list[Row] = []
     seen: set[str] = set()
-    for cells in parser.rows:
+    for cells in rows:
         idx = next(
             (i for i, (t, h) in enumerate(cells) if h and ARTICLE_RE.search(h) and t.strip()),
             None,
