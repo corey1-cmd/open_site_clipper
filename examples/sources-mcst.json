@@ -1,0 +1,83 @@
+{
+  "_comment": [
+    "문화체육관광부 통합 수집 예시 — 한 기관의 여러 정보를 한 보고서로.",
+    "",
+    "RSS 4종은 부처가 '정보구독서비스'로 공개하는 것을 그대로 쓴다:",
+    "  https://www.mcst.go.kr/site/s_etc/rss/rssService.jsp",
+    "채용·입찰은 그 목록에 없어서(RSS 미제공) kind=govweb 으로 게시판 HTML 을 읽는다.",
+    "",
+    "다른 부처도 같은 방식이다 — 그 부처의 '정보구독서비스' 페이지를 --discover 로",
+    "읽어 RSS 를 얻고, RSS 가 없는 메뉴만 govweb 으로 목록 주소를 적어 주면 된다.",
+    "보도자료는 korea.kr 부처 피드로도 받을 수 있다(중복 항목은 자동 제거).",
+    "",
+    "공공누리 1유형(출처표시)이 명시된 자료들이라 발췌·재이용 조건이 분명하다."
+  ],
+  "sources": [
+    {
+      "id": "mcst-notice",
+      "org": "문화체육관광부",
+      "site": "본부",
+      "name": "문화체육관광부",
+      "kind": "rss",
+      "url": "https://www.mcst.go.kr/common/rss/notice.jsp",
+      "category": "공지",
+      "rights": "kogl_type1",
+      "topics": ["공지", "알림"]
+    },
+    {
+      "id": "mcst-person",
+      "org": "문화체육관광부",
+      "site": "본부",
+      "name": "문화체육관광부",
+      "kind": "rss",
+      "url": "https://www.mcst.go.kr/common/rss/noticePerson.jsp",
+      "category": "인사",
+      "rights": "kogl_type1",
+      "topics": ["인사"]
+    },
+    {
+      "id": "mcst-press",
+      "org": "문화체육관광부",
+      "site": "본부",
+      "name": "문화체육관광부",
+      "kind": "rss",
+      "url": "https://www.mcst.go.kr/common/rss/press.jsp",
+      "category": "보도자료",
+      "rights": "kogl_type1",
+      "topics": ["보도자료", "정책"]
+    },
+    {
+      "id": "mcst-explain",
+      "org": "문화체육관광부",
+      "site": "본부",
+      "name": "문화체육관광부",
+      "kind": "rss",
+      "url": "https://www.mcst.go.kr/common/rss/explainpress.jsp",
+      "category": "언론보도설명",
+      "rights": "kogl_type1",
+      "topics": ["설명", "정정"]
+    },
+    {
+      "id": "mcst-job",
+      "org": "문화체육관광부",
+      "site": "본부",
+      "name": "문화체육관광부",
+      "kind": "govweb",
+      "url": "https://www.mcst.go.kr/site/s_notice/notice/jobList.jsp",
+      "category": "채용",
+      "rights": "kogl_type1",
+      "topics": ["채용", "모집", "공고"]
+    },
+    {
+      "id": "mcst-bid",
+      "org": "문화체육관광부",
+      "site": "본부",
+      "name": "문화체육관광부",
+      "kind": "govweb",
+      "url": "https://www.mcst.go.kr/site/s_notice/notice/bidList.jsp",
+      "category": "입찰",
+      "rights": "kogl_type1",
+      "topics": ["입찰", "계약", "공고"]
+    }
+  ]
+}

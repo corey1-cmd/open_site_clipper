@@ -55,6 +55,27 @@ def local_fetcher(input_dir: str | Path) -> Fetcher:
     return _read
 
 
+def _parse_govweb(source: Source, data: bytes) -> list[Notice]:
+    """정부 표준홈페이지 목록 HTML → 공지 목록."""
+    from . import govweb
+
+    rows = govweb.parse_list(data, source.url)
+    return [
+        Notice(
+            title=r.title,
+            url=r.url,
+            agency=source.name,
+            published=r.published,
+            category=source.category,
+            rights=source.rights,
+            org=source.org,
+            site=source.site,
+            unit=r.unit or source.site or source.name,
+        )
+        for r in rows
+    ]
+
+
 def _collect_k2web(source: Source, *, fetcher: Fetcher | None, failed: list[str]) -> list[Notice]:
     """K2Web 출처를 캐스케이드로 수집하고, 실패 시 시도 이력을 실패 목록에 남긴다."""
     from . import k2web
@@ -127,7 +148,14 @@ def collect(
         if not source.enabled:
             continue
 
-        if source.kind == "k2web":
+        if source.kind == "govweb":
+            # 정부 표준홈페이지 게시판(채용·입찰 등 RSS 가 없는 목록) HTML 파싱.
+            data = fetch(source)
+            if not data:
+                failed.append(_failure_label(source, live=live))
+                continue
+            parsed = _parse_govweb(source, data)
+        elif source.kind == "k2web":
             # 단계적 폴백(RSS → 목록 → 메뉴). 오프라인 모드에서는 기존 페처를 쓴다.
             parsed = _collect_k2web(source, fetcher=fetcher, failed=failed)
         else:

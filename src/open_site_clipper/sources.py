@@ -173,7 +173,7 @@ def from_dicts(items: list[dict[str, object]]) -> list[Source]:
         name = str(raw.get("name") or "").strip()
         url = str(raw.get("url") or "").strip()
         kind = str(raw.get("kind") or "rss").strip().lower()
-        if kind not in ("rss", "datago", "k2web"):
+        if kind not in ("rss", "datago", "k2web", "govweb"):
             continue
         if not name:
             continue
