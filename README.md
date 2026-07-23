@@ -361,6 +361,23 @@ open_site_clipper --discover https://www.knou.ac.kr/knou/index.do -o knou.json
 요청 수에 예산(기본 12회)을 두며, JS로만 그리는 메뉴나 비지원 CMS는 못 찾을 수
 있습니다(그 경우 게시판 페이지 주소를 직접 `--discover`에 주면 됩니다).
 
+**피드 목록 페이지도 읽습니다.** 정부 사이트는 "RSS 서비스"·"정보구독서비스"
+페이지에 피드 주소를 표로 모아 둡니다. 그 주소를 주면 표를 읽어 항목마다 출처를
+만듭니다 — 기관·메뉴 이름은 앵커 텍스트("RSS복사")가 아니라 같은 행의 첫 칸에서
+가져옵니다.
+
+```bash
+# 정부 전체 부처 피드 목록 한 장에서
+open_site_clipper --discover https://www.korea.kr/etc/rss.do -o gov.json
+
+# 개별 부처의 공지·인사·보도자료 피드
+open_site_clipper --discover https://www.mcst.go.kr/site/s_etc/rss/rssService.jsp -o mcst.json
+```
+
+부처 링크는 개편으로 바뀌지만 이 목록 페이지는 정부가 갱신하므로, 주소를 코드에
+박아 두지 않아도 그 시점의 목록을 그대로 얻습니다. 부처가 RSS 로 내주지 않는
+메뉴(예: 일부 부처의 채용·입찰)는 이 방법으로도 나오지 않습니다.
+
 > 설계 출처: autoscraper('예시 하나→재사용 규칙' — K2Web에선 URL 문법이 곧 규칙),
 > feed_seeker(탐지 3원·제한 따라가기), feedfinder(후보·검증 분리). 셋 다
 > requests·bs4 의존이라 원리만 표준 라이브러리로 이식했습니다.
