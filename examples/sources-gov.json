@@ -1,0 +1,59 @@
+{
+  "_comment": [
+    "정부기관 수집 예시 — kind=govorg 는 카테고리마다 여러 경로를 돌려가며 시도한다.",
+    "  rss(자체 피드) → board(게시판 표) → alt(같은 목록의 다른 주소) → datago → korea(korea.kr)",
+    "",
+    "routes 에는 확인된 주소만 적는다. 비어 있어도 korea_feed 가 있으면 보도자료는 들어온다.",
+    "korea_feed 코드는 https://www.korea.kr/etc/rss.do 에서 확인하거나,",
+    "  open_site_clipper --discover https://www.korea.kr/etc/rss.do 로 한 번에 뽑을 수 있다.",
+    "",
+    "rights 를 일부러 비워 두었다 — 정부 자료라고 전부 공공누리 1유형이 아니다(4유형 실측).",
+    "등급을 확인한 기관만 \"rights\": \"kogl_type1\" 을 넣으면 발췌까지 살아난다.",
+    "등급이 미상이면 제목·링크·날짜·부서(메타데이터)는 그대로 수집되고 발췌만 비워진다.",
+    "",
+    "수집 전에 --check-access examples/sources-gov.json 으로 어디가 열려 있는지 먼저 확인할 것."
+  ],
+  "sources": [
+    {
+      "id": "gov-mcst",
+      "org": "문화체육관광부",
+      "name": "문화체육관광부",
+      "kind": "govorg",
+      "korea_feed": "dept_mcst",
+      "routes": [
+        ["공지", "rss", "https://www.mcst.go.kr/common/rss/notice.jsp"],
+        ["인사", "rss", "https://www.mcst.go.kr/common/rss/noticePerson.jsp"],
+        ["보도자료", "rss", "https://www.mcst.go.kr/common/rss/press.jsp"],
+        ["채용", "board", "https://www.mcst.go.kr/site/s_notice/notice/jobList.jsp"],
+        ["입찰", "board", "https://www.mcst.go.kr/site/s_notice/notice/bidList.jsp"]
+      ]
+    },
+    {
+      "id": "gov-mois",
+      "org": "행정안전부",
+      "name": "행정안전부",
+      "kind": "govorg",
+      "korea_feed": "dept_mois",
+      "routes": [["알림", "board", "https://www.mois.go.kr/frt/bbs/type010/commonSelectBoardList.do?bbsId=BBSMSTR_000000000008"]]
+    },
+    {
+      "id": "gov-mofa",
+      "org": "외교부",
+      "name": "외교부",
+      "kind": "govorg",
+      "korea_feed": "dept_mofa",
+      "routes": []
+    },
+    {
+      "id": "gov-moe",
+      "org": "교육부",
+      "name": "교육부",
+      "kind": "govorg",
+      "korea_feed": "dept_moe",
+      "routes": [
+        ["공지", "board", "https://www.moe.go.kr/boardCnts/listRenew.do?boardID=333&m=020501&s=moe"],
+        ["채용", "board", "https://www.moe.go.kr/boardCnts/listRenew.do?boardID=72761&m=020502&s=moe"]
+      ]
+    }
+  ]
+}

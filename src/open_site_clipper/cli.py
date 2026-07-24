@@ -116,6 +116,12 @@ def _build_parser() -> argparse.ArgumentParser:
         "-o 로 파일 저장, 없으면 화면 출력. 초안은 검토 후 --sources 로 사용",
     )
     p.add_argument(
+        "--check-access",
+        metavar="FILE",
+        help="수집 전 접근 진단 — 출처 파일의 후보 경로마다 robots.txt 를 이 도구의 "
+        "User-Agent 로 판정해, 전면 차단인지 경로별 차단인지 표로 보여준다(수집 안 함)",
+    )
+    p.add_argument(
         "--discover-org",
         metavar="URL",
         help="조직 대표 주소 하나로 산하 여러 사이트(서브도메인)까지 훑어 출처 초안 생성",
@@ -248,14 +254,33 @@ def main(argv: list[str] | None = None) -> int:
         webui.serve(args.port)
         return 0
 
-    if args.discover:
-        res = discover.discover(args.discover)
+    if args.check_access:
+        from . import access
+
+        try:
+            raw = json.loads(Path(args.check_access).read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as e:
+            raise SystemExit(f"출처 파일을 읽을 수 없습니다: {e}") from e
+        items = raw.get("sources") if isinstance(raw, dict) else raw
+        srcs = sources.from_dicts(items if isinstance(items, list) else [])
+        if not srcs:
+            raise SystemExit("출처 파일에 유효한 출처가 없습니다.")
+        print(access.render(access.check(srcs)))
+        return 0
+
+    if args.discover or args.discover_org:
+        if args.discover_org:
+            res = discover.discover_org(args.discover_org, max_sites=args.max_sites)
+            scope = f" · 사이트 {len(res.sites)}곳"
+        else:
+            res = discover.discover(args.discover)
+            scope = ""
         text = res.to_sources_json()
         for note in res.notes:
             print(f"· {note}", file=sys.stderr)
         summary = (
             f"탐지 완료: 후보 {len(res.entries)}건(검증 {res.verified_count}건) · "
-            f"요청 {res.fetched}회 · 기관명 추정 '{res.org}'"
+            f"요청 {res.fetched}회{scope} · 기관명 추정 '{res.org}'"
         )
         if args.output:
             _write_output(args.output, text)
