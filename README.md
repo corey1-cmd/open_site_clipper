@@ -42,6 +42,7 @@
 - 🖱 **로컬 웹 UI** — `--serve` 한 번이면 브라우저에서 조직을 골라 클릭으로 수집·검색 (127.0.0.1 전용)
 - 🔎 **출처 자동 탐지** — 홈페이지 주소 하나로 RSS·K2Web 좌표 초안 생성, 근거·검증 표시 (`--discover`)
 - 🏛 **기관 단위 통합** — 본부·처·팀·대학원이 사이트를 따로 써도 한 기관으로 묶어 부서까지 표시 (`--group-by org`)
+- 🩺 **접근 진단** — 수집 전에 어디가 전면 차단이고 어디가 경로별 차단인지 표로 확인 (`--check-access`)
 - 🔀 **정부 캐스케이드** — 메뉴 종류마다 5개 경로를 돌려가며 시도, 막히면 다음으로 (`kind: "govorg"`)
 - 🏛 **정부 부처 통합** — 공지·인사·보도자료는 RSS 로, RSS 가 없는 채용·입찰은 게시판 목록으로 (`kind: "govweb"`)
 - 🪜 **단계적 폴백** — RSS → 목록 → JSON API → 메뉴 순으로 시도, 앞이 막혀도 멈추지 않고 시도 이력을 남김
@@ -384,6 +385,37 @@ open_site_clipper --discover https://www.mcst.go.kr/site/s_etc/rss/rssService.js
 > feed_seeker(탐지 3원·제한 따라가기), feedfinder(후보·검증 분리). 셋 다
 > requests·bs4 의존이라 원리만 표준 라이브러리로 이식했습니다.
 
+### 접근 진단 (`--check-access`)
+
+정부 사이트는 robots.txt 로 막힌 곳이 많은데, **막힌 방식이 두 가지**입니다.
+수집을 돌리기 전에 어느 쪽인지 확인합니다.
+
+```bash
+open_site_clipper --check-access examples/sources-gov.json
+```
+
+```
+기관                허용/전체  결론
+교육부                1/7  ◐ 일부 허용 — 열린 경로로 수집
+                  ✗ 공지/board: https://www.moe.go.kr/boardCnts/listRenew.do?…
+문화체육관광부      16/16  ✓ 전 경로 허용
+외교부                1/1  — 자체 경로 미설정 — 보도자료만
+행정안전부            4/4  ✓ 전 경로 허용
+
+요약: 기관 4곳 — 전 경로 허용 2 · 자체 경로 미설정 1 · 일부 허용 1
+※ robots.txt 는 User-Agent 별로 규칙이 다릅니다. 위 판정은 이 도구 기준입니다.
+```
+
+- **전면 차단**(`Disallow: /`)이면 어떤 주소를 찾아도 소용없습니다 → korea.kr·
+  data.go.kr 경로만 남습니다.
+- **경로별 차단**이면 다른 진입 경로가 열려 있을 수 있습니다 → 캐스케이드의
+  `alt` 단계가 값을 합니다.
+
+두 번째 줄이 중요한 이유는, **남이 다른 도구로 잰 차단 목록이 우리에게 그대로
+적용되지 않기** 때문입니다. robots.txt 는 User-Agent 별로 규칙이 갈리므로
+이 도구의 UA 로 직접 물어야 합니다. 진단은 수집을 하지 않고 robots.txt 만
+읽습니다(호스트당 1회, 캐시).
+
 ### 정부 캐스케이드 (`kind: "govorg"`)
 
 정부는 부처마다 CMS가 달라(실측 19종) 대학처럼 좌표로 주소를 만들 수 없고,
@@ -593,6 +625,7 @@ sources ──▶ fetch ──▶ parse ──▶ collect ──▶ report
 - `webui.py` — 로컬 웹 UI(조직 선택→수집·검색·탐지, 표준 http.server)
 - `govweb.py` — 정부 표준홈페이지 게시판 파서(채용·입찰 등 RSS 미제공 목록)
 - `cascade.py` · `govcascade.py` — 폴백 공통 뼈대(시도 이력)와 정부 카테고리별 5단 캐스케이드
+- `access.py` — 접근 진단(전면/경로별 차단 구분, 우리 UA 기준)
 - `purposes.py` — 목적 동의어 사전(--query 즉석 테마)
 - `korean.py` — 닫힌 접미(조사·어미) 최장일치 정규화 — pynori 분석의 증류판
 - `report.py` — Markdown · 자체 완결형 HTML · JSON · 사용자 템플릿 렌더러
