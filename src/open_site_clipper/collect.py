@@ -148,7 +148,15 @@ def collect(
         if not source.enabled:
             continue
 
-        if source.kind == "govweb":
+        if source.kind == "govorg":
+            # 카테고리별 다단계 폴백 — 되면 쓰고, 안 되면 사유를 남긴다.
+            from . import govcascade
+            from .fetch import fetch_url
+
+            page_fetch = (lambda u, _s=source: fetcher(_s)) if fetcher is not None else fetch_url
+            parsed, why = govcascade.collect_org(source, fetcher=page_fetch)
+            failed.extend(why)
+        elif source.kind == "govweb":
             # 정부 표준홈페이지 게시판(채용·입찰 등 RSS 가 없는 목록) HTML 파싱.
             data = fetch(source)
             if not data:

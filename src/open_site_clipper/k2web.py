@@ -25,9 +25,17 @@ url|article_no)가 빠진 설정 오류는 요청 전에 걸러 사유로 남긴
 from __future__ import annotations
 
 from collections.abc import Callable
-from dataclasses import dataclass, field, replace
+from dataclasses import replace
 
 from . import jsonapi, k2web_parse, parse, robots
+from .cascade import (
+    FETCH_FAILED,
+    NO_ITEMS,
+    NOT_CONFIGURED,
+    ROBOTS_BLOCKED,
+    Attempt,
+    Outcome,
+)
 from .model import Notice
 from .sources import Source
 
@@ -35,47 +43,6 @@ DEFAULT_ROW = 50
 
 # 수단 이름 — 시도 순서이기도 하다.
 RSS, LIST, API, PAGE = "rss", "list", "api", "page"
-
-# 실패 사유
-ROBOTS_BLOCKED = "robots.txt 차단"
-FETCH_FAILED = "응답 없음"
-NO_ITEMS = "글 0건"
-NOT_CONFIGURED = "좌표 미설정"
-
-
-@dataclass(frozen=True, slots=True)
-class Attempt:
-    """한 수단의 시도 결과 — 성공이든 실패든 남긴다."""
-
-    strategy: str
-    url: str
-    count: int = 0
-    reason: str = ""
-
-    @property
-    def ok(self) -> bool:
-        return self.count > 0
-
-
-@dataclass(slots=True)
-class Outcome:
-    """한 게시판 수집의 최종 결과 + 시도 이력."""
-
-    notices: list[Notice] = field(default_factory=list)
-    attempts: list[Attempt] = field(default_factory=list)
-
-    @property
-    def strategy(self) -> str:
-        """실제로 성공한 수단(없으면 "")."""
-        return next((a.strategy for a in self.attempts if a.ok), "")
-
-    def trail(self) -> str:
-        """사람이 읽는 시도 이력 — 'rss: robots.txt 차단 → list: 12건'."""
-        parts = [
-            f"{a.strategy}: {a.count}건" if a.ok else f"{a.strategy}: {a.reason}"
-            for a in self.attempts
-        ]
-        return " → ".join(parts)
 
 
 def rss_url(host: str, site_id: str, board_id: int | str, row: int = DEFAULT_ROW) -> str:

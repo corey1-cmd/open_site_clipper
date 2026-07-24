@@ -45,6 +45,10 @@ class Source:
     # api_paths 는 점 표기 경로 쌍: (("items","data.list"),("title","artclNm"),…)
     api_url: str = ""
     api_paths: tuple[tuple[str, str], ...] = ()
+    # kind="govorg" 전용 — 카테고리별 수집 경로와 korea.kr 부처 피드 코드.
+    #   routes: (("공지","rss","https://…"), ("채용","board","https://…"))
+    routes: tuple[tuple[str, str, str], ...] = ()
+    korea_feed: str = ""
 
 
 # 기본 출처 — 공개 RSS 위주(인증키 불필요). data.go.kr 채널은 예시로 꺼둔 채
@@ -173,12 +177,15 @@ def from_dicts(items: list[dict[str, object]]) -> list[Source]:
         name = str(raw.get("name") or "").strip()
         url = str(raw.get("url") or "").strip()
         kind = str(raw.get("kind") or "rss").strip().lower()
-        if kind not in ("rss", "datago", "k2web", "govweb"):
+        if kind not in ("rss", "datago", "k2web", "govweb", "govorg"):
             continue
         if not name:
             continue
         # k2web은 URL 대신 좌표(host·site_id·board_id)로 주소를 조립한다.
-        if kind == "k2web":
+        if kind == "govorg":
+            if not (raw.get("routes") or raw.get("korea_feed")):
+                continue
+        elif kind == "k2web":
             if not (raw.get("host") and raw.get("site_id") and raw.get("board_id") is not None):
                 continue
         elif not url:
@@ -204,6 +211,14 @@ def from_dicts(items: list[dict[str, object]]) -> list[Source]:
                 board_id=_int_or_none(raw.get("board_id")),
                 menu_no=_int_or_none(raw.get("menu_no")),
                 row=_int_or_none(raw.get("row")) or 50,
+                routes=tuple(
+                    (str(r[0]).strip(), str(r[1]).strip(), str(r[2]).strip())
+                    for r in (raw.get("routes") or [])
+                    if isinstance(r, (list, tuple))
+                    and len(r) >= 3
+                    and all(str(x).strip() for x in r[:3])
+                ),
+                korea_feed=str(raw.get("korea_feed") or ""),
                 api_url=str(raw.get("api_url") or ""),
                 api_paths=tuple(
                     sorted(
