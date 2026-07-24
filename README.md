@@ -42,6 +42,7 @@
 - 🖱 **로컬 웹 UI** — `--serve` 한 번이면 브라우저에서 조직을 골라 클릭으로 수집·검색 (127.0.0.1 전용)
 - 🔎 **출처 자동 탐지** — 홈페이지 주소 하나로 RSS·K2Web 좌표 초안 생성, 근거·검증 표시 (`--discover`)
 - 🏛 **기관 단위 통합** — 본부·처·팀·대학원이 사이트를 따로 써도 한 기관으로 묶어 부서까지 표시 (`--group-by org`)
+- 🔀 **정부 캐스케이드** — 메뉴 종류마다 5개 경로를 돌려가며 시도, 막히면 다음으로 (`kind: "govorg"`)
 - 🏛 **정부 부처 통합** — 공지·인사·보도자료는 RSS 로, RSS 가 없는 채용·입찰은 게시판 목록으로 (`kind: "govweb"`)
 - 🪜 **단계적 폴백** — RSS → 목록 → JSON API → 메뉴 순으로 시도, 앞이 막혀도 멈추지 않고 시도 이력을 남김
 - 🤖 **robots.txt 준수** — 표준 robotparser로 우리 UA 기준 판정(무시 옵션 없음)
@@ -383,6 +384,40 @@ open_site_clipper --discover https://www.mcst.go.kr/site/s_etc/rss/rssService.js
 > feed_seeker(탐지 3원·제한 따라가기), feedfinder(후보·검증 분리). 셋 다
 > requests·bs4 의존이라 원리만 표준 라이브러리로 이식했습니다.
 
+### 정부 캐스케이드 (`kind: "govorg"`)
+
+정부는 부처마다 CMS가 달라(실측 19종) 대학처럼 좌표로 주소를 만들 수 없고,
+robots.txt가 경로를 막는 곳도 많습니다. 그래서 **메뉴 종류(보도자료·공지·인사·
+채용·입찰)마다** 아래 순서로 시도하고, 앞이 막히면 다음으로 넘어갑니다.
+
+| 순위 | 단계 | robots | 얻는 것 |
+|---|---|---|---|
+| 1 | `rss` | 검사 | 기관 자체 피드 |
+| 2 | `board` | 검사 | 기관 게시판 표 |
+| 3 | `alt` | 검사 | **같은 목록의 다른 주소** |
+| 4 | `datago` | 무관 | 공공데이터포털 API |
+| 5 | `korea` | 무관 | korea.kr 부처 피드(보도자료 안전망) |
+
+```json
+{ "org": "문화체육관광부", "kind": "govorg", "korea_feed": "dept_mcst",
+  "routes": [["공지", "rss", "https://www.mcst.go.kr/common/rss/notice.jsp"],
+             ["채용", "board", "https://www.mcst.go.kr/site/s_notice/notice/jobList.jsp"]] }
+```
+
+**대학 캐스케이드와 결정적으로 다른 점**: 대학은 4단계가 *같은 글*로 가는 다른
+길이라 첫 성공에서 멈췄지만, 정부는 단계마다 주는 것이 달라 **카테고리별로 따로**
+폴백합니다. 보도자료가 korea.kr로 성공해도 채용 게시판은 따로 시도합니다.
+
+`alt`는 **우회가 아닙니다.** robots가 막은 주소 대신 같은 내용을 담은 다른 주소
+(모바일 도메인·www 유무·영문판 경로)를 만들어 **robots 판정을 다시 받는 것**이고,
+거기서도 막히면 그대로 건너뜁니다. 어느 기관에서 통할지는 미지수라 되면 쓰고
+안 되면 사유가 남습니다:
+
+```
+⚠ 외교부 공지 (board: robots.txt 차단 → alt: robots.txt 차단 → alt: robots.txt 차단)
+   ※ 같은 기관의 보도자료는 korea.kr 경로로 수집됨
+```
+
 ### 정부 부처 한 기관 통합 (`kind: "govweb"`)
 
 부처는 **공지·인사·보도자료·언론설명**을 RSS 로 공개합니다(각 사이트의
@@ -557,6 +592,7 @@ sources ──▶ fetch ──▶ parse ──▶ collect ──▶ report
 - `discover.py` — 출처 자동 탐지(RSS 자동발견·K2Web 좌표·검증 스니핑)
 - `webui.py` — 로컬 웹 UI(조직 선택→수집·검색·탐지, 표준 http.server)
 - `govweb.py` — 정부 표준홈페이지 게시판 파서(채용·입찰 등 RSS 미제공 목록)
+- `cascade.py` · `govcascade.py` — 폴백 공통 뼈대(시도 이력)와 정부 카테고리별 5단 캐스케이드
 - `purposes.py` — 목적 동의어 사전(--query 즉석 테마)
 - `korean.py` — 닫힌 접미(조사·어미) 최장일치 정규화 — pynori 분석의 증류판
 - `report.py` — Markdown · 자체 완결형 HTML · JSON · 사용자 템플릿 렌더러
