@@ -17,6 +17,7 @@ CMS 를 가리지 않는다. 링크 문법이 아니라 **앵커 텍스트와 �
 
 from __future__ import annotations
 
+import re
 import urllib.parse
 from collections.abc import Callable
 
@@ -45,6 +46,26 @@ CATEGORY_HINTS: tuple[tuple[str, tuple[str, ...]], ...] = (
 
 # RSS 안내 페이지로 가는 링크의 단서.
 _RSS_HINTS = ("rss", "구독", "피드", "feed")
+
+
+# 게시판일 가능성 점수 — 주소와 이름의 신호를 더한다.
+_BOARD_URL_HINTS = ("list", "board", "bbs", "article", "notice", "brd", "news")
+_INTRO_URL_HINTS = ("intro", "about", "greeting", "org", "history", "vision", "location", "map")
+
+
+def board_score(url: str, label: str) -> int:
+    """이 링크가 게시판 목록일 가능성 — 클수록 먼저 시험한다."""
+    low = (url or "").lower()
+    score = 0
+    if any(h in low for h in _BOARD_URL_HINTS):
+        score += 3
+    if any(h in low for h in _INTRO_URL_HINTS):
+        score -= 2
+    if classify(label):  # 이름이 공지·채용·입찰 등으로 판정되면
+        score += 2
+    if low.rstrip("/").count("/") <= 3:  # 최상위 메뉴는 목록보다 관문일 확률↑
+        score -= 1
+    return score
 
 
 def classify(text: str) -> str:
@@ -84,7 +105,7 @@ def find_routes(
 
     page = _discover._Page()
     try:
-        page.feed(decode_text(data))
+        page.feed(_discover.strip_noise(decode_text(data)))
     except Exception:
         notes.append(f"홈페이지 HTML 파싱 실패: {home_url}")
 
@@ -104,13 +125,16 @@ def find_routes(
     # ② 본문 앵커 — 이름으로 거르지 않고 **전부** 후보로 둔다. 선별은 구조
     #    테스트(probe)가 한다. 이름은 분류 라벨로만 쓴다(모르면 "기타").
     candidates: list[tuple[str, str, str]] = []
+    internal = external = tried = 0
     for href, text in page.anchors:
         url = urllib.parse.urljoin(home_url, href)
         parts = urllib.parse.urlsplit(url)
         if parts.scheme not in ("http", "https"):
             continue  # javascript: · # 등
         if probe.is_external(url, home_host):
+            external += 1
             continue  # 법령·공공데이터·국민신문고 등 — 별도 출처로 등록할 것
+        internal += 1
         label = classify(text) or (" ".join((text or "").split())[:20] or "기타")
         kind = "rss" if _discover._looks_like_feed_url(href) else "board"
         key = (label, url)
@@ -124,8 +148,13 @@ def find_routes(
         candidates.append((label, kind, url))
 
     # ③ 구조 테스트 — 후보를 열어 '날짜 붙은 목록'만 남긴다.
+    # 상한(max_candidates)에 소개·정책 메뉴만 차서 정작 게시판까지 못 가던 문제가
+    # 있었다(국무조정실·금융위 등 18곳이 '40건 건너뜀'). 게시판일 가능성이 높은
+    # 것부터 보도록 점수순 정렬 후 상한을 적용한다.
+    candidates.sort(key=lambda c: -board_score(c[2], c[0]))
     skipped: dict[str, int] = {}
     for label, kind, url in candidates[:max_candidates]:
+        tried += 1
         if session.budget <= 0:
             notes.append(f"요청 예산 소진 — 후보 {len(candidates)}개 중 일부만 확인했습니다.")
             break
@@ -162,10 +191,21 @@ def find_routes(
         else:
             notes.append(f"RSS 안내 페이지를 열지 못했습니다: {rss_page}")
 
+    # ④ 홈에서 아무것도 못 찾았으면 **사이트맵**으로 우회한다.
+    #    robots.txt 의 Sitemap: 은 이미 받아 둔 것이라 추가 요청이 들지 않고,
+    #    거기 담긴 목록 주소는 홈 메뉴가 JS 로만 그려져도 그대로 쓸 수 있다.
+    if not routes and session.budget > 0:
+        found, why = _from_sitemap(session, home_url, home_host, max_candidates)
+        routes.extend(found)
+        notes.extend(why)
+
     if not routes:
         notes.append(
-            "게시판·피드 링크를 찾지 못했습니다 — 메뉴가 JavaScript 로만 그려지거나 "
-            "구조가 다를 수 있습니다(보도자료는 korea.kr 경로로 대체됩니다)."
+            f"게시판·피드 링크를 찾지 못했습니다 — 진단: 응답 {len(data) // 1024}KB · "
+            f"<a> {page.anchor_tags}개(주소없음 {page.dead_links}·data속성 {page.data_links}) · "
+            f"내부 {internal}·외부제외 {external} · 후보 {len(candidates)}개(시험 {tried}건). "
+            "메뉴가 JavaScript 로만 그려지거나 구조가 다를 수 있습니다"
+            "(보도자료는 korea.kr 경로로 대체됩니다)."
         )
     if session.blocked:
         notes.append(f"robots.txt 로 건너뛴 주소 {len(session.blocked)}건")
@@ -195,3 +235,61 @@ def enrich(
         return source, notes
     merged = list(source.routes) + [r for r in found if r not in source.routes]
     return replace(source, routes=tuple(merged)), notes
+
+
+# 사이트맵에서 목록 주소를 캘 때 쓰는 최소 XML 추출 — 표준 <loc> 만 본다.
+_LOC_RE = re.compile(r"<loc>\s*([^<\s]+)\s*</loc>", re.I)
+
+
+def _from_sitemap(
+    session, home_url: str, home_host: str, max_candidates: int
+) -> tuple[list[tuple[str, str, str]], list[str]]:
+    """사이트맵(XML)에서 게시판 후보를 캐 구조 테스트로 거른다.
+
+    robots.txt 의 `Sitemap:` 은 이미 받아 둔 파일에서 읽으므로 **추가 요청이
+    들지 않는다**. 사이트맵에는 그 사이트의 목록 주소가 대개 전부 들어 있어,
+    홈 메뉴가 JavaScript 로만 그려지는 사이트를 우회하는 지름길이 된다.
+    """
+    from . import robots as _robots
+
+    routes: list[tuple[str, str, str]] = []
+    notes: list[str] = []
+    urls = _robots.sitemap_urls(home_url)
+    if not urls:
+        return routes, notes
+
+    seen: set[str] = set()
+    for sitemap in urls[:2]:  # 사이트맵이 여러 개면 앞의 둘만
+        if session.budget <= 0:
+            break
+        data = session.get(sitemap)
+        if not data:
+            continue
+        locs = [
+            u
+            for u in _LOC_RE.findall(decode_text(data))
+            if u.startswith(("http://", "https://")) and not probe.is_external(u, home_host)
+        ]
+        # 중첩 사이트맵(sitemapindex)이면 첫 자식 하나만 더 따라간다.
+        if locs and all(u.endswith((".xml", ".xml.gz")) for u in locs[:3]):
+            child = session.get(locs[0])
+            if child:
+                locs = [
+                    u
+                    for u in _LOC_RE.findall(decode_text(child))
+                    if not probe.is_external(u, home_host)
+                ]
+        cands = sorted({u for u in locs if u not in seen}, key=lambda u: -board_score(u, ""))
+        for url in cands[:max_candidates]:
+            if session.budget <= 0:
+                break
+            seen.add(url)
+            result = probe.classify(session.get(url), url, home_host=home_host)
+            if result.collectible:
+                routes.append(("기타", "board", url))
+        if routes:
+            notes.append(f"사이트맵에서 목록 {len(routes)}개를 찾았습니다: {sitemap}")
+            break
+    if urls and not routes:
+        notes.append(f"사이트맵을 읽었으나 목록을 찾지 못했습니다: {urls[0]}")
+    return routes, notes

@@ -96,11 +96,34 @@ def _is_feed(data: bytes | None) -> bool:
     return bool(_FEED_HINT_RE.search(data[:2048])) and bool(_FEED_BODY_RE.search(data[:65536]))
 
 
-class _Page(HTMLParser):
-    """한 페이지에서 필요한 네 가지만 줍는 최소 파서.
+# 스크립트·스타일·주석은 앵커를 담지 않으면서 파서를 교란한다. 정부 누리집은
+# 인라인 JS 가 많고 그 안의 `</div>` 같은 문자열이 html.parser 를 흔들어 이후
+# 메뉴를 통째로 놓치게 만든다. 파싱 전에 통으로 걷어낸다(비용 0).
+_SCRIPT_RE = re.compile(r"<script\b[^>]*>.*?</script\s*>", re.I | re.S)
+_STYLE_RE = re.compile(r"<style\b[^>]*>.*?</style\s*>", re.I | re.S)
+_COMMENT_RE = re.compile(r"<!--.*?-->", re.S)
+# 링크가 href="#" 이고 실제 주소를 data-* 에 두는 접근성 메뉴가 흔하다.
+_DATA_HREF_KEYS = ("data-url", "data-href", "data-link", "data-target-url", "data-menu-url")
 
-    <link rel=alternate type=…rss/atom> · <a href>와 앵커 텍스트 ·
-    <meta name=generator> · <title>.
+
+def _is_dead_href(href: str) -> bool:
+    """실제로 이동하지 않는 링크 — 주소가 data-* 에 숨어 있을 수 있다."""
+    low = (href or "").strip().lower()
+    return not low or low == "#" or low.startswith(("javascript:", "#"))
+
+
+def strip_noise(text: str) -> str:
+    """앵커 수집 전에 스크립트·스타일·주석을 제거한다."""
+    for pattern in (_SCRIPT_RE, _STYLE_RE, _COMMENT_RE):
+        text = pattern.sub(" ", text)
+    return text
+
+
+class _Page(HTMLParser):
+    """한 페이지에서 필요한 것만 줍는 최소 파서.
+
+    <link rel=alternate type=…rss/atom> · <a href>(또는 data-url)와 앵커 텍스트 ·
+    <meta name=generator> · <title>. 진단용 계수도 함께 센다.
     """
 
     def __init__(self) -> None:
@@ -112,6 +135,10 @@ class _Page(HTMLParser):
         self._href: str | None = None
         self._buf: list[str] = []
         self._in_title = False
+        # 진단용 — 왜 후보가 0개였는지 사람이 알 수 있게 센다.
+        self.anchor_tags = 0  # <a> 태그 총수(href 유무 무관)
+        self.dead_links = 0  # href="#"·javascript: 처럼 주소가 없는 것
+        self.data_links = 0  # data-* 에서 건진 것
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         a = {k: (v or "") for k, v in attrs}
@@ -122,8 +149,20 @@ class _Page(HTMLParser):
                 self.alternates.append((a["href"].strip(), a.get("title", "").strip()))
         elif tag == "meta" and a.get("name", "").lower() == "generator":
             self.generator = a.get("content", "")
-        elif tag == "a" and a.get("href", "").strip():
-            self._href, self._buf = a["href"].strip(), []
+        elif tag == "a":
+            self.anchor_tags += 1
+            href = a.get("href", "").strip()
+            if _is_dead_href(href):
+                # href 가 비었거나 '#'·javascript: 면 실제 주소가 data-* 에 있을 수 있다.
+                alt = next((a[k].strip() for k in _DATA_HREF_KEYS if a.get(k, "").strip()), "")
+                if alt:
+                    self.data_links += 1
+                    href = alt
+                else:
+                    self.dead_links += 1
+                    href = ""
+            if href:
+                self._href, self._buf = href, []
         elif tag == "title":
             self._in_title = True
 
@@ -254,7 +293,7 @@ def discover(
 
     page = _Page()
     try:
-        page.feed(decode_text(data))
+        page.feed(strip_noise(decode_text(data)))
     except Exception:
         result.notes.append(f"HTML 파싱 실패({url}) — 이 사이트의 결과가 없을 수 있습니다.")
     if not result.org:
