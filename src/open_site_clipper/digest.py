@@ -64,6 +64,18 @@ class Digest:
     agencies: list[tuple[str, int]] = field(default_factory=list)
     categories: list[tuple[str, int]] = field(default_factory=list)
     keywords: list[tuple[str, int]] = field(default_factory=list)
+    # 목록에 보이는 것은 상위 몇 개뿐이므로 **전체 수**를 함께 남긴다.
+    agency_total: int = 0
+    category_total: int = 0
+
+    @property
+    def agency_more(self) -> int:
+        """목록에 안 보이는 기관 수(0이면 전부 보인다)."""
+        return max(0, self.agency_total - len(self.agencies))
+
+    @property
+    def category_more(self) -> int:
+        return max(0, self.category_total - len(self.categories))
 
     def is_empty(self) -> bool:
         return not (self.agencies or self.categories or self.keywords)
@@ -115,11 +127,15 @@ def _keywords(notices: list[Notice], agencies: set[str], n: int) -> list[tuple[s
 def build(
     notices: list[Notice],
     *,
-    top_agencies: int = 5,
-    top_categories: int = 5,
+    top_agencies: int = 12,
+    top_categories: int = 10,
     top_keywords: int = 8,
 ) -> Digest:
-    """공지 목록에서 기간 요약을 만든다. 빈 목록이면 빈 Digest."""
+    """공지 목록에서 기간 요약을 만든다. 빈 목록이면 빈 Digest.
+
+    상위 몇 개만 보여주되 **전체 수를 함께 남긴다**. 22곳을 모았는데 5곳만
+    보이면 나머지가 없는 것처럼 오해되기 때문이다(agency_total·category_total).
+    """
     if not notices:
         return Digest()
     agency_counter = Counter(n.agency for n in notices)
@@ -128,4 +144,6 @@ def build(
         agencies=_top(agency_counter, top_agencies),
         categories=_top(category_counter, top_categories),
         keywords=_keywords(notices, set(agency_counter), top_keywords),
+        agency_total=len(agency_counter),
+        category_total=len(category_counter),
     )

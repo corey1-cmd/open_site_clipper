@@ -38,6 +38,22 @@ MAX_UNIT_LEN = 40
 _ORG_PREFIX_RE = re.compile(r"^\[([^\]]{2,40})\]\s*")
 # 목록에 섞이는 상태 표시 — 제목의 일부가 아니다.
 _BADGE_RE = re.compile(r"^(새글|NEW|신규|공지)\s+", re.I)
+# 첨부파일 칸 — '한글 파일 PDF 파일 이미지 파일' 처럼 파일 종류만 나열된다.
+# 이 칸이 제목보다 길어져 제목 자리를 빼앗는 일이 실제로 있었다(새만금개발청).
+_ATTACH_RE = re.compile(
+    r"^(?:(?:한글|워드|MS워드|엑셀|PDF|이미지|기타|압축|한셀|아래아)\s*파일\s*)+$", re.I
+)
+# 목록이 아니라 안내문·메뉴가 잘못 잡힌 경우 — 주소가 제목 자리에 온다.
+_URL_TITLE_RE = re.compile(r"^https?://", re.I)
+
+
+def _is_junk_title(text: str) -> bool:
+    """제목으로 볼 수 없는 칸 — 첨부 목록·주소·지나치게 긴 메뉴 뭉치."""
+    t = " ".join((text or "").split())
+    if not t or _ATTACH_RE.match(t) or _URL_TITLE_RE.match(t):
+        return True
+    # 메뉴 전체가 한 칸에 뭉쳐 들어온 경우(성평등가족부·식약처에서 관측)
+    return len(t) > 120
 
 
 def _clean_title(text: str) -> tuple[str, str]:
@@ -63,7 +79,7 @@ def parse_list(html_bytes: bytes, base_url: str) -> list[Row]:
         best: int | None = None
         best_url = ""
         for i, (text, href) in enumerate(cells):
-            if not href or not text.strip():
+            if not href or not text.strip() or _is_junk_title(text):
                 continue
             url = urllib.parse.urljoin(base_url, href)
             if urllib.parse.urlsplit(url).scheme not in ("http", "https"):

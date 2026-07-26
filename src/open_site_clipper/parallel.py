@@ -92,12 +92,20 @@ class HostLimiter:
             self._next_at[host] = max(now, due) + delay
 
     def wrap(self, fetcher: Callable[[str], bytes | None]) -> Callable[[str], bytes | None]:
-        """페처를 감싸 호출 직전에 간격을 지키게 한다."""
+        """페처를 감싸 호출 직전에 간격을 지키게 한다.
+
+        원본 페처가 실패 사유를 알려 주는 `why()` 를 갖고 있으면 **그대로 넘긴다.**
+        감싸면서 잃어버리면 캐스케이드가 '403'·'429' 같은 진짜 원인을 못 읽고
+        전부 '응답 없음' 으로 뭉뚱그리게 된다(실제로 그렇게 되고 있었다).
+        """
 
         def limited(url: str) -> bytes | None:
             self.wait(url)
             return fetcher(url)
 
+        why = getattr(fetcher, "why", None)
+        if callable(why):
+            limited.why = why  # type: ignore[attr-defined]
         return limited
 
 

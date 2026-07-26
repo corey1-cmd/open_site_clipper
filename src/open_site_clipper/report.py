@@ -71,7 +71,8 @@ def _digest_markdown(report: Report) -> str:
     d = report.digest
     lines = ["## 기간 요약", ""]
     if d.agencies:
-        lines.append("- 기관: " + " · ".join(f"{a} {c}건" for a, c in d.agencies))
+        more = f" 외 {d.agency_more}곳(총 {d.agency_total}곳)" if d.agency_more else ""
+        lines.append("- 기관: " + " · ".join(f"{a} {c}건" for a, c in d.agencies) + more)
     if d.categories:
         lines.append("- 분류: " + " · ".join(f"{a} {c}건" for a, c in d.categories))
     if d.keywords:
@@ -156,6 +157,8 @@ def render_json(report: Report) -> str:
         "digest": (
             {
                 "agencies": [list(x) for x in report.digest.agencies],
+                "agency_total": report.digest.agency_total,
+                "category_total": report.digest.category_total,
                 "categories": [list(x) for x in report.digest.categories],
                 "keywords": [list(x) for x in report.digest.keywords],
             }
@@ -307,6 +310,8 @@ def _digest_html(report: Report) -> str:
     parts = ['<section class="digest"><h2>기간 요약</h2><dl>']
     if d.agencies:
         v = " · ".join(f"{_esc(a)} {c}건" for a, c in d.agencies)
+        if d.agency_more:
+            v += f' <span class="origin">외 {d.agency_more}곳 · 총 {d.agency_total}곳</span>'
         parts.append(f"<dt>기관</dt><dd>{v}</dd>")
     if d.categories:
         v = " · ".join(f"{_esc(a)} {c}건" for a, c in d.categories)

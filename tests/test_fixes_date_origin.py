@@ -123,3 +123,71 @@ def test_report_shows_origin_box():
 
     data = json.loads(report.render_json(rep))
     assert data["notices"][0]["origin"] == "www.korea.kr · RSS 피드"
+
+
+# ── 실기기 65곳 수집에서 드러난 결함 ─────────────────────────────────────────
+def test_digest_reports_total_not_just_top_n():
+    """22곳을 모았는데 5곳만 보이면 나머지가 없는 것처럼 오해된다."""
+    from datetime import date
+
+    from open_site_clipper import digest
+    from open_site_clipper.model import Notice
+
+    notices = [
+        Notice(
+            title=f"t{i}",
+            url=f"https://x/{i}",
+            agency=f"기관{i:02d}",
+            category="공지",
+            published=date(2026, 7, 1),
+        )
+        for i in range(20)
+    ]
+    d = digest.build(notices)
+    assert d.agency_total == 20  # 전체 수를 남긴다
+    assert d.agency_more == 20 - len(d.agencies) > 0
+    rep = report.Report(notices=notices, digest=d)
+    md = report.render_markdown(rep)
+    assert "총 20곳" in md  # 보고서에 총계가 드러난다
+    html = report.render_html(rep)
+    assert "총 20곳" in html
+
+
+def test_limiter_wrap_preserves_failure_reason():
+    """간격 제어로 감싸도 실패 사유를 잃지 않는다(korea.kr 전멸의 원인이었다)."""
+    from open_site_clipper import parallel
+
+    tf = fetch.TrackingFetcher()
+    tf._reasons["https://a/"] = "요청 과다(429)"
+    wrapped = parallel.HostLimiter(0, use_robots=False).wrap(tf)
+    assert callable(getattr(wrapped, "why", None))
+    assert wrapped.why("https://a/") == "요청 과다(429)"
+
+
+def test_attachment_column_does_not_steal_title():
+    """'한글 파일 PDF 파일' 이 제목 자리를 빼앗던 문제(새만금개발청)."""
+    from open_site_clipper import govweb
+
+    html = (
+        "<table><tbody><tr><td>1</td>"
+        '<td><a href="/v?id=1">2026년 상반기 계약현황 공고</a></td>'
+        '<td><a href="/f1">한글 파일</a> <a href="/f2">PDF 파일</a></td>'
+        "<td>2026.07.24</td></tr></tbody></table>"
+    ).encode()
+    (row,) = govweb.parse_list(html, "https://www.saemangeum.go.kr/list.do")
+    assert row.title == "2026년 상반기 계약현황 공고"
+
+
+def test_menu_blob_and_url_titles_rejected():
+    """안내문·메뉴가 목록으로 잘못 잡힐 때 나오던 쓰레기 제목을 거른다."""
+    from open_site_clipper import govweb
+
+    blob = "가" * 200
+    html = (
+        "<table><tbody>"
+        f'<tr><td><a href="/a">{blob}</a></td><td>2026.07.24</td></tr>'
+        '<tr><td><a href="/b">http://www.mfds.go.kr/www/rss/brd.do?brdId=ntc0003</a></td>'
+        "<td>2026.07.24</td></tr>"
+        "</tbody></table>"
+    ).encode()
+    assert govweb.parse_list(html, "https://x/") == []
