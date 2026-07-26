@@ -51,7 +51,7 @@ def test_classify_by_anchor_text():
 
 
 def test_finds_routes_for_every_category():
-    routes, notes = govdiscover.find_routes(
+    routes, _notes = govdiscover.find_routes(
         "https://www.mcst.go.kr/", fetcher=PAGES.get, check_robots=False
     )
     cats = {c for c, _k, _u in routes}
@@ -129,10 +129,6 @@ def test_gov_preset_parses_all_65():
 
 def test_collect_auto_routes_end_to_end():
     """홈만 있는 출처가 실행 시 경로를 찾아 실제로 수집까지 간다."""
-    RSS = (
-        b'<?xml version="1.0"?><rss version="2.0"><channel><title>t</title>'
-        b"<item><title>a</title><link>https://x/1</link></item></channel></rss>"
-    )
     src = Source(
         id="mcst",
         name="문화체육관광부",
