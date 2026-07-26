@@ -1,59 +1,594 @@
 {
   "_comment": [
-    "정부기관 수집 예시 — kind=govorg 는 카테고리마다 여러 경로를 돌려가며 시도한다.",
-    "  rss(자체 피드) → board(게시판 표) → alt(같은 목록의 다른 주소) → datago → korea(korea.kr)",
+    "대한민국 정부기관 65곳 — 홈 주소만 적었다. routes 는 실행 시 자동 발견한다.",
     "",
-    "routes 에는 확인된 주소만 적는다. 비어 있어도 korea_feed 가 있으면 보도자료는 들어온다.",
-    "korea_feed 코드는 https://www.korea.kr/etc/rss.do 에서 확인하거나,",
-    "  open_site_clipper --discover https://www.korea.kr/etc/rss.do 로 한 번에 뽑을 수 있다.",
+    "동작: 기관 홈에서 '공지·인사·보도자료·채용·입찰·소식' 링크와 RSS 안내 페이지를",
+    "찾아 카테고리별 경로를 만들고, 캐스케이드가 rss→board→alt→datago→korea 순으로",
+    "시도한다. 한 카테고리에 후보를 여러 개 모으므로 하나가 robots 로 막혀도 다음을 쓴다.",
     "",
-    "rights 를 일부러 비워 두었다 — 정부 자료라고 전부 공공누리 1유형이 아니다(4유형 실측).",
-    "등급을 확인한 기관만 \"rights\": \"kogl_type1\" 을 넣으면 발췌까지 살아난다.",
-    "등급이 미상이면 제목·링크·날짜·부서(메타데이터)는 그대로 수집되고 발췌만 비워진다.",
+    "korea_feed 는 korea.kr 부처 피드 코드다(보도자료 안전망). 기관 사이트가 전부",
+    "막혀도 보도자료는 여기서 들어온다. 코드가 없는 기관은 자체 경로만 쓴다.",
     "",
-    "수집 전에 --check-access examples/sources-gov.json 으로 어디가 열려 있는지 먼저 확인할 것."
+    "rights 는 비워 두었다 — 정부 자료라고 전부 공공누리 1유형이 아니다(4유형 실측).",
+    "미상이면 제목·링크·날짜·부서는 수집되고 발췌만 비워진다.",
+    "",
+    "주의: 65곳을 한 번에 돌리면 요청이 수백 회다. --check-access 로 먼저 진단하고,",
+    "웹 UI 나 --agency 로 필요한 기관만 고르는 것을 권한다.",
+    "korea_feed 코드는 https://www.korea.kr/etc/rss.do 에서 확인·갱신할 수 있다."
   ],
   "sources": [
     {
-      "id": "gov-mcst",
-      "org": "문화체육관광부",
-      "name": "문화체육관광부",
+      "id": "gov-president",
+      "org": "청와대",
+      "name": "청와대",
       "kind": "govorg",
-      "korea_feed": "dept_mcst",
-      "routes": [
-        ["공지", "rss", "https://www.mcst.go.kr/common/rss/notice.jsp"],
-        ["인사", "rss", "https://www.mcst.go.kr/common/rss/noticePerson.jsp"],
-        ["보도자료", "rss", "https://www.mcst.go.kr/common/rss/press.jsp"],
-        ["채용", "board", "https://www.mcst.go.kr/site/s_notice/notice/jobList.jsp"],
-        ["입찰", "board", "https://www.mcst.go.kr/site/s_notice/notice/bidList.jsp"]
-      ]
+      "group": "부",
+      "home": "https://www.president.go.kr"
     },
     {
-      "id": "gov-mois",
-      "org": "행정안전부",
-      "name": "행정안전부",
+      "id": "gov-bai",
+      "org": "감사원",
+      "name": "감사원",
       "kind": "govorg",
-      "korea_feed": "dept_mois",
-      "routes": [["알림", "board", "https://www.mois.go.kr/frt/bbs/type010/commonSelectBoardList.do?bbsId=BBSMSTR_000000000008"]]
+      "group": "부",
+      "home": "https://www.bai.go.kr"
     },
     {
-      "id": "gov-mofa",
-      "org": "외교부",
-      "name": "외교부",
+      "id": "gov-nis",
+      "org": "국가정보원",
+      "name": "국가정보원",
       "kind": "govorg",
-      "korea_feed": "dept_mofa",
-      "routes": []
+      "group": "부",
+      "home": "https://www.nis.go.kr"
+    },
+    {
+      "id": "gov-opm",
+      "org": "국무조정실",
+      "name": "국무조정실",
+      "kind": "govorg",
+      "group": "부",
+      "home": "https://www.opm.go.kr",
+      "korea_feed": "dept_opm"
+    },
+    {
+      "id": "gov-mofe",
+      "org": "재정경제부",
+      "name": "재정경제부",
+      "kind": "govorg",
+      "group": "부",
+      "home": "https://www.mofe.go.kr",
+      "korea_feed": "dept_moef"
+    },
+    {
+      "id": "gov-msit",
+      "org": "과학기술정보통신부",
+      "name": "과학기술정보통신부",
+      "kind": "govorg",
+      "group": "부",
+      "home": "https://www.msit.go.kr",
+      "korea_feed": "dept_msit"
     },
     {
       "id": "gov-moe",
       "org": "교육부",
       "name": "교육부",
       "kind": "govorg",
-      "korea_feed": "dept_moe",
-      "routes": [
-        ["공지", "board", "https://www.moe.go.kr/boardCnts/listRenew.do?boardID=333&m=020501&s=moe"],
-        ["채용", "board", "https://www.moe.go.kr/boardCnts/listRenew.do?boardID=72761&m=020502&s=moe"]
-      ]
+      "group": "부",
+      "home": "https://www.moe.go.kr",
+      "korea_feed": "dept_moe"
+    },
+    {
+      "id": "gov-mofa",
+      "org": "외교부",
+      "name": "외교부",
+      "kind": "govorg",
+      "group": "부",
+      "home": "https://www.mofa.go.kr",
+      "korea_feed": "dept_mofa"
+    },
+    {
+      "id": "gov-unikorea",
+      "org": "통일부",
+      "name": "통일부",
+      "kind": "govorg",
+      "group": "부",
+      "home": "https://www.unikorea.go.kr",
+      "korea_feed": "dept_unikorea"
+    },
+    {
+      "id": "gov-moj",
+      "org": "법무부",
+      "name": "법무부",
+      "kind": "govorg",
+      "group": "부",
+      "home": "https://www.moj.go.kr",
+      "korea_feed": "dept_moj"
+    },
+    {
+      "id": "gov-mnd",
+      "org": "국방부",
+      "name": "국방부",
+      "kind": "govorg",
+      "group": "부",
+      "home": "https://www.mnd.go.kr",
+      "korea_feed": "dept_mnd"
+    },
+    {
+      "id": "gov-mois",
+      "org": "행정안전부",
+      "name": "행정안전부",
+      "kind": "govorg",
+      "group": "부",
+      "home": "https://www.mois.go.kr",
+      "korea_feed": "dept_mois"
+    },
+    {
+      "id": "gov-mpva",
+      "org": "국가보훈부",
+      "name": "국가보훈부",
+      "kind": "govorg",
+      "group": "부",
+      "home": "https://www.mpva.go.kr",
+      "korea_feed": "dept_mpva"
+    },
+    {
+      "id": "gov-mcst",
+      "org": "문화체육관광부",
+      "name": "문화체육관광부",
+      "kind": "govorg",
+      "group": "부",
+      "home": "https://www.mcst.go.kr",
+      "korea_feed": "dept_mcst"
+    },
+    {
+      "id": "gov-mafra",
+      "org": "농림축산식품부",
+      "name": "농림축산식품부",
+      "kind": "govorg",
+      "group": "부",
+      "home": "https://www.mafra.go.kr",
+      "korea_feed": "dept_mafra"
+    },
+    {
+      "id": "gov-motir",
+      "org": "산업통상부",
+      "name": "산업통상부",
+      "kind": "govorg",
+      "group": "부",
+      "home": "https://www.motir.go.kr",
+      "korea_feed": "dept_motir"
+    },
+    {
+      "id": "gov-mohw",
+      "org": "보건복지부",
+      "name": "보건복지부",
+      "kind": "govorg",
+      "group": "부",
+      "home": "https://www.mohw.go.kr",
+      "korea_feed": "dept_mw"
+    },
+    {
+      "id": "gov-mcee",
+      "org": "기후에너지환경부",
+      "name": "기후에너지환경부",
+      "kind": "govorg",
+      "group": "부",
+      "home": "https://www.mcee.go.kr",
+      "korea_feed": "dept_mcee"
+    },
+    {
+      "id": "gov-moel",
+      "org": "고용노동부",
+      "name": "고용노동부",
+      "kind": "govorg",
+      "group": "부",
+      "home": "https://www.moel.go.kr",
+      "korea_feed": "dept_moel"
+    },
+    {
+      "id": "gov-mogef",
+      "org": "성평등가족부",
+      "name": "성평등가족부",
+      "kind": "govorg",
+      "group": "부",
+      "home": "https://www.mogef.go.kr",
+      "korea_feed": "dept_mogef"
+    },
+    {
+      "id": "gov-molit",
+      "org": "국토교통부",
+      "name": "국토교통부",
+      "kind": "govorg",
+      "group": "부",
+      "home": "https://www.molit.go.kr",
+      "korea_feed": "dept_molit"
+    },
+    {
+      "id": "gov-mof",
+      "org": "해양수산부",
+      "name": "해양수산부",
+      "kind": "govorg",
+      "group": "부",
+      "home": "https://www.mof.go.kr",
+      "korea_feed": "dept_mof"
+    },
+    {
+      "id": "gov-mss",
+      "org": "중소벤처기업부",
+      "name": "중소벤처기업부",
+      "kind": "govorg",
+      "group": "부",
+      "home": "https://www.mss.go.kr",
+      "korea_feed": "dept_mss"
+    },
+    {
+      "id": "gov-mpb",
+      "org": "기획예산처",
+      "name": "기획예산처",
+      "kind": "govorg",
+      "group": "부",
+      "home": "https://www.mpb.go.kr",
+      "korea_feed": "dept_mpb"
+    },
+    {
+      "id": "gov-mpm",
+      "org": "인사혁신처",
+      "name": "인사혁신처",
+      "kind": "govorg",
+      "group": "부",
+      "home": "https://www.mpm.go.kr",
+      "korea_feed": "dept_mpm"
+    },
+    {
+      "id": "gov-moleg",
+      "org": "법제처",
+      "name": "법제처",
+      "kind": "govorg",
+      "group": "부",
+      "home": "https://www.moleg.go.kr",
+      "korea_feed": "dept_moleg"
+    },
+    {
+      "id": "gov-mfds",
+      "org": "식품의약품안전처",
+      "name": "식품의약품안전처",
+      "kind": "govorg",
+      "group": "부",
+      "home": "https://www.mfds.go.kr",
+      "korea_feed": "dept_mfds"
+    },
+    {
+      "id": "gov-mods",
+      "org": "국가데이터처",
+      "name": "국가데이터처",
+      "kind": "govorg",
+      "group": "부",
+      "home": "https://www.mods.go.kr",
+      "korea_feed": "dept_mods"
+    },
+    {
+      "id": "gov-moip",
+      "org": "지식재산처",
+      "name": "지식재산처",
+      "kind": "govorg",
+      "group": "부",
+      "home": "https://www.moip.go.kr",
+      "korea_feed": "dept_moip"
+    },
+    {
+      "id": "gov-nts",
+      "org": "국세청",
+      "name": "국세청",
+      "kind": "govorg",
+      "group": "청",
+      "home": "https://www.nts.go.kr",
+      "korea_feed": "dept_nts"
+    },
+    {
+      "id": "gov-customs",
+      "org": "관세청",
+      "name": "관세청",
+      "kind": "govorg",
+      "group": "청",
+      "home": "https://www.customs.go.kr",
+      "korea_feed": "dept_customs"
+    },
+    {
+      "id": "gov-pps",
+      "org": "조달청",
+      "name": "조달청",
+      "kind": "govorg",
+      "group": "청",
+      "home": "https://www.pps.go.kr",
+      "korea_feed": "dept_pps"
+    },
+    {
+      "id": "gov-kasa",
+      "org": "우주항공청",
+      "name": "우주항공청",
+      "kind": "govorg",
+      "group": "청",
+      "home": "https://www.kasa.go.kr",
+      "korea_feed": "dept_kasa"
+    },
+    {
+      "id": "gov-oka",
+      "org": "재외동포청",
+      "name": "재외동포청",
+      "kind": "govorg",
+      "group": "청",
+      "home": "http://www.oka.go.kr",
+      "korea_feed": "dept_oka"
+    },
+    {
+      "id": "gov-spo",
+      "org": "검찰청",
+      "name": "검찰청",
+      "kind": "govorg",
+      "group": "청",
+      "home": "https://www.spo.go.kr",
+      "korea_feed": "dept_spo"
+    },
+    {
+      "id": "gov-mma",
+      "org": "병무청",
+      "name": "병무청",
+      "kind": "govorg",
+      "group": "청",
+      "home": "https://www.mma.go.kr",
+      "korea_feed": "dept_mma"
+    },
+    {
+      "id": "gov-dapa",
+      "org": "방위사업청",
+      "name": "방위사업청",
+      "kind": "govorg",
+      "group": "청",
+      "home": "https://www.dapa.go.kr",
+      "korea_feed": "dept_dapa"
+    },
+    {
+      "id": "gov-police",
+      "org": "경찰청",
+      "name": "경찰청",
+      "kind": "govorg",
+      "group": "청",
+      "home": "https://www.police.go.kr",
+      "korea_feed": "dept_npa"
+    },
+    {
+      "id": "gov-nfa",
+      "org": "소방청",
+      "name": "소방청",
+      "kind": "govorg",
+      "group": "청",
+      "home": "https://www.nfa.go.kr",
+      "korea_feed": "dept_nfa"
+    },
+    {
+      "id": "gov-khs",
+      "org": "국가유산청",
+      "name": "국가유산청",
+      "kind": "govorg",
+      "group": "청",
+      "home": "https://www.khs.go.kr",
+      "korea_feed": "dept_khs"
+    },
+    {
+      "id": "gov-rda",
+      "org": "농촌진흥청",
+      "name": "농촌진흥청",
+      "kind": "govorg",
+      "group": "청",
+      "home": "https://www.rda.go.kr",
+      "korea_feed": "dept_rda"
+    },
+    {
+      "id": "gov-forest",
+      "org": "산림청",
+      "name": "산림청",
+      "kind": "govorg",
+      "group": "청",
+      "home": "https://www.forest.go.kr",
+      "korea_feed": "dept_forest"
+    },
+    {
+      "id": "gov-kdca",
+      "org": "질병관리청",
+      "name": "질병관리청",
+      "kind": "govorg",
+      "group": "청",
+      "home": "https://www.kdca.go.kr",
+      "korea_feed": "dept_kdca"
+    },
+    {
+      "id": "gov-kma",
+      "org": "기상청",
+      "name": "기상청",
+      "kind": "govorg",
+      "group": "청",
+      "home": "https://www.kma.go.kr/home/index.jsp",
+      "korea_feed": "dept_kma"
+    },
+    {
+      "id": "gov-naacc",
+      "org": "행정중심복합도시건설청",
+      "name": "행정중심복합도시건설청",
+      "kind": "govorg",
+      "group": "청",
+      "home": "https://www.naacc.go.kr",
+      "korea_feed": "dept_naacc"
+    },
+    {
+      "id": "gov-saemangeum",
+      "org": "새만금개발청",
+      "name": "새만금개발청",
+      "kind": "govorg",
+      "group": "청",
+      "home": "https://www.saemangeum.go.kr",
+      "korea_feed": "dept_sda"
+    },
+    {
+      "id": "gov-kcg",
+      "org": "해양경찰청",
+      "name": "해양경찰청",
+      "kind": "govorg",
+      "group": "청",
+      "home": "https://www.kcg.go.kr",
+      "korea_feed": "dept_kcg"
+    },
+    {
+      "id": "gov-humanrights",
+      "org": "국가인권위원회",
+      "name": "국가인권위원회",
+      "kind": "govorg",
+      "group": "위원회",
+      "home": "https://www.humanrights.go.kr"
+    },
+    {
+      "id": "gov-kmcc",
+      "org": "방송미디어통신위원회",
+      "name": "방송미디어통신위원회",
+      "kind": "govorg",
+      "group": "위원회",
+      "home": "https://www.kmcc.go.kr",
+      "korea_feed": "dept_kcc"
+    },
+    {
+      "id": "gov-ftc",
+      "org": "공정거래위원회",
+      "name": "공정거래위원회",
+      "kind": "govorg",
+      "group": "위원회",
+      "home": "https://www.ftc.go.kr",
+      "korea_feed": "dept_ftc"
+    },
+    {
+      "id": "gov-fsc",
+      "org": "금융위원회",
+      "name": "금융위원회",
+      "kind": "govorg",
+      "group": "위원회",
+      "home": "https://www.fsc.go.kr",
+      "korea_feed": "dept_fsc"
+    },
+    {
+      "id": "gov-acrc",
+      "org": "국민권익위원회",
+      "name": "국민권익위원회",
+      "kind": "govorg",
+      "group": "위원회",
+      "home": "https://www.acrc.go.kr",
+      "korea_feed": "dept_acrc"
+    },
+    {
+      "id": "gov-pipc",
+      "org": "개인정보보호위원회",
+      "name": "개인정보보호위원회",
+      "kind": "govorg",
+      "group": "위원회",
+      "home": "https://www.pipc.go.kr",
+      "korea_feed": "dept_pipc"
+    },
+    {
+      "id": "gov-nssc",
+      "org": "원자력안전위원회",
+      "name": "원자력안전위원회",
+      "kind": "govorg",
+      "group": "위원회",
+      "home": "https://www.nssc.go.kr",
+      "korea_feed": "dept_nssc"
+    },
+    {
+      "id": "gov-nuac",
+      "org": "민주평화통일자문회의",
+      "name": "민주평화통일자문회의",
+      "kind": "govorg",
+      "group": "대통령 소속 위원회",
+      "home": "https://www.nuac.go.kr"
+    },
+    {
+      "id": "gov-better",
+      "org": "규제개혁위원회",
+      "name": "규제개혁위원회",
+      "kind": "govorg",
+      "group": "대통령 소속 위원회",
+      "home": "https://www.better.go.kr"
+    },
+    {
+      "id": "gov-ipkorea",
+      "org": "국가지식재산위원회",
+      "name": "국가지식재산위원회",
+      "kind": "govorg",
+      "group": "대통령 소속 위원회",
+      "home": "https://www.ipkorea.go.kr"
+    },
+    {
+      "id": "gov-balance",
+      "org": "지방시대위원회",
+      "name": "지방시대위원회",
+      "kind": "govorg",
+      "group": "대통령 소속 위원회",
+      "home": "http://www.balance.go.kr"
+    },
+    {
+      "id": "gov-clip",
+      "org": "국가도서관위원회",
+      "name": "국가도서관위원회",
+      "kind": "govorg",
+      "group": "대통령 소속 위원회",
+      "home": "http://www.clip.go.kr"
+    },
+    {
+      "id": "gov-cct",
+      "org": "아시아문화중심도시조성위원회",
+      "name": "아시아문화중심도시조성위원회",
+      "kind": "govorg",
+      "group": "대통령 소속 위원회",
+      "home": "https://www.cct.go.kr"
+    },
+    {
+      "id": "gov-pcccr",
+      "org": "국가기후위기대응위원회",
+      "name": "국가기후위기대응위원회",
+      "kind": "govorg",
+      "group": "대통령 소속 위원회",
+      "home": "https://www.pcccr.go.kr",
+      "korea_feed": "dept_pcccr"
+    },
+    {
+      "id": "gov-eslc",
+      "org": "경제사회노동위원회",
+      "name": "경제사회노동위원회",
+      "kind": "govorg",
+      "group": "대통령 소속 위원회",
+      "home": "https://www.eslc.go.kr",
+      "korea_feed": "dept_esdc"
+    },
+    {
+      "id": "gov-pcap",
+      "org": "국가건축정책위원회",
+      "name": "국가건축정책위원회",
+      "kind": "govorg",
+      "group": "대통령 소속 위원회",
+      "home": "http://www.pcap.go.kr"
+    },
+    {
+      "id": "gov-k-cohesion",
+      "org": "국민통합위원회",
+      "name": "국민통합위원회",
+      "kind": "govorg",
+      "group": "대통령 소속 위원회",
+      "home": "https://www.k-cohesion.go.kr",
+      "korea_feed": "dept_k_cohesion"
+    },
+    {
+      "id": "gov-ne",
+      "org": "국가교육위원회",
+      "name": "국가교육위원회",
+      "kind": "govorg",
+      "group": "대통령 소속 위원회",
+      "home": "https://www.ne.go.kr"
     }
   ]
 }

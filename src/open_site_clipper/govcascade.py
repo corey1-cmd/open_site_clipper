@@ -194,7 +194,14 @@ def collect_org(
     """기관 하나를 카테고리별로 수집하고, 못 얻은 카테고리는 사유를 돌려준다."""
     notices: list[Notice] = []
     failures: list[str] = []
-    for category in categories(source):
+    cats = categories(source)
+    if not cats:
+        # 시도할 경로가 하나도 없는 것도 '결과'다 — 조용히 넘어가지 않는다.
+        return [], [
+            f"{source.org or source.name} (수집 경로 없음 — 홈에서 게시판·피드를 "
+            f"찾지 못했고 korea.kr 코드도 없음)"
+        ]
+    for category in cats:
         outcome = collect_category(source, category, fetcher=fetcher, check_robots=check_robots)
         if outcome.notices:
             notices.extend(outcome.notices)

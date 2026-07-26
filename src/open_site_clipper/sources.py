@@ -49,6 +49,8 @@ class Source:
     #   routes: (("공지","rss","https://…"), ("채용","board","https://…"))
     routes: tuple[tuple[str, str, str], ...] = ()
     korea_feed: str = ""
+    # 기관 홈페이지 — routes 를 적지 않아도 여기서 자동 발견한다(govdiscover).
+    home: str = ""
 
 
 # 기본 출처 — 공개 RSS 위주(인증키 불필요). data.go.kr 채널은 예시로 꺼둔 채
@@ -183,7 +185,8 @@ def from_dicts(items: list[dict[str, object]]) -> list[Source]:
             continue
         # k2web은 URL 대신 좌표(host·site_id·board_id)로 주소를 조립한다.
         if kind == "govorg":
-            if not (raw.get("routes") or raw.get("korea_feed")):
+            # home 만 있어도 성립한다 — routes 는 실행 시 발견할 수 있다.
+            if not (raw.get("routes") or raw.get("korea_feed") or raw.get("home")):
                 continue
         elif kind == "k2web":
             if not (raw.get("host") and raw.get("site_id") and raw.get("board_id") is not None):
@@ -219,6 +222,7 @@ def from_dicts(items: list[dict[str, object]]) -> list[Source]:
                     and all(str(x).strip() for x in r[:3])
                 ),
                 korea_feed=str(raw.get("korea_feed") or ""),
+                home=str(raw.get("home") or ""),
                 api_url=str(raw.get("api_url") or ""),
                 api_paths=tuple(
                     sorted(

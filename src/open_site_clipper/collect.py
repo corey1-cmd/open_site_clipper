@@ -128,6 +128,7 @@ def collect(
     fetcher: Fetcher | None = None,
     now: date | None = None,
     quote_mode: str = QUOTE_CONSERVATIVE,
+    auto_routes: bool = True,
 ) -> Report:
     """출처를 수집해 Report를 만든다.
 
