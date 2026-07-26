@@ -3,9 +3,10 @@
 지금까지는 `routes` 를 사람이 손으로 적어야 해서 기관마다 작업이 필요했다.
 이 모듈이 그 수작업을 없앤다 — 홈 주소만 주면:
 
-  ① 앵커 텍스트로 카테고리를 판정한다(공지·인사·보도자료·채용·입찰·소식)
-  ② 같은 카테고리로 가는 링크를 **여러 개 모은다** — 하나가 robots 로 막혀도
-     다른 진입 경로가 열려 있을 수 있기 때문(한국외대 subview.do 사례의 일반화)
+  ① 메뉴 링크를 **전부** 후보로 모은다(이름으로 거르지 않는다)
+  ② 각 후보를 열어 **구조 테스트**(probe)로 선별한다 — 날짜 붙은 목록이면
+     수집 대상, 아니면 사유를 남기고 버린다. 이름 사전은 '분류 라벨'로만 쓴다.
+     같은 이름이 어떤 기관에선 목록이고 어떤 기관에선 안내문이기 때문이다
   ③ 'RSS·구독' 안내 페이지를 찾으면 한 단계 따라가 피드 목록을 파싱한다
      (korea.kr·부처 정보구독서비스가 같은 표 구조 — discover 의 S-A 재사용)
 
@@ -20,11 +21,12 @@ import urllib.parse
 from collections.abc import Callable
 
 from . import discover as _discover
+from . import probe
 from .fetch import decode_text
 
 PageFetcher = Callable[[str], "bytes | None"]
 
-DEFAULT_BUDGET = 8  # 기관당 요청 상한(홈 + RSS 안내 + 여유)
+DEFAULT_BUDGET = 45  # 기관당 요청 상한(홈 + RSS 안내 + 후보 구조 테스트)
 
 # 카테고리 판정 사전 — 앵커 텍스트에 이 말이 있으면 그 카테고리로 본다.
 # 순서가 우선순위다(먼저 맞는 것을 취한다). '채용공고'가 '공고'보다 앞에 있어야
@@ -62,7 +64,7 @@ def find_routes(
     fetcher: PageFetcher | None = None,
     check_robots: bool = True,
     budget: int = DEFAULT_BUDGET,
-    max_per_category: int = 3,
+    max_candidates: int = 40,
 ) -> tuple[list[tuple[str, str, str]], list[str]]:
     """기관 홈에서 (카테고리, 종류, 주소) 목록과 메모를 만든다.
 
@@ -87,7 +89,6 @@ def find_routes(
         notes.append(f"홈페이지 HTML 파싱 실패: {home_url}")
 
     home_host = urllib.parse.urlsplit(home_url).netloc
-    counts: dict[str, int] = {}
     seen: set[tuple[str, str]] = set()
 
     # ① 표준 자동발견 피드 — 카테고리는 title 로 판정, 없으면 '소식'.
@@ -98,30 +99,43 @@ def find_routes(
         if key in seen:
             continue
         seen.add(key)
-        counts[category] = counts.get(category, 0) + 1
         routes.append((category, "rss", url))
 
-    # ② 본문 앵커 — 카테고리별로 여러 후보를 모은다(다중 진입 경로).
+    # ② 본문 앵커 — 이름으로 거르지 않고 **전부** 후보로 둔다. 선별은 구조
+    #    테스트(probe)가 한다. 이름은 분류 라벨로만 쓴다(모르면 "기타").
+    candidates: list[tuple[str, str, str]] = []
     for href, text in page.anchors:
-        category = classify(text)
-        if not category:
-            continue
         url = urllib.parse.urljoin(home_url, href)
         parts = urllib.parse.urlsplit(url)
         if parts.scheme not in ("http", "https"):
             continue  # javascript: · # 등
-        # 같은 기관 도메인만(외부 기관 공고 링크가 섞이는 것을 막는다).
-        if parts.netloc != home_host:
-            continue
-        if counts.get(category, 0) >= max_per_category:
-            continue
+        if probe.is_external(url, home_host):
+            continue  # 법령·공공데이터·국민신문고 등 — 별도 출처로 등록할 것
+        label = classify(text) or (" ".join((text or "").split())[:20] or "기타")
         kind = "rss" if _discover._looks_like_feed_url(href) else "board"
-        key = (category, url)
+        key = (label, url)
         if key in seen:
             continue
         seen.add(key)
-        counts[category] = counts.get(category, 0) + 1
-        routes.append((category, kind, url))
+        if kind == "rss":
+            # 피드는 구조 테스트 없이 받아들인다(내용 검증은 수집 때 파서가 한다).
+            routes.append((label, kind, url))
+            continue
+        candidates.append((label, kind, url))
+
+    # ③ 구조 테스트 — 후보를 열어 '날짜 붙은 목록'만 남긴다.
+    skipped: dict[str, int] = {}
+    for label, kind, url in candidates[:max_candidates]:
+        if session.budget <= 0:
+            notes.append(f"요청 예산 소진 — 후보 {len(candidates)}개 중 일부만 확인했습니다.")
+            break
+        result = probe.classify(session.get(url), url, home_host=home_host)
+        if result.collectible:
+            routes.append((label, kind, url))
+        else:
+            skipped[result.verdict] = skipped.get(result.verdict, 0) + 1
+    for verdict, n in sorted(skipped.items()):
+        notes.append(f"{probe.VERDICT_REASON.get(verdict, verdict)} — {n}건 건너뜀")
 
     # ③ 'RSS·구독' 안내 페이지를 한 단계 따라가 피드 목록 표를 파싱한다.
     rss_page = next(

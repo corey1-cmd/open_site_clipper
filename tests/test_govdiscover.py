@@ -32,9 +32,23 @@ RSS_INDEX = """<html><head><title>정보구독서비스</title></head><body><tab
 <tr><td>알림 &gt; 인사</td><td><a href="https://www.mcst.go.kr/common/rss/noticePerson.jsp">주소</a></td><td><a href="#">복사</a></td></tr>
 </table></body></html>"""
 
+# 구조 테스트를 통과하는 '날짜 붙은 목록'
+BOARD = """<table><thead><tr><th>번호</th><th>제목</th><th>등록일</th></tr></thead><tbody>
+<tr><td>2</td><td><a href="/view.do?id=2">두 번째 글</a></td><td>2026.07.20.</td></tr>
+<tr><td>1</td><td><a href="/view.do?id=1">첫 번째 글</a></td><td>2026.07.19.</td></tr>
+</tbody></table>"""
+# 통과하지 못하는 '안내문 한 장'
+STATIC = "<html><body><h1>장관 인사말</h1><p>안녕하십니까…</p></body></html>"
+
 PAGES = {
     "https://www.mcst.go.kr/": HOME.encode(),
     "https://www.mcst.go.kr/site/s_etc/rss/rssService.jsp": RSS_INDEX.encode(),
+    "https://www.mcst.go.kr/site/s_notice/notice/noticeList.jsp": BOARD.encode(),
+    "https://www.mcst.go.kr/kor/s_notice/notice/list.jsp": BOARD.encode(),
+    "https://www.mcst.go.kr/site/s_notice/notice/jobList.jsp": BOARD.encode(),
+    "https://www.mcst.go.kr/site/s_notice/notice/bidList.jsp": BOARD.encode(),
+    "https://www.mcst.go.kr/site/s_notice/person/list.jsp": BOARD.encode(),
+    "https://www.mcst.go.kr/site/intro/greeting.jsp": STATIC.encode(),
 }
 
 
@@ -63,6 +77,18 @@ def test_finds_routes_for_every_category():
     assert any(k == "board" and u.endswith("jobList.jsp") for c, k, u in routes if c == "채용")
 
 
+def test_structure_test_filters_non_lists():
+    """이름이 아니라 모양으로 판정 — 안내문(장관 인사말)은 걸러진다."""
+    routes, notes = govdiscover.find_routes(
+        "https://www.mcst.go.kr/", fetcher=PAGES.get, check_robots=False
+    )
+    urls = [u for _c, _k, u in routes]
+    assert all("greeting.jsp" not in u for u in urls)  # 목록이 아니므로 제외
+    assert any("목록이 아님" in n for n in notes)  # 사유가 남는다(조용한 실패 금지)
+    # 이름 사전에 없는 메뉴도 목록이면 채택된다(라벨은 앵커 텍스트).
+    assert any(u.startswith("https://www.mcst.go.kr/kor/") for u in urls)
+
+
 def test_collects_multiple_candidates_per_category():
     """같은 카테고리에 후보가 여러 개 — robots 로 하나가 막혀도 다음을 쓴다."""
     routes, _ = govdiscover.find_routes(
@@ -71,7 +97,6 @@ def test_collects_multiple_candidates_per_category():
     notice_urls = [u for c, _k, u in routes if c == "공지"]
     assert len(notice_urls) >= 2  # noticeList.jsp + /kor/ 경로 + RSS 안내분
     assert any("/site/" in u for u in notice_urls)
-    assert any("/kor/" in u for u in notice_urls)
 
 
 def test_follows_rss_service_page():

@@ -43,18 +43,52 @@ def _load(origin: str) -> RobotFileParser | None:
     return parser
 
 
+def _parser_for(url: str) -> RobotFileParser | None:
+    """이 URL 이 속한 호스트의 robots 파서(캐시). 규칙이 없으면 None."""
+    parts = urllib.parse.urlsplit(url)
+    if parts.scheme not in ("http", "https") or not parts.netloc:
+        return None
+    origin = f"{parts.scheme}://{parts.netloc}"
+    if origin not in _CACHE:
+        _CACHE[origin] = _load(origin)
+    return _CACHE[origin]
+
+
 def allowed(url: str, *, user_agent: str = USER_AGENT) -> bool:
     """이 URL을 우리 UA로 가져가도 되는지. 규칙이 없으면 True."""
     parts = urllib.parse.urlsplit(url)
     if parts.scheme not in ("http", "https") or not parts.netloc:
         return False
-    origin = f"{parts.scheme}://{parts.netloc}"
-    if origin not in _CACHE:
-        _CACHE[origin] = _load(origin)
-    parser = _CACHE[origin]
+    parser = _parser_for(url)
     if parser is None:
         return True
     return parser.can_fetch(user_agent, url)
+
+
+def stated_delay(url: str, *, user_agent: str = USER_AGENT) -> float | None:
+    """사이트가 robots.txt 에 적어 둔 요청 간격(초). 없으면 None.
+
+    `Crawl-delay: 5` 는 5초, `Request-rate: 1/10` 은 10초에 1회라는 뜻이다.
+    둘 다 있으면 더 여유 있는(긴) 쪽을 따른다 — 상대가 요구한 최소 간격을
+    지키는 것이 목적이므로 짧은 쪽을 고르면 안 된다.
+    """
+    parser = _parser_for(url)
+    if parser is None:
+        return None
+    candidates: list[float] = []
+    try:
+        delay = parser.crawl_delay(user_agent)
+        if delay is not None:
+            candidates.append(float(delay))
+    except (AttributeError, ValueError, TypeError):
+        pass
+    try:
+        rate = parser.request_rate(user_agent)
+        if rate is not None and rate.requests > 0:
+            candidates.append(float(rate.seconds) / float(rate.requests))
+    except (AttributeError, ValueError, TypeError, ZeroDivisionError):
+        pass
+    return max(candidates) if candidates else None
 
 
 def reset_cache() -> None:

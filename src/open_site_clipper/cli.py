@@ -52,7 +52,13 @@ def _build_parser() -> argparse.ArgumentParser:
         help="보고서 형식 (기본: html)",
     )
     p.add_argument("-o", "--output", metavar="FILE", help="출력 파일 경로 (기본: 표준 출력)")
-    p.add_argument("--since", type=_nonneg, metavar="DAYS", help="최근 N일 이내 공지만")
+    p.add_argument(
+        "--since",
+        type=_nonneg,
+        default=730,
+        metavar="DAYS",
+        help="최근 N일 이내 공지만 (기본 730 = 2년). 발행일 미상은 포함한다. 0 이면 기간 제한 없음",
+    )
     p.add_argument("--agency", metavar="NAME", help="기관명 부분일치 필터")
     p.add_argument(
         "--sources", metavar="FILE", help="사용자 정의 출처 JSON(목록). 없으면 기본 출처"
@@ -114,6 +120,21 @@ def _build_parser() -> argparse.ArgumentParser:
         metavar="URL",
         help="홈페이지 주소에서 출처 초안 자동 탐지(RSS 자동발견 + K2Web 좌표) — "
         "-o 로 파일 저장, 없으면 화면 출력. 초안은 검토 후 --sources 로 사용",
+    )
+    p.add_argument(
+        "--jobs",
+        type=_nonneg,
+        default=16,
+        metavar="N",
+        help="동시에 처리할 기관 수 (기본 16, 최대 32). 1이면 순차",
+    )
+    p.add_argument(
+        "--delay",
+        type=float,
+        default=1.0,
+        metavar="SEC",
+        help="같은 서버로 보내는 요청 사이 최소 간격(기본 1.0초). "
+        "robots.txt 에 Crawl-delay 가 있으면 그 값을 우선한다",
     )
     p.add_argument(
         "--check-access",
@@ -303,10 +324,12 @@ def main(argv: list[str] | None = None) -> int:
 
     rep = collect.collect(
         srcs,
-        since_days=args.since,
+        since_days=args.since or None,  # 0 = 제한 없음
         agency=args.agency,
         fetcher=fetcher,
         quote_mode=args.quote_mode,
+        jobs=args.jobs,
+        delay=max(0.0, args.delay),
     )
     rep.group_by = args.group_by
     if args.title:

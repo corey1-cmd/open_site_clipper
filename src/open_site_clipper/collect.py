@@ -12,7 +12,7 @@ from dataclasses import replace
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
-from . import parse, rights
+from . import parallel, parse, rights
 from .model import Notice, Report
 from .sources import Source
 
@@ -129,6 +129,8 @@ def collect(
     now: date | None = None,
     quote_mode: str = QUOTE_CONSERVATIVE,
     auto_routes: bool = True,
+    jobs: int = parallel.DEFAULT_JOBS,
+    delay: float = parallel.DEFAULT_DELAY,
 ) -> Report:
     """출처를 수집해 Report를 만든다.
 
@@ -145,35 +147,54 @@ def collect(
     collected: list[Notice] = []
     failed: list[str] = []
 
-    for source in sources:
-        if not source.enabled:
-            continue
+    active = [s for s in sources if s.enabled]
+    # 라이브 수집일 때만 간격을 잰다(오프라인 페처는 네트워크를 쓰지 않는다).
+    limiter = parallel.HostLimiter(delay) if (delay > 0 and fetcher is None) else None
 
+    def fetch_one(source: Source) -> tuple[list[Notice], list[str]]:
+        """한 출처를 받아 파싱한다 — 이 부분만 병렬로 돈다(공유 상태 없음)."""
+        why: list[str] = []
         if source.kind == "govorg":
             # 카테고리별 다단계 폴백 — 되면 쓰고, 안 되면 사유를 남긴다.
             from . import govcascade
             from .fetch import fetch_url
 
             page_fetch = (lambda u, _s=source: fetcher(_s)) if fetcher is not None else fetch_url
-            parsed, why = govcascade.collect_org(source, fetcher=page_fetch)
-            failed.extend(why)
-        elif source.kind == "govweb":
+            if limiter is not None:
+                page_fetch = limiter.wrap(page_fetch)
+            target = source
+            if auto_routes and source.home and not source.routes:
+                # routes 를 손으로 적지 않아도 홈에서 게시판·피드를 찾아 붙인다.
+                from . import govdiscover
+
+                target, notes = govdiscover.enrich(source, fetcher=page_fetch)
+                why.extend(f"{source.org or source.name}: {n}" for n in notes)
+            parsed, reasons = govcascade.collect_org(target, fetcher=page_fetch)
+            why.extend(reasons)
+            return parsed, why
+        if source.kind == "govweb":
             # 정부 표준홈페이지 게시판(채용·입찰 등 RSS 가 없는 목록) HTML 파싱.
             data = fetch(source)
             if not data:
-                failed.append(_failure_label(source, live=live))
-                continue
-            parsed = _parse_govweb(source, data)
-        elif source.kind == "k2web":
+                return [], [_failure_label(source, live=live)]
+            return _parse_govweb(source, data), why
+        if source.kind == "k2web":
             # 단계적 폴백(RSS → 목록 → 메뉴). 오프라인 모드에서는 기존 페처를 쓴다.
-            parsed = _collect_k2web(source, fetcher=fetcher, failed=failed)
-        else:
-            data = fetch(source)
-            if not data:
-                failed.append(_failure_label(source, live=live))
-                continue
-            parsed = _parse_source(source, data)
+            parsed = _collect_k2web(source, fetcher=fetcher, failed=why)
+            return parsed, why
+        data = fetch(source)
+        if not data:
+            return [], [_failure_label(source, live=live)]
+        return _parse_source(source, data), why
 
+    def on_error(source: Source, exc: Exception) -> tuple[list[Notice], list[str]]:
+        return [], [f"{source.org or source.name} (수집 중 오류: {exc})"]
+
+    # 기관은 동시에, 한 서버에는 천천히 — 결과는 입력 순서대로 돌아온다(결정론).
+    results = parallel.run_parallel(active, fetch_one, jobs=jobs, on_error=on_error)
+
+    for source, (parsed, why) in zip(active, results, strict=True):
+        failed.extend(why)
         for notice in parsed:
             if cutoff is not None and notice.published is not None and notice.published < cutoff:
                 continue
