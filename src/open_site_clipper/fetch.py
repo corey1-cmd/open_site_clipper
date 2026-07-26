@@ -21,20 +21,53 @@ _DEFAULT_TIMEOUT = 15.0
 _MAX_BYTES = 8 * 1024 * 1024  # 8MB — 피드 한 건이 이보다 크면 비정상
 
 
-def fetch_url(url: str, *, timeout: float = _DEFAULT_TIMEOUT) -> bytes | None:
-    """URL을 GET해 본문 바이트를 돌려준다. 실패 시 None(fail-open).
+# 한 번 더 시도해 볼 만한 일시적 실패 — 순간적인 네트워크 끊김·서버 혼잡.
+_RETRYABLE = ("timed out", "reset", "temporarily", "unreachable", "connection")
 
-    http/https만 허용한다(file:// 등 로컬 스킴 차단 — SSRF/경로 우회 방지).
+
+def fetch_detail(
+    url: str, *, timeout: float = _DEFAULT_TIMEOUT, retry: bool = True
+) -> tuple[bytes | None, str]:
+    """URL을 GET해 (본문, 실패 사유)를 돌려준다.
+
+    사유를 남기는 이유: '응답 없음' 한 줄로는 차단(403)인지, 주소가 바뀐 것(404)
+    인지, 서버가 느린 것(시간 초과)인지 알 수 없어 고칠 수가 없다. 무엇이
+    막혔는지 보고서에 그대로 적어 사람이 판단하게 한다.
+
+    일시적으로 보이는 실패는 한 번만 다시 시도한다(서버 혼잡·순간 끊김 구제).
     """
-    # http(s)만 허용 — file://·ftp:// 등 로컬/우회 스킴을 원천 차단(SSRF 방지).
     if not (url.startswith("http://") or url.startswith("https://")):
-        return None
+        # http(s)만 허용 — file://·ftp:// 등 로컬/우회 스킴 차단(SSRF 방지).
+        return None, "지원하지 않는 주소 형식"
     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
-    try:
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
-            return resp.read(_MAX_BYTES)
-    except (urllib.error.URLError, TimeoutError, ValueError, OSError):
-        return None
+    attempts = 2 if retry else 1
+    reason = "응답 없음"
+    for i in range(attempts):
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                return resp.read(_MAX_BYTES), ""
+        except urllib.error.HTTPError as e:
+            hint = {403: "접근 거부(403)", 404: "주소 없음(404)", 429: "요청 과다(429)"}
+            return None, hint.get(e.code, f"HTTP 오류({e.code})")
+        except (urllib.error.URLError, TimeoutError, OSError, ValueError) as e:
+            text = str(getattr(e, "reason", e)).lower()
+            if "timed out" in text or isinstance(e, TimeoutError):
+                reason = f"시간 초과({timeout:.0f}초)"
+            elif "name or service" in text or "nodename" in text or "getaddrinfo" in text:
+                return None, "도메인을 찾을 수 없음"
+            elif "certificate" in text or "ssl" in text:
+                return None, "인증서 오류"
+            else:
+                reason = f"연결 실패({str(getattr(e, 'reason', e))[:40]})"
+            if i + 1 < attempts and any(k in text for k in _RETRYABLE):
+                continue  # 일시적으로 보이면 한 번 더
+            return None, reason
+    return None, reason
+
+
+def fetch_url(url: str, *, timeout: float = _DEFAULT_TIMEOUT) -> bytes | None:
+    """URL을 GET해 본문 바이트를 돌려준다. 실패 시 None(fail-open)."""
+    return fetch_detail(url, timeout=timeout)[0]
 
 
 # ── data.go.kr 인증키 ────────────────────────────────────────────────────────
@@ -100,3 +133,27 @@ def read_local(path: str | Path) -> bytes | None:
     except OSError:
         return None
     return data[:_MAX_BYTES]
+
+
+class TrackingFetcher:
+    """가져오면서 실패 사유를 기억하는 페처.
+
+    캐스케이드가 '응답 없음' 대신 '접근 거부(403)'·'시간 초과(15초)'처럼
+    구체적인 사유를 보고서에 적을 수 있게 한다. 여러 스레드가 함께 쓰므로
+    기록은 단순 대입만 한다(경쟁이 나도 마지막 값이 남을 뿐 문제되지 않는다).
+    """
+
+    __slots__ = ("_reasons", "timeout")
+
+    def __init__(self, timeout: float = _DEFAULT_TIMEOUT):
+        self.timeout = timeout
+        self._reasons: dict[str, str] = {}
+
+    def __call__(self, url: str) -> bytes | None:
+        data, why = fetch_detail(url, timeout=self.timeout)
+        if why:
+            self._reasons[url] = why
+        return data
+
+    def why(self, url: str) -> str:
+        return self._reasons.get(url, "응답 없음")

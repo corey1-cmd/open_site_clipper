@@ -35,6 +35,10 @@ class Notice:
     org: str = ""
     site: str = ""
     unit: str = ""
+    # 이 항목을 어느 경로로 가져왔는가 — "www.korea.kr · korea.kr 피드" 처럼
+    # (호스트 · 수단)을 적는다. 같은 기관이라도 항목마다 경로가 다를 수 있어
+    # (자체 RSS·게시판·대체 경로·korea.kr) 사람이 출처를 확인할 수 있게 남긴다.
+    origin: str = ""
     # 본문에서 캔 관련 자료 링크(--deep-links). 링크만 담고 본문은 담지 않는다.
     links: tuple[Link, ...] = ()
 

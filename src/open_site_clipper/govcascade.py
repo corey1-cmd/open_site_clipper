@@ -36,6 +36,7 @@ from .cascade import (
     ROBOTS_BLOCKED,
     Attempt,
     Outcome,
+    origin_label,
 )
 from .model import Notice
 from .sources import Source
@@ -173,9 +174,13 @@ def collect_category(
             continue
         data = fetcher(url)
         if not data:
-            outcome.attempts.append(Attempt(stage, url, reason=FETCH_FAILED))
+            why = getattr(fetcher, "why", None)
+            outcome.attempts.append(
+                Attempt(stage, url, reason=why(url) if callable(why) else FETCH_FAILED)
+            )
             continue
         notices = _parse_stage(source, stage, data, url, category)
+        notices = [replace(n, origin=origin_label(url, stage)) for n in notices]
         if not notices:
             outcome.attempts.append(Attempt(stage, url, reason=NO_ITEMS))
             continue

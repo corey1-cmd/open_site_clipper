@@ -35,6 +35,7 @@ from .cascade import (
     ROBOTS_BLOCKED,
     Attempt,
     Outcome,
+    origin_label,
 )
 from .model import Notice
 from .sources import Source
@@ -154,6 +155,7 @@ def collect_board(
             outcome.attempts.append(Attempt(strategy, url, reason=NO_ITEMS))
             continue
 
+        notices = [replace(n, origin=origin_label(url, strategy)) for n in notices]
         outcome.attempts.append(Attempt(strategy, url, count=len(notices)))
         outcome.notices = notices
         return outcome

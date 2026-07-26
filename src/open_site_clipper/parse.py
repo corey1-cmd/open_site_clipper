@@ -17,6 +17,7 @@ from .model import Notice
 
 # Atom 네임스페이스(RSS 2.0은 네임스페이스 없음).
 _ATOM = "{http://www.w3.org/2005/Atom}"
+_DC = "{http://purl.org/dc/elements/1.1/}"
 
 _TAG_RE = re.compile(r"<[^>]+>")
 _WS_RE = re.compile(r"\s+")
@@ -64,6 +65,12 @@ def parse_date(raw: str | None) -> date | None:
     m = re.search(r"(\d{1,2})\s+([A-Za-z]{3})\s+(\d{4})", s)
     if m and m.group(2) in _MONTHS:
         return _safe_date(int(m.group(3)), _MONTHS[m.group(2)], int(m.group(1)))
+    # 한글·두 자리 연도 등 비표준 표기 — 게시판 파서와 같은 규칙을 재사용한다.
+    from .k2web_parse import coerce_date
+
+    found = coerce_date(s)
+    if found is not None:
+        return found
     # 마지막 시도: datetime.fromisoformat (Z 정규화)
     try:
         return datetime.fromisoformat(s.replace("Z", "+00:00")).date()
@@ -110,7 +117,19 @@ def parse_rss(
         link = _rss_link(it)
         if not title or not link:
             continue
-        pub = _first_text(it, ["pubDate", "date", f"{_ATOM}updated", f"{_ATOM}published"])
+        pub = _first_text(
+            it,
+            [
+                "pubDate",
+                "date",
+                f"{_DC}date",  # dc:date — 국내 기관 피드에 흔하다
+                f"{_DC}issued",
+                f"{_ATOM}updated",
+                f"{_ATOM}published",
+                "created",
+                "regDate",
+            ],
+        )
         summary = clean_text(_first_text(it, ["description", "summary", f"{_ATOM}summary"]))
         notices.append(
             Notice(

@@ -14,7 +14,8 @@
     "",
     "주의: 65곳을 한 번에 돌리면 요청이 수백 회다. --check-access 로 먼저 진단하고,",
     "웹 UI 나 --agency 로 필요한 기관만 고르는 것을 권한다.",
-    "korea_feed 코드는 https://www.korea.kr/etc/rss.do 에서 확인·갱신할 수 있다."
+    "korea_feed 코드는 https://www.korea.kr/etc/rss.do 에서 확인·갱신할 수 있다.",
+    "korea_feed 코드가 틀리면 보고서에 '주소 없음(404)' 로 남는다. https://www.korea.kr/etc/rss.do 에서 확인해 고치면 된다."
   ],
   "sources": [
     {
@@ -264,7 +265,7 @@
       "kind": "govorg",
       "group": "부",
       "home": "https://www.mods.go.kr",
-      "korea_feed": "dept_mods"
+      "korea_feed": "dept_kostat"
     },
     {
       "id": "gov-moip",

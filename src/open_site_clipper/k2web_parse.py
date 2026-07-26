@@ -27,7 +27,15 @@ from .parse import parse_date
 # /bbs/{siteId}/{boardId}/{artclNo}/artclView.do — 이 CMS의 고정 문법.
 ARTICLE_RE = re.compile(r"/bbs/([^/]+)/(\d+)/(\d+)/artclView\.do", re.I)
 # 2026.07.02 · 2026-07-02 · 2026/07/02
+# 날짜 표기 — 국내 기관 사이트 실측 형식을 모두 받는다.
+#   2026.07.20 · 2026-07-20 · 2026/07/20 · 2026.7.20
 _DATE_RE = re.compile(r"\b(20\d{2})[.\-/](\d{1,2})[.\-/](\d{1,2})\b")
+#   2026년 7월 20일 (한글 표기 — 정부 게시판에 흔하다)
+_DATE_KO_RE = re.compile(r"(20\d{2})\s*년\s*(\d{1,2})\s*월\s*(\d{1,2})\s*일")
+#   26.07.20 (두 자리 연도 — 2000년대만 대상으로 본다)
+_DATE_YY_RE = re.compile(r"(?<![\d.])(\d{2})[.\-/](\d{1,2})[.\-/](\d{1,2})(?![\d.])")
+#   20260720 (붙임 표기)
+_DATE_COMPACT_RE = re.compile(r"(?<!\d)(20\d{2})(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])(?!\d)")
 # 조회수·번호 같은 순수 숫자 칸은 부서 후보에서 제외한다.
 _NUM_RE = re.compile(r"^\d+$")
 
@@ -80,16 +88,27 @@ class _RowParser(HTMLParser):
 
 
 def coerce_date(text: str) -> date | None:
-    """'2026.07.02'·'2026-07-02'·'2026/07/02' 등 흔한 표기에서 날짜를 캔다.
+    """흔한 날짜 표기에서 날짜를 캔다(없으면 None — 지어내지 않는다).
 
-    목록 표(_row_date)와 JSON API 응답(jsonapi)이 같은 규칙을 쓰게 하는 공용
-    함수. 날짜꼴이 없으면 None — 없는 날짜를 지어내지 않는다.
+    국내 기관 사이트 실측 형식을 모두 받는다:
+      2026.07.20 · 2026-07-20 · 2026/07/20 · 2026년 7월 20일 · 26.07.20 · 20260720
+
+    목록 표(_row_date)와 JSON API(jsonapi)와 RSS 보강이 같은 규칙을 쓰게 하는
+    공용 함수. 두 자리 연도는 2000년대로 해석한다(정부 게시판에 과거 자료가
+    남아 있어도 1900년대 표기는 사실상 쓰이지 않는다).
     """
-    m = _DATE_RE.search(text or "")
-    if not m:
-        return None
-    y, mo, d = (int(x) for x in m.groups())
-    return parse_date(f"{y:04d}-{mo:02d}-{d:02d}")
+    raw = text or ""
+    for pattern in (_DATE_RE, _DATE_KO_RE, _DATE_COMPACT_RE):
+        m = pattern.search(raw)
+        if m:
+            y, mo, d = (int(x) for x in m.groups())
+            return parse_date(f"{y:04d}-{mo:02d}-{d:02d}")
+    m = _DATE_YY_RE.search(raw)
+    if m:
+        yy, mo, d = (int(x) for x in m.groups())
+        if 1 <= mo <= 12 and 1 <= d <= 31:
+            return parse_date(f"{2000 + yy:04d}-{mo:02d}-{d:02d}")
+    return None
 
 
 def _row_date(cells: list[tuple[str, str]]) -> date | None:

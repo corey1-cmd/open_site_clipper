@@ -13,6 +13,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 from . import parallel, parse, rights
+from .cascade import origin_label
 from .model import Notice, Report
 from .sources import Source
 
@@ -157,9 +158,11 @@ def collect(
         if source.kind == "govorg":
             # 카테고리별 다단계 폴백 — 되면 쓰고, 안 되면 사유를 남긴다.
             from . import govcascade
-            from .fetch import fetch_url
+            from .fetch import TrackingFetcher
 
-            page_fetch = (lambda u, _s=source: fetcher(_s)) if fetcher is not None else fetch_url
+            page_fetch = (
+                (lambda u, _s=source: fetcher(_s)) if fetcher is not None else TrackingFetcher()
+            )
             if limiter is not None:
                 page_fetch = limiter.wrap(page_fetch)
             target = source
@@ -177,7 +180,13 @@ def collect(
             data = fetch(source)
             if not data:
                 return [], [_failure_label(source, live=live)]
-            return _parse_govweb(source, data), why
+            return (
+                [
+                    replace(n, origin=origin_label(source.url, "board"))
+                    for n in _parse_govweb(source, data)
+                ],
+                why,
+            )
         if source.kind == "k2web":
             # 단계적 폴백(RSS → 목록 → 메뉴). 오프라인 모드에서는 기존 페처를 쓴다.
             parsed = _collect_k2web(source, fetcher=fetcher, failed=why)
@@ -185,7 +194,14 @@ def collect(
         data = fetch(source)
         if not data:
             return [], [_failure_label(source, live=live)]
-        return _parse_source(source, data), why
+        stage = "datago" if source.kind == "datago" else "rss"
+        return (
+            [
+                replace(n, origin=origin_label(source.url, stage))
+                for n in _parse_source(source, data)
+            ],
+            why,
+        )
 
     def on_error(source: Source, exc: Exception) -> tuple[list[Notice], list[str]]:
         return [], [f"{source.org or source.name} (수집 중 오류: {exc})"]

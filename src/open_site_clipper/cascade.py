@@ -53,3 +53,25 @@ class Outcome:
             f"{a.strategy}: {a.count}건" if a.ok else f"{a.strategy}: {a.reason}"
             for a in self.attempts
         )
+
+
+# 수단 → 사람이 읽는 이름. 보고서의 출처 상자에 그대로 쓴다.
+STAGE_LABELS = {
+    "rss": "RSS 피드",
+    "board": "게시판",
+    "alt": "게시판(대체 경로)",
+    "datago": "공공데이터 API",
+    "korea": "korea.kr 피드",
+    "list": "게시판 목록",
+    "page": "메뉴 페이지",
+    "api": "게시판 API",
+}
+
+
+def origin_label(url: str, stage: str) -> str:
+    """항목의 출처 표시 — '호스트 · 수단'."""
+    import urllib.parse
+
+    host = urllib.parse.urlsplit(url).netloc or url[:40]
+    name = STAGE_LABELS.get(stage, stage)
+    return f"{host} · {name}" if name else host

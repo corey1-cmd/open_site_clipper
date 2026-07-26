@@ -98,7 +98,8 @@ def _body_markdown(report: Report) -> str:
             link = f"[{title}]({n.url})" if n.url else title
             if n.is_new:
                 link = f"🆕 {link}"
-            seg.append(f"| {_fmt_date(n)} | {link} | {rights.badge(n.rights)} |")
+            origin = f"<br><sub>{_md_escape(n.origin)}</sub>" if n.origin else ""
+            seg.append(f"| {_fmt_date(n)} | {link}{origin} | {rights.badge(n.rights)} |")
         sections.append("\n".join(seg))
     return "\n\n".join(sections)
 
@@ -120,7 +121,10 @@ def _body_markdown_org(report: Report) -> str:
                 if n.is_new:
                     link = f"🆕 {link}"
                 unit = _md_escape(n.unit or "-")
-                seg.append(f"| {_fmt_date(n)} | {link} | {unit} | {rights.badge(n.rights)} |")
+                origin = f"<br><sub>{_md_escape(n.origin)}</sub>" if n.origin else ""
+                seg.append(
+                    f"| {_fmt_date(n)} | {link}{origin} | {unit} | {rights.badge(n.rights)} |"
+                )
             seg.append("")
         sections.append("\n".join(seg).rstrip())
     return "\n\n".join(sections)
@@ -169,6 +173,7 @@ def render_json(report: Report) -> str:
                 "org": n.org,
                 "site": n.site,
                 "unit": n.unit,
+                "origin": n.origin,
                 "links": [{"label": x.label, "url": x.url, "kind": x.kind} for x in n.links],
                 "summary": n.summary,
                 "category": n.category,
@@ -206,6 +211,11 @@ a:hover { text-decoration: underline; }
 .badge { display: inline-block; font-size: .72rem; font-weight: 700; white-space: nowrap;
   padding: .1rem .5rem; border-radius: 999px; background: rgba(25,25,112,.1); color: #191970; }
 .badge.unknown { background: #eee; color: #667; }
+.origin { display: inline-block; margin-top: .25rem; padding: .05rem .4rem;
+  border: 1px solid #e2e5ef; border-radius: 5px; background: #f7f8fc;
+  color: #6b7285; font-size: .72rem; line-height: 1.5; white-space: nowrap; }
+@media (prefers-color-scheme: dark) { .origin { background: #14171f;
+  border-color: #2a2f3c; color: #8f97ac; } }
 .badge.new { background: #e8f7ee; color: #0b7a3b; }
 .stat.new { background: #e8f7ee; }
 .digest { background: #f8f9fc; border: 1px solid #eef; border-radius: 12px;
@@ -225,7 +235,12 @@ footer ul { padding-left: 1.1rem; }
   .stat { background: #1e2330; } th, td { border-color: #262a35; }
   a, h2 { color: #9aa8ff; } h2 { border-color: #9aa8ff; }
   .badge { background: rgba(154,168,255,.15); color: #9aa8ff; }
-  .badge.new { background: rgba(52,199,123,.15); color: #57d78f; }
+  .origin { display: inline-block; margin-top: .25rem; padding: .05rem .4rem;
+  border: 1px solid #e2e5ef; border-radius: 5px; background: #f7f8fc;
+  color: #6b7285; font-size: .72rem; line-height: 1.5; white-space: nowrap; }
+@media (prefers-color-scheme: dark) { .origin { background: #14171f;
+  border-color: #2a2f3c; color: #8f97ac; } }
+.badge.new { background: rgba(52,199,123,.15); color: #57d78f; }
   .stat.new { background: rgba(52,199,123,.12); }
   .digest { background: #12151c; border-color: #262a35; }
   .chip { background: rgba(154,168,255,.12); } .chip b { color: #9aa8ff; }
@@ -331,7 +346,8 @@ def _body_html(report: Report) -> str:
                     )
                     parts.append(
                         f'<tr><td class="date">{_fmt_date(n)}</td>'
-                        f"<td>{new_html}{title_html}</td><td>{_esc(n.unit or '-')}</td>"
+                        f"<td>{new_html}{title_html}{_origin_html(n)}</td>"
+                        f"<td>{_esc(n.unit or '-')}</td>"
                         f'<td><span class="{cls}">{_esc(rights.badge(n.rights))}</span></td></tr>'
                     )
                 parts.append("</tbody></table>")
@@ -350,12 +366,18 @@ def _body_html(report: Report) -> str:
                 else _esc(n.title)
             )
             parts.append(
-                f'<tr><td class="date">{_fmt_date(n)}</td><td>{new_html}{title_html}</td>'
+                f'<tr><td class="date">{_fmt_date(n)}</td>'
+                f"<td>{new_html}{title_html}{_origin_html(n)}</td>"
                 f'<td><span class="{cls}" title="{_esc(rights.label(n.rights))}">'
                 f"{_esc(rights.badge(n.rights))}</span></td></tr>"
             )
         parts.append("</tbody></table>")
     return "\n".join(parts)
+
+
+def _origin_html(n) -> str:
+    """항목 아래 붙는 작은 출처 상자 — 어디서 가져왔는지 한눈에."""
+    return f'<br><span class="origin">{_esc(n.origin)}</span>' if n.origin else ""
 
 
 def _legend_html(report: Report) -> str:
