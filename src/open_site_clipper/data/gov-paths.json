@@ -1,0 +1,109 @@
+{
+  "_comment": [
+    "정부 누리집 게시판 경로 패턴 — 홈에서 링크를 못 얻었을 때 순서대로 시도한다.",
+    "",
+    "'응답 0KB · <a> 0개' 로 실패한 19개 부처를 개별 조사한 결과, 게시판 주소는",
+    "CMS 패밀리 몇 종으로 수렴한다. 기관마다 코드를 쓰는 대신 **패턴을 데이터로**",
+    "두고 사이클로 돌린다. 한 패턴이 통하면 같은 패밀리의 나머지 경로도 함께 시도해",
+    "요청을 아낀다(family 로 묶인 것들이 그 짝이다).",
+    "",
+    "{host} 는 기관 도메인으로 치환된다. www 유무 두 가지를 모두 시도한다 —",
+    "조달청은 www 없는 pps.go.kr 에서 게시판이 열린다(실측).",
+    "",
+    "확인된 실측 경로(2026-07):",
+    "  고용노동부  www.moel.go.kr/news/notice/noticeList.do?searchDivCd=001",
+    "  조달청      pps.go.kr/kor/bbs/list.do?key=00641",
+    "  문화체육관광부 www.mcst.go.kr/kor/s_notice/notice/noticeList.jsp",
+    "  해양수산부  www.mof.go.kr/article/list.do?boardKey=22&menuKey=1009",
+    "  질병관리청  www.kdca.go.kr/board/board.es?mid=a20501000000&bid=0015",
+    "  교육부      www.moe.go.kr/boardCnts/listRenew.do?boardID=333&m=020402&s=moe",
+    "  행정안전부  www.mois.go.kr/frt/bbs/type010/commonSelectBoardList.do?bbsId=BBSMSTR_000000000008",
+    "",
+    "새 패턴을 알게 되면 이 파일에만 추가하면 된다. 코드는 그대로다."
+  ],
+  "families": [
+    {
+      "family": "moel",
+      "note": "고용노동부 계열 — /news/notice/*List.do",
+      "paths": [
+        "/news/notice/noticeList.do?searchDivCd=001",
+        "/news/notice/noticeList.do",
+        "/news/enews/report/enewsList.do"
+      ]
+    },
+    {
+      "family": "pps",
+      "note": "조달청 계열 — /kor/bbs/list.do?key=NNNNN",
+      "paths": [
+        "/kor/bbs/list.do?key=00641",
+        "/kor/bbs/list.do?key=00289",
+        "/kor/bbs/list.do?key=00290"
+      ]
+    },
+    {
+      "family": "mcst-jsp",
+      "note": "문체부 계열 — /kor/s_notice/**/*List.jsp · RSS 는 /common/rss/*.jsp",
+      "paths": [
+        "/kor/s_notice/notice/noticeList.jsp",
+        "/site/s_notice/notice/noticeList.jsp",
+        "/site/s_notice/notice/jobList.jsp",
+        "/site/s_notice/notice/bidList.jsp",
+        "/common/rss/notice.jsp",
+        "/common/rss/press.jsp"
+      ]
+    },
+    {
+      "family": "article-do",
+      "note": "해수부 계열 — /article/list.do?boardKey=NN",
+      "paths": [
+        "/article/list.do?boardKey=22&menuKey=1009",
+        "/article/list.do?boardKey=10&menuKey=971",
+        "/doc/ko/selectDocList.do?bbsSeq=35&menuSeq=889"
+      ]
+    },
+    {
+      "family": "board-es",
+      "note": "menu.es/board.es 계열 — 보건복지부·법제처·국가데이터처·질병관리청 공통",
+      "paths": [
+        "/board/board.es?mid=a20501000000&bid=0015",
+        "/board/board.es?mid=a10503010100&bid=0027",
+        "/menu.es?mid=a10503010000"
+      ]
+    },
+    {
+      "family": "boardCnts",
+      "note": "교육부 계열 — /boardCnts/listRenew.do?boardID=NNN",
+      "paths": [
+        "/boardCnts/listRenew.do?boardID=333&m=020402&s=moe",
+        "/boardCnts/listRenew.do?boardID=294&m=020402&s=moe",
+        "/boardCnts/listRenew.do?boardID=72761&m=020502&s=moe"
+      ]
+    },
+    {
+      "family": "egov-frt",
+      "note": "eGovFrame 계열 — 행안부·소방청 등 /frt/bbs/typeNNN/",
+      "paths": [
+        "/frt/bbs/type010/commonSelectBoardList.do?bbsId=BBSMSTR_000000000008",
+        "/frt/bbs/type013/commonSelectBoardList.do?bbsId=BBSMSTR_000000000014",
+        "/bbs/BBSMSTR_000000000008/list.do"
+      ]
+    },
+    {
+      "family": "generic",
+      "note": "관용 경로 — CMS 를 몰라도 흔히 통하는 것들",
+      "paths": [
+        "/kor/bbs/list.do",
+        "/bbs/list.do",
+        "/board/list.do",
+        "/notice/list.do",
+        "/news/notice/list.do",
+        "/kor/notice/list.do",
+        "/sitemap.do",
+        "/kor/sitemap.do",
+        "/siteMap.do",
+        "/kor/s_etc/sitemap/siteMap.jsp",
+        "/frt/sub/a08/sitemap/screen.do"
+      ]
+    }
+  ]
+}

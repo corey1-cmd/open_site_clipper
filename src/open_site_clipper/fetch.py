@@ -10,15 +10,53 @@ fail-open 원칙: 한 출처가 404·타임아웃·차단(해외 IP 등)으로 �
 
 from __future__ import annotations
 
+import gzip
 import os
 import urllib.error
 import urllib.parse
 import urllib.request
+import zlib
 from pathlib import Path
 
-USER_AGENT = "open_site_clipper/0.14 (+https://github.com/corey1-cmd/open_site_clipper)"
+USER_AGENT = "open_site_clipper/0.15 (+https://github.com/corey1-cmd/open_site_clipper)"
 _DEFAULT_TIMEOUT = 15.0
 _MAX_BYTES = 8 * 1024 * 1024  # 8MB — 피드 한 건이 이보다 크면 비정상
+
+
+# 표준 요청 헤더 — **정체는 밝히되(UA 유지) 예의는 갖춘다.**
+# 헤더가 UA 하나뿐인 요청을 자동화로 보고 빈 응답·404 를 주는 국내 공공 WAF 가
+# 있다. 브라우저인 척하는 것이 아니라, 정상적인 HTTP 클라이언트가 당연히 보내는
+# 것을 보내는 것이다.
+REQUEST_HEADERS = {
+    "User-Agent": USER_AGENT,
+    "Accept": "application/rss+xml, application/xml;q=0.9, text/html;q=0.8, */*;q=0.5",
+    "Accept-Language": "ko-KR,ko;q=0.9,en;q=0.5",
+    "Accept-Encoding": "gzip, deflate",
+    "Connection": "close",
+}
+
+
+def _decompress(data: bytes, headers) -> bytes:
+    """압축 응답을 푼다.
+
+    Accept-Encoding 을 보내면 gzip 이 오고, 그것을 텍스트로 읽으면 앵커가 0개가
+    된다(정부 19곳이 '응답 0KB · <a> 0개' 였던 원인 후보). Content-Encoding 이
+    없어도 gzip 매직바이트면 푼다 — 헤더를 안 붙이고 압축해 보내는 서버가 있다.
+    """
+    if not data:
+        return data
+    enc = (headers.get("Content-Encoding") or "").lower() if headers else ""
+    try:
+        if "gzip" in enc or data[:2] == b"\x1f\x8b":
+            return gzip.decompress(data)
+        if "deflate" in enc:
+            try:
+                return zlib.decompress(data)
+            except zlib.error:
+                return zlib.decompress(data, -zlib.MAX_WBITS)
+    except (OSError, zlib.error, EOFError):
+        return data  # 못 풀면 원본 그대로(파서가 알아서 실패한다)
+    return data
 
 
 # 한 번 더 시도해 볼 만한 일시적 실패 — 순간적인 네트워크 끊김·서버 혼잡.
@@ -39,13 +77,13 @@ def fetch_detail(
     if not (url.startswith("http://") or url.startswith("https://")):
         # http(s)만 허용 — file://·ftp:// 등 로컬/우회 스킴 차단(SSRF 방지).
         return None, "지원하지 않는 주소 형식"
-    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    req = urllib.request.Request(url, headers=REQUEST_HEADERS)
     attempts = 2 if retry else 1
     reason = "응답 없음"
     for i in range(attempts):
         try:
             with urllib.request.urlopen(req, timeout=timeout) as resp:
-                return resp.read(_MAX_BYTES), ""
+                return _decompress(resp.read(_MAX_BYTES), resp.headers), ""
         except urllib.error.HTTPError as e:
             hint = {403: "접근 거부(403)", 404: "주소 없음(404)", 429: "요청 과다(429)"}
             return None, hint.get(e.code, f"HTTP 오류({e.code})")

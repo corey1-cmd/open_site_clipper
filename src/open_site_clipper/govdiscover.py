@@ -22,7 +22,7 @@ import urllib.parse
 from collections.abc import Callable
 
 from . import discover as _discover
-from . import probe
+from . import govpaths, probe
 from .fetch import decode_text
 
 PageFetcher = Callable[[str], "bytes | None"]
@@ -98,10 +98,13 @@ def find_routes(
     notes: list[str] = []
     session = _discover._Session(fetcher, check_robots, budget)
 
-    data = session.get(home_url)
+    data = session.get(home_url) or b""
     if not data:
+        # 홈을 못 읽어도 여기서 끝내지 않는다. 실패한 19개 부처가 정확히 이
+        # 경로였다 — 홈이 빈 응답이라고 게시판까지 없는 것은 아니다. 아래의
+        # 사이트맵·경로 사이클이 여전히 유효하므로 사유만 적고 계속 간다.
         why = "robots.txt 차단" if session.blocked else "응답 없음"
-        return [], [f"홈페이지를 열지 못했습니다({why}): {home_url}"]
+        notes.append(f"홈페이지를 열지 못했습니다({why}) — 다른 경로로 계속합니다: {home_url}")
 
     page = _discover._Page()
     try:
@@ -196,6 +199,18 @@ def find_routes(
     #    거기 담긴 목록 주소는 홈 메뉴가 JS 로만 그려져도 그대로 쓸 수 있다.
     if not routes and session.budget > 0:
         found, why = _from_sitemap(session, home_url, home_host, max_candidates)
+        routes.extend(found)
+        notes.extend(why)
+
+    # ⑤ 그래도 없으면 **알려진 경로 패턴**을 사이클로 돌린다. 홈을 못 읽어도
+    #    게시판 주소 자체는 CMS 패밀리 몇 종으로 수렴한다(19곳 조사 결과).
+    if not routes and session.budget > 0:
+        found, why = govpaths.probe_paths(
+            home_url,
+            fetcher=session.get,
+            budget=min(12, session.budget),
+            home_host=home_host,
+        )
         routes.extend(found)
         notes.extend(why)
 
