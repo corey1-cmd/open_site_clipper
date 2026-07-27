@@ -104,7 +104,17 @@ def find_routes(
         # 경로였다 — 홈이 빈 응답이라고 게시판까지 없는 것은 아니다. 아래의
         # 사이트맵·경로 사이클이 여전히 유효하므로 사유만 적고 계속 간다.
         why = "robots.txt 차단" if session.blocked else "응답 없음"
-        notes.append(f"홈페이지를 열지 못했습니다({why}) — 다른 경로로 계속합니다: {home_url}")
+        # '/' 가 리다이렉트 관문이라 빈 응답인 기관이 많다(고용노동부·문체부·해수부).
+        # 진짜 홈을 찾으면 아래 로직이 **그대로** 돌아간다 — 기관별 게시판 경로를
+        # 일일이 아는 것보다 일반적이다.
+        entry_url, entry_data = govpaths.find_entry(
+            home_url, fetcher=session.get, budget=min(8, session.budget)
+        )
+        if entry_data:
+            notes.append(f"홈이 비어 진입점을 찾았습니다: {entry_url}")
+            home_url, data = entry_url, entry_data
+        else:
+            notes.append(f"홈페이지를 열지 못했습니다({why}) — 다른 경로로 계속합니다: {home_url}")
 
     page = _discover._Page()
     try:

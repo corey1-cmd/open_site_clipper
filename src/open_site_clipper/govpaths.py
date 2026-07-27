@@ -29,20 +29,22 @@ from pathlib import Path
 from . import probe
 
 DATA_FILE = Path(__file__).with_name("data") / "gov-paths.json"
+# 진짜 홈이라면 메뉴 링크가 이만큼은 있다. 관문 페이지는 몇 개도 안 된다.
+MIN_ENTRY_ANCHORS = 10
 
 
 @lru_cache(maxsize=1)
-def families() -> tuple[tuple[str, tuple[str, ...]], ...]:
+def families() -> tuple[tuple[str, tuple[str, ...], bool], ...]:
     """(패밀리 이름, 경로들) — 데이터 파일에서 한 번만 읽는다."""
     try:
         raw = json.loads(DATA_FILE.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         return ()
-    out: list[tuple[str, tuple[str, ...]]] = []
+    out: list[tuple[str, tuple[str, ...], bool]] = []
     for item in raw.get("families", []):
         paths = tuple(str(p) for p in item.get("paths", []) if str(p).strip())
         if paths:
-            out.append((str(item.get("family", "?")), paths))
+            out.append((str(item.get("family", "?")), paths, bool(item.get("entry_point"))))
     return tuple(out)
 
 
@@ -79,7 +81,9 @@ def probe_paths(
     seen: set[str] = set()
 
     for base in bases:
-        for family, paths in families():
+        for family, paths, is_entry in families():
+            if is_entry:
+                continue  # 진입점은 find_entry 가 따로 다룬다
             if left <= 0:
                 break
             head, *rest = paths
@@ -117,3 +121,45 @@ def _adopt(url: str, fetcher: Callable[[str], bytes | None], host: str, routes: 
     kind = "rss" if url.endswith((".xml", ".jsp")) and "/rss/" in url else "board"
     routes.append(("기타", kind, url))
     return True
+
+
+def find_entry(
+    home_url: str, *, fetcher: Callable[[str], bytes | None], budget: int = 8
+) -> tuple[str, bytes]:
+    """'/' 가 빈 응답일 때 **진짜 홈**을 찾는다.
+
+    홈만 0KB 이고 하위 경로는 정상인 기관이 많다(고용노동부·문체부·해수부 …).
+    '/' 가 리다이렉트 관문이라 내용이 없는 것이다. 진입점 후보를 돌려 **링크가
+    실제로 들어 있는 페이지**를 찾으면, 그 페이지를 홈으로 삼아 기존 발견 로직을
+    그대로 다시 태울 수 있다. 기관별 게시판 경로를 일일이 아는 것보다 일반적이다.
+
+    돌려주는 것: (찾은 주소, 본문). 못 찾으면 ("", b"").
+    """
+    from . import discover as _discover
+
+    bases = host_variants(home_url)
+    entries = [p for _f, paths, is_entry in families() if is_entry for p in paths]
+    left = budget
+    for base in bases:
+        for path in entries:
+            if left <= 0:
+                return "", b""
+            left -= 1
+            url = base + path
+            data = fetcher(url)
+            if not data:
+                continue
+            page = _discover._Page()
+            try:
+                page.feed(_discover.strip_noise(_decode(data)))
+            except Exception:
+                continue
+            if len(page.anchors) >= MIN_ENTRY_ANCHORS:  # 메뉴가 실린 진짜 페이지
+                return url, data
+    return "", b""
+
+
+def _decode(data: bytes) -> str:
+    from .fetch import decode_text
+
+    return decode_text(data)
