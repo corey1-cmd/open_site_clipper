@@ -406,6 +406,9 @@ open_site_clipper --discover https://www.mcst.go.kr/site/s_etc/rss/rssService.js
 게시판을 못 찾으면 그 이유를 **숫자로** 남깁니다 — `응답 248KB · <a> 0개
 (주소없음 0·data속성 0) · 내부 0·외부제외 0 · 후보 0개`. 메뉴가 JavaScript 로만
 그려지는지, 파서가 막혔는지, 주소가 `data-*` 에 숨어 있는지가 한 줄로 드러납니다.
+홈을 못 읽어도 거기서 멈추지 않습니다 — **알려진 경로 패턴**(CMS 패밀리 8종)을
+사이클로 시도해 게시판을 찾습니다. 첫 경로가 통한 패밀리만 깊게 파므로 요청이
+적게 듭니다. 새 패턴은 `data/gov-paths.json` 에만 추가하면 되고 코드는 그대로입니다.
 그런 사이트는 **robots.txt 의 `Sitemap:`** 을 읽어(추가 요청 없이) 사이트맵에서
 목록 주소를 찾아 우회합니다.
 
@@ -705,6 +708,7 @@ sources ──▶ fetch ──▶ parse ──▶ collect ──▶ report
 - `govweb.py` — 정부 표준홈페이지 게시판 파서(채용·입찰 등 RSS 미제공 목록)
 - `cascade.py` · `govcascade.py` — 폴백 공통 뼈대(시도 이력)와 정부 카테고리별 5단 캐스케이드
 - `access.py` — 접근 진단(전면/경로별 차단 구분, 우리 UA 기준)
+- `govpaths.py` — 경로 패턴 사이클(홈을 못 읽는 기관용, 데이터 기반)
 - `govdiscover.py` — 기관 홈에서 수집 경로 자동 발견(후보 수집 → 구조 테스트 선별)
 - `probe.py` — 구조 테스트(목록·안내·링크모음·외부 판정)
 - `parallel.py` — 병렬 실행기와 호스트별 간격(robots Crawl-delay 우선)
