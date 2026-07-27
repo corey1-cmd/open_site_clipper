@@ -157,3 +157,54 @@ def test_failure_note_carries_diagnosis():
     for token in ("응답", "<a>", "주소없음", "data속성", "내부", "외부제외", "후보"):
         assert token in note, token
     robots.reset_cache()
+
+
+# ── 진단이 '요청 실패'와 '빈 200 응답'을 구분해야 한다 ──────────────────────
+def test_diagnosis_distinguishes_failure_from_empty_body():
+    """'응답 0KB' 만으로는 요청이 막힌 것인지 본문이 빈 것인지 알 수 없었다."""
+
+    class Blocked:
+        def __call__(self, url):
+            return None
+
+        def why(self, url):
+            return "접근 거부(403)"
+
+    robots.reset_cache()
+    robots._CACHE["https://x.go.kr"] = None
+    robots._SITEMAPS["https://x.go.kr"] = []
+    _routes, notes = govdiscover.find_routes(
+        "https://x.go.kr/", fetcher=Blocked(), check_robots=False
+    )
+    note = next(n for n in notes if "진단" in n)
+    assert "접근 거부(403)" in note  # 사유가 진단에 실린다
+    robots.reset_cache()
+
+
+def test_session_records_reason():
+    session = discover._Session(lambda u: None, False, 5)
+    session.get("https://x/1")
+    assert session.last_reason == "응답 없음"
+    session2 = discover._Session(lambda u: b"ok", False, 5)
+    session2.get("https://x/1")
+    assert session2.last_reason == ""
+
+
+def test_candidate_limit_follows_budget():
+    """후보가 상한보다 많아도 예산이 허락하면 더 본다(국세청 614개 중 40개 문제)."""
+    links = "".join(f'<a href="/intro/p{i}.do">intro{i}</a>' for i in range(50))
+    links += '<a href="/board/notice/list.do">공지사항</a>'
+    pages = {
+        "https://x.go.kr/": f"<html><title>X</title><body>{links}</body></html>".encode(),
+        "https://x.go.kr/board/notice/list.do": BOARD,
+    }
+    for i in range(50):
+        pages[f"https://x.go.kr/intro/p{i}.do"] = STATIC
+    robots.reset_cache()
+    robots._CACHE["https://x.go.kr"] = None
+    robots._SITEMAPS["https://x.go.kr"] = []
+    routes, _n = govdiscover.find_routes(
+        "https://x.go.kr/", fetcher=lambda u: pages.get(u, b""), check_robots=False
+    )
+    assert any(u.endswith("/board/notice/list.do") for _c, _k, u in routes)
+    robots.reset_cache()

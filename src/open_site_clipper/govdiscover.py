@@ -27,7 +27,7 @@ from .fetch import decode_text
 
 PageFetcher = Callable[[str], "bytes | None"]
 
-DEFAULT_BUDGET = 45  # 기관당 요청 상한(홈 + RSS 안내 + 후보 구조 테스트)
+DEFAULT_BUDGET = 70  # 기관당 요청 상한(홈 + RSS 안내 + 후보 구조 테스트)
 
 # 카테고리 판정 사전 — 앵커 텍스트에 이 말이 있으면 그 카테고리로 본다.
 # 순서가 우선순위다(먼저 맞는 것을 취한다). '채용공고'가 '공고'보다 앞에 있어야
@@ -99,6 +99,7 @@ def find_routes(
     session = _discover._Session(fetcher, check_robots, budget)
 
     data = session.get(home_url) or b""
+    home_reason = session.last_reason if not data else ""
     if not data:
         # 홈을 못 읽어도 여기서 끝내지 않는다. 실패한 19개 부처가 정확히 이
         # 경로였다 — 홈이 빈 응답이라고 게시판까지 없는 것은 아니다. 아래의
@@ -165,8 +166,12 @@ def find_routes(
     # 있었다(국무조정실·금융위 등 18곳이 '40건 건너뜀'). 게시판일 가능성이 높은
     # 것부터 보도록 점수순 정렬 후 상한을 적용한다.
     candidates.sort(key=lambda c: -board_score(c[2], c[0]))
+    # 상한은 고정값이 아니라 **남은 예산**을 따른다. 국세청은 후보 614개 중
+    # 40개(6%)만 보고 끝나 게시판을 놓쳤다. 정렬이 있으므로 위쪽부터 보는 한
+    # 예산을 다 쓰는 편이 낫다(사이트맵·경로 사이클 몫으로 여유를 남긴다).
+    limit = max(max_candidates, min(len(candidates), max(0, session.budget - 8)))
     skipped: dict[str, int] = {}
-    for label, kind, url in candidates[:max_candidates]:
+    for label, kind, url in candidates[:limit]:
         tried += 1
         if session.budget <= 0:
             notes.append(f"요청 예산 소진 — 후보 {len(candidates)}개 중 일부만 확인했습니다.")
@@ -226,7 +231,8 @@ def find_routes(
 
     if not routes:
         notes.append(
-            f"게시판·피드 링크를 찾지 못했습니다 — 진단: 응답 {len(data) // 1024}KB · "
+            f"게시판·피드 링크를 찾지 못했습니다 — 진단: 응답 {len(data) // 1024}KB"
+            f"{'(' + home_reason + ')' if home_reason else ''} · "
             f"<a> {page.anchor_tags}개(주소없음 {page.dead_links}·data속성 {page.data_links}) · "
             f"내부 {internal}·외부제외 {external} · 후보 {len(candidates)}개(시험 {tried}건). "
             "메뉴가 JavaScript 로만 그려지거나 구조가 다를 수 있습니다"

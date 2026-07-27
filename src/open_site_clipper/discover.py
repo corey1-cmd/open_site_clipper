@@ -221,16 +221,27 @@ class _Session:
         self.budget = budget
         self.blocked: list[str] = []
         self.fetched = 0
+        self.last_reason = ""  # 직전 요청이 실패한 사유(진단용)
 
     def get(self, url: str) -> bytes | None:
         if self.budget <= 0:
+            self.last_reason = "요청 예산 소진"
             return None
         if self._check and not robots.allowed(url):
             self.blocked.append(url)
+            self.last_reason = "robots.txt 차단"
             return None
         self.budget -= 1
         self.fetched += 1
-        return self._fetch(url)
+        data = self._fetch(url)
+        if data:
+            self.last_reason = ""
+        else:
+            # 왜 못 받았는지 페처가 알면 그대로 받아 둔다. 이것이 없으면
+            # '요청 실패'와 '빈 200 응답'이 똑같이 '0KB'로 찍혀 구분이 안 된다.
+            why = getattr(self._fetch, "why", None)
+            self.last_reason = why(url) if callable(why) else "응답 없음"
+        return data
 
 
 def _live_fetch(url: str) -> bytes | None:
