@@ -106,3 +106,124 @@ def strip_suffix(token: str) -> str:
         if token.endswith(suffix) and len(token) - len(suffix) >= MIN_STEM:
             return token[: -len(suffix)]
     return token
+
+
+# ── 로마자 표기(음역) ────────────────────────────────────────────────────────
+# 정부 사이트 주소에 `/gongji/`·`/alrim/` 처럼 한글을 로마자로 적은 것이 있다.
+# 사전에 한글만 넣으면 이런 주소를 못 잡는다.
+#
+# searxng(34.5k★)가 쓰는 방법을 빌렸다 — 언어명 "français" 를 정규화한
+# "francais" 를 **사전에 별칭으로 함께 등록**해 두 표기를 모두 맞춘다
+# (engines/startpage.py 의 unaccented_name). 우리는 같은 발상을 한글에 적용해,
+# 카테고리 단어의 로마자 표기를 별칭으로 자동 생성한다.
+#
+# 한글은 유니코드 배치가 규칙적이라(초성 19 × 중성 21 × 종성 28) 표준
+# 라이브러리만으로 분해·변환이 된다. 사전이나 외부 패키지가 필요 없다.
+_CHO = (
+    "g",
+    "kk",
+    "n",
+    "d",
+    "tt",
+    "r",
+    "m",
+    "b",
+    "pp",
+    "s",
+    "ss",
+    "",
+    "j",
+    "jj",
+    "ch",
+    "k",
+    "t",
+    "p",
+    "h",
+)
+_JUNG = (
+    "a",
+    "ae",
+    "ya",
+    "yae",
+    "eo",
+    "e",
+    "yeo",
+    "ye",
+    "o",
+    "wa",
+    "wae",
+    "oe",
+    "yo",
+    "u",
+    "wo",
+    "we",
+    "wi",
+    "yu",
+    "eu",
+    "ui",
+    "i",
+)
+_JONG = (
+    "",
+    "g",
+    "k",
+    "gs",
+    "n",
+    "nj",
+    "nh",
+    "d",
+    "l",
+    "lg",
+    "lm",
+    "lb",
+    "ls",
+    "lt",
+    "lp",
+    "lh",
+    "m",
+    "b",
+    "bs",
+    "s",
+    "ss",
+    "ng",
+    "j",
+    "c",
+    "k",
+    "t",
+    "p",
+    "h",
+)
+_HANGUL_BASE = 0xAC00
+_HANGUL_COUNT = 11172
+
+
+def romanize(text: str) -> str:
+    """한글을 로마자로 옮긴다 — 주소 안의 음역 표기를 맞추기 위한 근사.
+
+    엄밀한 국어 로마자 표기법(음운 변화 반영)이 아니라 **글자 단위 근사**다.
+    주소는 대개 소리대로 적히므로 이 정도로 충분하다.
+
+    >>> romanize("공지사항"), romanize("알림"), romanize("채용")
+    ('gongjisahang', 'alrim', 'chaeyong')
+    """
+    out: list[str] = []
+    for ch in text or "":
+        code = ord(ch) - _HANGUL_BASE
+        if 0 <= code < _HANGUL_COUNT:
+            out.append(_CHO[code // 588] + _JUNG[(code % 588) // 28] + _JONG[code % 28])
+        elif ch.isalnum():
+            out.append(ch.lower())
+    return "".join(out)
+
+
+def romanized_aliases(word: str) -> tuple[str, ...]:
+    """한 단어의 음역 별칭들 — 전체 표기와 앞 음절(축약형)."""
+    full = romanize(word)
+    if not full or len(full) < 3:
+        return ()
+    aliases = {full}
+    if len(word) >= 2:
+        head = romanize(word[:2])  # '공지사항' → 'gongji' 처럼 줄여 쓰는 관행
+        if len(head) >= 4:
+            aliases.add(head)
+    return tuple(sorted(aliases))

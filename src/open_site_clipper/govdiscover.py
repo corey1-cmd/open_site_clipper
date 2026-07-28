@@ -20,9 +20,10 @@ from __future__ import annotations
 import re
 import urllib.parse
 from collections.abc import Callable
+from functools import lru_cache
 
 from . import discover as _discover
-from . import govpaths, probe
+from . import govpaths, korean, probe
 from .fetch import decode_text
 
 PageFetcher = Callable[[str], "bytes | None"]
@@ -40,8 +41,8 @@ CATEGORY_HINTS: tuple[tuple[str, tuple[str, ...]], ...] = (
         ("인사발령", "인사"),
     ),
     ("보도자료", ("보도자료", "보도설명", "해명자료", "press")),
-    ("공지", ("공지", "알립니다", "고시", "공고", "notice")),
-    ("소식", ("소식", "뉴스", "새소식", "news")),
+    ("공지", ("공지", "공지사항", "알림", "알립니다", "고시", "공고", "notice")),
+    ("소식", ("소식", "뉴스", "새소식", "동향", "news")),
 )
 
 # RSS 안내 페이지로 가는 링크의 단서.
@@ -53,18 +54,87 @@ _BOARD_URL_HINTS = ("list", "board", "bbs", "article", "notice", "brd", "news")
 _INTRO_URL_HINTS = ("intro", "about", "greeting", "org", "history", "vision", "location", "map")
 
 
+# 게시판 주소에 흔한 쿼리 파라미터 — eGovFrame 원본에서 뽑았다.
+# (bbsId 342회 · nttId 174 · menuNo 91 · bid/mid) `/menu.es?mid=…&bid=0015` 같은
+# 코드형 주소는 경로에 단서가 없어 이 신호가 없으면 음수로 밀린다.
+_BOARD_QUERY_HINTS = ("bbsid", "nttid", "menuno", "boardid", "bid=", "mid=", "key=")
+# 목록 주소로 흔한 꼬리 — 상세 페이지와 구분한다.
+_LIST_TAIL_HINTS = ("list", "List")
+OPTIMAL_DEPTH = 3  # 실측상 게시판 목록은 대개 이 깊이다(관문은 더 얕고 상세는 더 깊다)
+
+
+@lru_cache(maxsize=1)
+def _romanized_hints() -> tuple[str, ...]:
+    """카테고리 사전의 한글 단어를 로마자로 옮긴 별칭들.
+
+    주소에 `/gongji/`·`/alrim/` 처럼 음역이 쓰이는 경우를 잡는다. 사전을 고치면
+    별칭도 자동으로 따라오므로 따로 관리할 것이 없다.
+    """
+    out: set[str] = set()
+    for _cat, words in CATEGORY_HINTS:
+        for w in words:
+            out.update(korean.romanized_aliases(w))
+    return tuple(sorted(out))
+
+
+def _fair_order(
+    candidates: list[tuple[str, str, str]],
+) -> list[tuple[str, str, str]]:
+    """카테고리별로 **번갈아** 뽑아 배열한다.
+
+    점수만으로 줄을 세우면 같은 '채용' 후보라도 주소 모양에 따라 어떤 것은
+    상한 안에 들고 어떤 것은 잘린다. 카테고리가 통째로 빠지는 것도, 한
+    카테고리가 자리를 독식하는 것도 원치 않는다.
+
+    그래서 카테고리 안에서는 점수순으로 정렬하되, 밖에서는 **라운드로빈**으로
+    한 개씩 돌아가며 뽑는다. 상한이 어디서 잘리든 각 카테고리의 가장 유력한
+    후보는 이미 앞쪽에 들어와 있다.
+    """
+    groups: dict[str, list[tuple[str, str, str]]] = {}
+    for item in candidates:
+        groups.setdefault(item[0], []).append(item)
+    for items in groups.values():
+        # 동점이면 주소순 — 입력 순서에 기대면 실행마다 결과가 달라진다.
+        items.sort(key=lambda c: (-board_score(c[2], c[0]), c[2]))
+    # 카테고리 순서도 결정론적으로 — 최고점이 높은 카테고리부터.
+    order = sorted(groups, key=lambda cat: (-board_score(groups[cat][0][2], cat), cat))
+    out: list[tuple[str, str, str]] = []
+    rounds = max(len(v) for v in groups.values()) if groups else 0
+    for i in range(rounds):
+        for cat in order:
+            if i < len(groups[cat]):
+                out.append(groups[cat][i])
+    return out
+
+
 def board_score(url: str, label: str) -> int:
-    """이 링크가 게시판 목록일 가능성 — 클수록 먼저 시험한다."""
+    """이 링크가 게시판 목록일 가능성 — 클수록 먼저 시험한다.
+
+    신호를 **가중합**한다(crawl4ai CompositeScorer 와 같은 구조). 키워드는
+    하나만 맞아도 되는 이진값이 아니라 **맞은 개수**를 본다 —
+    `/frt/bbs/type010/commonSelectBoardList.do` 는 bbs·board·list 가 모두
+    걸리므로 `/list.do` 보다 위로 간다(KeywordRelevanceScorer 원리).
+    """
     low = (url or "").lower()
     score = 0
-    if any(h in low for h in _BOARD_URL_HINTS):
+    # ① 주소 키워드 — 맞은 개수만큼(최대 3까지)
+    hits = sum(1 for h in _BOARD_URL_HINTS if h in low)
+    score += min(hits, 3) * 2
+    # ② 음역 표기 — /gongji/·/alrim/ 처럼 한글을 로마자로 적은 주소
+    if any(h in low for h in _romanized_hints()):
         score += 3
-    if any(h in low for h in _INTRO_URL_HINTS):
-        score -= 2
-    if classify(label):  # 이름이 공지·채용·입찰 등으로 판정되면
+    # ③ 쿼리 파라미터 — 코드형 주소(?mid=&bid=)의 유일한 단서
+    if any(h in low for h in _BOARD_QUERY_HINTS):
         score += 2
-    if low.rstrip("/").count("/") <= 3:  # 최상위 메뉴는 목록보다 관문일 확률↑
-        score -= 1
+    # ④ 소개·연혁 계열은 감점
+    if any(h in low for h in _INTRO_URL_HINTS):
+        score -= 3
+    # ⑤ 이름이 카테고리로 판정되면 가점
+    if classify(label):
+        score += 3
+    # ⑥ 깊이 — 최적값에서 멀수록 감점(PathDepthScorer 의 거리 개념)
+    depth = low.split("?", 1)[0].rstrip("/").count("/") - 2
+    score -= min(abs(depth - OPTIMAL_DEPTH), 3)
     return score
 
 
@@ -165,7 +235,7 @@ def find_routes(
     # 상한(max_candidates)에 소개·정책 메뉴만 차서 정작 게시판까지 못 가던 문제가
     # 있었다(국무조정실·금융위 등 18곳이 '40건 건너뜀'). 게시판일 가능성이 높은
     # 것부터 보도록 점수순 정렬 후 상한을 적용한다.
-    candidates.sort(key=lambda c: -board_score(c[2], c[0]))
+    candidates = _fair_order(candidates)
     # 상한은 고정값이 아니라 **남은 예산**을 따른다. 국세청은 후보 614개 중
     # 40개(6%)만 보고 끝나 게시판을 놓쳤다. 정렬이 있으므로 위쪽부터 보는 한
     # 예산을 다 쓰는 편이 낫다(사이트맵·경로 사이클 몫으로 여유를 남긴다).
