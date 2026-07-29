@@ -170,6 +170,19 @@ def find_routes(
 
     data = session.get(home_url) or b""
     home_reason = session.last_reason if not data else ""
+
+    # 홈이 1KB 남짓이면 빈 응답이 아니라 **관문**일 수 있다(공정위·교육부·해수부 …).
+    # meta refresh·location.href·frameset 이 가리키는 진짜 주소가 HTML 안에
+    # 문자열로 들어 있으므로, JavaScript 를 실행하지 않고도 따라갈 수 있다.
+    for _hop in range(2):  # 관문이 관문을 가리키는 경우까지만
+        target = govpaths.gateway_target(data, home_url)
+        if not target or session.budget <= 0:
+            break
+        moved = session.get(target)
+        if not moved:
+            break
+        notes.append(f"관문 페이지를 따라갔습니다: {target}")
+        home_url, data = target, moved  # home_host 는 아래에서 이 주소로 다시 계산된다
     if not data:
         # 홈을 못 읽어도 여기서 끝내지 않는다. 실패한 19개 부처가 정확히 이
         # 경로였다 — 홈이 빈 응답이라고 게시판까지 없는 것은 아니다. 아래의

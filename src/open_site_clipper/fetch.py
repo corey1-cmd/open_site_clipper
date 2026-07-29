@@ -11,7 +11,9 @@ fail-open 원칙: 한 출처가 404·타임아웃·차단(해외 IP 등)으로 �
 from __future__ import annotations
 
 import gzip
+import http.cookiejar
 import os
+import threading
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -63,6 +65,27 @@ def _decompress(data: bytes, headers) -> bytes:
 _RETRYABLE = ("timed out", "reset", "temporarily", "unreachable", "connection")
 
 
+# 쿠키를 받아 다시 보내는 opener.
+#
+# 국내 공공 WAF 는 첫 요청에 307 + Set-Cookie 를 주고, 그 쿠키를 갖고 다시 오면
+# 통과시키는 방식을 쓴다. urllib 기본 동작은 쿠키를 저장하지 않아 같은 307 이
+# 반복되고 결국 HTTPError 로 떨어진다(경찰청·국토교통부·법무부·외교부 실측).
+#
+# 쿠키를 지키는 것은 **정상적인 HTTP 클라이언트의 동작**이지 위장이 아니다.
+# User-Agent 는 그대로 우리 이름을 밝힌다. 세션은 스레드마다 따로 둔다.
+_local = threading.local()
+
+
+def _opener() -> urllib.request.OpenerDirector:
+    got = getattr(_local, "opener", None)
+    if got is None:
+        jar = http.cookiejar.CookieJar()
+        got = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar))
+        got.addheaders = []  # 헤더는 Request 에 직접 싣는다
+        _local.opener = got
+    return got
+
+
 def fetch_detail(
     url: str, *, timeout: float = _DEFAULT_TIMEOUT, retry: bool = True
 ) -> tuple[bytes | None, str]:
@@ -82,7 +105,7 @@ def fetch_detail(
     reason = "응답 없음"
     for i in range(attempts):
         try:
-            with urllib.request.urlopen(req, timeout=timeout) as resp:
+            with _opener().open(req, timeout=timeout) as resp:
                 return _decompress(resp.read(_MAX_BYTES), resp.headers), ""
         except urllib.error.HTTPError as e:
             hint = {403: "접근 거부(403)", 404: "주소 없음(404)", 429: "요청 과다(429)"}

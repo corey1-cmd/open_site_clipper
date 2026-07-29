@@ -21,6 +21,7 @@
 from __future__ import annotations
 
 import json
+import re
 import urllib.parse
 from collections.abc import Callable
 from functools import lru_cache
@@ -163,3 +164,40 @@ def _decode(data: bytes) -> str:
     from .fetch import decode_text
 
     return decode_text(data)
+
+
+# 관문 페이지가 실제 주소를 알려 주는 방식들 — 전부 HTML 안에 문자열로 있다.
+_META_REFRESH_RE = re.compile(
+    r'<meta[^>]+http-equiv\s*=\s*["\']?refresh["\']?[^>]*content\s*=\s*["\']?[^"\'>;]*;\s*url\s*=\s*([^"\'>\s]+)',
+    re.I,
+)
+_JS_LOCATION_RE = re.compile(
+    r"(?:(?:top\.|self\.|window\.)?location(?:\.href)?\s*=|location\.replace\s*\()"
+    r'\s*["\']([^"\']+)["\']',
+    re.I,
+)
+_FRAME_SRC_RE = re.compile(r'<frame[^>]+src\s*=\s*["\']([^"\']+)["\']', re.I)
+# 관문으로 볼 크기 상한 — 이보다 크면 내용이 있는 페이지로 본다.
+GATEWAY_MAX_BYTES = 4096
+
+
+def gateway_target(data: bytes, base_url: str) -> str:
+    """관문 페이지가 가리키는 **진짜 주소**를 뽑는다.
+
+    홈이 1KB 남짓한 기관이 많다(공정위·교육부·해수부·조달청 …). 빈 응답이 아니라
+    `<meta http-equiv="refresh">` · `location.href=` · `<frameset>` 으로 실제
+    페이지를 가리키는 **관문**이다. 그 주소가 HTML 안에 문자열로 들어 있으므로
+    JavaScript 를 실행하지 않고도 읽어낼 수 있다.
+
+    못 찾으면 "". 관문 크기를 넘는 페이지는 애초에 보지 않는다(오탐 방지).
+    """
+    if not data or len(data) > GATEWAY_MAX_BYTES:
+        return ""
+    text = _decode(data)
+    for pattern in (_META_REFRESH_RE, _JS_LOCATION_RE, _FRAME_SRC_RE):
+        m = pattern.search(text)
+        if m:
+            target = urllib.parse.urljoin(base_url, m.group(1).strip())
+            if target != base_url and urllib.parse.urlsplit(target).scheme in ("http", "https"):
+                return target
+    return ""
