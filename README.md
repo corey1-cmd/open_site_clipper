@@ -93,8 +93,8 @@ pip install -e ".[dev]"
 ### 3) 확인
 
 ```bash
-open_site_clipper --version      # open_site_clipper 0.7.0
-python -m pytest -q              # 121 passed (인터넷 불필요)
+open_site_clipper --version      # open_site_clipper 0.17.0
+python -m pytest -q              # 224 passed (인터넷 불필요)
 ```
 
 ### 4) 바로 써보기
@@ -165,7 +165,7 @@ open_site_clipper --sources examples/sources-hufs.json --query 고용 -o 고용.
 
 ## 실전 검증
 
-단위 테스트 121개(전부 오프라인, 페처 주입)에 더해 **실제 사이트에서 끝까지**
+단위 테스트 224개(전부 오프라인, 페처 주입)에 더해 **실제 사이트에서 끝까지**
 확인했습니다.
 
 - **한국외국어대학교 실수집** — K2Web 사이트 프리셋으로 한 번에 **공지 88건**,
@@ -182,6 +182,19 @@ open_site_clipper --sources examples/sources-hufs.json --query 고용 -o 고용.
 - **타 대학 호환** — 한국방송통신대학교 게시판이 같은 CMS(K2Web Wizard)·같은 칸
   구조임을 확인. 좌표만 바꾸면 코드 수정 없이 동작하며, 고려대·전북대 등도 같은
   CMS 를 씁니다.
+- **정부기관 65곳 실수집** — 부·청·위원회를 한 번에 돌려 **공지 1,700여 건 ·
+  기관 24곳**을 모았습니다. 분류는 보도자료·공지·채용·입찰·소식·인사·업무추진비
+  등으로 갈립니다. 실패한 기관은 사유가 남습니다:
+
+  ```
+  ⚠ 외교부 보도자료 (korea: 주소 없음(404))
+  ⚠ 해양수산부: 진단: 응답 0KB · <a> 0개 · 내부 0 · 후보 0개
+  ```
+
+  수집을 거듭하며 드러난 실제 문제들 — 한글 날짜 표기(`2026년 7월 20일`)를
+  못 읽던 것, 첨부 칸이 제목 자리를 빼앗던 것, 후보 40개 상한에 소개 메뉴만
+  차던 것 — 을 하나씩 고쳐 왔습니다. 지금도 홈이 빈 응답인 기관 19곳은 원인을
+  좁히는 중이며, 진단 숫자가 보고서에 그대로 남습니다.
 
 ## 사용법
 
@@ -209,6 +222,11 @@ open_site_clipper [옵션]
       --list-sources                     설정된 출처 출력
       --title TEXT                       보고서 제목 재정의
       --discover URL                     홈페이지 주소로 출처 초안 자동 탐지
+      --discover-org URL                 조직 산하 여러 사이트까지 훑어 초안 생성
+      --max-sites N                      --discover-org 가 훑을 사이트 수 (기본 6)
+      --check-access FILE                수집 전 접근 진단(robots 판정만, 수집 안 함)
+      --jobs N                           동시에 처리할 기관 수 (기본 16)
+      --delay SEC                        같은 서버 요청 간격 (기본 1.0, robots 우선)
       --serve                            로컬 웹 UI 시작(브라우저 자동 오픈)
       --port N                           --serve 포트 (기본 8765)
 ```
@@ -723,7 +741,7 @@ sources ──▶ fetch ──▶ parse ──▶ collect ──▶ report
 
 ```bash
 pip install -e ".[dev]"
-pytest -q            # 테스트 121개 — 전부 네트워크 없이 동작(페처 주입)
+pytest -q            # 테스트 224개 — 전부 네트워크 없이 동작(페처 주입)
 ruff check src tests # 린트
 ruff format src tests
 ```
