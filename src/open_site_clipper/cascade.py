@@ -68,10 +68,35 @@ STAGE_LABELS = {
 }
 
 
+# 주소에서 게시판을 알아볼 수 있게 남길 파라미터 — 어느 게시판인지가 여기 있다.
+_ID_KEYS = ("bbsid", "bid", "boardid", "boardkey", "mid", "key", "menuno", "brdid", "searchdivcd")
+_PATH_MAX = 46
+
+
 def origin_label(url: str, stage: str) -> str:
-    """항목의 출처 표시 — '호스트 · 수단'."""
+    """항목의 출처 표시 — '호스트 · 수단 · 경로'.
+
+    '게시판' 한 마디로는 같은 기관의 여러 게시판을 구분할 수 없다. 실제 경로와
+    게시판을 지목하는 파라미터(bbsId·boardKey·mid…)를 함께 남겨, 보고서를 보는
+    사람이 원문 목록까지 되짚을 수 있게 한다.
+
+    >>> origin_label("https://www.mcst.go.kr/kor/s_notice/notice/noticeList.jsp", "board")
+    'www.mcst.go.kr · 게시판 · /kor/s_notice/notice/noticeList.jsp'
+    """
     import urllib.parse
 
-    host = urllib.parse.urlsplit(url).netloc or url[:40]
+    parts = urllib.parse.urlsplit(url)
+    host = parts.netloc or url[:40]
     name = STAGE_LABELS.get(stage, stage)
-    return f"{host} · {name}" if name else host
+
+    path = parts.path or "/"
+    if len(path) > _PATH_MAX:  # 긴 경로는 가운데를 줄인다(앞뒤가 정보다)
+        path = path[: _PATH_MAX // 2] + "…" + path[-(_PATH_MAX // 2) :]
+    # 게시판을 지목하는 파라미터만 골라 붙인다(정렬·페이지 번호 등은 뺀다).
+    ids = [
+        f"{k}={v[0]}"
+        for k, v in urllib.parse.parse_qs(parts.query).items()
+        if k.lower() in _ID_KEYS and v and v[0]
+    ]
+    where = path + ("?" + "&".join(sorted(ids)) if ids else "")
+    return " · ".join(x for x in (host, name, where) if x)

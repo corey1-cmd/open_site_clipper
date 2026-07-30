@@ -98,3 +98,61 @@ def test_opener_keeps_cookiejar_per_thread():
     assert o1 is fetch._opener()  # 같은 스레드면 세션 재사용
     assert any("Cookie" in type(h).__name__ for h in o1.handlers)
     assert fetch.REQUEST_HEADERS["User-Agent"].startswith("open_site_clipper")
+
+
+# ── 출처 표기 상세화 ────────────────────────────────────────────────────────
+def test_origin_label_shows_which_board():
+    """'게시판' 한 마디로는 같은 기관의 여러 게시판을 구분할 수 없다."""
+    from open_site_clipper.cascade import origin_label
+
+    got = origin_label("https://www.mcst.go.kr/kor/s_notice/notice/noticeList.jsp", "board")
+    assert got == "www.mcst.go.kr · 게시판 · /kor/s_notice/notice/noticeList.jsp"
+
+
+def test_origin_label_keeps_board_ids_drops_noise():
+    """게시판을 지목하는 파라미터만 남기고 정렬·페이지 번호는 뺀다."""
+    from open_site_clipper.cascade import origin_label
+
+    got = origin_label(
+        "https://www.kdca.go.kr/board/board.es?mid=a205&bid=0015&nPage=3&sort=desc", "board"
+    )
+    assert "bid=0015" in got and "mid=a205" in got
+    assert "nPage" not in got and "sort" not in got
+
+
+def test_origin_label_shortens_long_paths():
+    from open_site_clipper.cascade import origin_label
+
+    got = origin_label("https://x.go.kr/" + "a/" * 40 + "list.do", "board")
+    assert "…" in got and len(got) < 120
+
+
+# ── 본문 머리 진단 (0KB 의 정체를 가른다) ───────────────────────────────────
+def test_body_head_distinguishes_response_kinds():
+    from open_site_clipper.govdiscover import _body_head
+
+    assert "frameset" in _body_head(b'<html><frameset><frame src="/m"></frameset></html>')
+    assert "top.location" in _body_head(b"<html><script>top.location=self.location;</script>")
+    assert _body_head(b"") == "(빈 응답)"
+    head = _body_head("<html><body>비정상적인 접근이 감지되었습니다.</body></html>".encode())
+    assert "비정상적인 접근" in head  # WAF 안내문이면 바로 드러난다
+
+
+def test_body_head_is_single_line_and_bounded():
+    from open_site_clipper.govdiscover import _body_head
+
+    got = _body_head(b"<html>\n\n  <body>" + b"x" * 500 + b"</body></html>")
+    assert "\n" not in got and len(got) <= 91
+
+
+def test_diagnosis_note_includes_body_head():
+    pages = {"https://z.go.kr/": b'<html><frameset><frame src="/m"></frameset></html>'}
+    robots.reset_cache()
+    robots._CACHE["https://z.go.kr"] = None
+    robots._SITEMAPS["https://z.go.kr"] = []
+    _routes, notes = govdiscover.find_routes(
+        "https://z.go.kr/", fetcher=lambda u: pages.get(u, b""), check_robots=False
+    )
+    note = next((n for n in notes if "진단" in n), "")
+    assert "본문머리[" in note
+    robots.reset_cache()

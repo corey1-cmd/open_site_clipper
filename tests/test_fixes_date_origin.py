@@ -88,12 +88,12 @@ def test_cascade_records_specific_reason():
 # ── ③ 항목마다 출처를 보여주지 않던 문제 ────────────────────────────────────
 def test_origin_label_is_host_and_stage():
     assert origin_label("https://www.korea.kr/rss/dept_mof.xml", "korea") == (
-        "www.korea.kr · korea.kr 피드"
+        "www.korea.kr · korea.kr 피드 · /rss/dept_mof.xml"  # 어느 피드인지까지
     )
     assert origin_label("https://www.mcst.go.kr/job/list.jsp", "board") == (
-        "www.mcst.go.kr · 게시판"
+        "www.mcst.go.kr · 게시판 · /job/list.jsp"
     )
-    assert origin_label("https://h/x", "alt").endswith("게시판(대체 경로)")
+    assert "게시판(대체 경로)" in origin_label("https://h/x", "alt")
 
 
 def test_report_shows_origin_box():
@@ -113,16 +113,16 @@ def test_report_shows_origin_box():
     rep = collect.collect([src], fetcher=lambda _s: feed, delay=0)
     (n,) = rep.notices
     assert n.published == date(2026, 7, 20)
-    assert n.origin == "www.korea.kr · RSS 피드"
+    assert n.origin == "www.korea.kr · RSS 피드 · /rss/dept_mcst.xml"
 
     html = report.render_html(rep)
-    assert 'class="origin"' in html and "www.korea.kr · RSS 피드" in html
+    assert 'class="origin"' in html and "/rss/dept_mcst.xml" in html
     md = report.render_markdown(rep)
     assert "<sub>" in md and "www.korea.kr" in md
     import json
 
     data = json.loads(report.render_json(rep))
-    assert data["notices"][0]["origin"] == "www.korea.kr · RSS 피드"
+    assert data["notices"][0]["origin"].endswith("/rss/dept_mcst.xml")
 
 
 # ── 실기기 65곳 수집에서 드러난 결함 ─────────────────────────────────────────

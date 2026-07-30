@@ -107,6 +107,24 @@ def _fair_order(
     return out
 
 
+def _body_head(data: bytes, limit: int = 90) -> str:
+    """응답의 앞부분을 진단용으로 요약한다.
+
+    '응답 0KB'·'앵커 0개'만으로는 그 1KB 미만 응답이 무엇인지 알 수 없다.
+    빈 문서인지·오류 안내인지·프레임인지·자바스크립트 관문인지는 **내용을 보면**
+    바로 갈린다. 제어문자를 지우고 공백을 접어 한 줄로 만든다.
+    """
+    if not data:
+        return "(빈 응답)"
+    try:
+        text = decode_text(data[: limit * 4])
+    except Exception:
+        return f"(해독 실패, {len(data)}바이트)"
+    flat = " ".join(text.split())
+    flat = "".join(c for c in flat if c.isprintable())
+    return (flat[:limit] + "…") if len(flat) > limit else (flat or "(내용 없음)")
+
+
 def board_score(url: str, label: str) -> int:
     """이 링크가 게시판 목록일 가능성 — 클수록 먼저 시험한다.
 
@@ -317,7 +335,8 @@ def find_routes(
             f"게시판·피드 링크를 찾지 못했습니다 — 진단: 응답 {len(data) // 1024}KB"
             f"{'(' + home_reason + ')' if home_reason else ''} · "
             f"<a> {page.anchor_tags}개(주소없음 {page.dead_links}·data속성 {page.data_links}) · "
-            f"내부 {internal}·외부제외 {external} · 후보 {len(candidates)}개(시험 {tried}건). "
+            f"내부 {internal}·외부제외 {external} · 후보 {len(candidates)}개(시험 {tried}건) · "
+            f"본문머리[{_body_head(data)}]. "
             "메뉴가 JavaScript 로만 그려지거나 구조가 다를 수 있습니다"
             "(보도자료는 korea.kr 경로로 대체됩니다)."
         )
