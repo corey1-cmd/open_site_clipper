@@ -93,8 +93,8 @@ pip install -e ".[dev]"
 ### 3) 확인
 
 ```bash
-open_site_clipper --version      # open_site_clipper 0.18.0
-python -m pytest -q              # 230 passed (인터넷 불필요)
+open_site_clipper --version      # open_site_clipper 0.18.1
+python -m pytest -q              # 236 passed (인터넷 불필요)
 ```
 
 ### 4) 바로 써보기
@@ -165,7 +165,7 @@ open_site_clipper --sources examples/sources-hufs.json --query 고용 -o 고용.
 
 ## 실전 검증
 
-단위 테스트 230개(전부 오프라인, 페처 주입)에 더해 **실제 사이트에서 끝까지**
+단위 테스트 236개(전부 오프라인, 페처 주입)에 더해 **실제 사이트에서 끝까지**
 확인했습니다.
 
 - **한국외국어대학교 실수집** — K2Web 사이트 프리셋으로 한 번에 **공지 88건**,
@@ -182,8 +182,8 @@ open_site_clipper --sources examples/sources-hufs.json --query 고용 -o 고용.
 - **타 대학 호환** — 한국방송통신대학교 게시판이 같은 CMS(K2Web Wizard)·같은 칸
   구조임을 확인. 좌표만 바꾸면 코드 수정 없이 동작하며, 고려대·전북대 등도 같은
   CMS 를 씁니다.
-- **정부기관 65곳 실수집** — 부·청·위원회를 한 번에 돌려 **공지 2,100여 건 ·
-  기관 24곳**을 모았습니다. 분류는 보도자료·공지·채용·입찰·소식·인사·업무추진비
+- **정부기관 65곳 실수집** — 부·청·위원회를 한 번에 돌려 **공지 2,200여 건 ·
+  기관 25곳**을 모았습니다. 분류는 보도자료·공지·채용·입찰·소식·인사·업무추진비
   등으로 갈립니다. 실패한 기관은 사유가 남습니다:
 
   ```
@@ -435,7 +435,8 @@ open_site_clipper --discover https://www.mcst.go.kr/site/s_etc/rss/rssService.js
 일시적으로 보이는 실패는 한 번 재시도합니다.
 
 수집된 항목마다 **어디서 가져왔는지**가 제목 아래 작은 상자로 붙습니다
-(`www.korea.kr · korea.kr 피드`, `www.mcst.go.kr · 게시판`). 같은 기관이라도
+(`www.korea.kr · korea.kr 피드 · /rss/dept_mcst.xml`,
+`www.mcst.go.kr · 게시판 · /kor/s_notice/notice/noticeList.jsp`) — 어느 게시판인지까지. 같은 기관이라도
 항목마다 경로가 다를 수 있어, 출처를 눈으로 확인할 수 있게 남깁니다. 기본으로 **최근 2년**(`--since 730`)
 자료만 가져오며, 발행일을 알 수 없는 항목은 버리지 않고 포함합니다. 이 규칙
 하나로 업무계획 같은 문서 저장소가 정리됩니다 — 최근 것만 남습니다.
@@ -741,7 +742,7 @@ sources ──▶ fetch ──▶ parse ──▶ collect ──▶ report
 
 ```bash
 pip install -e ".[dev]"
-pytest -q            # 테스트 230개 — 전부 네트워크 없이 동작(페처 주입)
+pytest -q            # 테스트 236개 — 전부 네트워크 없이 동작(페처 주입)
 ruff check src tests # 린트
 ruff format src tests
 ```
