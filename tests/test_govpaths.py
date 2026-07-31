@@ -60,20 +60,33 @@ def test_cycle_tries_bare_host():
     assert routes and routes[0][2].startswith("https://pps.go.kr/")
 
 
-def test_family_hit_pulls_sibling_paths():
-    """첫 경로가 통하면 같은 패밀리의 나머지도 함께 건진다(요청 절약)."""
-    base = "https://www.mcst.go.kr"
-    pages = {
-        f"{base}/kor/s_notice/notice/noticeList.jsp": BOARD,
-        f"{base}/site/s_notice/notice/jobList.jsp": BOARD,
-        f"{base}/site/s_notice/notice/bidList.jsp": BOARD,
-    }
+def test_paths_are_tried_round_robin_across_families():
+    """패밀리 경계 없이 한 줄로 세운다 — 각 패밀리의 첫 경로가 먼저 온다.
+
+    한 패밀리를 끝까지 파면 뒤쪽 패밀리에 예산이 못 가고, 첫 경로만 보고 접으면
+    번호만 다른 경로를 놓친다(교육부 boardID=333 은 없고 294 가 있다).
+    """
+    calls: list[str] = []
+
+    def fx(u: str) -> bytes:
+        calls.append(u)
+        return EMPTY
+
+    govpaths.probe_paths("https://x.go.kr", fetcher=fx, budget=20, home_host="x.go.kr")
+    # 앞쪽에 여러 패밀리의 '첫 경로'가 섞여 나온다(한 패밀리에 몰리지 않는다).
+    heads = {c.split("/", 3)[3].split("/")[0] for c in calls[:8] if c.count("/") > 3}
+    assert len(heads) >= 3
+
+
+def test_second_path_of_family_is_reachable():
+    """같은 패밀리의 두 번째 경로에만 게시판이 있어도 찾아낸다(교육부 사례)."""
+    url = "https://www.moe.go.kr/boardCnts/listRenew.do?boardID=294&m=020402&s=moe"
     routes, _n = govpaths.probe_paths(
-        base, fetcher=lambda u: pages.get(u, EMPTY), home_host="www.mcst.go.kr"
+        "https://www.moe.go.kr",
+        fetcher=lambda u: BOARD if u == url else EMPTY,
+        home_host="www.moe.go.kr",
     )
-    urls = {u for _c, _k, u in routes}
-    assert len(urls) >= 3  # 첫 경로 + 짝 경로들
-    assert any(u.endswith("jobList.jsp") for u in urls)
+    assert routes and routes[0][2] == url
 
 
 def test_cycle_respects_budget():
@@ -87,7 +100,7 @@ def test_cycle_respects_budget():
         "https://x.go.kr", fetcher=fx, budget=3, home_host="x.go.kr"
     )
     assert routes == [] and len(calls) <= 3
-    assert any("시도했으나" in n for n in notes)
+    assert any(("소진" in n) or ("시도했으나" in n) for n in notes)
 
 
 def test_wired_into_discovery():

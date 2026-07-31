@@ -28,7 +28,7 @@ from .fetch import decode_text
 
 PageFetcher = Callable[[str], "bytes | None"]
 
-DEFAULT_BUDGET = 70  # 기관당 요청 상한(홈 + RSS 안내 + 후보 구조 테스트)
+DEFAULT_BUDGET = 110  # 기관당 요청 상한(홈 + RSS 안내 + 후보 구조 테스트)
 
 # 카테고리 판정 사전 — 앵커 텍스트에 이 말이 있으면 그 카테고리로 본다.
 # 순서가 우선순위다(먼저 맞는 것을 취한다). '채용공고'가 '공고'보다 앞에 있어야
@@ -324,7 +324,7 @@ def find_routes(
         found, why = govpaths.probe_paths(
             home_url,
             fetcher=session.get,
-            budget=min(12, session.budget),
+            budget=min(40, session.budget),
             home_host=home_host,
         )
         routes.extend(found)
