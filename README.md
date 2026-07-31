@@ -93,8 +93,8 @@ pip install -e ".[dev]"
 ### 3) 확인
 
 ```bash
-open_site_clipper --version      # open_site_clipper 0.18.1
-python -m pytest -q              # 236 passed (인터넷 불필요)
+open_site_clipper --version      # open_site_clipper 0.19.0
+python -m pytest -q              # 237 passed (인터넷 불필요)
 ```
 
 ### 4) 바로 써보기
@@ -165,7 +165,7 @@ open_site_clipper --sources examples/sources-hufs.json --query 고용 -o 고용.
 
 ## 실전 검증
 
-단위 테스트 236개(전부 오프라인, 페처 주입)에 더해 **실제 사이트에서 끝까지**
+단위 테스트 237개(전부 오프라인, 페처 주입)에 더해 **실제 사이트에서 끝까지**
 확인했습니다.
 
 - **한국외국어대학교 실수집** — K2Web 사이트 프리셋으로 한 번에 **공지 88건**,
@@ -742,7 +742,7 @@ sources ──▶ fetch ──▶ parse ──▶ collect ──▶ report
 
 ```bash
 pip install -e ".[dev]"
-pytest -q            # 테스트 236개 — 전부 네트워크 없이 동작(페처 주입)
+pytest -q            # 테스트 237개 — 전부 네트워크 없이 동작(페처 주입)
 ruff check src tests # 린트
 ruff format src tests
 ```
