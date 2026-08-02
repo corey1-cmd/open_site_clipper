@@ -18,6 +18,9 @@ from dataclasses import dataclass, field
 
 from .model import Notice
 
+# 분류가 비어 있는 공지를 세는 이름 — 합이 총계와 맞으려면 이것도 세야 한다.
+UNCATEGORIZED = "미분류"
+
 # 제목에서 뽑는 토큰 — 한글·영문·숫자 연속체.
 _TOKEN_RE = re.compile(r"[0-9A-Za-z가-힣]+")
 
@@ -61,12 +64,18 @@ _ORDINAL_RE = re.compile(r"^제?\d+(차|회|호|기|분기)?$")
 class Digest:
     """기간 요약 — (이름, 건수) 쌍의 내림차순 목록들."""
 
+    # 분류가 비어 있는 공지의 이름.
+
     agencies: list[tuple[str, int]] = field(default_factory=list)
     categories: list[tuple[str, int]] = field(default_factory=list)
     keywords: list[tuple[str, int]] = field(default_factory=list)
     # 목록에 보이는 것은 상위 몇 개뿐이므로 **전체 수**를 함께 남긴다.
     agency_total: int = 0
     category_total: int = 0
+    # 목록에 보이는 것들의 **건수 합**과 전체 건수 — 둘이 다르면 그 차이를 적는다.
+    total: int = 0
+    agency_shown: int = 0
+    category_shown: int = 0
 
     @property
     def agency_more(self) -> int:
@@ -76,6 +85,15 @@ class Digest:
     @property
     def category_more(self) -> int:
         return max(0, self.category_total - len(self.categories))
+
+    @property
+    def agency_rest(self) -> int:
+        """목록에 안 보이는 기관들의 **건수 합**."""
+        return max(0, self.total - self.agency_shown)
+
+    @property
+    def category_rest(self) -> int:
+        return max(0, self.total - self.category_shown)
 
     def is_empty(self) -> bool:
         return not (self.agencies or self.categories or self.keywords)
@@ -139,11 +157,17 @@ def build(
     if not notices:
         return Digest()
     agency_counter = Counter(n.agency for n in notices)
-    category_counter = Counter(n.category for n in notices if n.category)
+    # 분류가 비어 있는 공지도 '미분류'로 세어 **합이 총계와 맞게** 한다.
+    # 예전에는 아예 빼서, 분류 숫자를 다 더해도 공지 수에 한참 못 미쳤다.
+    category_counter = Counter(n.category or UNCATEGORIZED for n in notices)
+    shown_categories = _top(category_counter, top_categories)
     return Digest(
         agencies=_top(agency_counter, top_agencies),
-        categories=_top(category_counter, top_categories),
+        categories=shown_categories,
         keywords=_keywords(notices, set(agency_counter), top_keywords),
         agency_total=len(agency_counter),
         category_total=len(category_counter),
+        total=len(notices),
+        agency_shown=sum(c for _n, c in _top(agency_counter, top_agencies)),
+        category_shown=sum(c for _n, c in shown_categories),
     )

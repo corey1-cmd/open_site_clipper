@@ -188,19 +188,30 @@ def find_routes(
 
     data = session.get(home_url) or b""
     home_reason = session.last_reason if not data else ""
+    failed_gateways: list[str] = []
 
     # 홈이 1KB 남짓이면 빈 응답이 아니라 **관문**일 수 있다(공정위·교육부·해수부 …).
     # meta refresh·location.href·frameset 이 가리키는 진짜 주소가 HTML 안에
     # 문자열로 들어 있으므로, JavaScript 를 실행하지 않고도 따라갈 수 있다.
     for _hop in range(2):  # 관문이 관문을 가리키는 경우까지만
-        target = govpaths.gateway_target(data, home_url)
-        if not target or session.budget <= 0:
+        targets = govpaths.gateway_targets(data, home_url)
+        if not targets or session.budget <= 0:
             break
-        moved = session.get(target)
+        # 후보가 여럿이면 되는 것을 쓴다. 첫 후보에서 실패했다고 접으면
+        # 모바일 판별 스크립트처럼 주소를 두 개 이상 담은 관문을 놓친다.
+        moved, used = b"", ""
+        for cand in targets:
+            if session.budget <= 0:
+                break
+            got = session.get(cand)
+            if got:
+                moved, used = got, cand
+                break
+            failed_gateways.append(f"{cand}({session.last_reason})")
         if not moved:
             break
-        notes.append(f"관문 페이지를 따라갔습니다: {target}")
-        home_url, data = target, moved  # home_host 는 아래에서 이 주소로 다시 계산된다
+        notes.append(f"관문 페이지를 따라갔습니다: {used}")
+        home_url, data = used, moved  # home_host 는 아래에서 이 주소로 다시 계산된다
     if not data:
         # 홈을 못 읽어도 여기서 끝내지 않는다. 실패한 19개 부처가 정확히 이
         # 경로였다 — 홈이 빈 응답이라고 게시판까지 없는 것은 아니다. 아래의
@@ -336,7 +347,9 @@ def find_routes(
             f"{'(' + home_reason + ')' if home_reason else ''} · "
             f"<a> {page.anchor_tags}개(주소없음 {page.dead_links}·data속성 {page.data_links}) · "
             f"내부 {internal}·외부제외 {external} · 후보 {len(candidates)}개(시험 {tried}건) · "
-            f"본문머리[{_body_head(data)}]. "
+            f"본문머리[{_body_head(data)}]"
+            + (f" · 관문시도실패[{'; '.join(failed_gateways[:2])}]" if failed_gateways else "")
+            + ". "
             "메뉴가 JavaScript 로만 그려지거나 구조가 다를 수 있습니다"
             "(보도자료는 korea.kr 경로로 대체됩니다)."
         )

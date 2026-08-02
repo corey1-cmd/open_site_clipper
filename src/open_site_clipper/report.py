@@ -71,10 +71,19 @@ def _digest_markdown(report: Report) -> str:
     d = report.digest
     lines = ["## 기간 요약", ""]
     if d.agencies:
-        more = f" 외 {d.agency_more}곳(총 {d.agency_total}곳)" if d.agency_more else ""
+        more = (
+            f" 외 {d.agency_more}곳 {d.agency_rest}건(총 {d.agency_total}곳)"
+            if d.agency_more
+            else ""
+        )
         lines.append("- 기관: " + " · ".join(f"{a} {c}건" for a, c in d.agencies) + more)
     if d.categories:
-        lines.append("- 분류: " + " · ".join(f"{a} {c}건" for a, c in d.categories))
+        cmore = (
+            f" 외 {d.category_more}종 {d.category_rest}건(총 {d.category_total}종)"
+            if d.category_more
+            else ""
+        )
+        lines.append("- 분류: " + " · ".join(f"{a} {c}건" for a, c in d.categories) + cmore)
     if d.keywords:
         lines.append("- 키워드: " + " · ".join(f"{w}({c})" for w, c in d.keywords))
     return "\n".join(lines)
@@ -311,10 +320,15 @@ def _digest_html(report: Report) -> str:
     if d.agencies:
         v = " · ".join(f"{_esc(a)} {c}건" for a, c in d.agencies)
         if d.agency_more:
-            v += f' <span class="origin">외 {d.agency_more}곳 · 총 {d.agency_total}곳</span>'
+            v += f' <span class="origin">외 {d.agency_more}곳 {d.agency_rest}건 · 총 {d.agency_total}곳</span>'
         parts.append(f"<dt>기관</dt><dd>{v}</dd>")
     if d.categories:
         v = " · ".join(f"{_esc(a)} {c}건" for a, c in d.categories)
+        if d.category_more:
+            v += (
+                f' <span class="origin">외 {d.category_more}종 '
+                f"{d.category_rest}건 · 총 {d.category_total}종</span>"
+            )
         parts.append(f"<dt>분류</dt><dd>{v}</dd>")
     if d.keywords:
         chips = "".join(f'<span class="chip">{_esc(w)} <b>{c}</b></span>' for w, c in d.keywords)
