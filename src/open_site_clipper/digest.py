@@ -16,6 +16,7 @@ import re
 from collections import Counter
 from dataclasses import dataclass, field
 
+from . import categories
 from .model import Notice
 
 # 분류가 비어 있는 공지를 세는 이름 — 합이 총계와 맞으려면 이것도 세야 한다.
@@ -159,7 +160,11 @@ def build(
     agency_counter = Counter(n.agency for n in notices)
     # 분류가 비어 있는 공지도 '미분류'로 세어 **합이 총계와 맞게** 한다.
     # 예전에는 아예 빼서, 분류 숫자를 다 더해도 공지 수에 한참 못 미쳤다.
-    category_counter = Counter(n.category or UNCATEGORIZED for n in notices)
+    # 요약은 **대분류**로 센다. 세부 이름을 그대로 세면 기관마다 메뉴명이 달라
+    # 실측에서 400종까지 늘었다(외 390종 4,189건). 표에는 세부가 그대로 남는다.
+    category_counter = Counter(
+        categories.canonical(n.category) if n.category else UNCATEGORIZED for n in notices
+    )
     shown_categories = _top(category_counter, top_categories)
     return Digest(
         agencies=_top(agency_counter, top_agencies),

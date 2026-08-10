@@ -24,6 +24,7 @@ from functools import lru_cache
 
 from . import discover as _discover
 from . import govpaths, korean, probe
+from .categories import CATEGORY_HINTS, classify
 from .fetch import decode_text
 
 PageFetcher = Callable[[str], "bytes | None"]
@@ -33,18 +34,6 @@ DEFAULT_BUDGET = 110  # 기관당 요청 상한(홈 + RSS 안내 + 후보 구조
 # 카테고리 판정 사전 — 앵커 텍스트에 이 말이 있으면 그 카테고리로 본다.
 # 순서가 우선순위다(먼저 맞는 것을 취한다). '채용공고'가 '공고'보다 앞에 있어야
 # 채용으로 잡히므로, 구체적인 말을 앞에 둔다.
-CATEGORY_HINTS: tuple[tuple[str, tuple[str, ...]], ...] = (
-    ("채용", ("채용", "임용", "인재", "구인", "recruit")),
-    ("입찰", ("입찰", "발주", "계약", "조달", "제안요청", "bid")),
-    (
-        "인사",
-        ("인사발령", "인사"),
-    ),
-    ("보도자료", ("보도자료", "보도설명", "해명자료", "press")),
-    ("공지", ("공지", "공지사항", "알림", "알립니다", "고시", "공고", "notice")),
-    ("소식", ("소식", "뉴스", "새소식", "동향", "news")),
-)
-
 # RSS 안내 페이지로 가는 링크의 단서.
 _RSS_HINTS = ("rss", "구독", "피드", "feed")
 
@@ -154,17 +143,6 @@ def board_score(url: str, label: str) -> int:
     depth = low.split("?", 1)[0].rstrip("/").count("/") - 2
     score -= min(abs(depth - OPTIMAL_DEPTH), 3)
     return score
-
-
-def classify(text: str) -> str:
-    """앵커 텍스트 → 카테고리(못 정하면 "")."""
-    low = " ".join(text.split()).lower()
-    if not low:
-        return ""
-    for category, words in CATEGORY_HINTS:
-        if any(w in low for w in words):
-            return category
-    return ""
 
 
 def find_routes(

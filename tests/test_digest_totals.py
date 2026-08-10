@@ -13,6 +13,24 @@ from datetime import date
 from open_site_clipper import digest, report
 from open_site_clipper.model import Notice, Report
 
+# 실제 기관 메뉴명 — 대분류로 묶여야 한다(공지·채용·입찰·인사·보도자료·자료·정책).
+_MENUS = (
+    "공지사항",
+    "채용공고",
+    "입찰정보",
+    "인사발령",
+    "보도자료",
+    "간행물",
+    "국정성과",
+    "사전정보공표",
+    "업무추진비",
+    "새소식",
+    "정책자료실",
+    "감사결과",
+    "설명자료",
+    "통계자료",
+)
+
 
 def _notices(n: int, *, blank_every: int = 7) -> list[Notice]:
     return [
@@ -20,7 +38,7 @@ def _notices(n: int, *, blank_every: int = 7) -> list[Notice]:
             title=f"t{i}",
             url=f"https://x/{i}",
             agency=f"기관{i % 15:02d}",
-            category=("" if i % blank_every == 0 else f"분류{i % 14}"),
+            category=("" if i % blank_every == 0 else _MENUS[i % len(_MENUS)]),
             published=date(2026, 7, 1),
         )
         for i in range(n)
@@ -64,10 +82,12 @@ def test_markdown_and_html_show_remaining_counts():
     md = report.render_markdown(rep)
     cat_line = next(x for x in md.splitlines() if x.startswith("- 분류:"))
     org_line = next(x for x in md.splitlines() if x.startswith("- 기관:"))
-    assert "건(총" in cat_line and "종)" in cat_line  # '외 3종 21건(총 13종)'
+    # 분류는 대분류 9종 이하라 대개 전부 보인다 — 그때는 '외 N' 을 붙이지 않는다.
+    assert "미분류" in cat_line
+    # 기관은 15곳이라 상위 12곳만 보이고 나머지가 건수와 함께 표기된다.
     assert "건(총" in org_line and "곳)" in org_line
     html = report.render_html(rep)
-    assert "총 13종" in html and "총 15곳" in html
+    assert "총 15곳" in html
 
 
 def test_json_carries_totals():
