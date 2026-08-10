@@ -23,7 +23,9 @@ import contextlib
 import json
 import threading
 import urllib.parse
+import uuid
 import webbrowser
+from collections.abc import Callable
 from dataclasses import dataclass
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -34,6 +36,7 @@ from . import (
     collect,
     digest,
     discover,
+    progress,
     purposes,
     report,
     sources,
@@ -170,13 +173,16 @@ def run_report(
     mark_new: bool = False,
     since: int | None = None,
     fetcher: collect.Fetcher | None = None,
+    tracker: object | None = None,
 ) -> str:
     """조직 선택 + 옵션 → 완성 HTML 문자열(웹 응답으로 그대로 내보낸다)."""
     srcs = build_sources(ids, workspace)
     if not srcs:
         raise ValueError("선택된 조직에 유효한 출처가 없습니다.")
     quote = collect.QUOTE_FULL if quote_full else collect.QUOTE_CONSERVATIVE
-    rep = collect.collect(srcs, since_days=since, fetcher=fetcher, quote_mode=quote)
+    rep = collect.collect(
+        srcs, since_days=since, fetcher=fetcher, quote_mode=quote, tracker=tracker
+    )
     rep.group_by = "org" if group_org else "agency"
 
     if mark_new:
@@ -203,6 +209,81 @@ def run_report(
     if rep.notices:
         rep.digest = digest.build(rep.notices)
     return report.render_html(rep)
+
+
+# ── 작업 관리 ────────────────────────────────────────────────────────────────
+@dataclass
+class Job:
+    """백그라운드 수집 한 건 — 진행 상황을 보며 기다릴 수 있게 한다."""
+
+    id: str
+    tracker: progress.Tracker
+    html: str = ""
+    error: str = ""
+
+    @property
+    def finished(self) -> bool:
+        return bool(self.html or self.error)
+
+
+_JOBS: dict[str, Job] = {}
+_JOBS_LOCK = threading.Lock()
+_JOB_KEEP = 8  # 최근 몇 건만 들고 있는다(메모리 보호)
+
+
+def start_job(run: Callable[[progress.Tracker], str], total: int) -> Job:
+    """수집을 별도 스레드에서 시작하고 즉시 Job 을 돌려준다."""
+    job = Job(id=uuid.uuid4().hex[:12], tracker=progress.Tracker(total=total))
+
+    def work() -> None:
+        try:
+            job.html = run(job.tracker)
+        except Exception as e:
+            job.error = str(e)
+
+    with _JOBS_LOCK:
+        _JOBS[job.id] = job
+        for old in list(_JOBS)[:-_JOB_KEEP]:
+            if _JOBS[old].finished:
+                _JOBS.pop(old, None)
+    threading.Thread(target=work, daemon=True).start()
+    return job
+
+
+def get_job(job_id: str) -> Job | None:
+    with _JOBS_LOCK:
+        return _JOBS.get(job_id)
+
+
+def _fmt_secs(sec: float) -> str:
+    if sec < 0:
+        return "계산 중"
+    if sec < 60:
+        return f"{int(sec)}초"
+    return f"{int(sec // 60)}분 {int(sec % 60)}초"
+
+
+def progress_json(job: Job) -> bytes:
+    """폴링용 진행 상황 — 화면이 이 값을 받아 갱신한다."""
+    snap = job.tracker.snapshot()
+    return json.dumps(
+        {
+            "done": snap.done,
+            "total": snap.total,
+            "percent": snap.percent,
+            "collected": snap.collected,
+            "elapsed": _fmt_secs(snap.elapsed),
+            "eta": _fmt_secs(snap.eta),
+            "active": [
+                {"org": org, "url": (url[:70] + "…") if len(url) > 70 else url}
+                for org, url in snap.active
+            ],
+            "finished": [{"org": o, "count": c} for o, c in snap.finished],
+            "ready": job.finished,
+            "error": job.error,
+        },
+        ensure_ascii=False,
+    ).encode()
 
 
 # ── 페이지 렌더 ──────────────────────────────────────────────────────────────
@@ -245,6 +326,27 @@ button { background: #191970; color: #fff; border: none; border-radius: 8px;
 }
 """
 
+_PROGRESS_CSS = """
+.run { display: grid; grid-template-columns: 1fr 20rem; gap: 1.2rem; align-items: start; }
+@media (max-width: 760px) { .run { grid-template-columns: 1fr; } }
+.bar { height: .55rem; background: #e8ebf5; border-radius: 99px; overflow: hidden; }
+.bar > i { display: block; height: 100%; background: #191970; width: 0;
+  transition: width .4s ease; }
+.side { position: sticky; top: 1rem; }
+.stat { display: flex; justify-content: space-between; padding: .2rem 0;
+  font-size: .9rem; }
+.stat b { font-variant-numeric: tabular-nums; }
+.now { font-size: .8rem; color: #556; word-break: break-all; line-height: 1.5;
+  max-height: 12rem; overflow-y: auto; }
+.now div { padding: .25rem 0; border-top: 1px solid #eef; }
+.donelist { font-size: .82rem; color: #667; max-height: 11rem; overflow-y: auto; }
+.donelist div { padding: .15rem 0; }
+@media (prefers-color-scheme: dark) {
+  .bar { background: #232837; } .now { color: #aeb6cc; } .now div { border-color: #262a35; }
+  .donelist { color: #98a0b8; }
+}
+"""
+
 _BUSY_JS = (
     "const b=this.querySelector('button');b.disabled=true;"
     "b.textContent='생성 중… (수십 초 걸릴 수 있어요)';"
@@ -257,7 +359,7 @@ def _page(title: str, body: str) -> bytes:
         '<html lang="ko"><head><meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
         f"<title>{_esc(title)}</title>\n"
-        f"<style>{report._CSS}{_UI_CSS}</style></head><body><main>\n"
+        f"<style>{report._CSS}{_UI_CSS}{_PROGRESS_CSS}</style></head><body><main>\n"
         f"{body}\n"
         '<footer><p class="note">open_site_clipper 로컬 웹 UI — 127.0.0.1 전용, '
         "이 컴퓨터에서만 접속됩니다. 인터넷 배포용이 아닙니다. 관련 자료 링크 수집은 "
@@ -373,6 +475,65 @@ def discover_page(res: discover.Discovery, saved: str | None, workspace: Path) -
     return _page("탐지 결과", body)
 
 
+def progress_page(job: Job, org_names: list[str]) -> bytes:
+    """수집이 도는 동안 보여 줄 화면 — 무엇을 하고 있는지 옆에서 알려 준다."""
+    picked = ", ".join(org_names[:6]) + (
+        f" 외 {len(org_names) - 6}곳" if len(org_names) > 6 else ""
+    )
+    body = f"""
+<h1>수집 중…</h1>
+<p class="meta">{_esc(picked)}</p>
+<div class="run">
+  <div>
+    <div class="card">
+      <div class="bar"><i id="bar"></i></div>
+      <p class="stat"><span>진행</span><b><span id="done">0</span> / {job.tracker.total} 기관
+        (<span id="pct">0</span>%)</b></p>
+      <p class="stat"><span>모은 공지</span><b id="got">0</b></p>
+      <p class="stat"><span>걸린 시간</span><b id="el">0초</b></p>
+      <p class="stat"><span>남은 예상</span><b id="eta">계산 중</b></p>
+      <p class="hint">끝나면 보고서로 자동으로 넘어갑니다. 이 창을 닫지 마세요.</p>
+    </div>
+    <div class="card"><h2>끝난 기관</h2><div class="donelist" id="donelist">
+      <div>아직 없습니다.</div></div></div>
+  </div>
+  <div class="side">
+    <div class="card"><h2>지금 하는 일</h2>
+      <div class="now" id="now"><div>준비 중…</div></div>
+      <p class="hint">기관마다 RSS·게시판·대체 경로를 차례로 두드립니다.</p>
+    </div>
+  </div>
+</div>
+<script>
+(function() {{
+  var id = "{job.id}";
+  function tick() {{
+    fetch("/progress?job=" + id).then(function(r) {{ return r.json(); }}).then(function(d) {{
+      document.getElementById("bar").style.width = d.percent + "%";
+      document.getElementById("done").textContent = d.done;
+      document.getElementById("pct").textContent = d.percent;
+      document.getElementById("got").textContent = d.collected;
+      document.getElementById("el").textContent = d.elapsed;
+      document.getElementById("eta").textContent = d.eta;
+      var now = d.active.map(function(a) {{
+        return "<div><b>" + a.org + "</b><br>" + a.url + "</div>";
+      }}).join("");
+      document.getElementById("now").innerHTML = now || "<div>마무리 중…</div>";
+      var fin = d.finished.map(function(f) {{
+        return "<div>" + f.org + " — " + f.count + "건</div>";
+      }}).join("");
+      document.getElementById("donelist").innerHTML = fin || "<div>아직 없습니다.</div>";
+      if (d.ready) {{ location.href = "/result?job=" + id; return; }}
+      setTimeout(tick, 700);
+    }}).catch(function() {{ setTimeout(tick, 1500); }});
+  }}
+  tick();
+}})();
+</script>
+"""
+    return _page("수집 중 — open_site_clipper", body)
+
+
 def error_page(message: str, status: int = 400) -> tuple[int, bytes]:
     body = (
         f"<h1>문제가 생겼습니다</h1><div class='card'><p>{_esc(message)}</p></div>"
@@ -399,13 +560,39 @@ class _Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(payload)
 
+    def _send_json(self, status: int, payload: bytes) -> None:
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Cache-Control", "no-store")  # 진행 상황은 캐시하면 안 된다
+        self.send_header("Content-Length", str(len(payload)))
+        self.end_headers()
+        self.wfile.write(payload)
+
     def _form(self) -> dict[str, list[str]]:
         length = min(int(self.headers.get("Content-Length") or 0), _MAX_BODY)
         raw = self.rfile.read(length).decode("utf-8", errors="replace")
         return urllib.parse.parse_qs(raw, keep_blank_values=True)
 
     def do_GET(self) -> None:
-        if self.path in ("/", "/index.html"):
+        route, _, query = self.path.partition("?")
+        params = urllib.parse.parse_qs(query)
+        if route == "/progress":
+            job = get_job((params.get("job") or [""])[0])
+            if job is None:
+                self._send_json(404, b'{"error":"unknown job"}')
+            else:
+                self._send_json(200, progress_json(job))
+        elif route == "/result":
+            job = get_job((params.get("job") or [""])[0])
+            if job is None:
+                self._send(*error_page("끝난 작업을 찾을 수 없습니다.", 404))
+            elif job.error:
+                self._send(*error_page(f"수집 중 오류: {job.error}", 500))
+            elif job.html:
+                self._send(200, job.html.encode())
+            else:
+                self._send(*error_page("아직 수집 중입니다. 잠시 후 다시 열어 주세요.", 202))
+        elif self.path in ("/", "/index.html"):
             self._send(200, form_page(self.workspace))
         elif self.path == "/favicon.ico":
             self.send_response(204)
@@ -422,16 +609,20 @@ class _Handler(BaseHTTPRequestHandler):
                     self._send(*error_page("조직을 하나 이상 선택해 주세요."))
                     return
                 since_raw = (form.get("since", [""])[0] or "").strip()
-                html = run_report(
-                    ids,
-                    workspace=self.workspace,
-                    query=form.get("query", [""])[0],
-                    group_org=bool(form.get("group_org")),
-                    quote_full=bool(form.get("quote_full")),
-                    mark_new=bool(form.get("mark_new")),
-                    since=int(since_raw) if since_raw.isdigit() else None,
-                )
-                self._send(200, html.encode())
+                opts = {
+                    "workspace": self.workspace,
+                    "query": form.get("query", [""])[0],
+                    "group_org": bool(form.get("group_org")),
+                    "quote_full": bool(form.get("quote_full")),
+                    "mark_new": bool(form.get("mark_new")),
+                    "since": int(since_raw) if since_raw.isdigit() else None,
+                }
+                # 수집은 몇 분씩 걸린다. 바로 진행 화면을 내주고 뒤에서 돌린다 —
+                # 무엇을 하고 있는지 보이면 기다리는 사람이 덜 답답하다.
+                srcs = build_sources(ids, self.workspace)
+                names = sorted({s.org or s.name for s in srcs})
+                job = start_job(lambda tr: run_report(ids, tracker=tr, **opts), total=len(srcs))
+                self._send(200, progress_page(job, names))
             elif self.path == "/discover":
                 url = (form.get("url", [""])[0] or "").strip()
                 if not url:

@@ -130,6 +130,7 @@ def collect(
     now: date | None = None,
     quote_mode: str = QUOTE_CONSERVATIVE,
     auto_routes: bool = True,
+    tracker: object | None = None,
     jobs: int = parallel.DEFAULT_JOBS,
     delay: float = parallel.DEFAULT_DELAY,
 ) -> Report:
@@ -155,6 +156,22 @@ def collect(
     def fetch_one(source: Source) -> tuple[list[Notice], list[str]]:
         """한 출처를 받아 파싱한다 — 이 부분만 병렬로 돈다(공유 상태 없음)."""
         why: list[str] = []
+        who = source.org or source.name
+        if tracker is not None:
+            tracker.start(who)
+        try:
+            parsed, reasons = _fetch_one_inner(source, who, why)
+        except Exception:
+            if tracker is not None:
+                tracker.finish(who, 0)
+            raise
+        if tracker is not None:
+            tracker.finish(who, len(parsed))
+        return parsed, reasons
+
+    def _fetch_one_inner(
+        source: Source, who: str, why: list[str]
+    ) -> tuple[list[Notice], list[str]]:
         if source.kind == "govorg":
             # 카테고리별 다단계 폴백 — 되면 쓰고, 안 되면 사유를 남긴다.
             from . import govcascade
@@ -165,6 +182,8 @@ def collect(
             )
             if limiter is not None:
                 page_fetch = limiter.wrap(page_fetch)
+            if tracker is not None:
+                page_fetch = tracker.wrap(who, page_fetch)
             target = source
             if auto_routes and source.home and not source.routes:
                 # routes 를 손으로 적지 않아도 홈에서 게시판·피드를 찾아 붙인다.
