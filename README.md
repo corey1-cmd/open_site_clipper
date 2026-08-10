@@ -93,8 +93,8 @@ pip install -e ".[dev]"
 ### 3) 확인
 
 ```bash
-open_site_clipper --version      # open_site_clipper 0.19.1
-python -m pytest -q              # 242 passed (인터넷 불필요)
+open_site_clipper --version      # open_site_clipper 0.20.0
+python -m pytest -q              # 249 passed (인터넷 불필요)
 ```
 
 ### 4) 바로 써보기
@@ -165,7 +165,7 @@ open_site_clipper --sources examples/sources-hufs.json --query 고용 -o 고용.
 
 ## 실전 검증
 
-단위 테스트 242개(전부 오프라인, 페처 주입)에 더해 **실제 사이트에서 끝까지**
+단위 테스트 249개(전부 오프라인, 페처 주입)에 더해 **실제 사이트에서 끝까지**
 확인했습니다.
 
 - **한국외국어대학교 실수집** — K2Web 사이트 프리셋으로 한 번에 **공지 88건**,
@@ -301,6 +301,11 @@ cmd 가 불편하면 브라우저로 씁니다.
 ```bash
 open_site_clipper --serve        # http://127.0.0.1:8765 자동 오픈, 종료는 Ctrl+C
 ```
+
+수집이 도는 동안에는 **진행 화면**이 뜹니다 — 왼쪽에 진행 막대·몇 곳 중 몇 곳·
+모은 공지 수·걸린 시간·남은 예상, 오른쪽에 **지금 어느 기관의 어느 주소를
+두드리는지**가 실시간으로 보입니다(병렬이라 여러 줄이 동시에 뜹니다). 끝나면
+보고서로 자동으로 넘어갑니다.
 
 화면에서 ① **조사할 조직 선택** — 정부·공공기관 / 대학 / 기타 그룹으로 묶여
 접이식으로 나오고, 그룹마다 [모두 선택] [모두 해제] 가 있습니다. **체크한
@@ -724,6 +729,7 @@ sources ──▶ fetch ──▶ parse ──▶ collect ──▶ report
 - `robots.py` — robots.txt 준수(호스트별 캐시, fail-open)
 - `discover.py` — 출처 자동 탐지(RSS 자동발견·K2Web 좌표·검증 스니핑)
 - `webui.py` — 로컬 웹 UI(조직 선택→수집·검색·탐지, 표준 http.server)
+- `progress.py` — 수집 진행 상황 추적(스레드 안전, 남은 시간 어림)
 - `govweb.py` — 정부 표준홈페이지 게시판 파서(채용·입찰 등 RSS 미제공 목록)
 - `cascade.py` · `govcascade.py` — 폴백 공통 뼈대(시도 이력)와 정부 카테고리별 5단 캐스케이드
 - `access.py` — 접근 진단(전면/경로별 차단 구분, 우리 UA 기준)
@@ -742,7 +748,7 @@ sources ──▶ fetch ──▶ parse ──▶ collect ──▶ report
 
 ```bash
 pip install -e ".[dev]"
-pytest -q            # 테스트 242개 — 전부 네트워크 없이 동작(페처 주입)
+pytest -q            # 테스트 249개 — 전부 네트워크 없이 동작(페처 주입)
 ruff check src tests # 린트
 ruff format src tests
 ```
