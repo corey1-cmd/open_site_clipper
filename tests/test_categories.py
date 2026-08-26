@@ -38,7 +38,7 @@ def test_real_menu_names_map_to_canonical():
 
 def test_unknown_names_fall_back_to_etc():
     """모르는 이름이 와도 새 분류를 만들지 않는다 — 이것이 400종의 원인이었다."""
-    for name in ("업무추진비", "조직도", "찾아오시는 길", "배너모음", ""):
+    for name in ("조직도", "찾아오시는 길", "배너모음", "비전 및 목표", ""):
         assert categories.canonical(name) == categories.ETC
 
 
@@ -70,3 +70,45 @@ def test_canonical_count_stays_small_with_many_menus():
     ]
     d = digest.build(notices)
     assert d.category_total == 1 and d.categories[0][0] == categories.ETC
+
+
+def test_dictionary_covers_real_government_menus():
+    """사전이 얕으면 '기타'가 지배한다 — 실측에서 69%가 기타로 떨어졌다."""
+    menus = (
+        "업무추진비",
+        "정보공개",
+        "청렴",
+        "국민참여",
+        "예규",
+        "훈령",
+        "민원",
+        "신고센터",
+        "포토뉴스",
+        "영상",
+        "행사",
+        "일정",
+        "모집",
+        "공모",
+        "지원사업",
+        "시험",
+        "자격",
+        "교육",
+        "재정",
+        "입법예고",
+        "행정예고",
+        "공청회",
+        "설문",
+        "제안",
+        "자주묻는질문",
+        "명단공표",
+        "수의계약",
+    )
+    etc = [m for m in menus if categories.canonical(m) == categories.ETC]
+    assert not etc, f"사전에서 빠진 메뉴명: {etc}"
+
+
+def test_participation_category_exists():
+    """민원·신고·제안은 공지와 성격이 달라 따로 묶는다."""
+    assert categories.canonical("민원안내") == "참여"
+    assert categories.canonical("국민신문고") == "참여"
+    assert "참여" in categories.ORDER
