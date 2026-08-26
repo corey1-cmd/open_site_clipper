@@ -93,8 +93,8 @@ pip install -e ".[dev]"
 ### 3) 확인
 
 ```bash
-open_site_clipper --version      # open_site_clipper 0.21.0
-python -m pytest -q              # 254 passed (인터넷 불필요)
+open_site_clipper --version      # open_site_clipper 0.21.1
+python -m pytest -q              # 256 passed (인터넷 불필요)
 ```
 
 ### 4) 바로 써보기
@@ -165,7 +165,7 @@ open_site_clipper --sources examples/sources-hufs.json --query 고용 -o 고용.
 
 ## 실전 검증
 
-단위 테스트 254개(전부 오프라인, 페처 주입)에 더해 **실제 사이트에서 끝까지**
+단위 테스트 256개(전부 오프라인, 페처 주입)에 더해 **실제 사이트에서 끝까지**
 확인했습니다.
 
 - **한국외국어대학교 실수집** — K2Web 사이트 프리셋으로 한 번에 **공지 88건**,
@@ -182,8 +182,8 @@ open_site_clipper --sources examples/sources-hufs.json --query 고용 -o 고용.
 - **타 대학 호환** — 한국방송통신대학교 게시판이 같은 CMS(K2Web Wizard)·같은 칸
   구조임을 확인. 좌표만 바꾸면 코드 수정 없이 동작하며, 고려대·전북대 등도 같은
   CMS 를 씁니다.
-- **정부기관 65곳 실수집** — 부·청·위원회를 한 번에 돌려 **공지 5,400여 건 ·
-  기관 30여 곳**을 모았습니다. 분류는 보도자료·공지·채용·입찰·소식·인사·업무추진비
+- **정부기관 65곳 실수집** — 부·청·위원회를 한 번에 돌려 **공지 4,000여 건 ·
+  기관 40곳**을 모았습니다. 분류는 보도자료·공지·채용·입찰·소식·인사·업무추진비
   등으로 갈립니다. 실패한 기관은 사유가 남습니다:
 
   ```
@@ -749,7 +749,7 @@ sources ──▶ fetch ──▶ parse ──▶ collect ──▶ report
 
 ```bash
 pip install -e ".[dev]"
-pytest -q            # 테스트 254개 — 전부 네트워크 없이 동작(페처 주입)
+pytest -q            # 테스트 256개 — 전부 네트워크 없이 동작(페처 주입)
 ruff check src tests # 린트
 ruff format src tests
 ```
