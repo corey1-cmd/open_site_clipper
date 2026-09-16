@@ -140,3 +140,38 @@ def classify(text: str) -> str:
 def canonical(text: str) -> str:
     """요약용 대분류 — 못 정하면 '기타'로 떨어뜨린다(종수 폭발 방지)."""
     return classify(text) or ETC
+
+
+def from_url(url: str, fallback: str = ETC) -> str:
+    """주소에서 대분류를 읽는다 — 앵커 이름이 없을 때 쓴다.
+
+    사이트맵·경로 사이클로 찾은 게시판은 **앵커 텍스트가 없다**. 예전에는 그런
+    경로를 전부 `"기타"` 로 적어서, 0KB 기관들이 그쪽으로 들어오자 실측에서
+    기타가 65%(1,438/2,207)를 차지했다. 주소에도 단서가 있으니 그것을 읽는다:
+
+      /news/notice/noticeList.do   → 공지
+      /site/s_notice/jobList.jsp   → 채용
+      /article/list.do?boardKey=22 → (단서 없음) 기타
+
+    한글을 로마자로 적은 주소(`/gongji/`·`/alrim/`)도 잡는다.
+    """
+    # 쿼리는 보지 않는다 — `?bid=0015`(게시판 번호)가 'bid(입찰)'로 읽히는 등
+    # 파라미터 이름이 우연히 분류어와 겹쳐 오판을 만든다.
+    path = (url or "").split("?", 1)[0].split("#", 1)[0]
+    low = path.lower()
+    if not low:
+        return fallback
+    for category, words in CATEGORY_HINTS:
+        for w in words:
+            if w.isascii():
+                if w in low:
+                    return category
+            elif (_romanized(w) and _romanized(w) in low) or w in path:
+                return category
+    return fallback
+
+
+def _romanized(word: str) -> str:
+    from .korean import romanize
+
+    return romanize(word)

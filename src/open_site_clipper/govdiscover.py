@@ -22,8 +22,8 @@ import urllib.parse
 from collections.abc import Callable
 from functools import lru_cache
 
+from . import categories, govpaths, korean, probe
 from . import discover as _discover
-from . import govpaths, korean, probe
 from .categories import CATEGORY_HINTS, classify
 from .fetch import decode_text
 
@@ -410,7 +410,7 @@ def _from_sitemap(
             seen.add(url)
             result = probe.classify(session.get(url), url, home_host=home_host)
             if result.collectible:
-                routes.append(("기타", "board", url))
+                routes.append((categories.from_url(url), "board", url))
         if routes:
             notes.append(f"사이트맵에서 목록 {len(routes)}개를 찾았습니다: {sitemap}")
             break

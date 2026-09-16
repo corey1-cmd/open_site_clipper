@@ -27,7 +27,7 @@ from collections.abc import Callable
 from functools import lru_cache
 from pathlib import Path
 
-from . import probe
+from . import categories, probe
 
 DATA_FILE = Path(__file__).with_name("data") / "gov-paths.json"
 # 진짜 홈이라면 메뉴 링크가 이만큼은 있다. 관문 페이지는 몇 개도 안 된다.
@@ -124,7 +124,7 @@ def _adopt(url: str, fetcher: Callable[[str], bytes | None], host: str, routes: 
     if not result.collectible:
         return False
     kind = "rss" if url.endswith((".xml", ".jsp")) and "/rss/" in url else "board"
-    routes.append(("기타", kind, url))
+    routes.append((categories.from_url(url), kind, url))
     return True
 
 

@@ -112,3 +112,30 @@ def test_participation_category_exists():
     assert categories.canonical("민원안내") == "참여"
     assert categories.canonical("국민신문고") == "참여"
     assert "참여" in categories.ORDER
+
+
+# ── 주소에서 분류 읽기 (앵커 이름이 없을 때) ────────────────────────────────
+def test_from_url_reads_path_signals():
+    """사이트맵·경로 사이클로 찾은 게시판은 앵커 텍스트가 없다 — 주소를 읽는다."""
+    cases = {
+        "/news/notice/noticeList.do": "공지",
+        "/site/s_notice/notice/jobList.jsp": "채용",
+        "/site/s_notice/notice/bidList.jsp": "입찰",
+        "/common/rss/press.jsp": "보도자료",
+        "/minwon/list.do": "참여",
+        "/gongji/list.html": "공지",  # 로마자 표기도 잡는다
+    }
+    for url, expected in cases.items():
+        assert categories.from_url(url) == expected, url
+
+
+def test_from_url_ignores_query_string():
+    """`?bid=0015`(게시판 번호)가 'bid(입찰)'로 읽히던 오판을 막는다."""
+    assert categories.from_url("/board/board.es?mid=a205&bid=0015") == categories.ETC
+    assert categories.from_url("/x/list.do?key=00641") == categories.ETC
+
+
+def test_from_url_falls_back_when_no_signal():
+    assert categories.from_url("/article/list.do") == categories.ETC
+    assert categories.from_url("") == categories.ETC
+    assert categories.from_url("/x/y", fallback="소식") == "소식"
