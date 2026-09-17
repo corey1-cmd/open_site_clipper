@@ -77,6 +77,8 @@ class Digest:
     total: int = 0
     agency_shown: int = 0
     category_shown: int = 0
+    # '기타' 로 묶인 원래 이름들(상위 몇 개) — 사전 보강의 단서.
+    etc_samples: list[tuple[str, int]] = field(default_factory=list)
 
     @property
     def agency_more(self) -> int:
@@ -166,7 +168,15 @@ def build(
         categories.canonical(n.category) if n.category else UNCATEGORIZED for n in notices
     )
     shown_categories = _top(category_counter, top_categories)
+    # '기타' 가 크면 그 안에 무엇이 들었는지 보여 준다 — 사전에 무엇을 더할지는
+    # 이 목록이 알려 준다. 추측으로 사전을 늘리다 두 번 헛짚었다.
+    etc_raw = Counter(
+        n.category
+        for n in notices
+        if n.category and categories.canonical(n.category) == categories.ETC
+    )
     return Digest(
+        etc_samples=_top(etc_raw, 8),
         agencies=_top(agency_counter, top_agencies),
         categories=shown_categories,
         keywords=_keywords(notices, set(agency_counter), top_keywords),

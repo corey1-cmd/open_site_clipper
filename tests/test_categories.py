@@ -139,3 +139,57 @@ def test_from_url_falls_back_when_no_signal():
     assert categories.from_url("/article/list.do") == categories.ETC
     assert categories.from_url("") == categories.ETC
     assert categories.from_url("/x/y", fallback="소식") == "소식"
+
+
+# ── 라벨 결정 순서와 '기타' 진단 ────────────────────────────────────────────
+def test_label_prefers_name_then_url_then_raw():
+    """이름이 안 잡히면 주소를 본다 — 예전에는 곧장 앵커 원문을 썼다."""
+    from open_site_clipper import govdiscover
+
+    # '더보기' 는 분류가 안 되지만 주소에 notice 가 있으면 공지로.
+    html = (
+        "<html><head><title>OO</title></head><body>"
+        '<a href="/news/notice/noticeList.do">더보기</a>'
+        "</body></html>"
+    ).encode()
+    board = (
+        "<table><thead><tr><th>번호</th><th>제목</th><th>등록일</th></tr></thead><tbody>"
+        '<tr><td>2</td><td><a href="/v?id=2">2026년 채용 공고</a></td><td>2026.07.20</td></tr>'
+        '<tr><td>1</td><td><a href="/v?id=1">정기 입찰 공고</a></td><td>2026.07.19</td></tr>'
+        "</tbody></table>"
+    ).encode()
+    pages = {
+        "https://x.go.kr/": html,
+        "https://x.go.kr/news/notice/noticeList.do": board,
+    }
+    from open_site_clipper import robots
+
+    robots.reset_cache()
+    robots._CACHE["https://x.go.kr"] = None
+    robots._SITEMAPS["https://x.go.kr"] = []
+    routes, _n = govdiscover.find_routes(
+        "https://x.go.kr/", fetcher=lambda u: pages.get(u, b""), check_robots=False
+    )
+    assert routes and routes[0][0] == "공지"  # '더보기' 가 아니라
+    robots.reset_cache()
+
+
+def test_digest_shows_what_is_inside_etc():
+    """'기타' 가 크면 그 안에 무엇이 들었는지 보여 준다 — 사전 보강의 근거."""
+    from open_site_clipper import report
+    from open_site_clipper.model import Report
+
+    notices = [
+        Notice(
+            title=f"t{i}",
+            url=f"https://x/{i}",
+            agency="기관",
+            category=["더보기", "바로가기", "공지사항"][i % 3],
+        )
+        for i in range(30)
+    ]
+    d = digest.build(notices)
+    names = {n for n, _c in d.etc_samples}
+    assert names == {"더보기", "바로가기"}  # 분류된 '공지사항' 은 빠진다
+    md = report.render_markdown(Report(notices=notices, digest=d))
+    assert "기타 내역:" in md and "더보기" in md

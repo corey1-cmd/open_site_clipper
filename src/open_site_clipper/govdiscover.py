@@ -239,7 +239,14 @@ def find_routes(
             external += 1
             continue  # 법령·공공데이터·국민신문고 등 — 별도 출처로 등록할 것
         internal += 1
-        label = classify(text) or (" ".join((text or "").split())[:20] or "기타")
+        # 이름 → 주소 → 앵커 원문 순으로 분류를 정한다. 예전에는 이름이 안 잡히면
+        # 곧장 앵커 원문을 썼는데, '더보기'·'바로가기' 같은 말이 그대로 분류가 되어
+        # 요약에서 기타로 뭉쳤다(실측 65%). 주소에 단서가 있으면 그것이 낫다.
+        label = (
+            classify(text)
+            or categories.from_url(url, fallback="")
+            or (" ".join((text or "").split())[:20] or categories.ETC)
+        )
         kind = "rss" if _discover._looks_like_feed_url(href) else "board"
         key = (label, url)
         if key in seen:
