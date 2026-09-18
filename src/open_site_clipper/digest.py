@@ -79,6 +79,9 @@ class Digest:
     category_shown: int = 0
     # '기타' 로 묶인 원래 이름들(상위 몇 개) — 사전 보강의 단서.
     etc_samples: list[tuple[str, int]] = field(default_factory=list)
+    # '기타' 안의 서로 다른 이름 수 — 상위 몇 개가 전체의 일부뿐이면
+    # 사전으로는 못 잡는 롱테일이라는 뜻이다(실측: 상위 8개가 14%).
+    etc_names: int = 0
 
     @property
     def agency_more(self) -> int:
@@ -176,7 +179,8 @@ def build(
         if n.category and categories.canonical(n.category) == categories.ETC
     )
     return Digest(
-        etc_samples=_top(etc_raw, 8),
+        etc_samples=_top(etc_raw, 10),
+        etc_names=len(etc_raw),
         agencies=_top(agency_counter, top_agencies),
         categories=shown_categories,
         keywords=_keywords(notices, set(agency_counter), top_keywords),

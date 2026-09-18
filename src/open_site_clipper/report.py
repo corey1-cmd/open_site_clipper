@@ -86,7 +86,7 @@ def _digest_markdown(report: Report) -> str:
         lines.append("- 분류: " + " · ".join(f"{a} {c}건" for a, c in d.categories) + cmore)
         if d.etc_samples:
             inner = " · ".join(f"{a} {c}건" for a, c in d.etc_samples)
-            lines.append(f"  - 기타 내역: {inner}")
+            lines.append(f"  - 기타 내역(이름 {d.etc_names}종 중 상위): {inner}")
     if d.keywords:
         lines.append("- 키워드: " + " · ".join(f"{w}({c})" for w, c in d.keywords))
     return "\n".join(lines)
@@ -335,7 +335,10 @@ def _digest_html(report: Report) -> str:
         parts.append(f"<dt>분류</dt><dd>{v}</dd>")
         if d.etc_samples:
             inner = " · ".join(f"{_esc(a)} {c}건" for a, c in d.etc_samples)
-            parts.append(f'<dt>기타 내역</dt><dd><span class="origin">{inner}</span></dd>')
+            parts.append(
+                f"<dt>기타 내역</dt><dd>"
+                f'<span class="origin">이름 {d.etc_names}종 중 상위 · {inner}</span></dd>'
+            )
     if d.keywords:
         chips = "".join(f'<span class="chip">{_esc(w)} <b>{c}</b></span>' for w, c in d.keywords)
         parts.append(f"<dt>키워드</dt><dd>{chips}</dd>")

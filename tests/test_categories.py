@@ -192,4 +192,40 @@ def test_digest_shows_what_is_inside_etc():
     names = {n for n, _c in d.etc_samples}
     assert names == {"더보기", "바로가기"}  # 분류된 '공지사항' 은 빠진다
     md = report.render_markdown(Report(notices=notices, digest=d))
-    assert "기타 내역:" in md and "더보기" in md
+    assert "기타 내역(" in md and "더보기" in md
+    assert "이름 2종" in md  # 롱테일인지 덩어리인지 바로 드러난다
+
+
+# ── 실측 '기타 내역'에서 드러난 세 갈래 ─────────────────────────────────────
+def test_meaningless_anchors_are_not_labels():
+    """'전체'·'더보기'는 게시판 이름이 아니라 조작용 단어다(실측 78·40·38건)."""
+    from open_site_clipper.govdiscover import _raw_label
+
+    for word in ("전체", "더보기", "바로가기", "목록", "상세보기", "새창열림", "기타"):
+        assert _raw_label(word) == categories.ETC, word
+    # 진짜 게시판 이름은 그대로 남는다.
+    assert _raw_label("수목원/정원") == "수목원/정원"
+
+
+def test_dictionary_gaps_from_real_run():
+    """실측 기타 내역에서 드러난 누락을 메웠다."""
+    assert categories.canonical("예결산") == "정책"
+    assert categories.canonical("국고보조금 정보") == "정책"
+    assert categories.canonical("국회 관련 정보") == "정책"
+    assert categories.canonical("칭찬합시다") == "참여"
+
+
+def test_institution_specific_names_stay_etc():
+    """기관 고유 게시판은 억지로 묶지 않는다 — 기타가 정직하다."""
+    assert categories.canonical("수목원/정원") == categories.ETC
+
+
+def test_etc_names_count_reveals_long_tail():
+    """상위 몇 개가 전체의 일부뿐이면 사전으로는 못 잡는 롱테일이다."""
+    notices = [
+        Notice(title=f"t{i}", url=f"https://x/{i}", agency="기관", category=f"특화{i}")
+        for i in range(40)
+    ]
+    d = digest.build(notices)
+    assert d.etc_names == 40  # 이름이 40종 — 상위 10개로는 4분의 1뿐
+    assert len(d.etc_samples) == 10

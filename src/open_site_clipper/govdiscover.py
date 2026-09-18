@@ -114,6 +114,12 @@ def _body_head(data: bytes, limit: int = 90) -> str:
     return (flat[:limit] + "…") if len(flat) > limit else (flat or "(내용 없음)")
 
 
+def _raw_label(text: str) -> str:
+    """앵커 원문을 분류로 쓸지 판단한다 — '더보기'·'전체' 같은 말은 쓰지 않는다."""
+    flat = " ".join((text or "").split())[:20]
+    return categories.ETC if (not flat or categories.is_meaningless(flat)) else flat
+
+
 def board_score(url: str, label: str) -> int:
     """이 링크가 게시판 목록일 가능성 — 클수록 먼저 시험한다.
 
@@ -242,11 +248,7 @@ def find_routes(
         # 이름 → 주소 → 앵커 원문 순으로 분류를 정한다. 예전에는 이름이 안 잡히면
         # 곧장 앵커 원문을 썼는데, '더보기'·'바로가기' 같은 말이 그대로 분류가 되어
         # 요약에서 기타로 뭉쳤다(실측 65%). 주소에 단서가 있으면 그것이 낫다.
-        label = (
-            classify(text)
-            or categories.from_url(url, fallback="")
-            or (" ".join((text or "").split())[:20] or categories.ETC)
-        )
+        label = classify(text) or categories.from_url(url, fallback="") or _raw_label(text)
         kind = "rss" if _discover._looks_like_feed_url(href) else "board"
         key = (label, url)
         if key in seen:
