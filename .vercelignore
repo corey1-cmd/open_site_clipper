@@ -1,0 +1,12 @@
+# Vercel 배포에 올리지 않을 것 — 웹 화면(public/)·함수(api/)·라이브러리(src/)·기관 목록만 필요하다.
+# pyproject.toml 은 일부러 뺀다: 있으면 Vercel 이 이 저장소를 파이썬 패키지로 설치하려 든다
+# (런타임 의존성이 0 이라 설치할 것이 없다).
+pyproject.toml
+tests/
+docs/
+.github/
+*.md
+examples/demo-*
+examples/*.tmpl
+examples/theme-*
+**/__pycache__/

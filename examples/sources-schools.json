@@ -1,0 +1,3223 @@
+{
+  "_comment": [
+    "전국 대학·전문대학 — 홈 주소만 적었다. 게시판(공지·학사·장학·입학·채용…)은 실행 시 자동 발견한다.",
+    "",
+    "범위: 4년제(일반대·산업대 포함)·교육대·과학기술원·특수목적대(사관학교·경찰대 등)·방송통신대·",
+    "사이버대·전문대학·전공대학. 같은 학교의 분교라도 홈페이지가 따로 있으면 별도 항목으로 두었다.",
+    "대학원대학은 아직 넣지 않았다(공식 명단·주소 확인 후 추가).",
+    "",
+    "2026-10 웹 검색으로 통합·폐교·교명 변경을 반영했다:",
+    "  통합  강릉원주대→강원대 · 원광보건대→원광대 · 전남도립대→국립목포대 · 거창대·남해대→국립창원대",
+    "  폐교  광양보건대(2026-08) · 강원관광대(2024-02)",
+    "  교명  KC대→강서대 · 동주대→부산보건대 · 재능대→인천재능대 · 국립 접두어 8곳(공주·군산·금오공과·목포·목포해양·순천·한국교통·한밭)",
+    "주소가 바뀌었거나 사이트가 열리지 않으면 보고서에 사유가 남는다. 이 파일만 고치면 된다.",
+    "",
+    "type·region 은 웹 화면의 묶음·필터에 쓰인다(수집에는 영향 없음)."
+  ],
+  "sources": [
+    {
+      "id": "u-catholic",
+      "org": "가톨릭대학교",
+      "name": "가톨릭대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.catholic.ac.kr"
+    },
+    {
+      "id": "u-mtu",
+      "org": "감리교신학대학교",
+      "name": "감리교신학대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.mtu.ac.kr"
+    },
+    {
+      "id": "u-gangseo",
+      "org": "강서대학교",
+      "name": "강서대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.gangseo.ac.kr"
+    },
+    {
+      "id": "u-konkuk",
+      "org": "건국대학교",
+      "name": "건국대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.konkuk.ac.kr"
+    },
+    {
+      "id": "u-khu",
+      "org": "경희대학교",
+      "name": "경희대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.khu.ac.kr"
+    },
+    {
+      "id": "u-korea",
+      "org": "고려대학교",
+      "name": "고려대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.korea.ac.kr"
+    },
+    {
+      "id": "u-kw",
+      "org": "광운대학교",
+      "name": "광운대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.kw.ac.kr"
+    },
+    {
+      "id": "u-kookmin",
+      "org": "국민대학교",
+      "name": "국민대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.kookmin.ac.kr"
+    },
+    {
+      "id": "u-duksung",
+      "org": "덕성여자대학교",
+      "name": "덕성여자대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.duksung.ac.kr"
+    },
+    {
+      "id": "u-dongguk",
+      "org": "동국대학교",
+      "name": "동국대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.dongguk.edu"
+    },
+    {
+      "id": "u-dongduk",
+      "org": "동덕여자대학교",
+      "name": "동덕여자대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.dongduk.ac.kr"
+    },
+    {
+      "id": "u-mju",
+      "org": "명지대학교",
+      "name": "명지대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.mju.ac.kr"
+    },
+    {
+      "id": "u-syu",
+      "org": "삼육대학교",
+      "name": "삼육대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.syu.ac.kr"
+    },
+    {
+      "id": "u-smu",
+      "org": "상명대학교",
+      "name": "상명대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.smu.ac.kr"
+    },
+    {
+      "id": "u-sogang",
+      "org": "서강대학교",
+      "name": "서강대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.sogang.ac.kr"
+    },
+    {
+      "id": "u-skuniv",
+      "org": "서경대학교",
+      "name": "서경대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.skuniv.ac.kr"
+    },
+    {
+      "id": "u-seoultech",
+      "org": "서울과학기술대학교",
+      "name": "서울과학기술대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.seoultech.ac.kr"
+    },
+    {
+      "id": "u-scu",
+      "org": "서울기독대학교",
+      "name": "서울기독대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.scu.ac.kr"
+    },
+    {
+      "id": "u-snu",
+      "org": "서울대학교",
+      "name": "서울대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.snu.ac.kr"
+    },
+    {
+      "id": "u-uos",
+      "org": "서울시립대학교",
+      "name": "서울시립대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.uos.ac.kr"
+    },
+    {
+      "id": "u-swu",
+      "org": "서울여자대학교",
+      "name": "서울여자대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.swu.ac.kr"
+    },
+    {
+      "id": "u-hytu",
+      "org": "서울한영대학교",
+      "name": "서울한영대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.hytu.ac.kr"
+    },
+    {
+      "id": "u-skhu",
+      "org": "성공회대학교",
+      "name": "성공회대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.skhu.ac.kr"
+    },
+    {
+      "id": "u-skku",
+      "org": "성균관대학교",
+      "name": "성균관대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.skku.edu"
+    },
+    {
+      "id": "u-sungshin",
+      "org": "성신여자대학교",
+      "name": "성신여자대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.sungshin.ac.kr"
+    },
+    {
+      "id": "u-sejong",
+      "org": "세종대학교",
+      "name": "세종대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.sejong.ac.kr"
+    },
+    {
+      "id": "u-sookmyung",
+      "org": "숙명여자대학교",
+      "name": "숙명여자대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.sookmyung.ac.kr"
+    },
+    {
+      "id": "u-ssu",
+      "org": "숭실대학교",
+      "name": "숭실대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.ssu.ac.kr"
+    },
+    {
+      "id": "u-yonsei",
+      "org": "연세대학교",
+      "name": "연세대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.yonsei.ac.kr"
+    },
+    {
+      "id": "u-ewha",
+      "org": "이화여자대학교",
+      "name": "이화여자대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.ewha.ac.kr"
+    },
+    {
+      "id": "u-puts",
+      "org": "장로회신학대학교",
+      "name": "장로회신학대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.puts.ac.kr"
+    },
+    {
+      "id": "u-cau",
+      "org": "중앙대학교",
+      "name": "중앙대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.cau.ac.kr"
+    },
+    {
+      "id": "u-chongshin",
+      "org": "총신대학교",
+      "name": "총신대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.chongshin.ac.kr"
+    },
+    {
+      "id": "u-chugye",
+      "org": "추계예술대학교",
+      "name": "추계예술대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.chugye.ac.kr"
+    },
+    {
+      "id": "u-bible",
+      "org": "한국성서대학교",
+      "name": "한국성서대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.bible.ac.kr"
+    },
+    {
+      "id": "u-karts",
+      "org": "한국예술종합학교",
+      "name": "한국예술종합학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.karts.ac.kr"
+    },
+    {
+      "id": "u-hufs",
+      "org": "한국외국어대학교",
+      "name": "한국외국어대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.hufs.ac.kr"
+    },
+    {
+      "id": "u-knsu",
+      "org": "한국체육대학교",
+      "name": "한국체육대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.knsu.ac.kr"
+    },
+    {
+      "id": "u-hansung",
+      "org": "한성대학교",
+      "name": "한성대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.hansung.ac.kr"
+    },
+    {
+      "id": "u-hanyang",
+      "org": "한양대학교",
+      "name": "한양대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.hanyang.ac.kr"
+    },
+    {
+      "id": "u-hongik",
+      "org": "홍익대학교",
+      "name": "홍익대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "서울",
+      "home": "https://www.hongik.ac.kr"
+    },
+    {
+      "id": "u-ks",
+      "org": "경성대학교",
+      "name": "경성대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "부산",
+      "home": "https://www.ks.ac.kr"
+    },
+    {
+      "id": "u-kosin",
+      "org": "고신대학교",
+      "name": "고신대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "부산",
+      "home": "https://www.kosin.ac.kr"
+    },
+    {
+      "id": "u-pknu",
+      "org": "국립부경대학교",
+      "name": "국립부경대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "부산",
+      "home": "https://www.pknu.ac.kr"
+    },
+    {
+      "id": "u-kmou",
+      "org": "국립한국해양대학교",
+      "name": "국립한국해양대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "부산",
+      "home": "https://www.kmou.ac.kr"
+    },
+    {
+      "id": "u-tu",
+      "org": "동명대학교",
+      "name": "동명대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "부산",
+      "home": "https://www.tu.ac.kr"
+    },
+    {
+      "id": "u-dongseo",
+      "org": "동서대학교",
+      "name": "동서대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "부산",
+      "home": "https://www.dongseo.ac.kr"
+    },
+    {
+      "id": "u-donga",
+      "org": "동아대학교",
+      "name": "동아대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "부산",
+      "home": "https://www.donga.ac.kr"
+    },
+    {
+      "id": "u-deu",
+      "org": "동의대학교",
+      "name": "동의대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "부산",
+      "home": "https://www.deu.ac.kr"
+    },
+    {
+      "id": "u-cup",
+      "org": "부산가톨릭대학교",
+      "name": "부산가톨릭대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "부산",
+      "home": "https://www.cup.ac.kr"
+    },
+    {
+      "id": "u-pusan",
+      "org": "부산대학교",
+      "name": "부산대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "부산",
+      "home": "https://www.pusan.ac.kr"
+    },
+    {
+      "id": "u-bufs",
+      "org": "부산외국어대학교",
+      "name": "부산외국어대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "부산",
+      "home": "https://www.bufs.ac.kr"
+    },
+    {
+      "id": "u-silla",
+      "org": "신라대학교",
+      "name": "신라대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "부산",
+      "home": "https://www.silla.ac.kr"
+    },
+    {
+      "id": "u-knu",
+      "org": "경북대학교",
+      "name": "경북대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "대구",
+      "home": "https://www.knu.ac.kr"
+    },
+    {
+      "id": "u-kmu",
+      "org": "계명대학교",
+      "name": "계명대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "대구",
+      "home": "https://www.kmu.ac.kr"
+    },
+    {
+      "id": "u-iccu",
+      "org": "인천가톨릭대학교",
+      "name": "인천가톨릭대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "인천",
+      "home": "https://www.iccu.ac.kr"
+    },
+    {
+      "id": "u-inu",
+      "org": "인천대학교",
+      "name": "인천대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "인천",
+      "home": "https://www.inu.ac.kr"
+    },
+    {
+      "id": "u-inha",
+      "org": "인하대학교",
+      "name": "인하대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "인천",
+      "home": "https://www.inha.ac.kr"
+    },
+    {
+      "id": "u-kwangshin",
+      "org": "광신대학교",
+      "name": "광신대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "광주",
+      "home": "https://www.kwangshin.ac.kr"
+    },
+    {
+      "id": "u-gwangju",
+      "org": "광주대학교",
+      "name": "광주대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "광주",
+      "home": "https://www.gwangju.ac.kr"
+    },
+    {
+      "id": "u-kwu",
+      "org": "광주여자대학교",
+      "name": "광주여자대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "광주",
+      "home": "https://www.kwu.ac.kr"
+    },
+    {
+      "id": "u-nambu",
+      "org": "남부대학교",
+      "name": "남부대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "광주",
+      "home": "https://www.nambu.ac.kr"
+    },
+    {
+      "id": "u-songwon",
+      "org": "송원대학교",
+      "name": "송원대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "광주",
+      "home": "https://www.songwon.ac.kr"
+    },
+    {
+      "id": "u-jnu",
+      "org": "전남대학교",
+      "name": "전남대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "광주",
+      "home": "https://www.jnu.ac.kr"
+    },
+    {
+      "id": "u-chosun",
+      "org": "조선대학교",
+      "name": "조선대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "광주",
+      "home": "https://www.chosun.ac.kr"
+    },
+    {
+      "id": "u-honam",
+      "org": "호남대학교",
+      "name": "호남대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "광주",
+      "home": "https://www.honam.ac.kr"
+    },
+    {
+      "id": "u-htus",
+      "org": "호남신학대학교",
+      "name": "호남신학대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "광주",
+      "home": "https://www.htus.ac.kr"
+    },
+    {
+      "id": "u-hanbat",
+      "org": "국립한밭대학교",
+      "name": "국립한밭대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "대전",
+      "home": "https://www.hanbat.ac.kr"
+    },
+    {
+      "id": "u-dju",
+      "org": "대전대학교",
+      "name": "대전대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "대전",
+      "home": "https://www.dju.ac.kr"
+    },
+    {
+      "id": "u-daejeon",
+      "org": "대전신학대학교",
+      "name": "대전신학대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "대전",
+      "home": "https://www.daejeon.ac.kr"
+    },
+    {
+      "id": "u-mokwon",
+      "org": "목원대학교",
+      "name": "목원대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "대전",
+      "home": "https://www.mokwon.ac.kr"
+    },
+    {
+      "id": "u-pcu",
+      "org": "배재대학교",
+      "name": "배재대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "대전",
+      "home": "https://www.pcu.ac.kr"
+    },
+    {
+      "id": "u-wsu",
+      "org": "우송대학교",
+      "name": "우송대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "대전",
+      "home": "https://www.wsu.ac.kr"
+    },
+    {
+      "id": "u-cnu",
+      "org": "충남대학교",
+      "name": "충남대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "대전",
+      "home": "https://www.cnu.ac.kr"
+    },
+    {
+      "id": "u-kbtus",
+      "org": "한국침례신학대학교",
+      "name": "한국침례신학대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "대전",
+      "home": "https://www.kbtus.ac.kr"
+    },
+    {
+      "id": "u-hnu",
+      "org": "한남대학교",
+      "name": "한남대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "대전",
+      "home": "https://www.hnu.kr"
+    },
+    {
+      "id": "u-ulsan",
+      "org": "울산대학교",
+      "name": "울산대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "울산",
+      "home": "https://www.ulsan.ac.kr"
+    },
+    {
+      "id": "u-sejong-korea",
+      "org": "고려대학교 세종캠퍼스",
+      "name": "고려대학교 세종캠퍼스",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "세종",
+      "home": "https://sejong.korea.ac.kr"
+    },
+    {
+      "id": "u-dcatholic",
+      "org": "대전가톨릭대학교",
+      "name": "대전가톨릭대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "세종",
+      "home": "https://www.dcatholic.ac.kr"
+    },
+    {
+      "id": "u-sejong-hongik",
+      "org": "홍익대학교 세종캠퍼스",
+      "name": "홍익대학교 세종캠퍼스",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "세종",
+      "home": "https://sejong.hongik.ac.kr"
+    },
+    {
+      "id": "u-gachon",
+      "org": "가천대학교",
+      "name": "가천대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경기",
+      "home": "https://www.gachon.ac.kr"
+    },
+    {
+      "id": "u-kangnam",
+      "org": "강남대학교",
+      "name": "강남대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경기",
+      "home": "https://www.kangnam.ac.kr"
+    },
+    {
+      "id": "u-kyonggi",
+      "org": "경기대학교",
+      "name": "경기대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경기",
+      "home": "https://www.kyonggi.ac.kr"
+    },
+    {
+      "id": "u-kduniv",
+      "org": "경동대학교",
+      "name": "경동대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경기",
+      "home": "https://www.kduniv.ac.kr"
+    },
+    {
+      "id": "u-dankook",
+      "org": "단국대학교",
+      "name": "단국대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경기",
+      "home": "https://www.dankook.ac.kr"
+    },
+    {
+      "id": "u-daejin",
+      "org": "대진대학교",
+      "name": "대진대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경기",
+      "home": "https://www.daejin.ac.kr"
+    },
+    {
+      "id": "u-ltu",
+      "org": "루터대학교",
+      "name": "루터대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경기",
+      "home": "https://www.ltu.ac.kr"
+    },
+    {
+      "id": "u-stu",
+      "org": "서울신학대학교",
+      "name": "서울신학대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경기",
+      "home": "https://www.stu.ac.kr"
+    },
+    {
+      "id": "u-sjs",
+      "org": "서울장신대학교",
+      "name": "서울장신대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경기",
+      "home": "https://www.sjs.ac.kr"
+    },
+    {
+      "id": "u-sungkyul",
+      "org": "성결대학교",
+      "name": "성결대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경기",
+      "home": "https://www.sungkyul.ac.kr"
+    },
+    {
+      "id": "u-suwoncatholic",
+      "org": "수원가톨릭대학교",
+      "name": "수원가톨릭대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경기",
+      "home": "https://www.suwoncatholic.ac.kr"
+    },
+    {
+      "id": "u-suwon",
+      "org": "수원대학교",
+      "name": "수원대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경기",
+      "home": "https://www.suwon.ac.kr"
+    },
+    {
+      "id": "u-shinhan",
+      "org": "신한대학교",
+      "name": "신한대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경기",
+      "home": "https://www.shinhan.ac.kr"
+    },
+    {
+      "id": "u-acts",
+      "org": "아신대학교",
+      "name": "아신대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경기",
+      "home": "https://www.acts.ac.kr"
+    },
+    {
+      "id": "u-ajou",
+      "org": "아주대학교",
+      "name": "아주대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경기",
+      "home": "https://www.ajou.ac.kr"
+    },
+    {
+      "id": "u-anyang",
+      "org": "안양대학교",
+      "name": "안양대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경기",
+      "home": "https://www.anyang.ac.kr"
+    },
+    {
+      "id": "u-yongin",
+      "org": "용인대학교",
+      "name": "용인대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경기",
+      "home": "https://www.yongin.ac.kr"
+    },
+    {
+      "id": "u-eulji",
+      "org": "을지대학교",
+      "name": "을지대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경기",
+      "home": "https://www.eulji.ac.kr"
+    },
+    {
+      "id": "u-sangha",
+      "org": "중앙승가대학교",
+      "name": "중앙승가대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경기",
+      "home": "https://www.sangha.ac.kr"
+    },
+    {
+      "id": "u-cha",
+      "org": "차의과학대학교",
+      "name": "차의과학대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경기",
+      "home": "https://www.cha.ac.kr"
+    },
+    {
+      "id": "u-calvin",
+      "org": "칼빈대학교",
+      "name": "칼빈대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경기",
+      "home": "https://www.calvin.ac.kr"
+    },
+    {
+      "id": "u-ptu",
+      "org": "평택대학교",
+      "name": "평택대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경기",
+      "home": "https://www.ptu.ac.kr"
+    },
+    {
+      "id": "u-hknu",
+      "org": "한경국립대학교",
+      "name": "한경국립대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경기",
+      "home": "https://www.hknu.ac.kr"
+    },
+    {
+      "id": "u-tukorea",
+      "org": "한국공학대학교",
+      "name": "한국공학대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경기",
+      "home": "https://www.tukorea.ac.kr"
+    },
+    {
+      "id": "u-kau",
+      "org": "한국항공대학교",
+      "name": "한국항공대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경기",
+      "home": "https://www.kau.ac.kr"
+    },
+    {
+      "id": "u-hansei",
+      "org": "한세대학교",
+      "name": "한세대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경기",
+      "home": "https://www.hansei.ac.kr"
+    },
+    {
+      "id": "u-hs",
+      "org": "한신대학교",
+      "name": "한신대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경기",
+      "home": "https://www.hs.ac.kr"
+    },
+    {
+      "id": "u-uhs",
+      "org": "협성대학교",
+      "name": "협성대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경기",
+      "home": "https://www.uhs.ac.kr"
+    },
+    {
+      "id": "u-hsmu",
+      "org": "화성의과학대학교",
+      "name": "화성의과학대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경기",
+      "home": "https://www.hsmu.ac.kr"
+    },
+    {
+      "id": "u-cku",
+      "org": "가톨릭관동대학교",
+      "name": "가톨릭관동대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "강원",
+      "home": "https://www.cku.ac.kr"
+    },
+    {
+      "id": "u-kangwon",
+      "org": "강원대학교",
+      "name": "강원대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "강원",
+      "home": "https://www.kangwon.ac.kr"
+    },
+    {
+      "id": "u-sangji",
+      "org": "상지대학교",
+      "name": "상지대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "강원",
+      "home": "https://www.sangji.ac.kr"
+    },
+    {
+      "id": "u-mirae-yonsei",
+      "org": "연세대학교 미래캠퍼스",
+      "name": "연세대학교 미래캠퍼스",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "강원",
+      "home": "https://mirae.yonsei.ac.kr"
+    },
+    {
+      "id": "u-halla",
+      "org": "한라대학교",
+      "name": "한라대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "강원",
+      "home": "https://www.halla.ac.kr"
+    },
+    {
+      "id": "u-hallym",
+      "org": "한림대학교",
+      "name": "한림대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "강원",
+      "home": "https://www.hallym.ac.kr"
+    },
+    {
+      "id": "u-kkot",
+      "org": "가톨릭꽃동네대학교",
+      "name": "가톨릭꽃동네대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "충북",
+      "home": "https://www.kkot.ac.kr"
+    },
+    {
+      "id": "u-kku",
+      "org": "건국대학교 GLOCAL캠퍼스",
+      "name": "건국대학교 GLOCAL캠퍼스",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "충북",
+      "home": "https://www.kku.ac.kr"
+    },
+    {
+      "id": "u-ut",
+      "org": "국립한국교통대학교",
+      "name": "국립한국교통대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "충북",
+      "home": "https://www.ut.ac.kr"
+    },
+    {
+      "id": "u-kdu",
+      "org": "극동대학교",
+      "name": "극동대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "충북",
+      "home": "https://www.kdu.ac.kr"
+    },
+    {
+      "id": "u-seowon",
+      "org": "서원대학교",
+      "name": "서원대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "충북",
+      "home": "https://www.seowon.ac.kr"
+    },
+    {
+      "id": "u-semyung",
+      "org": "세명대학교",
+      "name": "세명대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "충북",
+      "home": "https://www.semyung.ac.kr"
+    },
+    {
+      "id": "u-u1",
+      "org": "유원대학교",
+      "name": "유원대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "충북",
+      "home": "https://www.u1.ac.kr"
+    },
+    {
+      "id": "u-jwu",
+      "org": "중원대학교",
+      "name": "중원대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "충북",
+      "home": "https://www.jwu.ac.kr"
+    },
+    {
+      "id": "u-cju",
+      "org": "청주대학교",
+      "name": "청주대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "충북",
+      "home": "https://www.cju.ac.kr"
+    },
+    {
+      "id": "u-chungbuk",
+      "org": "충북대학교",
+      "name": "충북대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "충북",
+      "home": "https://www.chungbuk.ac.kr"
+    },
+    {
+      "id": "u-knue",
+      "org": "한국교원대학교",
+      "name": "한국교원대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "충북",
+      "home": "https://www.knue.ac.kr"
+    },
+    {
+      "id": "u-konyang",
+      "org": "건양대학교",
+      "name": "건양대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "충남",
+      "home": "https://www.konyang.ac.kr"
+    },
+    {
+      "id": "u-kongju",
+      "org": "국립공주대학교",
+      "name": "국립공주대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "충남",
+      "home": "https://www.kongju.ac.kr"
+    },
+    {
+      "id": "u-ggu",
+      "org": "금강대학교",
+      "name": "금강대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "충남",
+      "home": "https://www.ggu.ac.kr"
+    },
+    {
+      "id": "u-kornu",
+      "org": "나사렛대학교",
+      "name": "나사렛대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "충남",
+      "home": "https://www.kornu.ac.kr"
+    },
+    {
+      "id": "u-nsu",
+      "org": "남서울대학교",
+      "name": "남서울대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "충남",
+      "home": "https://www.nsu.ac.kr"
+    },
+    {
+      "id": "u-bu",
+      "org": "백석대학교",
+      "name": "백석대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "충남",
+      "home": "https://www.bu.ac.kr"
+    },
+    {
+      "id": "u-sunmoon",
+      "org": "선문대학교",
+      "name": "선문대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "충남",
+      "home": "https://www.sunmoon.ac.kr"
+    },
+    {
+      "id": "u-sch",
+      "org": "순천향대학교",
+      "name": "순천향대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "충남",
+      "home": "https://www.sch.ac.kr"
+    },
+    {
+      "id": "u-joongbu",
+      "org": "중부대학교",
+      "name": "중부대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "충남",
+      "home": "https://www.joongbu.ac.kr"
+    },
+    {
+      "id": "u-chungwoon",
+      "org": "청운대학교",
+      "name": "청운대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "충남",
+      "home": "https://www.chungwoon.ac.kr"
+    },
+    {
+      "id": "u-koreatech",
+      "org": "한국기술교육대학교",
+      "name": "한국기술교육대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "충남",
+      "home": "https://www.koreatech.ac.kr"
+    },
+    {
+      "id": "u-nuch",
+      "org": "한국전통문화대학교",
+      "name": "한국전통문화대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "충남",
+      "home": "https://www.nuch.ac.kr"
+    },
+    {
+      "id": "u-hanseo",
+      "org": "한서대학교",
+      "name": "한서대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "충남",
+      "home": "https://www.hanseo.ac.kr"
+    },
+    {
+      "id": "u-hoseo",
+      "org": "호서대학교",
+      "name": "호서대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "충남",
+      "home": "https://www.hoseo.ac.kr"
+    },
+    {
+      "id": "u-kunsan",
+      "org": "국립군산대학교",
+      "name": "국립군산대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "전북",
+      "home": "https://www.kunsan.ac.kr"
+    },
+    {
+      "id": "u-jesus",
+      "org": "예수대학교",
+      "name": "예수대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "전북",
+      "home": "https://www.jesus.ac.kr"
+    },
+    {
+      "id": "u-yewon",
+      "org": "예원예술대학교",
+      "name": "예원예술대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "전북",
+      "home": "https://www.yewon.ac.kr"
+    },
+    {
+      "id": "u-woosuk",
+      "org": "우석대학교",
+      "name": "우석대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "전북",
+      "home": "https://www.woosuk.ac.kr"
+    },
+    {
+      "id": "u-wku",
+      "org": "원광대학교",
+      "name": "원광대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "전북",
+      "home": "https://www.wku.ac.kr"
+    },
+    {
+      "id": "u-jbnu",
+      "org": "전북대학교",
+      "name": "전북대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "전북",
+      "home": "https://www.jbnu.ac.kr"
+    },
+    {
+      "id": "u-jj",
+      "org": "전주대학교",
+      "name": "전주대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "전북",
+      "home": "https://www.jj.ac.kr"
+    },
+    {
+      "id": "u-hanil",
+      "org": "한일장신대학교",
+      "name": "한일장신대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "전북",
+      "home": "https://www.hanil.ac.kr"
+    },
+    {
+      "id": "u-howon",
+      "org": "호원대학교",
+      "name": "호원대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "전북",
+      "home": "https://www.howon.ac.kr"
+    },
+    {
+      "id": "u-gjcatholic",
+      "org": "광주가톨릭대학교",
+      "name": "광주가톨릭대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "전남",
+      "home": "https://www.gjcatholic.ac.kr"
+    },
+    {
+      "id": "u-mokpo",
+      "org": "국립목포대학교",
+      "name": "국립목포대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "전남",
+      "home": "https://www.mokpo.ac.kr"
+    },
+    {
+      "id": "u-mmu",
+      "org": "국립목포해양대학교",
+      "name": "국립목포해양대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "전남",
+      "home": "https://www.mmu.ac.kr"
+    },
+    {
+      "id": "u-scnu",
+      "org": "국립순천대학교",
+      "name": "국립순천대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "전남",
+      "home": "https://www.scnu.ac.kr"
+    },
+    {
+      "id": "u-dsu",
+      "org": "동신대학교",
+      "name": "동신대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "전남",
+      "home": "https://www.dsu.ac.kr"
+    },
+    {
+      "id": "u-mcu",
+      "org": "목포가톨릭대학교",
+      "name": "목포가톨릭대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "전남",
+      "home": "https://www.mcu.ac.kr"
+    },
+    {
+      "id": "u-sehan",
+      "org": "세한대학교",
+      "name": "세한대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "전남",
+      "home": "https://www.sehan.ac.kr"
+    },
+    {
+      "id": "u-youngsan",
+      "org": "영산선학대학교",
+      "name": "영산선학대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "전남",
+      "home": "https://www.youngsan.ac.kr"
+    },
+    {
+      "id": "u-cdu",
+      "org": "초당대학교",
+      "name": "초당대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "전남",
+      "home": "https://www.cdu.ac.kr"
+    },
+    {
+      "id": "u-kentech",
+      "org": "한국에너지공과대학교",
+      "name": "한국에너지공과대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "전남",
+      "home": "https://www.kentech.ac.kr"
+    },
+    {
+      "id": "u-ikw",
+      "org": "경운대학교",
+      "name": "경운대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경북",
+      "home": "https://www.ikw.ac.kr"
+    },
+    {
+      "id": "u-kiu",
+      "org": "경일대학교",
+      "name": "경일대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경북",
+      "home": "https://www.kiu.kr"
+    },
+    {
+      "id": "u-gknu",
+      "org": "국립경국대학교",
+      "name": "국립경국대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경북",
+      "home": "https://www.gknu.ac.kr"
+    },
+    {
+      "id": "u-kumoh",
+      "org": "국립금오공과대학교",
+      "name": "국립금오공과대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경북",
+      "home": "https://www.kumoh.ac.kr"
+    },
+    {
+      "id": "u-gimcheon",
+      "org": "김천대학교",
+      "name": "김천대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경북",
+      "home": "https://www.gimcheon.ac.kr"
+    },
+    {
+      "id": "u-cu",
+      "org": "대구가톨릭대학교",
+      "name": "대구가톨릭대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경북",
+      "home": "https://www.cu.ac.kr"
+    },
+    {
+      "id": "u-daegu",
+      "org": "대구대학교",
+      "name": "대구대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경북",
+      "home": "https://www.daegu.ac.kr"
+    },
+    {
+      "id": "u-dgau",
+      "org": "대구예술대학교",
+      "name": "대구예술대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경북",
+      "home": "https://www.dgau.ac.kr"
+    },
+    {
+      "id": "u-dhu",
+      "org": "대구한의대학교",
+      "name": "대구한의대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경북",
+      "home": "https://www.dhu.ac.kr"
+    },
+    {
+      "id": "u-daeshin",
+      "org": "대신대학교",
+      "name": "대신대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경북",
+      "home": "https://www.daeshin.ac.kr"
+    },
+    {
+      "id": "u-dongguk-ac-kr",
+      "org": "동국대학교 WISE캠퍼스",
+      "name": "동국대학교 WISE캠퍼스",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경북",
+      "home": "https://www.dongguk.ac.kr"
+    },
+    {
+      "id": "u-dyu",
+      "org": "동양대학교",
+      "name": "동양대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경북",
+      "home": "https://www.dyu.ac.kr"
+    },
+    {
+      "id": "u-sgu",
+      "org": "신경주대학교",
+      "name": "신경주대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경북",
+      "home": "https://www.sgu.ac.kr"
+    },
+    {
+      "id": "u-yu",
+      "org": "영남대학교",
+      "name": "영남대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경북",
+      "home": "https://www.yu.ac.kr"
+    },
+    {
+      "id": "u-ytus",
+      "org": "영남신학대학교",
+      "name": "영남신학대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경북",
+      "home": "https://www.ytus.ac.kr"
+    },
+    {
+      "id": "u-uu",
+      "org": "위덕대학교",
+      "name": "위덕대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경북",
+      "home": "https://www.uu.ac.kr"
+    },
+    {
+      "id": "u-postech",
+      "org": "포항공과대학교(POSTECH)",
+      "name": "포항공과대학교(POSTECH)",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경북",
+      "home": "https://www.postech.ac.kr"
+    },
+    {
+      "id": "u-handong",
+      "org": "한동대학교",
+      "name": "한동대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경북",
+      "home": "https://www.handong.edu"
+    },
+    {
+      "id": "u-kaya",
+      "org": "가야대학교",
+      "name": "가야대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경남",
+      "home": "https://www.kaya.ac.kr"
+    },
+    {
+      "id": "u-kyungnam",
+      "org": "경남대학교",
+      "name": "경남대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경남",
+      "home": "https://www.kyungnam.ac.kr"
+    },
+    {
+      "id": "u-gnu",
+      "org": "경상국립대학교",
+      "name": "경상국립대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경남",
+      "home": "https://www.gnu.ac.kr"
+    },
+    {
+      "id": "u-changwon",
+      "org": "국립창원대학교",
+      "name": "국립창원대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경남",
+      "home": "https://www.changwon.ac.kr"
+    },
+    {
+      "id": "u-bpu",
+      "org": "부산장신대학교",
+      "name": "부산장신대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경남",
+      "home": "https://www.bpu.ac.kr"
+    },
+    {
+      "id": "u-ysu",
+      "org": "영산대학교",
+      "name": "영산대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경남",
+      "home": "https://www.ysu.ac.kr"
+    },
+    {
+      "id": "u-inje",
+      "org": "인제대학교",
+      "name": "인제대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경남",
+      "home": "https://www.inje.ac.kr"
+    },
+    {
+      "id": "u-cs",
+      "org": "창신대학교",
+      "name": "창신대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "경남",
+      "home": "https://www.cs.ac.kr"
+    },
+    {
+      "id": "u-jeju",
+      "org": "제주국제대학교",
+      "name": "제주국제대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "제주",
+      "home": "https://www.jeju.ac.kr"
+    },
+    {
+      "id": "u-jejunu",
+      "org": "제주대학교",
+      "name": "제주대학교",
+      "kind": "govorg",
+      "group": "4년제",
+      "region": "제주",
+      "home": "https://www.jejunu.ac.kr"
+    },
+    {
+      "id": "u-snue",
+      "org": "서울교육대학교",
+      "name": "서울교육대학교",
+      "kind": "govorg",
+      "group": "교육대",
+      "region": "서울",
+      "home": "https://www.snue.ac.kr"
+    },
+    {
+      "id": "u-bnue",
+      "org": "부산교육대학교",
+      "name": "부산교육대학교",
+      "kind": "govorg",
+      "group": "교육대",
+      "region": "부산",
+      "home": "https://www.bnue.ac.kr"
+    },
+    {
+      "id": "u-dnue",
+      "org": "대구교육대학교",
+      "name": "대구교육대학교",
+      "kind": "govorg",
+      "group": "교육대",
+      "region": "대구",
+      "home": "https://www.dnue.ac.kr"
+    },
+    {
+      "id": "u-gnue",
+      "org": "광주교육대학교",
+      "name": "광주교육대학교",
+      "kind": "govorg",
+      "group": "교육대",
+      "region": "광주",
+      "home": "https://www.gnue.ac.kr"
+    },
+    {
+      "id": "u-ginue",
+      "org": "경인교육대학교",
+      "name": "경인교육대학교",
+      "kind": "govorg",
+      "group": "교육대",
+      "region": "경기",
+      "home": "https://www.ginue.ac.kr"
+    },
+    {
+      "id": "u-cnue",
+      "org": "춘천교육대학교",
+      "name": "춘천교육대학교",
+      "kind": "govorg",
+      "group": "교육대",
+      "region": "강원",
+      "home": "https://www.cnue.ac.kr"
+    },
+    {
+      "id": "u-cje",
+      "org": "청주교육대학교",
+      "name": "청주교육대학교",
+      "kind": "govorg",
+      "group": "교육대",
+      "region": "충북",
+      "home": "https://www.cje.ac.kr"
+    },
+    {
+      "id": "u-gjue",
+      "org": "공주교육대학교",
+      "name": "공주교육대학교",
+      "kind": "govorg",
+      "group": "교육대",
+      "region": "충남",
+      "home": "https://www.gjue.ac.kr"
+    },
+    {
+      "id": "u-jnue",
+      "org": "전주교육대학교",
+      "name": "전주교육대학교",
+      "kind": "govorg",
+      "group": "교육대",
+      "region": "전북",
+      "home": "https://www.jnue.kr"
+    },
+    {
+      "id": "u-cue",
+      "org": "진주교육대학교",
+      "name": "진주교육대학교",
+      "kind": "govorg",
+      "group": "교육대",
+      "region": "경남",
+      "home": "https://www.cue.ac.kr"
+    },
+    {
+      "id": "u-dgist",
+      "org": "대구경북과학기술원(DGIST)",
+      "name": "대구경북과학기술원(DGIST)",
+      "kind": "govorg",
+      "group": "과학기술원",
+      "region": "대구",
+      "home": "https://www.dgist.ac.kr"
+    },
+    {
+      "id": "u-gist",
+      "org": "광주과학기술원(GIST)",
+      "name": "광주과학기술원(GIST)",
+      "kind": "govorg",
+      "group": "과학기술원",
+      "region": "광주",
+      "home": "https://www.gist.ac.kr"
+    },
+    {
+      "id": "u-kaist",
+      "org": "한국과학기술원(KAIST)",
+      "name": "한국과학기술원(KAIST)",
+      "kind": "govorg",
+      "group": "과학기술원",
+      "region": "대전",
+      "home": "https://www.kaist.ac.kr"
+    },
+    {
+      "id": "u-unist",
+      "org": "울산과학기술원(UNIST)",
+      "name": "울산과학기술원(UNIST)",
+      "kind": "govorg",
+      "group": "과학기술원",
+      "region": "울산",
+      "home": "https://www.unist.ac.kr"
+    },
+    {
+      "id": "u-kma",
+      "org": "육군사관학교",
+      "name": "육군사관학교",
+      "kind": "govorg",
+      "group": "특수대",
+      "region": "서울",
+      "home": "https://www.kma.ac.kr"
+    },
+    {
+      "id": "u-kafna",
+      "org": "국군간호사관학교",
+      "name": "국군간호사관학교",
+      "kind": "govorg",
+      "group": "특수대",
+      "region": "대전",
+      "home": "https://www.kafna.ac.kr"
+    },
+    {
+      "id": "u-afa",
+      "org": "공군사관학교",
+      "name": "공군사관학교",
+      "kind": "govorg",
+      "group": "특수대",
+      "region": "충북",
+      "home": "https://www.afa.ac.kr"
+    },
+    {
+      "id": "u-police",
+      "org": "경찰대학",
+      "name": "경찰대학",
+      "kind": "govorg",
+      "group": "특수대",
+      "region": "충남",
+      "home": "https://www.police.ac.kr"
+    },
+    {
+      "id": "u-af",
+      "org": "국립한국농수산대학교",
+      "name": "국립한국농수산대학교",
+      "kind": "govorg",
+      "group": "특수대",
+      "region": "전북",
+      "home": "https://www.af.ac.kr"
+    },
+    {
+      "id": "u-kaay",
+      "org": "육군3사관학교",
+      "name": "육군3사관학교",
+      "kind": "govorg",
+      "group": "특수대",
+      "region": "경북",
+      "home": "https://www.kaay.ac.kr"
+    },
+    {
+      "id": "u-navy",
+      "org": "해군사관학교",
+      "name": "해군사관학교",
+      "kind": "govorg",
+      "group": "특수대",
+      "region": "경남",
+      "home": "https://www.navy.ac.kr"
+    },
+    {
+      "id": "u-knou",
+      "org": "한국방송통신대학교",
+      "name": "한국방송통신대학교",
+      "kind": "govorg",
+      "group": "방송통신대",
+      "region": "서울",
+      "home": "https://www.knou.ac.kr"
+    },
+    {
+      "id": "u-khcu",
+      "org": "경희사이버대학교",
+      "name": "경희사이버대학교",
+      "kind": "govorg",
+      "group": "사이버대",
+      "region": "서울",
+      "home": "https://www.khcu.ac.kr"
+    },
+    {
+      "id": "u-cuk",
+      "org": "고려사이버대학교",
+      "name": "고려사이버대학교",
+      "kind": "govorg",
+      "group": "사이버대",
+      "region": "서울",
+      "home": "https://www.cuk.edu"
+    },
+    {
+      "id": "u-scau",
+      "org": "디지털서울문화예술대학교",
+      "name": "디지털서울문화예술대학교",
+      "kind": "govorg",
+      "group": "사이버대",
+      "region": "서울",
+      "home": "https://www.scau.ac.kr"
+    },
+    {
+      "id": "u-cufs",
+      "org": "사이버한국외국어대학교",
+      "name": "사이버한국외국어대학교",
+      "kind": "govorg",
+      "group": "사이버대",
+      "region": "서울",
+      "home": "https://www.cufs.ac.kr"
+    },
+    {
+      "id": "u-sdu",
+      "org": "서울디지털대학교",
+      "name": "서울디지털대학교",
+      "kind": "govorg",
+      "group": "사이버대",
+      "region": "서울",
+      "home": "https://www.sdu.ac.kr"
+    },
+    {
+      "id": "u-iscu",
+      "org": "서울사이버대학교",
+      "name": "서울사이버대학교",
+      "kind": "govorg",
+      "group": "사이버대",
+      "region": "서울",
+      "home": "https://www.iscu.ac.kr"
+    },
+    {
+      "id": "u-world",
+      "org": "세계사이버대학",
+      "name": "세계사이버대학",
+      "kind": "govorg",
+      "group": "사이버대",
+      "region": "서울",
+      "home": "https://www.world.ac.kr"
+    },
+    {
+      "id": "u-sjcu",
+      "org": "세종사이버대학교",
+      "name": "세종사이버대학교",
+      "kind": "govorg",
+      "group": "사이버대",
+      "region": "서울",
+      "home": "https://www.sjcu.ac.kr"
+    },
+    {
+      "id": "u-kcu",
+      "org": "숭실사이버대학교",
+      "name": "숭실사이버대학교",
+      "kind": "govorg",
+      "group": "사이버대",
+      "region": "서울",
+      "home": "https://www.kcu.ac"
+    },
+    {
+      "id": "u-taejae",
+      "org": "태재대학교",
+      "name": "태재대학교",
+      "kind": "govorg",
+      "group": "사이버대",
+      "region": "서울",
+      "home": "https://www.taejae.ac.kr"
+    },
+    {
+      "id": "u-corea",
+      "org": "한국복지사이버대학교",
+      "name": "한국복지사이버대학교",
+      "kind": "govorg",
+      "group": "사이버대",
+      "region": "서울",
+      "home": "https://www.corea.ac.kr"
+    },
+    {
+      "id": "u-ocu",
+      "org": "한국열린사이버대학교",
+      "name": "한국열린사이버대학교",
+      "kind": "govorg",
+      "group": "사이버대",
+      "region": "서울",
+      "home": "https://www.ocu.ac.kr"
+    },
+    {
+      "id": "u-hycu",
+      "org": "한양사이버대학교",
+      "name": "한양사이버대학교",
+      "kind": "govorg",
+      "group": "사이버대",
+      "region": "서울",
+      "home": "https://www.hycu.ac.kr"
+    },
+    {
+      "id": "u-bdu",
+      "org": "부산디지털대학교",
+      "name": "부산디지털대학교",
+      "kind": "govorg",
+      "group": "사이버대",
+      "region": "부산",
+      "home": "https://www.bdu.ac.kr"
+    },
+    {
+      "id": "u-hscu",
+      "org": "화신사이버대학교",
+      "name": "화신사이버대학교",
+      "kind": "govorg",
+      "group": "사이버대",
+      "region": "부산",
+      "home": "https://www.hscu.ac.kr"
+    },
+    {
+      "id": "u-ycc",
+      "org": "영진사이버대학교",
+      "name": "영진사이버대학교",
+      "kind": "govorg",
+      "group": "사이버대",
+      "region": "대구",
+      "home": "https://www.ycc.ac.kr"
+    },
+    {
+      "id": "u-kycu",
+      "org": "건양사이버대학교",
+      "name": "건양사이버대학교",
+      "kind": "govorg",
+      "group": "사이버대",
+      "region": "대전",
+      "home": "https://www.kycu.ac.kr"
+    },
+    {
+      "id": "u-gjcu",
+      "org": "국제사이버대학교",
+      "name": "국제사이버대학교",
+      "kind": "govorg",
+      "group": "사이버대",
+      "region": "경기",
+      "home": "https://www.gjcu.ac.kr"
+    },
+    {
+      "id": "u-global",
+      "org": "글로벌사이버대학교",
+      "name": "글로벌사이버대학교",
+      "kind": "govorg",
+      "group": "사이버대",
+      "region": "충남",
+      "home": "https://www.global.ac.kr"
+    },
+    {
+      "id": "u-wdu",
+      "org": "원광디지털대학교",
+      "name": "원광디지털대학교",
+      "kind": "govorg",
+      "group": "사이버대",
+      "region": "전북",
+      "home": "https://www.wdu.ac.kr"
+    },
+    {
+      "id": "u-dcu",
+      "org": "대구사이버대학교",
+      "name": "대구사이버대학교",
+      "kind": "govorg",
+      "group": "사이버대",
+      "region": "경북",
+      "home": "https://www.dcu.ac.kr"
+    },
+    {
+      "id": "u-yncu",
+      "org": "영남사이버대학교",
+      "name": "영남사이버대학교",
+      "kind": "govorg",
+      "group": "사이버대",
+      "region": "경북",
+      "home": "https://www.yncu.ac.kr"
+    },
+    {
+      "id": "u-dongyang",
+      "org": "동양미래대학교",
+      "name": "동양미래대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "서울",
+      "home": "https://www.dongyang.ac.kr"
+    },
+    {
+      "id": "u-mjc",
+      "org": "명지전문대학",
+      "name": "명지전문대학",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "서울",
+      "home": "https://www.mjc.ac.kr"
+    },
+    {
+      "id": "u-baewha",
+      "org": "배화여자대학교",
+      "name": "배화여자대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "서울",
+      "home": "https://www.baewha.ac.kr"
+    },
+    {
+      "id": "u-shu",
+      "org": "삼육보건대학교",
+      "name": "삼육보건대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "서울",
+      "home": "https://www.shu.ac.kr"
+    },
+    {
+      "id": "u-snjc",
+      "org": "서울여자간호대학교",
+      "name": "서울여자간호대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "서울",
+      "home": "https://www.snjc.ac.kr"
+    },
+    {
+      "id": "u-seoil",
+      "org": "서일대학교",
+      "name": "서일대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "서울",
+      "home": "https://www.seoil.ac.kr"
+    },
+    {
+      "id": "u-sewu",
+      "org": "숭의여자대학교",
+      "name": "숭의여자대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "서울",
+      "home": "https://www.sewu.ac.kr"
+    },
+    {
+      "id": "u-induk",
+      "org": "인덕대학교",
+      "name": "인덕대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "서울",
+      "home": "https://www.induk.ac.kr"
+    },
+    {
+      "id": "u-hywoman",
+      "org": "한양여자대학교",
+      "name": "한양여자대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "서울",
+      "home": "https://www.hywoman.ac.kr"
+    },
+    {
+      "id": "u-kit",
+      "org": "경남정보대학교",
+      "name": "경남정보대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "부산",
+      "home": "https://www.kit.ac.kr"
+    },
+    {
+      "id": "u-daedong",
+      "org": "대동대학교",
+      "name": "대동대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "부산",
+      "home": "https://www.daedong.ac.kr"
+    },
+    {
+      "id": "u-dit",
+      "org": "동의과학대학교",
+      "name": "동의과학대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "부산",
+      "home": "https://www.dit.ac.kr"
+    },
+    {
+      "id": "u-bsks",
+      "org": "부산경상대학교",
+      "name": "부산경상대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "부산",
+      "home": "https://www.bsks.ac.kr"
+    },
+    {
+      "id": "u-bist",
+      "org": "부산과학기술대학교",
+      "name": "부산과학기술대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "부산",
+      "home": "https://www.bist.ac.kr"
+    },
+    {
+      "id": "u-bhu",
+      "org": "부산보건대학교",
+      "name": "부산보건대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "부산",
+      "home": "https://www.bhu.ac.kr"
+    },
+    {
+      "id": "u-bwc",
+      "org": "부산여자대학교",
+      "name": "부산여자대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "부산",
+      "home": "https://www.bwc.ac.kr"
+    },
+    {
+      "id": "u-busanarts",
+      "org": "부산예술대학교",
+      "name": "부산예술대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "부산",
+      "home": "https://www.busanarts.ac.kr"
+    },
+    {
+      "id": "u-kmcu",
+      "org": "계명문화대학교",
+      "name": "계명문화대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "대구",
+      "home": "https://www.kmcu.ac.kr"
+    },
+    {
+      "id": "u-ttc",
+      "org": "대구공업대학교",
+      "name": "대구공업대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "대구",
+      "home": "https://www.ttc.ac.kr"
+    },
+    {
+      "id": "u-tsu",
+      "org": "대구과학대학교",
+      "name": "대구과학대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "대구",
+      "home": "https://www.tsu.ac.kr"
+    },
+    {
+      "id": "u-dhc",
+      "org": "대구보건대학교",
+      "name": "대구보건대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "대구",
+      "home": "https://www.dhc.ac.kr"
+    },
+    {
+      "id": "u-sc",
+      "org": "수성대학교",
+      "name": "수성대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "대구",
+      "home": "https://www.sc.ac.kr"
+    },
+    {
+      "id": "u-ync",
+      "org": "영남이공대학교",
+      "name": "영남이공대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "대구",
+      "home": "https://www.ync.ac.kr"
+    },
+    {
+      "id": "u-yju",
+      "org": "영진전문대학교",
+      "name": "영진전문대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "대구",
+      "home": "https://www.yju.ac.kr"
+    },
+    {
+      "id": "u-kiwu",
+      "org": "경인여자대학교",
+      "name": "경인여자대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "인천",
+      "home": "https://www.kiwu.ac.kr"
+    },
+    {
+      "id": "u-jeiu",
+      "org": "인천재능대학교",
+      "name": "인천재능대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "인천",
+      "home": "https://www.jeiu.ac.kr"
+    },
+    {
+      "id": "u-inhatc",
+      "org": "인하공업전문대학",
+      "name": "인하공업전문대학",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "인천",
+      "home": "https://www.inhatc.ac.kr"
+    },
+    {
+      "id": "u-ghu",
+      "org": "광주보건대학교",
+      "name": "광주보건대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "광주",
+      "home": "https://www.ghu.ac.kr"
+    },
+    {
+      "id": "u-ccn",
+      "org": "기독간호대학교",
+      "name": "기독간호대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "광주",
+      "home": "https://www.ccn.ac.kr"
+    },
+    {
+      "id": "u-dkc",
+      "org": "동강대학교",
+      "name": "동강대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "광주",
+      "home": "https://www.dkc.ac.kr"
+    },
+    {
+      "id": "u-seoyeong",
+      "org": "서영대학교",
+      "name": "서영대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "광주",
+      "home": "https://www.seoyeong.ac.kr"
+    },
+    {
+      "id": "u-cnc",
+      "org": "조선간호대학교",
+      "name": "조선간호대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "광주",
+      "home": "https://www.cnc.ac.kr"
+    },
+    {
+      "id": "u-cst",
+      "org": "조선이공대학교",
+      "name": "조선이공대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "광주",
+      "home": "https://www.cst.ac.kr"
+    },
+    {
+      "id": "u-ddu",
+      "org": "대덕대학교",
+      "name": "대덕대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "대전",
+      "home": "https://www.ddu.ac.kr"
+    },
+    {
+      "id": "u-dst",
+      "org": "대전과학기술대학교",
+      "name": "대전과학기술대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "대전",
+      "home": "https://www.dst.ac.kr"
+    },
+    {
+      "id": "u-hit",
+      "org": "대전보건대학교",
+      "name": "대전보건대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "대전",
+      "home": "https://www.hit.ac.kr"
+    },
+    {
+      "id": "u-wsi",
+      "org": "우송정보대학",
+      "name": "우송정보대학",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "대전",
+      "home": "https://www.wsi.ac.kr"
+    },
+    {
+      "id": "u-uc",
+      "org": "울산과학대학교",
+      "name": "울산과학대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "울산",
+      "home": "https://www.uc.ac.kr"
+    },
+    {
+      "id": "u-ch",
+      "org": "춘해보건대학교",
+      "name": "춘해보건대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "울산",
+      "home": "https://www.ch.ac.kr"
+    },
+    {
+      "id": "u-pro",
+      "org": "한국영상대학교",
+      "name": "한국영상대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "세종",
+      "home": "https://www.pro.ac.kr"
+    },
+    {
+      "id": "u-gtec",
+      "org": "경기과학기술대학교",
+      "name": "경기과학기술대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경기",
+      "home": "https://www.gtec.ac.kr"
+    },
+    {
+      "id": "u-kyungmin",
+      "org": "경민대학교",
+      "name": "경민대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경기",
+      "home": "https://www.kyungmin.ac.kr"
+    },
+    {
+      "id": "u-kbu",
+      "org": "경복대학교",
+      "name": "경복대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경기",
+      "home": "https://www.kbu.ac.kr"
+    },
+    {
+      "id": "u-kaywon",
+      "org": "계원예술대학교",
+      "name": "계원예술대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경기",
+      "home": "https://www.kaywon.ac.kr"
+    },
+    {
+      "id": "u-kookje",
+      "org": "국제대학교",
+      "name": "국제대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경기",
+      "home": "https://www.kookje.ac.kr"
+    },
+    {
+      "id": "u-kimpo",
+      "org": "김포대학교",
+      "name": "김포대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경기",
+      "home": "https://www.kimpo.ac.kr"
+    },
+    {
+      "id": "u-nonghyup",
+      "org": "농협대학교",
+      "name": "농협대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경기",
+      "home": "https://www.nonghyup.ac.kr"
+    },
+    {
+      "id": "u-daelim",
+      "org": "대림대학교",
+      "name": "대림대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경기",
+      "home": "https://www.daelim.ac.kr"
+    },
+    {
+      "id": "u-dongnam",
+      "org": "동남보건대학교",
+      "name": "동남보건대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경기",
+      "home": "https://www.dongnam.ac.kr"
+    },
+    {
+      "id": "u-du",
+      "org": "동서울대학교",
+      "name": "동서울대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경기",
+      "home": "https://www.du.ac.kr"
+    },
+    {
+      "id": "u-dima",
+      "org": "동아방송예술대학교",
+      "name": "동아방송예술대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경기",
+      "home": "https://www.dima.ac.kr"
+    },
+    {
+      "id": "u-tw",
+      "org": "동원대학교",
+      "name": "동원대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경기",
+      "home": "https://www.tw.ac.kr"
+    },
+    {
+      "id": "u-doowon",
+      "org": "두원공과대학교",
+      "name": "두원공과대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경기",
+      "home": "https://www.doowon.ac.kr"
+    },
+    {
+      "id": "u-bc",
+      "org": "부천대학교",
+      "name": "부천대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경기",
+      "home": "https://www.bc.ac.kr"
+    },
+    {
+      "id": "u-seoularts",
+      "org": "서울예술대학교",
+      "name": "서울예술대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경기",
+      "home": "https://www.seoularts.ac.kr"
+    },
+    {
+      "id": "u-seojeong",
+      "org": "서정대학교",
+      "name": "서정대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경기",
+      "home": "https://www.seojeong.ac.kr"
+    },
+    {
+      "id": "u-ssc",
+      "org": "수원과학대학교",
+      "name": "수원과학대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경기",
+      "home": "https://www.ssc.ac.kr"
+    },
+    {
+      "id": "u-swc",
+      "org": "수원여자대학교",
+      "name": "수원여자대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경기",
+      "home": "https://www.swc.ac.kr"
+    },
+    {
+      "id": "u-shingu",
+      "org": "신구대학교",
+      "name": "신구대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경기",
+      "home": "https://www.shingu.ac.kr"
+    },
+    {
+      "id": "u-sau",
+      "org": "신안산대학교",
+      "name": "신안산대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경기",
+      "home": "https://www.sau.ac.kr"
+    },
+    {
+      "id": "u-ansan",
+      "org": "안산대학교",
+      "name": "안산대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경기",
+      "home": "https://www.ansan.ac.kr"
+    },
+    {
+      "id": "u-yit",
+      "org": "여주대학교",
+      "name": "여주대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경기",
+      "home": "https://www.yit.ac.kr"
+    },
+    {
+      "id": "u-yeonsung",
+      "org": "연성대학교",
+      "name": "연성대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경기",
+      "home": "https://www.yeonsung.ac.kr"
+    },
+    {
+      "id": "u-osan",
+      "org": "오산대학교",
+      "name": "오산대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경기",
+      "home": "https://www.osan.ac.kr"
+    },
+    {
+      "id": "u-ysc",
+      "org": "용인예술과학대학교",
+      "name": "용인예술과학대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경기",
+      "home": "https://www.ysc.ac.kr"
+    },
+    {
+      "id": "u-wat",
+      "org": "웅지세무대학교",
+      "name": "웅지세무대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경기",
+      "home": "https://www.wat.ac.kr"
+    },
+    {
+      "id": "u-yuhan",
+      "org": "유한대학교",
+      "name": "유한대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경기",
+      "home": "https://www.yuhan.ac.kr"
+    },
+    {
+      "id": "u-jangan",
+      "org": "장안대학교",
+      "name": "장안대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경기",
+      "home": "https://www.jangan.ac.kr"
+    },
+    {
+      "id": "u-ck",
+      "org": "청강문화산업대학교",
+      "name": "청강문화산업대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경기",
+      "home": "https://www.ck.ac.kr"
+    },
+    {
+      "id": "u-ktc",
+      "org": "한국관광대학교",
+      "name": "한국관광대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경기",
+      "home": "https://www.ktc.ac.kr"
+    },
+    {
+      "id": "u-gyc",
+      "org": "강릉영동대학교",
+      "name": "강릉영동대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "강원",
+      "home": "https://www.gyc.ac.kr"
+    },
+    {
+      "id": "u-gw",
+      "org": "강원도립대학교",
+      "name": "강원도립대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "강원",
+      "home": "https://www.gw.ac.kr"
+    },
+    {
+      "id": "u-saekyung",
+      "org": "세경대학교",
+      "name": "세경대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "강원",
+      "home": "https://www.saekyung.ac.kr"
+    },
+    {
+      "id": "u-songgok",
+      "org": "송곡대학교",
+      "name": "송곡대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "강원",
+      "home": "https://www.songgok.ac.kr"
+    },
+    {
+      "id": "u-songho",
+      "org": "송호대학교",
+      "name": "송호대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "강원",
+      "home": "https://www.songho.ac.kr"
+    },
+    {
+      "id": "u-hsc",
+      "org": "한림성심대학교",
+      "name": "한림성심대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "강원",
+      "home": "https://www.hsc.ac.kr"
+    },
+    {
+      "id": "u-gangdong",
+      "org": "강동대학교",
+      "name": "강동대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "충북",
+      "home": "https://www.gangdong.ac.kr"
+    },
+    {
+      "id": "u-daewon",
+      "org": "대원대학교",
+      "name": "대원대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "충북",
+      "home": "https://www.daewon.ac.kr"
+    },
+    {
+      "id": "u-cpu",
+      "org": "충북도립대학교",
+      "name": "충북도립대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "충북",
+      "home": "https://www.cpu.ac.kr"
+    },
+    {
+      "id": "u-chsu",
+      "org": "충북보건과학대학교",
+      "name": "충북보건과학대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "충북",
+      "home": "https://www.chsu.ac.kr"
+    },
+    {
+      "id": "u-ok",
+      "org": "충청대학교",
+      "name": "충청대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "충북",
+      "home": "https://www.ok.ac.kr"
+    },
+    {
+      "id": "u-bscu",
+      "org": "백석문화대학교",
+      "name": "백석문화대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "충남",
+      "home": "https://www.bscu.ac.kr"
+    },
+    {
+      "id": "u-shinsung",
+      "org": "신성대학교",
+      "name": "신성대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "충남",
+      "home": "https://www.shinsung.ac.kr"
+    },
+    {
+      "id": "u-motor",
+      "org": "아주자동차대학교",
+      "name": "아주자동차대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "충남",
+      "home": "https://www.motor.ac.kr"
+    },
+    {
+      "id": "u-yonam",
+      "org": "연암대학교",
+      "name": "연암대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "충남",
+      "home": "https://www.yonam.ac.kr"
+    },
+    {
+      "id": "u-cnsu",
+      "org": "충남도립대학교",
+      "name": "충남도립대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "충남",
+      "home": "https://www.cnsu.ac.kr"
+    },
+    {
+      "id": "u-hj",
+      "org": "혜전대학교",
+      "name": "혜전대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "충남",
+      "home": "https://www.hj.ac.kr"
+    },
+    {
+      "id": "u-kcn",
+      "org": "군산간호대학교",
+      "name": "군산간호대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "전북",
+      "home": "https://www.kcn.ac.kr"
+    },
+    {
+      "id": "u-kunjang",
+      "org": "군장대학교",
+      "name": "군장대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "전북",
+      "home": "https://www.kunjang.ac.kr"
+    },
+    {
+      "id": "u-paekche",
+      "org": "백제예술대학교",
+      "name": "백제예술대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "전북",
+      "home": "https://www.paekche.ac.kr"
+    },
+    {
+      "id": "u-jbsc",
+      "org": "전북과학대학교",
+      "name": "전북과학대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "전북",
+      "home": "https://www.jbsc.ac.kr"
+    },
+    {
+      "id": "u-kijeon",
+      "org": "전주기전대학",
+      "name": "전주기전대학",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "전북",
+      "home": "https://www.kijeon.ac.kr"
+    },
+    {
+      "id": "u-jvision",
+      "org": "전주비전대학교",
+      "name": "전주비전대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "전북",
+      "home": "https://www.jvision.ac.kr"
+    },
+    {
+      "id": "u-naju",
+      "org": "나주대학교",
+      "name": "나주대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "전남",
+      "home": "https://www.naju.ac.kr"
+    },
+    {
+      "id": "u-dongac",
+      "org": "동아보건대학교",
+      "name": "동아보건대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "전남",
+      "home": "https://www.dongac.ac.kr"
+    },
+    {
+      "id": "u-msu",
+      "org": "목포과학대학교",
+      "name": "목포과학대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "전남",
+      "home": "https://www.msu.ac.kr"
+    },
+    {
+      "id": "u-suncheon",
+      "org": "순천제일대학교",
+      "name": "순천제일대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "전남",
+      "home": "https://www.suncheon.ac.kr"
+    },
+    {
+      "id": "u-cntu",
+      "org": "전남과학대학교",
+      "name": "전남과학대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "전남",
+      "home": "https://www.cntu.ac.kr"
+    },
+    {
+      "id": "u-scjc",
+      "org": "청암대학교",
+      "name": "청암대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "전남",
+      "home": "https://www.scjc.ac.kr"
+    },
+    {
+      "id": "u-hanyeong",
+      "org": "한영대학교",
+      "name": "한영대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "전남",
+      "home": "https://www.hanyeong.ac.kr"
+    },
+    {
+      "id": "u-csj",
+      "org": "가톨릭상지대학교",
+      "name": "가톨릭상지대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경북",
+      "home": "https://www.csj.ac.kr"
+    },
+    {
+      "id": "u-kbsc",
+      "org": "경북과학대학교",
+      "name": "경북과학대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경북",
+      "home": "https://www.kbsc.ac.kr"
+    },
+    {
+      "id": "u-gch",
+      "org": "경북보건대학교",
+      "name": "경북보건대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경북",
+      "home": "https://www.gch.ac.kr"
+    },
+    {
+      "id": "u-kbc",
+      "org": "경북전문대학교",
+      "name": "경북전문대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경북",
+      "home": "https://www.kbc.ac.kr"
+    },
+    {
+      "id": "u-gumi",
+      "org": "구미대학교",
+      "name": "구미대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경북",
+      "home": "https://www.gumi.ac.kr"
+    },
+    {
+      "id": "u-tk",
+      "org": "대경대학교",
+      "name": "대경대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경북",
+      "home": "https://www.tk.ac.kr"
+    },
+    {
+      "id": "u-mkc",
+      "org": "문경대학교",
+      "name": "문경대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경북",
+      "home": "https://www.mkc.ac.kr"
+    },
+    {
+      "id": "u-sunlin",
+      "org": "선린대학교",
+      "name": "선린대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경북",
+      "home": "https://www.sunlin.ac.kr"
+    },
+    {
+      "id": "u-sw",
+      "org": "성운대학교",
+      "name": "성운대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경북",
+      "home": "https://www.sw.ac.kr"
+    },
+    {
+      "id": "u-asc",
+      "org": "안동과학대학교",
+      "name": "안동과학대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경북",
+      "home": "https://www.asc.ac.kr"
+    },
+    {
+      "id": "u-pohang",
+      "org": "포항대학교",
+      "name": "포항대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경북",
+      "home": "https://www.pohang.ac.kr"
+    },
+    {
+      "id": "u-hosan",
+      "org": "호산대학교",
+      "name": "호산대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경북",
+      "home": "https://www.hosan.ac.kr"
+    },
+    {
+      "id": "u-koje",
+      "org": "거제대학교",
+      "name": "거제대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경남",
+      "home": "https://www.koje.ac.kr"
+    },
+    {
+      "id": "u-gimhae",
+      "org": "김해대학교",
+      "name": "김해대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경남",
+      "home": "https://www.gimhae.ac.kr"
+    },
+    {
+      "id": "u-dist",
+      "org": "동원과학기술대학교",
+      "name": "동원과학기술대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경남",
+      "home": "https://www.dist.ac.kr"
+    },
+    {
+      "id": "u-masan",
+      "org": "마산대학교",
+      "name": "마산대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경남",
+      "home": "https://www.masan.ac.kr"
+    },
+    {
+      "id": "u-yc",
+      "org": "연암공과대학교",
+      "name": "연암공과대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경남",
+      "home": "https://www.yc.ac.kr"
+    },
+    {
+      "id": "u-jhc",
+      "org": "진주보건대학교",
+      "name": "진주보건대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경남",
+      "home": "https://www.jhc.ac.kr"
+    },
+    {
+      "id": "u-cmu",
+      "org": "창원문성대학교",
+      "name": "창원문성대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경남",
+      "home": "https://www.cmu.ac.kr"
+    },
+    {
+      "id": "u-klc",
+      "org": "한국승강기대학교",
+      "name": "한국승강기대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "경남",
+      "home": "https://www.klc.ac.kr"
+    },
+    {
+      "id": "u-ctc",
+      "org": "제주관광대학교",
+      "name": "제주관광대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "제주",
+      "home": "https://www.ctc.ac.kr"
+    },
+    {
+      "id": "u-chu",
+      "org": "제주한라대학교",
+      "name": "제주한라대학교",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "제주",
+      "home": "https://www.chu.ac.kr"
+    },
+    {
+      "id": "u-kopo",
+      "org": "한국폴리텍대학",
+      "name": "한국폴리텍대학",
+      "kind": "govorg",
+      "group": "전문대",
+      "region": "전국",
+      "home": "https://www.kopo.ac.kr"
+    },
+    {
+      "id": "u-bau",
+      "org": "백석예술대학교",
+      "name": "백석예술대학교",
+      "kind": "govorg",
+      "group": "전공대학",
+      "region": "서울",
+      "home": "https://www.bau.ac.kr"
+    },
+    {
+      "id": "u-jb",
+      "org": "정화예술대학교",
+      "name": "정화예술대학교",
+      "kind": "govorg",
+      "group": "전공대학",
+      "region": "서울",
+      "home": "https://www.jb.ac.kr"
+    }
+  ]
+}
