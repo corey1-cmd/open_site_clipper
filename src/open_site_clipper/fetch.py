@@ -77,18 +77,19 @@ _RETRYABLE = ("timed out", "reset", "temporarily", "unreachable", "connection")
 _local = threading.local()
 
 
-def _opener() -> urllib.request.OpenerDirector:
-    got = getattr(_local, "opener", None)
+def _opener(legacy: bool = False) -> urllib.request.OpenerDirector:
+    attr = "legacy_opener" if legacy else "opener"
+    got = getattr(_local, attr, None)
     if got is None:
         from . import aia
 
         jar = http.cookiejar.CookieJar()
         got = urllib.request.build_opener(
             urllib.request.HTTPCookieProcessor(jar),
-            urllib.request.HTTPSHandler(context=aia.context()),
+            urllib.request.HTTPSHandler(context=aia.legacy_context() if legacy else aia.context()),
         )
         got.addheaders = []  # 헤더는 Request 에 직접 싣는다
-        _local.opener = got
+        setattr(_local, attr, got)
     return got
 
 
@@ -117,7 +118,9 @@ def fetch_detail(
     reason = "응답 없음"
     for i in range(attempts):
         try:
-            with _opener().open(req, timeout=timeout) as resp:
+            from . import aia
+
+            with _opener(aia.is_legacy(url)).open(req, timeout=timeout) as resp:
                 return _decompress(resp.read(_MAX_BYTES), resp.headers), ""
         except urllib.error.HTTPError as e:
             hint = {403: "접근 거부(403)", 404: "주소 없음(404)", 429: "요청 과다(429)"}
@@ -136,13 +139,24 @@ def fetch_detail(
 
                 if i + 1 < attempts and "certificate" in text and aia.repair(url):
                     continue
-                return None, "인증서 오류"
+                # 옛 TLS 서버(재협상·짧은 키) — 인증서 검증은 유지한 채 옛 협상만 허용.
+                if i + 1 < attempts and aia.needs_legacy(text) and aia.mark_legacy(url):
+                    continue
+                return None, f"인증서 오류({_short_ssl(text)})"
             else:
                 reason = f"연결 실패({str(getattr(e, 'reason', e))[:40]})"
             if i + 1 < attempts and any(k in text for k in _RETRYABLE):
                 continue  # 일시적으로 보이면 한 번 더
             return None, reason
     return None, reason
+
+
+def _short_ssl(text: str) -> str:
+    """SSL 오류 문구에서 원인 부분만 — '[SSL: X] 설명 (_ssl.c:1000)' → 'X: 설명'."""
+    import re
+
+    m = re.search(r"\[ssl: ([a-z0-9_]+)\]\s*([^(]*)", text)
+    return f"{m.group(1)}: {m.group(2).strip()}"[:90] if m else text[:90]
 
 
 def safe_url(url: str) -> str:

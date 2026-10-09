@@ -83,3 +83,53 @@ def repair(url: str) -> bool:
     with _lock:
         _done[host] = added
     return added
+
+
+# 오래된 서버용 설정 — 인증서 검증은 그대로 하고, 옛 TLS 협상 방식만 허용한다.
+#   · 안전하지 않은 옛 재협상(legacy renegotiation): OpenSSL 3 이 기본으로 거절한다
+#   · 짧은 DH 키·옛 암호군: 보안 수준 2 에서 거절된다
+# 브라우저는 이런 서버를 열어 주므로, 공지를 읽는 데 한해 같은 수준으로 맞춘다.
+_LEGACY_HINTS = (
+    "legacy renegotiation",
+    "dh key too small",
+    "handshake failure",
+    "unsupported protocol",
+    "wrong version number",
+    "no protocols available",
+    "sslv3 alert",
+)
+_legacy_ctx = ssl.create_default_context()
+_legacy_ctx.options |= getattr(ssl, "OP_LEGACY_SERVER_CONNECT", 0x4)
+try:
+    import warnings
+
+    _legacy_ctx.set_ciphers("DEFAULT:@SECLEVEL=0")
+    with warnings.catch_warnings():  # TLS 1.0 허용 경고 — 옛 서버용 설정이라 의도된 것
+        warnings.simplefilter("ignore", DeprecationWarning)
+        _legacy_ctx.minimum_version = ssl.TLSVersion.TLSv1
+except (ssl.SSLError, ValueError, AttributeError):
+    pass
+_legacy_hosts: set[str] = set()
+
+
+def needs_legacy(error_text: str) -> bool:
+    low = error_text.lower()
+    return any(h in low for h in _LEGACY_HINTS)
+
+
+def legacy_context() -> ssl.SSLContext:
+    return _legacy_ctx
+
+
+def mark_legacy(url: str) -> bool:
+    """이 호스트를 옛 TLS 설정으로 다시 시도할지 — 처음이면 True."""
+    host = urllib.parse.urlsplit(url).hostname or ""
+    with _lock:
+        if host in _legacy_hosts:
+            return False
+        _legacy_hosts.add(host)
+    return True
+
+
+def is_legacy(url: str) -> bool:
+    return (urllib.parse.urlsplit(url).hostname or "") in _legacy_hosts
