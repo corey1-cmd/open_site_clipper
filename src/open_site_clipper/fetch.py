@@ -80,8 +80,13 @@ _local = threading.local()
 def _opener() -> urllib.request.OpenerDirector:
     got = getattr(_local, "opener", None)
     if got is None:
+        from . import aia
+
         jar = http.cookiejar.CookieJar()
-        got = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar))
+        got = urllib.request.build_opener(
+            urllib.request.HTTPCookieProcessor(jar),
+            urllib.request.HTTPSHandler(context=aia.context()),
+        )
         got.addheaders = []  # 헤더는 Request 에 직접 싣는다
         _local.opener = got
     return got
@@ -126,6 +131,11 @@ def fetch_detail(
             elif "name or service" in text or "nodename" in text or "getaddrinfo" in text:
                 return None, "도메인을 찾을 수 없음"
             elif "certificate" in text or "ssl" in text:
+                # 중간 인증서를 안 보내는 서버가 많다 — AIA 로 채워 한 번 더(검증은 그대로).
+                from . import aia
+
+                if i + 1 < attempts and "certificate" in text and aia.repair(url):
+                    continue
                 return None, "인증서 오류"
             else:
                 reason = f"연결 실패({str(getattr(e, 'reason', e))[:40]})"

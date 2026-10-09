@@ -209,6 +209,7 @@ def find_routes(
     check_robots: bool = True,
     budget: int = DEFAULT_BUDGET,
     max_candidates: int = 40,
+    skip: int = 0,
 ) -> tuple[list[tuple[str, str, str]], list[str]]:
     """기관 홈에서 (카테고리, 종류, 주소) 목록과 메모를 만든다.
 
@@ -339,6 +340,10 @@ def find_routes(
     # 있었다(국무조정실·금융위 등 18곳이 '40건 건너뜀'). 게시판일 가능성이 높은
     # 것부터 보도록 점수순 정렬 후 상한을 적용한다.
     candidates = _fair_order(candidates)
+    if skip:
+        # 이어서 찾기 — 앞 회차에서 시험한 후보는 건너뛴다(순서가 결정론적이라 가능).
+        notes.append(f"앞 회차에서 본 후보 {min(skip, len(candidates))}개를 건너뜁니다")
+        candidates = candidates[skip:]
     # 상한은 고정값이 아니라 **남은 예산**을 따른다. 국세청은 후보 614개 중
     # 40개(6%)만 보고 끝나 게시판을 놓쳤다. 정렬이 있으므로 위쪽부터 보는 한
     # 예산을 다 쓰는 편이 낫다(사이트맵·경로 사이클 몫으로 여유를 남긴다).
@@ -425,6 +430,7 @@ def enrich(
     fetcher: PageFetcher | None = None,
     check_robots: bool = True,
     budget: int = DEFAULT_BUDGET,
+    skip: int = 0,
 ):
     """govorg 출처에 routes 가 비어 있으면 홈에서 발견해 채워 준다.
 
@@ -436,7 +442,7 @@ def enrich(
     if not source.home:
         return source, []
     found, notes = find_routes(
-        source.home, fetcher=fetcher, check_robots=check_robots, budget=budget
+        source.home, fetcher=fetcher, check_robots=check_robots, budget=budget, skip=skip
     )
     if not found:
         return source, notes

@@ -35,7 +35,9 @@ def _load(origin: str) -> RobotFileParser | None:
         f"{origin}/robots.txt", headers={"User-Agent": USER_AGENT}, method="GET"
     )
     try:
-        with urllib.request.urlopen(req, timeout=_TIMEOUT) as resp:
+        from . import aia
+
+        with urllib.request.urlopen(req, timeout=_TIMEOUT, context=aia.context()) as resp:
             if resp.status != 200:
                 return None
             raw = resp.read(512_000).decode("utf-8", errors="replace")

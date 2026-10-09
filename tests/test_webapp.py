@@ -191,7 +191,7 @@ def test_unknown_org_raises_key_error(tiny_catalog):
 
 
 def test_verify_summarises_each_org(tiny_catalog):
-    rows = webapp.verify(["u-test", "nope"], days=30, fetcher=Recorder(PAGES))
+    rows = webapp.verify(["u-test", "nope"], days=30, fetcher=Recorder(PAGES), delay=0)
     assert [r["id"] for r in rows] == ["u-test"]  # 모르는 id 는 조용히가 아니라 아예 받지 않는다
     assert rows[0]["count"] > 0 and rows[0]["routes"]
     tsv = webapp.verify_tsv(rows)
@@ -304,7 +304,7 @@ def test_dev_server_serves_public_and_api(tiny_catalog, tmp_path, monkeypatch):
 
 
 def test_discover_stage_returns_found_routes_without_collecting(tiny_catalog):
-    rows = webapp.verify(["u-test"], stage="discover", fetcher=Recorder(PAGES))
+    rows = webapp.verify(["u-test"], stage="discover", fetcher=Recorder(PAGES), delay=0)
     found = {u for _c, _k, u in rows[0]["found"]}
     assert f"{SITE}/bbs/notice/list.do" in found and "count" not in rows[0]
 
@@ -317,3 +317,37 @@ def test_fetch_encodes_spaces_and_hangul_instead_of_crashing():
         "https://x.ac.kr/files/2025%20%EC%9D%B8%EC%A6%9D%EC%84%9C.pdf"
     )
     assert safe_url("https://x.ac.kr/a?b=1&c=%20") == "https://x.ac.kr/a?b=1&c=%20"
+
+
+def test_discover_can_resume_after_tested_candidates(tiny_catalog):
+    """큰 사이트는 한 번에 다 못 본다 — 앞 회차에서 본 후보를 건너뛰고 이어 찾는다."""
+    full = webapp.verify(["u-test"], stage="discover", fetcher=Recorder(PAGES), delay=0)[0]
+    rest = webapp.verify(["u-test"], stage="discover", fetcher=Recorder(PAGES), skip=99, delay=0)[0]
+    assert full["found"] and not rest["found"]
+    assert any("건너뜁니다" in n for n in rest["notes"])
+
+
+def test_aia_repair_adds_missing_intermediate(monkeypatch):
+    """중간 인증서를 안 보내는 서버 — AIA 주소에서 받아 저장소에 더한다(한 호스트 한 번)."""
+    import io
+    import ssl
+
+    from open_site_clipper import aia
+
+    monkeypatch.setattr(aia, "_done", {})
+    monkeypatch.setattr(ssl, "get_server_certificate", lambda addr, timeout=None: "LEAF")
+    issuers = {"LEAF": ["http://ca.example/inter.crt"], "-----BEGIN CERTIFICATE-----\nX": []}
+    monkeypatch.setattr(aia, "_ca_issuers", lambda pem: issuers.get(pem, []))
+    pem = "-----BEGIN CERTIFICATE-----\nX"
+    monkeypatch.setattr(
+        aia.urllib.request, "urlopen", lambda url, timeout=None: io.BytesIO(pem.encode())
+    )
+    loaded = []
+    monkeypatch.setattr(
+        aia,
+        "_ctx",
+        type("C", (), {"load_verify_locations": lambda self, cadata: loaded.append(cadata)})(),
+    )
+    assert aia.repair("https://school.example/") is True
+    assert loaded == [pem]
+    assert aia.repair("https://school.example/other") is False  # 같은 호스트는 다시 안 함

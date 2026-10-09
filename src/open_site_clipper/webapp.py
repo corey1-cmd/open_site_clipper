@@ -306,6 +306,7 @@ def discover_only(
     fetcher: PageFetcher | None = None,
     delay: float = parallel.DEFAULT_DELAY,
     clock: Callable[[], float] = time.monotonic,
+    skip: int = 0,
 ) -> dict:
     """게시판 **발견만** 한다 — 수집 없이 시간을 전부 발견에 쓴다.
 
@@ -318,7 +319,7 @@ def discover_only(
     deadline = _Deadline(
         _limited(fetcher or TrackingFetcher(), delay), started + budget, clock=clock
     )
-    found, notes = govdiscover.enrich(replace(org.source, routes=()), fetcher=deadline)
+    found, notes = govdiscover.enrich(replace(org.source, routes=()), fetcher=deadline, skip=skip)
     return {
         "id": org.id,
         "name": org.name,
@@ -338,6 +339,8 @@ def verify(
     fetcher: PageFetcher | None = None,
     workers: int = 8,
     stage: str = "collect",
+    skip: int = 0,
+    delay: float = parallel.DEFAULT_DELAY,
 ) -> list[dict]:
     """여러 기관을 동시에 모아 요약만 돌려준다 — 경로 캐시를 굽는 재료가 된다.
 
@@ -348,11 +351,13 @@ def verify(
     def one(org_id: str) -> dict:
         if stage == "discover":
             try:
-                return discover_only(org_id, budget=budget, fetcher=fetcher)
+                return discover_only(org_id, budget=budget, fetcher=fetcher, skip=skip, delay=delay)
             except Exception as e:
                 return {"id": org_id, "name": catalog()[org_id].name, "error": repr(e)[:200]}
         try:
-            got = collect_one(org_id, days=days, fresh=fresh, budget=budget, fetcher=fetcher)
+            got = collect_one(
+                org_id, days=days, fresh=fresh, budget=budget, fetcher=fetcher, delay=delay
+            )
         except Exception as e:  # 한 기관의 오류가 묶음 전체를 막지 않게
             return {"id": org_id, "name": catalog()[org_id].name, "error": repr(e)[:200]}
         return {
@@ -425,6 +430,7 @@ def respond(handler: BaseHTTPRequestHandler, route: str) -> None:
                 budget=budget,
                 workers=VERIFY_MAX_IDS,
                 stage="discover" if q.get("stage") == "discover" else "collect",
+                skip=max(0, _int(q.get("skip"), 0)),
             )
             status, cache = 200, CACHE_VERIFY
             if q.get("format") == "tsv":
