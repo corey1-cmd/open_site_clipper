@@ -113,3 +113,50 @@ def test_from_dicts_accepts_govweb():
     assert src.kind == "govweb" and src.url == BASE
     # URL 이 없으면 채택하지 않는다(좌표 방식이 아니므로 URL 이 필수).
     assert from_dicts([{"name": "x", "kind": "govweb"}]) == []
+
+
+# 대학·신형 누리집 게시판 — 표가 아니라 <li> 목록. 위에는 같은 <li> 로 만든 메뉴가 있다.
+ITEM_LIST = """
+<nav><ul>
+  <li><a href="/intro.do">대학소개</a><ul><li><a href="/greet.do">총장 인사말</a></li></ul></li>
+  <li><a href="/admission.do">입학안내</a></li>
+</ul></nav>
+<ul class="board-list">
+  <li><a href="view.do?no=31"><span class="cate">학사</span>
+      <strong class="tit">2026학년도 2학기 수강신청 정정 안내</strong>
+      <span class="date">2026.10.02</span></a></li>
+  <li><dl><dt><a href="view.do?no=30">2027학년도 수시모집 면접 고사장 안내</a></dt>
+      <dd>등록일 : 2026-09-30</dd><dd>조회 120</dd></dl></li>
+  <li><span class="day">2026.09.28</span><a href="view.do?no=29">교내 장학금 신청 기간 연장</a></li>
+</ul>
+<script>var x = "<li><a href='/x'>2026.01.01 가짜</a></li>";</script>
+"""
+
+
+def test_reads_list_item_boards_and_skips_menus():
+    rows = govweb.parse_list(ITEM_LIST.encode(), "https://www.example.ac.kr/bbs/list.do")
+    assert [r.title for r in rows] == [
+        "2026학년도 2학기 수강신청 정정 안내",
+        "2027학년도 수시모집 면접 고사장 안내",
+        "교내 장학금 신청 기간 연장",
+    ]
+    assert [r.published for r in rows] == [date(2026, 10, 2), date(2026, 9, 30), date(2026, 9, 28)]
+    assert rows[0].url == "https://www.example.ac.kr/bbs/view.do?no=31"
+
+
+def test_table_board_still_wins_over_side_lists():
+    page = JOB_LIST + ITEM_LIST
+    rows = govweb.parse_list(page.encode(), "https://www.mcst.go.kr/list.do")
+    assert all(
+        "museum.go.kr" in r.url or "karts" in r.url or "mmca" in r.url or "mcst" in r.url
+        for r in rows
+    )
+    assert not any("수강신청" in r.title for r in rows)
+
+
+def test_date_only_cell_is_not_a_title():
+    assert govweb._is_date_only("2026.10.02")
+    assert govweb._is_date_only("등록일 : 2026-09-30")
+    assert govweb._is_date_only("2026년 9월 30일 (수)")
+    assert not govweb._is_date_only("2026학년도 수시모집 안내")
+    assert not govweb._is_date_only("공지사항")
