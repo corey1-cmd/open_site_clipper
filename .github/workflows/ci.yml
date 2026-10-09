@@ -23,9 +23,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
       - name: Lint (ruff)
-        run: ruff check src tests
+        run: ruff check src tests api scripts
       - name: Format check (ruff)
-        run: ruff format --check src tests
+        run: ruff format --check src tests api scripts
       - name: Test (pytest)
         run: pytest -q
       - name: Smoke test (CLI demo)

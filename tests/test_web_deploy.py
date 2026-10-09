@@ -120,10 +120,9 @@ def test_school_list_is_clean():
 
 def test_version_is_the_same_everywhere():
     """README·pyproject·패키지 버전이 따로 놀면 사용자가 받은 판을 확인할 수 없다."""
-    import tomllib
-
     from open_site_clipper import __version__
 
-    meta = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
-    assert meta["project"]["version"] == __version__
+    # tomllib 은 3.11+ 라 3.10 CI 에서 못 쓴다 — 한 줄만 읽으면 된다.
+    found = re.search(r'^version = "([^"]+)"', (ROOT / "pyproject.toml").read_text("utf-8"), re.M)
+    assert found and found.group(1) == __version__
     assert f"open_site_clipper {__version__}" in (ROOT / "README.md").read_text(encoding="utf-8")
