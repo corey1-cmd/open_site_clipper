@@ -11,6 +11,7 @@ fail-open 원칙: 한 출처가 404·타임아웃·차단(해외 IP 등)으로 �
 from __future__ import annotations
 
 import gzip
+import http.client
 import http.cookiejar
 import os
 import threading
@@ -100,7 +101,13 @@ def fetch_detail(
     if not (url.startswith("http://") or url.startswith("https://")):
         # http(s)만 허용 — file://·ftp:// 등 로컬/우회 스킴 차단(SSRF 방지).
         return None, "지원하지 않는 주소 형식"
-    req = urllib.request.Request(url, headers=REQUEST_HEADERS)
+    # 게시판 링크에는 공백·한글이 날것으로 들어 있기도 하다('/files/2025 인증서.pdf').
+    # 그대로 보내면 urllib 이 예외를 던져 기관 전체가 멈췄다(실측) — 안전하게 인코딩한다.
+    url = safe_url(url)
+    try:
+        req = urllib.request.Request(url, headers=REQUEST_HEADERS)
+    except ValueError:
+        return None, "잘못된 주소"
     attempts = 2 if retry else 1
     reason = "응답 없음"
     for i in range(attempts):
@@ -110,6 +117,8 @@ def fetch_detail(
         except urllib.error.HTTPError as e:
             hint = {403: "접근 거부(403)", 404: "주소 없음(404)", 429: "요청 과다(429)"}
             return None, hint.get(e.code, f"HTTP 오류({e.code})")
+        except http.client.HTTPException as e:  # InvalidURL·잘린 응답 등
+            return None, f"응답 형식 오류({type(e).__name__})"
         except (urllib.error.URLError, TimeoutError, OSError, ValueError) as e:
             text = str(getattr(e, "reason", e)).lower()
             if "timed out" in text or isinstance(e, TimeoutError):
@@ -124,6 +133,11 @@ def fetch_detail(
                 continue  # 일시적으로 보이면 한 번 더
             return None, reason
     return None, reason
+
+
+def safe_url(url: str) -> str:
+    """공백·한글·제어문자를 퍼센트 인코딩한다(이미 인코딩된 %XX 는 그대로)."""
+    return urllib.parse.quote(url.strip(), safe=":/?#[]@!$&'()*+,;=%~")
 
 
 def fetch_url(url: str, *, timeout: float = _DEFAULT_TIMEOUT) -> bytes | None:

@@ -442,6 +442,10 @@ def respond(handler: BaseHTTPRequestHandler, route: str) -> None:
 
     if ctype == "json":
         data = json.dumps(body, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+        # pad: 응답 뒤에 공백을 붙인다(JSON 으로는 무해). 긴 응답만 파일로 저장하는
+        # 점검 도구가 결과를 통째로 받게 하려는 것 — 화면은 쓰지 않는다.
+        pad = min(max(_int(q.get("pad"), 0), 0), 200_000) if route == "verify" else 0
+        data += b" " * pad
         content_type = "application/json; charset=utf-8"
     else:
         data = str(body).encode("utf-8")

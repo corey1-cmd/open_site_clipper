@@ -307,3 +307,13 @@ def test_discover_stage_returns_found_routes_without_collecting(tiny_catalog):
     rows = webapp.verify(["u-test"], stage="discover", fetcher=Recorder(PAGES))
     found = {u for _c, _k, u in rows[0]["found"]}
     assert f"{SITE}/bbs/notice/list.do" in found and "count" not in rows[0]
+
+
+def test_fetch_encodes_spaces_and_hangul_instead_of_crashing():
+    """링크에 공백·한글이 날것으로 있어도 기관 전체가 멈추지 않는다(국민대·동국대 실측)."""
+    from open_site_clipper.fetch import safe_url
+
+    assert safe_url("https://x.ac.kr/files/2025 인증서.pdf") == (
+        "https://x.ac.kr/files/2025%20%EC%9D%B8%EC%A6%9D%EC%84%9C.pdf"
+    )
+    assert safe_url("https://x.ac.kr/a?b=1&c=%20") == "https://x.ac.kr/a?b=1&c=%20"
