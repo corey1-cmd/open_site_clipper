@@ -375,7 +375,17 @@ def respond(handler: BaseHTTPRequestHandler, route: str) -> None:
             cache = CACHE_OK if body["count"] else CACHE_EMPTY
         elif route == "verify":
             ids = [i for i in q.get("ids", "").split(",") if i]
-            results = verify(ids, days=_int(q.get("days"), 30), fresh=q.get("fresh") != "0")
+            # budget: 점검 한 번의 시간(초). 바깥 도구가 오래 못 기다릴 때 줄여 쓴다.
+            budget = max(
+                10.0, min(float(_int(q.get("budget"), int(DEFAULT_BUDGET))), DEFAULT_BUDGET)
+            )
+            results = verify(
+                ids,
+                days=_int(q.get("days"), 30),
+                fresh=q.get("fresh") != "0",
+                budget=budget,
+                workers=VERIFY_MAX_IDS,
+            )
             status, cache = 200, CACHE_VERIFY
             if q.get("format") == "tsv":
                 body, ctype = verify_tsv(results), "text"
