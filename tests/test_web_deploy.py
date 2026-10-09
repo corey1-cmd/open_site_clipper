@@ -116,3 +116,14 @@ def test_school_list_is_clean():
     # 2026 통합·폐교된 학교가 다시 들어오지 않게
     names = {s["name"] for s in schools}
     assert not names & {"강릉원주대학교", "원광보건대학교", "광양보건대학교", "동주대학교"}
+
+
+def test_version_is_the_same_everywhere():
+    """README·pyproject·패키지 버전이 따로 놀면 사용자가 받은 판을 확인할 수 없다."""
+    import tomllib
+
+    from open_site_clipper import __version__
+
+    meta = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    assert meta["project"]["version"] == __version__
+    assert f"open_site_clipper {__version__}" in (ROOT / "README.md").read_text(encoding="utf-8")

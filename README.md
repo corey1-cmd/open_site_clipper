@@ -4,8 +4,11 @@
 정부·공공기관의 RSS/OpenAPI 는 물론, 한국외국어대학교처럼 본부·처·팀이
 홈페이지를 따로 쓰는 조직도 **한 기관으로 묶어** 수집합니다. 필요한 목적
 (고용·장학·정부투자…)만 골라 브리프로 만들고, 모든 출력에 출처와
-**공공누리(KOGL) 등급**을 남깁니다. Markdown · HTML · JSON, 그리고
-브라우저에서 클릭으로 쓰는 로컬 웹 UI(`--serve`)까지 — 런타임 의존성 0.
+**공공누리(KOGL) 등급**을 남깁니다. Markdown · HTML · JSON, 브라우저에서
+클릭으로 쓰는 로컬 웹 UI(`--serve`), 그리고 **휴대폰에서 주소 하나로 쓰는 웹 버전**
+(정부 65곳 + 전국 대학·전문대 356곳, Vercel 무료 배포)까지 — 런타임 의존성 0.
+
+> 📱 **휴대폰으로 바로 쓰려면** → [휴대폰에서 쓰기 — 웹 버전](#휴대폰에서-쓰기--웹-버전)
 
 [![CI](https://github.com/corey1-cmd/open_site_clipper/actions/workflows/ci.yml/badge.svg)](https://github.com/corey1-cmd/open_site_clipper/actions/workflows/ci.yml)
 ![python](https://img.shields.io/badge/python-3.10%2B-blue)
@@ -27,6 +30,8 @@
 
 ## 특징
 
+- 📱 **휴대폰 웹 버전** — 기관·학교를 골라 [모으기], 진행 상황·남은 시간·날짜별 목록·공유 링크·보고서 저장. Vercel(서울 리전)에 Import 한 번으로 배포
+- 🏫 **전국 학교 356곳** — 4년제·교대·과기원·사관학교·사이버대·전문대(2026-10 통합·폐교 반영), 학사·장학·입학 갈래로 자동 분류
 - 🔌 **런타임 의존성 0** — 파이썬 표준 라이브러리만. `pip install` 후 바로 실행
 - 📴 **오프라인 동작** — 모델·외부 API 없음. 저장한 피드로 재현 가능(`--input`)
 - 🧾 **공공누리(KOGL) 인식** — 제7조·1~4유형 등급을 배지·범례로 표기
@@ -93,8 +98,8 @@ pip install -e ".[dev]"
 ### 3) 확인
 
 ```bash
-open_site_clipper --version      # open_site_clipper 0.22.0
-python -m pytest -q              # 265 passed (인터넷 불필요)
+open_site_clipper --version      # open_site_clipper 0.23.0
+python -m pytest -q              # 289 passed (인터넷 불필요)
 ```
 
 ### 4) 바로 써보기
@@ -104,6 +109,66 @@ open_site_clipper --serve        # 브라우저가 http://127.0.0.1:8765 로 자
 ```
 명령줄이 편하면 아래 [빠른 시작](#빠른-시작)의 예시를 쓰세요. `--serve` 사용법은
 [로컬 웹 UI](#로컬-웹-ui---serve) 참고.
+
+## 휴대폰에서 쓰기 — 웹 버전
+
+같은 수집기를 휴대폰 브라우저에서 씁니다. Vercel(무료)에 한 번 올리면 **주소 하나**를
+나눠 주는 것으로 끝납니다 — 받는 사람은 아무것도 설치하지 않습니다.
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fcorey1-cmd%2Fopen_site_clipper&project-name=open-site-clipper&repository-name=open-site-clipper)
+
+화면에서 하는 일:
+
+- **고르기** — 정부 기관 65곳 · 학교 356곳(유형·지역 거르기, 이름 검색). 고른 목록은 기기에 기억됩니다
+- **모으기** — 서버(서울 리전)가 기관을 한 곳씩 수집하고, 화면은 동시에 4곳씩 묻습니다.
+  끝낸 곳 / 지금 묻는 곳 / 남은 시간이 실시간으로 보입니다
+- **읽기** — 날짜별 목록. 갈래(학사·장학·입학·채용·공지·보도자료…)·새 글·기관으로 거르고
+  제목으로 찾습니다. 못 가져온 곳은 사유를 사람 말로(robots.txt 차단·접속 거부·시간 초과 …)
+- **나누기** — [링크 공유]는 고른 기관이 주소에 담겨, 받은 사람이 같은 목록을 바로 모읍니다.
+  [보고서 저장]은 HTML 한 장. [홈 화면에 추가]하면 앱처럼 열립니다
+
+### 배포 (처음 한 번, 5분)
+
+1. 이 저장소가 본인 GitHub 에 있어야 합니다(위 **Deploy** 단추는 복제까지 해 줍니다).
+2. [vercel.com/new](https://vercel.com/new) → 저장소 **Import** → **Deploy**. 설정은 고칠 것이
+   없습니다 — `vercel.json` 이 서울 리전(icn1)·함수 300초·정적 화면 폴더를 정합니다.
+3. 나온 주소(`https://<프로젝트>.vercel.app`)를 휴대폰에서 열고 공유 메뉴 → **홈 화면에 추가**.
+
+이후에는 GitHub 에 올릴 때마다 자동으로 다시 배포됩니다.
+
+### 실측 점검과 경로 캐시 (선택 — 수집이 수 초로 빨라짐)
+
+처음에는 기관마다 홈에서 게시판을 찾느라 수십 초가 걸립니다. 배포한 서버로 전 기관을
+한 번 점검해 **공지가 실제로 나온 게시판 주소**를 저장해 두면, 다음부터는 그 주소만 엽니다.
+
+```bash
+python scripts/bake_routes.py https://<프로젝트>.vercel.app   # 국내망 불필요(점검은 서버가 함)
+git add src/open_site_clipper/data/route-cache.json docs/ && git commit -m "경로 캐시" && git push
+```
+
+`docs/실측-점검-날짜.md` 에 묶음별 성공 수와 못 모은 곳의 사유가 남습니다. 게시판 주소가
+바뀌어 캐시가 0건을 내면 서버가 그 자리에서 다시 찾습니다(느려질 뿐 틀리지 않음).
+
+### 배포 없이 내 컴퓨터에서
+
+```bash
+open_site_clipper --web          # http://127.0.0.1:8765 — 배포본과 같은 화면
+open_site_clipper --web --lan    # 같은 와이파이의 휴대폰에서 http://<PC 주소>:8765
+```
+
+### 구조와 예절
+
+```
+public/                 화면(HTML·CSS·JS, 의존성 없음) + 홈 화면 아이콘
+api/catalog.py          기관 목록          ┐ 전부 src/open_site_clipper/webapp.py 를 부른다
+api/collect.py          기관 하나 수집     │ (로컬 --web 도 같은 함수)
+api/verify.py           여러 기관 일괄 점검 ┘
+examples/sources-gov.json · sources-schools.json   기관·학교 목록(홈 주소만)
+```
+
+- 같은 기관 결과는 **30분 동안 CDN 이 대신 답합니다** — 여러 사람이 써도 사이트에 가는 요청은 늘지 않습니다
+- 서버는 CLI 와 똑같이 robots.txt·Crawl-delay 를 따르고, 제목·날짜·링크만 담습니다
+- 학교·기관을 더하려면 `examples/sources-*.json` 에 이름과 홈 주소 한 줄이면 됩니다
 
 ## 빠른 시작
 
@@ -491,6 +556,22 @@ CMS 를 가리지 않습니다. 정부 사이트는 CMS 가 최소 19종으로 �
 1유형이 아닙니다(4유형 실측). 미상이면 제목·링크·날짜·부서는 수집되고 발췌만
 비워집니다.
 
+### 전국 학교 356곳
+
+`examples/sources-schools.json` 에 4년제(187)·교육대(10)·과학기술원(4)·특수대(7)·
+방송통신대(1)·사이버대(22)·전문대(123)·전공대학(2)이 **홈 주소만** 들어 있습니다.
+정부 65곳과 같은 방식으로 실행 시 게시판을 찾고, 학교 게시판은
+**입학·장학·학사** 갈래로 따로 분류됩니다(‘신입생 모집’이 채용으로 빠지지 않게).
+
+```bash
+open_site_clipper --sources examples/sources-schools.json --agency 한국외국어 -o hufs.html
+```
+
+목록은 2026-10 웹 검색으로 통합·폐교·교명 변경을 반영했습니다(강릉원주대→강원대,
+원광보건대→원광대, 전남도립대→국립목포대, 거창·남해대→국립창원대 통합, 광양보건대 폐교,
+KC대→강서대 등). 대학원대학은 아직 넣지 않았습니다. 웹 화면은 `type`·`region` 으로
+유형·지역 거르기를 만듭니다.
+
 ### 접근 진단 (`--check-access`)
 
 정부 사이트는 robots.txt 로 막힌 곳이 많은데, **막힌 방식이 두 가지**입니다.
@@ -729,6 +810,7 @@ sources ──▶ fetch ──▶ parse ──▶ collect ──▶ report
 - `robots.py` — robots.txt 준수(호스트별 캐시, fail-open)
 - `discover.py` — 출처 자동 탐지(RSS 자동발견·K2Web 좌표·검증 스니핑)
 - `webui.py` — 로컬 웹 UI(조직 선택→수집·검색·탐지, 표준 http.server)
+- `webapp.py` — 휴대폰 웹 버전의 서버 쪽(기관 목록·기관 하나 수집·경로 캐시·시간 제한·일괄 점검). Vercel 함수(`api/*.py`)와 `--web` 이 같이 쓴다
 - `progress.py` — 수집 진행 상황 추적(스레드 안전, 남은 시간 어림)
 - `categories.py` — 메뉴 이름·주소 → 대분류(발견과 요약이 공유하는 사전)
 - `govweb.py` — 정부 표준홈페이지 게시판 파서(채용·입찰 등 RSS 미제공 목록)
