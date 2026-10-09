@@ -323,10 +323,10 @@ def find_routes(
             mined += [
                 u for u in mine_url_literals(first_data, first_home, home_host) if u not in mined
             ]
+        known = {u for _l, _k, u in candidates} | {u for _l, _k, u in routes}
+        mined = [u for u in mined if u not in known]  # <a> 로 이미 잡은 주소는 그 이름 그대로
         for url in mined:
             label = categories.from_url(url, fallback="") or categories.ETC
-            if (label, url) in seen:
-                continue
             seen.add((label, url))
             candidates.append((label, "board", url))
         if mined:
