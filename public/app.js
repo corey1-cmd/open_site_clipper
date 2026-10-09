@@ -116,6 +116,7 @@ async function init() {
       ' 아래 단추를 누르면 바로 모읍니다.';
   }
   S.tab = S.sharedCount != null && S.selected.size ? '고른 곳' : (S.sections[0] || '');
+  if (S.sharedCount != null) remember();
   renderPick();
   renderBar();
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
@@ -130,6 +131,8 @@ function readHash() {
   }
   const d = Number(h.get('d'));
   if ([1, 3, 7, 14, 30].includes(d)) S.days = d;
+  // 받은 목록은 한 번만 적용한다 — 주소에 남겨 두면 새로 고칠 때마다 내 선택을 덮는다.
+  if (location.hash) history.replaceState(null, '', location.pathname + location.search);
 }
 
 function shareUrl() {
@@ -236,7 +239,8 @@ function renderBar() {
   const n = S.selected.size;
   go.disabled = !n;
   go.dataset.action = 'start';
-  go.textContent = n ? `${n}곳 모으기 · ${roughly(estimate([...S.selected]))}` : '기관을 골라 주세요';
+  const est = n ? estimate([...S.selected]) : 0;
+  go.textContent = n ? `${n}곳 모으기${est > 20 ? ` · ${roughly(est)}` : ''}` : '기관을 골라 주세요';
 }
 
 function setView(view) {
@@ -256,7 +260,6 @@ function start() {
   const ids = [...S.selected].filter((id) => S.byId.has(id));
   if (!ids.length) return;
   remember();
-  history.replaceState(null, '', `#o=${ids.join(',')}&d=${S.days}`);
   const run = {
     ids, days: S.days, queue: ids.slice(), active: new Map(), results: [],
     started: Date.now(), finished: false, stopped: false, controllers: new Set(),
