@@ -113,7 +113,18 @@ def _build_parser() -> argparse.ArgumentParser:
         type=_nonneg,
         default=8765,
         metavar="N",
-        help="--serve 포트 (기본 8765)",
+        help="--serve·--web 포트 (기본 8765)",
+    )
+    p.add_argument(
+        "--web",
+        action="store_true",
+        help="휴대폰용 웹 화면을 이 컴퓨터에서 띄움(Vercel 배포본과 같은 화면) — "
+        "--lan 을 붙이면 같은 와이파이의 휴대폰에서 열 수 있음",
+    )
+    p.add_argument(
+        "--lan",
+        action="store_true",
+        help="--web 을 내부망(0.0.0.0)에 연다 — 같은 와이파이의 휴대폰 접속용",
     )
     p.add_argument(
         "--discover",
@@ -273,6 +284,12 @@ def main(argv: list[str] | None = None) -> int:
         from . import webui
 
         webui.serve(args.port)
+        return 0
+
+    if args.web:
+        from . import webapp
+
+        webapp.serve(args.port, lan=args.lan)
         return 0
 
     if args.check_access:

@@ -1,0 +1,16 @@
+{
+  "name": "공지 모아보기",
+  "short_name": "공지 모아보기",
+  "description": "정부 부처와 전국 대학 게시판의 최근 글을 한 화면에 모아 봅니다.",
+  "lang": "ko",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f4f6f9",
+  "theme_color": "#18202e",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

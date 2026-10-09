@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>공지 모아보기</title>
+<meta name="description" content="정부 부처와 전국 대학 게시판의 최근 글을 한 화면에 모아 봅니다.">
+<meta name="theme-color" content="#f4f6f9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f131a" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="공지 모아보기">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap">
+<link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="top">
+  <h1>공지 모아보기</h1>
+  <p>정부 부처와 전국 대학 게시판의 최근 글을 한 화면에</p>
+</header>
+<nav class="views" aria-label="화면">
+  <button type="button" class="view-btn" data-view="pick" aria-current="page">고르기</button>
+  <button type="button" class="view-btn" data-view="read">결과<span id="read-badge" class="badge" hidden></span></button>
+</nav>
+
+<main id="main">
+  <section id="pick" aria-label="기관 고르기">
+    <p id="shared-note" class="note" hidden></p>
+    <label class="search">
+      <span class="sr">기관이나 학교 이름으로 찾기</span>
+      <input id="q" type="search" placeholder="기관이나 학교 이름" autocomplete="off" enterkeyhint="search">
+    </label>
+    <div id="tabs" class="tabs" role="tablist" aria-label="묶음"></div>
+    <div id="filters" class="filters"></div>
+    <div class="list-head">
+      <p id="list-count" class="muted"></p>
+      <button type="button" id="toggle-all" class="link-btn"></button>
+    </div>
+    <ul id="orgs" class="orgs"></ul>
+    <p id="pick-empty" class="empty" hidden></p>
+  </section>
+
+  <section id="read" aria-label="모은 글" hidden>
+    <div id="progress" class="progress" aria-live="polite"></div>
+    <div id="summary" class="summary"></div>
+    <div id="tools" class="tools" hidden>
+      <label class="search">
+        <span class="sr">제목에서 찾기</span>
+        <input id="tq" type="search" placeholder="제목에서 찾기" autocomplete="off" enterkeyhint="search">
+      </label>
+      <label class="select">
+        <span class="sr">기관으로 거르기</span>
+        <select id="org-filter"></select>
+      </label>
+    </div>
+    <div id="notices" class="notices"></div>
+    <div id="fails"></div>
+    <div id="after" class="after" hidden>
+      <button type="button" id="share" class="ghost">링크 공유</button>
+      <button type="button" id="save" class="ghost">보고서 저장</button>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <p>제목·날짜·링크만 모읍니다. 원문은 각 기관 누리집에 있고, 각 사이트의 robots.txt 를 따릅니다.</p>
+  <p><a href="https://github.com/corey1-cmd/open_site_clipper" rel="noopener">open_site_clipper</a> <span id="version"></span></p>
+</footer>
+
+<div class="bar" id="bar">
+  <label class="days">
+    <span class="sr">기간</span>
+    <select id="days">
+      <option value="1">오늘·어제</option>
+      <option value="3">최근 3일</option>
+      <option value="7">최근 7일</option>
+      <option value="14">최근 14일</option>
+      <option value="30">최근 30일</option>
+    </select>
+  </label>
+  <button type="button" id="go" class="primary">기관을 골라 주세요</button>
+</div>
+
+<script src="/app.js" defer></script>
+</body>
+</html>
