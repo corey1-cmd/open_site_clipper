@@ -298,6 +298,8 @@ def find_routes(
             external += 1
             continue  # 법령·공공데이터·국민신문고 등 — 별도 출처로 등록할 것
         internal += 1
+        if probe.looks_like_home(url):
+            continue  # 다른 홈·하위 사이트 첫 화면 — probe.looks_like_home
         # 이름 → 주소 → 앵커 원문 순으로 분류를 정한다. 예전에는 이름이 안 잡히면
         # 곧장 앵커 원문을 썼는데, '더보기'·'바로가기' 같은 말이 그대로 분류가 되어
         # 요약에서 기타로 뭉쳤다(실측 65%). 주소에 단서가 있으면 그것이 낫다.
@@ -308,6 +310,8 @@ def find_routes(
             continue
         seen.add(key)
         if kind == "rss":
+            if "/comments/feed" in url.lower():
+                continue  # 워드프레스 댓글 피드 — 공지가 아니다
             # 피드는 구조 테스트 없이 받아들인다(내용 검증은 수집 때 파서가 한다).
             routes.append((label, kind, url))
             continue
@@ -325,7 +329,9 @@ def find_routes(
                 u for u in mine_url_literals(first_data, first_home, home_host) if u not in mined
             ]
         known = {u for _l, _k, u in candidates} | {u for _l, _k, u in routes}
-        mined = [u for u in mined if u not in known]  # <a> 로 이미 잡은 주소는 그 이름 그대로
+        mined = [
+            u for u in mined if u not in known and not probe.looks_like_home(u)
+        ]  # <a> 로 이미 잡은 주소는 그 이름 그대로
         for url in mined:
             label = categories.from_url(url, fallback="") or categories.ETC
             seen.add((label, url))
@@ -492,7 +498,10 @@ def _from_sitemap(
                     for u in _LOC_RE.findall(decode_text(child))
                     if not probe.is_external(u, home_host)
                 ]
-        cands = sorted({u for u in locs if u not in seen}, key=lambda u: -board_score(u, ""))
+        cands = sorted(
+            {u for u in locs if u not in seen and not probe.looks_like_home(u)},
+            key=lambda u: -board_score(u, ""),
+        )
         for url in cands[:max_candidates]:
             if session.budget <= 0:
                 break

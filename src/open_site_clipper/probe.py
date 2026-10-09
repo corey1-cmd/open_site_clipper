@@ -20,6 +20,7 @@ STATIC·INDEX·EXTERNAL 은 건너뛰되 **사유를 남긴다**(조용한 실�
 
 from __future__ import annotations
 
+import re
 import urllib.parse
 from dataclasses import dataclass
 
@@ -30,13 +31,58 @@ LIST = "list"
 STATIC = "static"
 INDEX = "index"
 EXTERNAL = "external"
+HOME = "home"
 
 VERDICT_REASON = {
     LIST: "",
     STATIC: "목록이 아님(글 0~1건) — 안내 페이지로 보임",
     INDEX: "날짜 없는 링크 모음 — 목록이 아님",
     EXTERNAL: "기관 밖 도메인 — 별도 출처로 등록해 수집하세요",
+    HOME: "첫 화면(다른 홈·하위 사이트) — 최신글 묶음이라 게시판으로 쓰지 않음",
 }
+
+# 첫 화면 주소의 마지막 조각 — index.do · main.do · PortalMain · soriindex.do · main_form.acl
+_SITE_ROOTS = frozenset(
+    {
+        "ko",
+        "kor",
+        "kr",
+        "korean",
+        "en",
+        "eng",
+        "english",
+        "cn",
+        "chn",
+        "jp",
+        "jpn",
+        "www",
+        "web",
+        "site",
+    }
+)
+_HOME_STEM_RE = re.compile(r"^(?:index|main|home|default)|(?:index|main)$", re.I)
+
+
+def looks_like_home(url: str) -> bool:
+    """홈·하위 사이트 첫 화면인가.
+
+    `<li>` 목록형 게시판을 읽게 되면서, 첫 화면의 '최신 소식' 칸도 날짜 달린 목록으로
+    보이게 됐다(관세청 세관별 main.do · 외교부 공관 index.do · 대학 LMS 첫 화면).
+    거기서 모은 글은 여러 게시판이 뒤섞여 분류가 틀리고 같은 글이 겹친다 —
+    진짜 게시판은 따로 잡히므로 첫 화면은 게시판 후보에서 뺀다.
+    """
+    parts = urllib.parse.urlsplit(url)
+    segs = [s for s in parts.path.split(";", 1)[0].split("/") if s]
+    if not segs:
+        return not parts.query  # '/' — 쿼리 없는 사이트 뿌리
+    if "main" in (s.lower() for s in segs[:-1]):
+        return True  # /base/main/view
+    stem = segs[-1].rsplit(".", 1)[0]
+    if _HOME_STEM_RE.search(stem):
+        return True
+    # '/ko/' · '/eng/' · '/www/' 처럼 언어·사이트 이름 한 조각 = 하위 사이트 뿌리
+    return len(segs) == 1 and segs[0].lower() in _SITE_ROOTS and not parts.query
+
 
 # 수집 대상으로 보려면 이만큼은 있어야 한다.
 MIN_ROWS = 2
@@ -94,6 +140,8 @@ def classify(data: bytes | None, url: str, *, home_host: str = "") -> Probe:
     """페이지 내용으로 유형을 판정한다. 받아오지 못했으면 STATIC 취급."""
     if home_host and is_external(url, home_host):
         return Probe(url=url, verdict=EXTERNAL)
+    if looks_like_home(url):
+        return Probe(url=url, verdict=HOME)
     if not data:
         return Probe(url=url, verdict=STATIC)
 

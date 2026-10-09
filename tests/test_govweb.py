@@ -160,3 +160,31 @@ def test_date_only_cell_is_not_a_title():
     assert govweb._is_date_only("2026년 9월 30일 (수)")
     assert not govweb._is_date_only("2026학년도 수시모집 안내")
     assert not govweb._is_date_only("공지사항")
+
+
+def test_home_pages_are_not_boards():
+    from open_site_clipper import probe
+
+    for url in (
+        "https://www.customs.go.kr/gwangyang/main.do",
+        "http://toronto.mofa.go.kr/ca-toronto-ko/index.do",
+        "https://www.better.go.kr/zz.main.PortalMain",
+        "https://eclass.dongduk.ac.kr/ilos/main/main_form.acl",
+        "https://sc.sogang.ac.kr/soriindex.do",
+        "https://www.humanrights.go.kr/base/main/view",
+        "https://www.kw.ac.kr/ko/",
+        "https://uhr.humanrights.go.kr/",
+        "https://www.mofe.go.kr/;jsessionid=abc",
+    ):
+        assert probe.looks_like_home(url), url
+        assert probe.classify(ITEM_LIST.encode(), url).verdict == probe.HOME
+    for url in (
+        "https://www.syu.ac.kr/academic/academic-notice/",
+        "https://www.fsc.go.kr/no010101",
+        "https://www.mofe.go.kr/nw/nes/nesdta.do",
+        "https://www.example.ac.kr/bbs/list.do",
+        "https://www.example.ac.kr/notice",
+        "https://www.example.ac.kr/?page_id=12",
+        "https://www.ipkorea.go.kr/policy/lawList.do",
+    ):
+        assert not probe.looks_like_home(url), url
