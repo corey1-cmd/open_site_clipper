@@ -8,8 +8,8 @@
 지금은 두 층으로 나눈다:
 
   세부 이름   `국정성과` · `업무추진비` · `사전정보공표` …  → 보고서 표에 그대로
-  대분류      공지 · 채용 · 입찰 · 인사 · 보도자료 · 소식 · 자료 · 정책 · 참여 · 기타
-              → 기간 요약은 이 열 가지로만 센다
+  대분류      입학 · 장학 · 학사(학교) · 채용 · 입찰 · 인사 · 보도자료 · 공지 ·
+              소식 · 참여 · 자료 · 정책 · 기타 → 기간 요약은 이 갈래로만 센다
 
 사전이 얕으면 '기타'가 지배한다. 실측에서 4,023건 중 2,785건(69%)이 기타로
 떨어져 요약이 다시 무의미해졌다. 그래서 실제 정부 누리집 메뉴명을 훑어
@@ -73,7 +73,26 @@ def is_meaningless(text: str) -> bool:
 
 # 대분류 → 그 분류로 볼 말들. 순서가 우선순위다(구체적인 것을 앞에 둔다).
 # '채용공고'가 '공고'보다 앞에 있어야 채용으로 잡힌다.
+#
+# 학교 갈래(입학·장학·학사)가 맨 앞이다. 학교 게시판은 '신입생 모집'·'장학생
+# 모집'처럼 '모집'을 쓰는데, 채용보다 뒤에 두면 전부 채용으로 빨려 들어간다.
+# '학사 시험 일정'도 채용(시험)이 아니라 학사다.
 CATEGORY_HINTS: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("입학", ("입학", "입시", "신입생", "편입", "admission")),
+    ("장학", ("장학", "학자금", "scholarship")),
+    (
+        "학사",
+        (
+            "학사",
+            "수강",
+            "졸업",
+            "학적",
+            "휴학",
+            "복학",
+            "계절학기",
+            "academic",
+        ),
+    ),
     (
         "채용",
         (
@@ -83,6 +102,7 @@ CATEGORY_HINTS: tuple[tuple[str, tuple[str, ...]], ...] = (
             "구인",
             "구직",
             "일자리",
+            "취업",
             "모집",
             "시험",
             "자격",
@@ -223,12 +243,13 @@ def from_url(url: str, fallback: str = ETC) -> str:
             if w.isascii():
                 if w in low:
                     return category
-            elif (_romanized(w) and _romanized(w) in low) or w in path:
+            elif w in path or any(a in low for a in _romanized(w)):
                 return category
     return fallback
 
 
-def _romanized(word: str) -> str:
-    from .korean import romanize
+def _romanized(word: str) -> tuple[str, ...]:
+    """음역 별칭 — 글자대로(hagsa)와 소리대로(haksa) 둘 다."""
+    from .korean import romanized_aliases
 
-    return romanize(word)
+    return romanized_aliases(word)

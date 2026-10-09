@@ -229,3 +229,30 @@ def test_etc_names_count_reveals_long_tail():
     d = digest.build(notices)
     assert d.etc_names == 40  # 이름이 40종 — 상위 10개로는 4분의 1뿐
     assert len(d.etc_samples) == 10
+
+
+def test_school_boards_get_school_categories():
+    """학교 게시판은 '모집'을 써도 채용이 아니다 — 입학·장학·학사가 먼저다."""
+    cases = {
+        "학사공지": "학사",
+        "장학공지": "장학",
+        "입학공지": "입학",
+        "신입생 모집": "입학",
+        "장학생 모집": "장학",
+        "학사 시험 일정": "학사",
+        "취업정보": "채용",
+        "일반공지": "공지",
+        "채용공고": "채용",
+        "공무원 시험": "채용",
+    }
+    for name, expected in cases.items():
+        assert categories.canonical(name) == expected, name
+
+
+def test_school_url_romanization_reads_sound_spelling():
+    """학교 주소는 받침을 소리대로 적는다(haksa·janghak·ipsi) — 글자대로만 보면 놓친다."""
+    assert categories.from_url("https://x.ac.kr/haksa/notice/list.do") == "학사"
+    assert categories.from_url("https://x.ac.kr/janghak/list.do") == "장학"
+    assert categories.from_url("https://x.ac.kr/ipsi/board/list") == "입학"
+    # 정부 주소는 그대로
+    assert categories.from_url("https://x.go.kr/news/notice/noticeList.do") == "공지"

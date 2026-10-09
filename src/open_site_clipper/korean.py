@@ -193,24 +193,61 @@ _JONG = (
     "p",
     "h",
 )
+# 받침을 **소리(대표음)대로** 적은 표 — 국어의 로마자 표기법이 받침에 쓰는 방식.
+# 학교 주소는 대개 이쪽을 따른다(학사 → haksa, 입시 → ipsi, 장학 → janghak).
+# 위의 _JONG 은 글자대로(hagsa·ibsi·janghag)라서 그런 주소를 놓쳤다.
+_JONG_SOUND = (
+    "",
+    "k",
+    "k",
+    "k",
+    "n",
+    "n",
+    "n",
+    "t",
+    "l",
+    "k",
+    "m",
+    "l",
+    "l",
+    "l",
+    "p",
+    "l",
+    "m",
+    "p",
+    "p",
+    "t",
+    "t",
+    "ng",
+    "t",
+    "t",
+    "k",
+    "t",
+    "p",
+    "t",
+)
 _HANGUL_BASE = 0xAC00
 _HANGUL_COUNT = 11172
 
 
-def romanize(text: str) -> str:
+def romanize(text: str, *, sound: bool = False) -> str:
     """한글을 로마자로 옮긴다 — 주소 안의 음역 표기를 맞추기 위한 근사.
 
     엄밀한 국어 로마자 표기법(음운 변화 반영)이 아니라 **글자 단위 근사**다.
-    주소는 대개 소리대로 적히므로 이 정도로 충분하다.
+    sound=True 면 받침만 소리(대표음)대로 적는다 — '학사'가 hagsa 가 아니라
+    haksa 가 된다. 실제 주소는 두 방식이 섞여 있어 별칭은 둘 다 만든다.
 
     >>> romanize("공지사항"), romanize("알림"), romanize("채용")
     ('gongjisahang', 'alrim', 'chaeyong')
+    >>> romanize("학사"), romanize("학사", sound=True), romanize("입시", sound=True)
+    ('hagsa', 'haksa', 'ipsi')
     """
+    jong = _JONG_SOUND if sound else _JONG
     out: list[str] = []
     for ch in text or "":
         code = ord(ch) - _HANGUL_BASE
         if 0 <= code < _HANGUL_COUNT:
-            out.append(_CHO[code // 588] + _JUNG[(code % 588) // 28] + _JONG[code % 28])
+            out.append(_CHO[code // 588] + _JUNG[(code % 588) // 28] + jong[code % 28])
         elif ch.isalnum():
             out.append(ch.lower())
     return "".join(out)
@@ -218,12 +255,14 @@ def romanize(text: str) -> str:
 
 def romanized_aliases(word: str) -> tuple[str, ...]:
     """한 단어의 음역 별칭들 — 전체 표기와 앞 음절(축약형)."""
-    full = romanize(word)
-    if not full or len(full) < 3:
-        return ()
-    aliases = {full}
-    if len(word) >= 2:
-        head = romanize(word[:2])  # '공지사항' → 'gongji' 처럼 줄여 쓰는 관행
-        if len(head) >= 4:
-            aliases.add(head)
+    aliases: set[str] = set()
+    for sound in (False, True):  # 글자대로(hagsa)·소리대로(haksa) 둘 다
+        full = romanize(word, sound=sound)
+        if not full or len(full) < 3:
+            continue
+        aliases.add(full)
+        if len(word) >= 2:
+            head = romanize(word[:2], sound=sound)  # '공지사항' → 'gongji' 처럼 줄여 쓰는 관행
+            if len(head) >= 4:
+                aliases.add(head)
     return tuple(sorted(aliases))
