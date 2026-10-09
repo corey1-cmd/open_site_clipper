@@ -188,3 +188,27 @@ def test_home_pages_are_not_boards():
         "https://www.ipkorea.go.kr/policy/lawList.do",
     ):
         assert not probe.looks_like_home(url), url
+
+
+def test_article_pages_are_not_boards():
+    from open_site_clipper import probe
+
+    for url in (
+        "https://www.uu.ac.kr/home/bbs/board.php?bo_table=uu_notice_01&wr_id=3015&sub_index=04",
+        "https://www.jvision.ac.kr/?menu=192&mode=view&no=1066",
+        "https://www.dcu.ac.kr/dcuLife/notice_0101.htm?ACT=R&CONTENTNO=293724",
+        "https://www.mcu.ac.kr/bb/bbBoard.php?action=view&pageID=x&boardID=NOTICE&SEQ=1",
+        "https://www.syu.ac.kr/blog/some-post-title/",
+        "https://www.example.ac.kr/bbs/k/123/4567/artclView.do",
+    ):
+        assert probe.not_a_board(url), url
+        assert probe.classify(ITEM_LIST.encode(), url).verdict == probe.ARTICLE
+    for url in (
+        "https://www.uu.ac.kr/home/bbs/board.php?bo_table=uu_notice_01",
+        "https://www.jvision.ac.kr?menu=146",
+        "https://www.dcu.ac.kr/dcuLife/notice_0101.htm",
+        "https://www.mcu.ac.kr/bb/bbBoard.php?boardID=NOTICE&pageID=mcu0701000000",
+        "https://www.khcu.ac.kr/notice/list.do?category=PRESS&page=1",
+        "https://www.example.ac.kr/bbs/k/123/artclList.do",
+    ):
+        assert not probe.not_a_board(url), url

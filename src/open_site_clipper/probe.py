@@ -32,6 +32,7 @@ STATIC = "static"
 INDEX = "index"
 EXTERNAL = "external"
 HOME = "home"
+ARTICLE = "article"
 
 VERDICT_REASON = {
     LIST: "",
@@ -39,7 +40,31 @@ VERDICT_REASON = {
     INDEX: "날짜 없는 링크 모음 — 목록이 아님",
     EXTERNAL: "기관 밖 도메인 — 별도 출처로 등록해 수집하세요",
     HOME: "첫 화면(다른 홈·하위 사이트) — 최신글 묶음이라 게시판으로 쓰지 않음",
+    ARTICLE: "글 한 건(상세 보기) 페이지 — 목록이 아님",
 }
+
+# 글 한 건 주소 — '이전·다음 글' 목록 때문에 날짜 달린 목록처럼 보인다(실측: 그누보드
+# wr_id · ?mode=view&no= · ?ACT=R&CONTENTNO= · 워드프레스 /blog/글제목/).
+_ARTICLE_QUERY_RE = re.compile(
+    r"(?:^|&)(?:wr_id|articleno|contentno|nttsn|bbsidx)=\d|(?:^|&)(?:mode|action|act|type|cmd)=(?:view|read|r|detail)(?:&|$)",
+    re.I,
+)
+_ARTICLE_PATH_RE = re.compile(r"(?:artclview|view\.(?:do|jsp|php|asp)$|/blog/[^/]+/?$)", re.I)
+
+
+def not_a_board(url: str) -> bool:
+    """열어 보기 전에 게시판 후보에서 뺄 주소 — 첫 화면이거나 글 한 건."""
+    return looks_like_home(url) or looks_like_article(url)
+
+
+def looks_like_article(url: str) -> bool:
+    """게시판 목록이 아니라 글 한 건(상세 보기) 주소인가."""
+    parts = urllib.parse.urlsplit(url)
+    path = parts.path.split(";", 1)[0]
+    if _ARTICLE_PATH_RE.search(path):
+        return True
+    return bool(_ARTICLE_QUERY_RE.search(parts.query))
+
 
 # 첫 화면 주소의 마지막 조각 — index.do · main.do · PortalMain · soriindex.do · main_form.acl
 _SITE_ROOTS = frozenset(
@@ -142,6 +167,8 @@ def classify(data: bytes | None, url: str, *, home_host: str = "") -> Probe:
         return Probe(url=url, verdict=EXTERNAL)
     if looks_like_home(url):
         return Probe(url=url, verdict=HOME)
+    if looks_like_article(url):
+        return Probe(url=url, verdict=ARTICLE)
     if not data:
         return Probe(url=url, verdict=STATIC)
 
