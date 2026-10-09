@@ -172,3 +172,39 @@ def test_collect_auto_routes_end_to_end():
     # auto_routes=False 면 발견을 하지 않는다.
     rep2 = collect.collect([src], fetcher=fx, auto_routes=False)
     assert rep2.failed_sources
+
+
+# 자바스크립트로 메뉴를 그리는 홈 — <a> 는 없고 주소는 스크립트 속 JSON 에 있다(대학 홈에서 흔함).
+SPA_HOME = b"""<html><head><script>window.__DATA__={"menu":[
+{"name":"\\uacf5\\uc9c0\\uc0ac\\ud56d","url":"\\/campus\\/notice\\/list.do"},
+{"name":"logo","url":"/img/logo.png"},
+{"name":"greeting","url":"/about/greeting.do"},
+{"name":"ext","url":"https://other.example/bbs/list.do"}]}</script></head>
+<body><div id="app"></div></body></html>"""
+
+
+def test_spa_home_mines_menu_urls_from_scripts():
+    pages = {
+        "https://www.spa.ac.kr/": SPA_HOME,
+        "https://www.spa.ac.kr/campus/notice/list.do": BOARD.encode(),
+        "https://www.spa.ac.kr/about/greeting.do": STATIC.encode(),
+    }
+    routes, notes = govdiscover.find_routes(
+        "https://www.spa.ac.kr/", fetcher=pages.get, check_robots=False
+    )
+    assert ("공지", "board", "https://www.spa.ac.kr/campus/notice/list.do") in routes
+    assert any("본문 속 주소" in n for n in notes)  # 왜 이 경로로 찾았는지 남긴다
+    # 자원 파일·외부 주소·소개 페이지는 후보에서 빠진다
+    mined = govdiscover.mine_url_literals(SPA_HOME, "https://www.spa.ac.kr/", "www.spa.ac.kr")
+    assert mined == ["https://www.spa.ac.kr/campus/notice/list.do"]
+
+
+def test_mining_is_off_when_home_has_a_real_menu():
+    """링크가 충분한 홈에서는 문자열을 캐지 않는다 — 엉뚱한 주소로 끌려가지 않게."""
+    menu = "".join(f'<a href="/m/{i}/list.do">메뉴{i}</a>' for i in range(12))
+    page = f"<html><body>{menu}<script>var u='/hidden/notice/list.do'</script></body></html>"
+    pages = {"https://www.big.go.kr/": page.encode()}
+    _routes, notes = govdiscover.find_routes(
+        "https://www.big.go.kr/", fetcher=pages.get, check_robots=False
+    )
+    assert not any("본문 속 주소" in n for n in notes)

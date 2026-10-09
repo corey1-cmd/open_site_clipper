@@ -67,6 +67,8 @@ TIME_UP = "시간 제한"
 CACHE_OK = "public, max-age=0, s-maxage=1800, stale-while-revalidate=3600"
 CACHE_EMPTY = "public, max-age=0, s-maxage=300, stale-while-revalidate=600"
 CACHE_CATALOG = "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400"
+# 점검은 무겁다 — 같은 요청이 10분 안에 또 오면(새로 고침·중복 실행) CDN 이 답한다.
+CACHE_VERIFY = "public, max-age=0, s-maxage=600"
 NO_STORE = "no-store"
 
 
@@ -374,7 +376,7 @@ def respond(handler: BaseHTTPRequestHandler, route: str) -> None:
         elif route == "verify":
             ids = [i for i in q.get("ids", "").split(",") if i]
             results = verify(ids, days=_int(q.get("days"), 30), fresh=q.get("fresh") != "0")
-            status, cache = 200, NO_STORE
+            status, cache = 200, CACHE_VERIFY
             if q.get("format") == "tsv":
                 body, ctype = verify_tsv(results), "text"
             else:

@@ -114,6 +114,57 @@ def _body_head(data: bytes, limit: int = 90) -> str:
     return (flat[:limit] + "…") if len(flat) > limit else (flat or "(내용 없음)")
 
 
+# 본문 속 주소 문자열 — 상대("/a/b")와 절대("https://…") 둘 다. JSON 은 "\/" 로 적기도 한다.
+_LITERAL_RE = re.compile(r"""["'](/[^"'\s<>]{2,160}|https?://[^"'\s<>]{4,200})["']""")
+_ASSET_TAILS = (
+    ".css",
+    ".js",
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".gif",
+    ".ico",
+    ".svg",
+    ".woff",
+    ".woff2",
+    ".ttf",
+    ".map",
+    ".json",
+    ".webp",
+    ".mp4",
+    ".pdf",
+    ".hwp",
+    ".zip",
+)
+MAX_MINED = 30
+
+
+def mine_url_literals(data: bytes, base_url: str, home_host: str) -> list[str]:
+    """자바스크립트로 그리는 홈에서 **게시판처럼 보이는** 주소 문자열을 캔다.
+
+    링크(<a>)가 거의 없는 홈은 메뉴를 스크립트·JSON 으로 그린다. 그 안의 주소
+    문자열 중 같은 사이트이고, 자원 파일이 아니며, 게시판 점수가 0보다 큰 것만
+    점수순으로 돌려준다(최대 30개). 판정은 뒤의 구조 테스트가 한다.
+    """
+    text = decode_text(data).replace("\\/", "/")
+    scored: dict[str, int] = {}
+    for m in _LITERAL_RE.finditer(text):
+        raw = m.group(1)
+        if raw.startswith("//"):
+            continue  # 프로토콜 상대 주소 — 대개 외부 자원
+        url = urllib.parse.urljoin(base_url, raw).split("#", 1)[0]
+        parts = urllib.parse.urlsplit(url)
+        if parts.scheme not in ("http", "https") or probe.is_external(url, home_host):
+            continue
+        if parts.path.lower().endswith(_ASSET_TAILS) or parts.path in ("", "/"):
+            continue
+        score = board_score(url, "")
+        if score > 0 and url not in scored:
+            scored[url] = score
+    ranked = sorted(scored, key=lambda u: (-scored[u], u))
+    return ranked[:MAX_MINED]
+
+
 def _raw_label(text: str) -> str:
     """앵커 원문을 분류로 쓸지 판단한다 — '더보기'·'전체' 같은 말은 쓰지 않는다."""
     flat = " ".join((text or "").split())[:20]
@@ -172,6 +223,7 @@ def find_routes(
 
     data = session.get(home_url) or b""
     home_reason = session.last_reason if not data else ""
+    first_home, first_data = home_url, data  # 관문을 따라가도 원래 홈의 문자열은 버리지 않는다
     failed_gateways: list[str] = []
 
     # 홈이 1KB 남짓이면 빈 응답이 아니라 **관문**일 수 있다(공정위·교육부·해수부 …).
@@ -259,6 +311,28 @@ def find_routes(
             routes.append((label, kind, url))
             continue
         candidates.append((label, kind, url))
+
+    # ②-1 홈에 링크가 거의 없으면 자바스크립트로 그리는 홈이다(대학 홈에서 흔하다).
+    #      메뉴 주소는 대개 본문 속 JSON·스크립트에 **문자열로** 들어 있으므로,
+    #      실행하지 않고 그 문자열을 캐서 같은 구조 테스트에 넘긴다.
+    if internal < govpaths.MIN_ENTRY_ANCHORS and (data or first_data):
+        mined = mine_url_literals(data, home_url, home_host) if data else []
+        if first_data and first_data is not data:
+            # 스크립트만 있는 작은 홈은 '관문'으로 오인돼 엉뚱한 쪽으로 넘어갈 수 있다 —
+            # 원래 홈에 들어 있던 메뉴 주소도 함께 본다.
+            mined += [
+                u for u in mine_url_literals(first_data, first_home, home_host) if u not in mined
+            ]
+        for url in mined:
+            label = categories.from_url(url, fallback="") or categories.ETC
+            if (label, url) in seen:
+                continue
+            seen.add((label, url))
+            candidates.append((label, "board", url))
+        if mined:
+            notes.append(
+                f"홈에 링크가 {internal}개뿐이라 본문 속 주소 {len(mined)}개를 후보로 삼았습니다"
+            )
 
     # ③ 구조 테스트 — 후보를 열어 '날짜 붙은 목록'만 남긴다.
     # 상한(max_candidates)에 소개·정책 메뉴만 차서 정작 게시판까지 못 가던 문제가
