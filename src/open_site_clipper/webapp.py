@@ -299,6 +299,36 @@ def _row(n: Notice) -> dict:
 
 
 # ── 일괄 점검(배포 후 실측) ──────────────────────────────────────────────────
+def discover_only(
+    org_id: str,
+    *,
+    budget: float = DEFAULT_BUDGET,
+    fetcher: PageFetcher | None = None,
+    delay: float = parallel.DEFAULT_DELAY,
+    clock: Callable[[], float] = time.monotonic,
+) -> dict:
+    """게시판 **발견만** 한다 — 수집 없이 시간을 전부 발견에 쓴다.
+
+    큰 부처는 후보가 수백 개라 발견만 1~2분이 걸린다. 점검을 '발견 → (캐시로) 수집'
+    두 단계로 나누면 한 번의 요청 시간이 짧아도 끝까지 갈 수 있다. 시간이 모자라도
+    그때까지 찾은 경로를 돌려준다(후보는 유력한 것부터 시험하므로 앞쪽이 알차다).
+    """
+    org = catalog()[org_id]
+    started = clock()
+    deadline = _Deadline(
+        _limited(fetcher or TrackingFetcher(), delay), started + budget, clock=clock
+    )
+    found, notes = govdiscover.enrich(replace(org.source, routes=()), fetcher=deadline)
+    return {
+        "id": org.id,
+        "name": org.name,
+        "elapsed": round(clock() - started, 1),
+        "timed_out": deadline.left() <= 0,
+        "found": [list(r) for r in found.routes],
+        "notes": notes[:6],
+    }
+
+
 def verify(
     ids: list[str],
     *,
@@ -307,11 +337,20 @@ def verify(
     budget: float = DEFAULT_BUDGET,
     fetcher: PageFetcher | None = None,
     workers: int = 8,
+    stage: str = "collect",
 ) -> list[dict]:
-    """여러 기관을 동시에 모아 요약만 돌려준다 — 경로 캐시를 굽는 재료가 된다."""
+    """여러 기관을 동시에 모아 요약만 돌려준다 — 경로 캐시를 굽는 재료가 된다.
+
+    stage="discover" 면 발견만 하고 찾은 경로(found)를 돌려준다.
+    """
     known = [i for i in ids if i in catalog()][:VERIFY_MAX_IDS]
 
     def one(org_id: str) -> dict:
+        if stage == "discover":
+            try:
+                return discover_only(org_id, budget=budget, fetcher=fetcher)
+            except Exception as e:
+                return {"id": org_id, "name": catalog()[org_id].name, "error": repr(e)[:200]}
         try:
             got = collect_one(org_id, days=days, fresh=fresh, budget=budget, fetcher=fetcher)
         except Exception as e:  # 한 기관의 오류가 묶음 전체를 막지 않게
@@ -385,6 +424,7 @@ def respond(handler: BaseHTTPRequestHandler, route: str) -> None:
                 fresh=q.get("fresh") != "0",
                 budget=budget,
                 workers=VERIFY_MAX_IDS,
+                stage="discover" if q.get("stage") == "discover" else "collect",
             )
             status, cache = 200, CACHE_VERIFY
             if q.get("format") == "tsv":

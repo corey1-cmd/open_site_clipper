@@ -301,3 +301,9 @@ def test_dev_server_serves_public_and_api(tiny_catalog, tmp_path, monkeypatch):
     finally:
         httpd.shutdown()
         httpd.server_close()
+
+
+def test_discover_stage_returns_found_routes_without_collecting(tiny_catalog):
+    rows = webapp.verify(["u-test"], stage="discover", fetcher=Recorder(PAGES))
+    found = {u for _c, _k, u in rows[0]["found"]}
+    assert f"{SITE}/bbs/notice/list.do" in found and "count" not in rows[0]
