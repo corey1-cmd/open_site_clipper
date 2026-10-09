@@ -85,6 +85,7 @@ _SITE_ROOTS = frozenset(
         "site",
     }
 )
+_HOME_WORDS = frozenset({"main", "index", "home"})
 _HOME_STEM_RE = re.compile(r"^(?:index|main|home|default)|(?:index|main)$", re.I)
 
 
@@ -98,6 +99,10 @@ def looks_like_home(url: str) -> bool:
     """
     parts = urllib.parse.urlsplit(url)
     segs = [s for s in parts.path.split(";", 1)[0].split("/") if s]
+    # '?pCode=main' · '?main=Y' — 쿼리로 첫 화면을 고르는 사이트
+    for key, value in urllib.parse.parse_qsl(parts.query, keep_blank_values=True):
+        if key.lower() in _HOME_WORDS or value.lower() in _HOME_WORDS:
+            return True
     if not segs:
         return not parts.query  # '/' — 쿼리 없는 사이트 뿌리
     if "main" in (s.lower() for s in segs[:-1]):

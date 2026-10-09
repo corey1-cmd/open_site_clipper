@@ -175,6 +175,8 @@ def test_home_pages_are_not_boards():
         "https://www.kw.ac.kr/ko/",
         "https://uhr.humanrights.go.kr/",
         "https://www.mofe.go.kr/;jsessionid=abc",
+        "https://www.kookje.ac.kr/kor/?pCode=main",
+        "https://www.mkc.ac.kr/?main=Y",
     ):
         assert probe.looks_like_home(url), url
         assert probe.classify(ITEM_LIST.encode(), url).verdict == probe.HOME

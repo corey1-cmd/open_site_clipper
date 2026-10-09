@@ -26,7 +26,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "src"))
 
-from open_site_clipper import webapp  # noqa: E402
+from open_site_clipper import probe, webapp  # noqa: E402
 
 CACHE = ROOT / "src" / "open_site_clipper" / "data" / "route-cache.json"
 BATCH = webapp.VERIFY_MAX_IDS
@@ -52,37 +52,92 @@ def bake(results: list[dict], today: str) -> dict:
         doc = {"orgs": {}}
     orgs = doc.setdefault("orgs", {})
     for r in results:
-        if r.get("count") and r.get("routes"):
-            orgs[r["id"]] = {"routes": r["routes"], "count": r["count"], "checked": today}
+        # routes = 실제로 글이 나온 경로만(verify 가 돌려준다). 기간 안 새 글이 0건이어도
+        # 게시판 자체는 살아 있으므로 남긴다. 첫 화면·글 한 건 주소는 한 번 더 거른다.
+        routes = [
+            list(rt)
+            for rt in r.get("routes") or []
+            if rt[1] != "board" or not probe.not_a_board(rt[2])
+        ]
+        if routes:
+            orgs[r["id"]] = {
+                "routes": routes,
+                "count": r.get("count") or 0,
+                "checked": today,
+            }
+        elif r["id"] in orgs and r.get("mode") in ("cache", "rediscover"):
+            del orgs[r["id"]]  # 캐시 경로가 더는 글을 내지 않는다
     doc["updated"] = today
     CACHE.write_text(json.dumps(doc, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     return doc
 
 
+# 못 모은 이유 — 사유 문자열의 앞쪽부터 맞는 것 하나(화면의 PLAIN 과 같은 생각).
+REASONS = (
+    ("robots.txt 차단", "사이트가 자동 수집을 허용하지 않음(robots.txt) — 설계상 수집 안 함"),
+    ("인증서 오류", "보안 인증서 문제(자체 서명·주소 불일치) — 검증을 끄지 않으므로 수집 안 함"),
+    ("Device or resource busy", "배포 서버(해외 클라우드 망) 접속을 받지 않음"),
+    ("시간 초과", "사이트 응답 없음·너무 느림"),
+    ("응답 없음", "사이트 응답 없음·너무 느림"),
+    ("HTTP 오류", "사이트 서버 오류"),
+    ("연결 실패", "사이트 연결 실패"),
+    ("형식 오류", "사이트 연결 실패"),
+    ("후보 ", "홈 메뉴는 읽었으나 게시판이 자바스크립트로만 그려짐(목록 HTML 없음)"),
+)
+
+
+def why_failed(r: dict) -> str:
+    text = " ".join([r.get("error") or ""] + (r.get("notes") or []) + (r.get("failures") or []))
+    if r.get("timed_out") and "후보 " in text:
+        return "후보가 많아 시간 안에 게시판을 다 보지 못함"
+    for key, plain in REASONS:
+        if key in text:
+            if key == "후보 " and " <a> " in text:
+                m = text.split(" <a> ", 1)[1].split("개", 1)[0]
+                if m.isdigit() and int(m) < 20:
+                    return "홈이 자바스크립트로만 그려짐(읽을 링크가 거의 없음)"
+            return plain
+    return "게시판을 찾지 못함"
+
+
 def report(results: list[dict], today: str, days: int) -> str:
     cat = webapp.catalog()
     by_section: dict[str, Counter] = {}
+    why: dict[str, Counter] = {}
     for r in results:
         sec = cat[r["id"]].section if r["id"] in cat else "?"
         c = by_section.setdefault(sec, Counter())
         c["점검"] += 1
-        c["성공" if r.get("count") else "실패"] += 1
+        if r.get("count"):
+            c["글 있음"] += 1
+        elif r.get("routes"):
+            c["연결(기간 내 새 글 없음)"] += 1
+        else:
+            c["못 모음"] += 1
+            why.setdefault(sec, Counter())[why_failed(r)] += 1
         c["건수"] += r.get("count") or 0
     lines = [
         f"# 실측 점검 {today}",
         "",
-        f"배포 서버(서울)에서 최근 {days}일 기준으로 점검했다.",
+        f"배포 서버(Vercel 서울 icn1)에서 기관마다 최대 60초, 최근 {days}일 기준으로 점검했다.",
+        "'연결'은 게시판에서 글을 읽어 왔지만 기간 안 새 글이 없었던 곳이다(고장이 아니다).",
         "",
+        "| 묶음 | 점검 | 글 있음 | 연결(새 글 없음) | 못 모음 | 모은 글 |",
+        "|---|---:|---:|---:|---:|---:|",
     ]
-    lines += ["| 묶음 | 점검 | 글을 모은 곳 | 못 모은 곳 | 모은 글 |", "|---|---:|---:|---:|---:|"]
     for sec, c in by_section.items():
-        lines.append(f"| {sec} | {c['점검']} | {c['성공']} | {c['실패']} | {c['건수']:,} |")
-    fails = [r for r in results if not r.get("count")]
+        lines.append(
+            f"| {sec} | {c['점검']} | {c['글 있음']} | {c['연결(기간 내 새 글 없음)']} "
+            f"| {c['못 모음']} | {c['건수']:,} |"
+        )
+    for sec, reasons in why.items():
+        lines += ["", f"## {sec} — 못 모은 이유", "", "| 이유 | 곳 |", "|---|---:|"]
+        lines += [f"| {k} | {n} |" for k, n in reasons.most_common()]
+    fails = [r for r in results if not r.get("routes")]
     if fails:
         lines += ["", f"## 못 모은 곳 {len(fails)}곳", ""]
         for r in fails:
-            why = r.get("error") or next(iter(r.get("failures") or r.get("notes") or []), "")
-            lines.append(f"- {r['name']} (`{r['id']}`): {str(why)[:200]}")
+            lines.append(f"- {r['name']} (`{r['id']}`): {why_failed(r)}")
     return "\n".join(lines) + "\n"
 
 
