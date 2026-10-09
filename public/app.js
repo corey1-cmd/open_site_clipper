@@ -210,7 +210,8 @@ function renderPick() {
   $('#orgs').innerHTML = list.map((o) => {
     const meta = o.section === '학교' ? [o.region, o.group].filter(Boolean).join(' ') : groupLabel(o.group);
     return `<li><label><input type="checkbox" data-id="${esc(o.id)}"${S.selected.has(o.id) ? ' checked' : ''}>` +
-      `<span class="name">${esc(o.name)}</span><span class="meta">${esc(meta)}</span></label></li>`;
+      `<span class="name">${esc(o.name)}${o.checked ? '<span class="ok" title="실측 점검에서 게시판 글을 읽어 온 곳 — 빨리 모입니다">확인됨</span>' : ''}</span>` +
+      `<span class="meta">${esc(meta)}</span></label></li>`;
   }).join('');
   const empty = $('#pick-empty');
   empty.hidden = !!list.length;

@@ -135,6 +135,10 @@ main, .foot { max-width: 680px; margin: 0 auto; padding: 0 16px; }
 .orgs input { width: 22px; height: 22px; margin: 0; accent-color: var(--ink); flex: none; }
 .orgs .name { flex: 1; font-weight: 500; }
 .orgs .meta { font-size: 13px; color: var(--ink-soft); text-align: right; }
+.orgs .ok {
+  display: inline-block; margin-left: 6px; padding: 0 6px; border: 1px solid var(--ok);
+  border-radius: 999px; font-size: 11px; line-height: 1.6; color: var(--ok); vertical-align: 2px;
+}
 
 .empty { margin: 28px 0; color: var(--ink-soft); text-align: center; }
 
