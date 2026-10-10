@@ -31,7 +31,7 @@ import re
 import urllib.parse
 from html.parser import HTMLParser
 
-from .k2web_parse import Row, anchor_href, coerce_date, is_glyph, parse_rows
+from .k2web_parse import Row, anchor_href, coerce_date, is_file_link, is_glyph, parse_rows
 
 MIN_TITLE_LEN = 4
 MAX_UNIT_LEN = 40
@@ -41,7 +41,8 @@ _ORG_PREFIX_RE = re.compile(r"^\[([^\]]{2,40})\]\s*")
 # 목록에 섞이는 상태 표시 — 제목의 일부가 아니다.
 _BADGE_RE = re.compile(r"^(새글|NEW|신규|공지)\s+", re.I)
 # 제목 **뒤**에 붙는 배지 — K2Web 목록은 '… 모집 공고(~11/11) 새글' 처럼 끝에 단다.
-_BADGE_TAIL_RE = re.compile(r"\s+(새\s?글(?:\s*작성\S*)?|NEW|N)$", re.I)
+# '… 셔틀버스 운행계획 안내 핫이슈'(충청대) 도 같은 배지다.
+_BADGE_TAIL_RE = re.compile(r"\s+(새\s?글(?:\s*작성\S*)?|NEW|N|핫\s?이슈)$", re.I)
 # 목록 한 줄이 통째로 제목 칸에 든 경우의 꼬리 — '… 국제교육원운영팀 조회수 109'(성신여대),
 # '… 담당부서 벤처정책과 첨부 등록일 2026.10.08 조회 37'(중기부), '… 조회 28'(동서대).
 # '조회(1건)' 같은 제목 속 말은 숫자가 바로 붙지 않아 걸리지 않는다.
@@ -324,8 +325,13 @@ def _rows_from(rows: list[list[tuple[str, str]]], base_url: str) -> list[Row]:
     for cells in rows:
         # ① 제목 칸 = 진짜 http(s) 링크를 달고 텍스트가 가장 긴 칸.
         #    (첨부파일 아이콘 링크는 텍스트가 짧아 자연히 밀린다)
+        #    단 **글 링크가 파일 링크보다 먼저다** — 목록에 첨부 파일 이름을 함께 늘어놓는
+        #    게시판은 파일 이름('261007(보도자료) … 현황.hwpx')이 제목보다 길어 제목을
+        #    밀어내고, 글 대신 파일이 바로 내려받아진다(금융위·해수부·성균관대 실측).
+        #    글 링크 글이 너무 짧으면('N'·아이콘) 예전처럼 길이로만 고른다.
         best: int | None = None
         best_url = ""
+        best_rank = (False, 0)
         script: int | None = None  # 주소가 스크립트에만 있는 제목 칸(진짜 링크가 없을 때만 쓴다)
         for i, (text, href) in enumerate(cells):
             if not href or not text.strip() or _is_junk_title(text) or _is_date_only(text):
@@ -335,8 +341,9 @@ def _rows_from(rows: list[list[tuple[str, str]]], base_url: str) -> list[Row]:
                 if _is_script_link(href) and (script is None or len(text) > len(cells[script][0])):
                     script = i
                 continue  # javascript:void(0) · #none 등 — 진짜 주소가 아니다
-            if best is None or len(text) > len(cells[best][0]):
-                best, best_url = i, url
+            rank = (len(text.strip()) >= MIN_TITLE_LEN and not is_file_link(url), len(text))
+            if best is None or rank > best_rank:
+                best, best_url, best_rank = i, url, rank
         if best is None and script is not None:
             # 글 주소를 알 수 없으면 **목록 페이지**로 건다(제목을 조각으로 붙여 글마다
             # 다른 주소가 되게). 지어낸 상세 주소가 아니라, 글이 실제로 보이는 곳이다.

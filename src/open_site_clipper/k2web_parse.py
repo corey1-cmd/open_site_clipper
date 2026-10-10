@@ -83,6 +83,11 @@ _FILE_LINK_RE = re.compile(
 )
 
 
+def is_file_link(href: str) -> bool:
+    """파일을 바로 내려받는(또는 문서 뷰어로 여는) 주소인가 — 글 주소가 아니다."""
+    return bool(_FILE_LINK_RE.search(href or ""))
+
+
 def is_glyph(attrs: list[tuple[str, str | None]]) -> bool:
     cls = (dict(attrs).get("class") or "").lower()
     return any(g in cls for g in GLYPH_CLASSES)
@@ -152,7 +157,7 @@ class _RowParser(HTMLParser):
         assert self._cell is not None and self._row is not None
         raw = "".join(self._cell)
         text, href, tail = raw, self._href, ""
-        pages = [span for span in self._links if not _FILE_LINK_RE.search(span[2])]
+        pages = [span for span in self._links if not is_file_link(span[2])]
         if pages:
             _start, end, link_href = max(
                 pages, key=lambda span: len(raw[span[0] : span[1]].strip())

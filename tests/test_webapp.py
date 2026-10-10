@@ -192,6 +192,37 @@ def test_unknown_org_raises_key_error(tiny_catalog):
         webapp.collect_one("nope")
 
 
+def test_verify_rows_shows_how_cached_boards_split_into_cells(tiny_catalog, monkeypatch):
+    """stage=rows — 캐시한 게시판의 날짜 달린 행을 칸(글자 앞 40자·주소)으로, 고른 제목과 함께."""
+    (tiny_catalog / "route-cache.json").write_text(
+        json.dumps(
+            {
+                "orgs": {
+                    "u-test": {
+                        "routes": [
+                            ["학사공지", "board", f"{SITE}/bbs/notice/list.do"],
+                            ["막힌 곳", "board", f"{SITE}/private/list.do"],
+                            ["피드", "rss", f"{SITE}/rss.xml"],
+                        ]
+                    }
+                }
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    webapp.route_cache.cache_clear()
+    monkeypatch.setattr(robots, "allowed", lambda url, **k: "/private/" not in url)
+    rec = Recorder(PAGES)
+    [got] = webapp.verify(["u-test"], stage="rows", fetcher=rec, delay=0)
+    assert [r["category"] for r in got["routes"]] == ["학사공지", "막힌 곳"]  # 게시판만
+    board, blocked = got["routes"]
+    assert board["table"][0] == [["3", ""], ["수강신청 안내", "/view.do?id=3"], ["2026.10.08.", ""]]
+    assert board["picked"][0] == ["수강신청 안내", f"{SITE}/view.do?id=3", "2026-10-08"]
+    assert blocked["error"] == "robots.txt 차단"
+    assert rec.asked == [f"{SITE}/bbs/notice/list.do"]  # 막힌 주소는 열지 않는다
+
+
 def test_verify_summarises_each_org(tiny_catalog):
     rows = webapp.verify(["u-test", "nope"], days=30, fetcher=Recorder(PAGES), delay=0)
     assert [r["id"] for r in rows] == ["u-test"]  # 모르는 id 는 조용히가 아니라 아예 받지 않는다

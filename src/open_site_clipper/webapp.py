@@ -586,6 +586,63 @@ def media_sample(
     return {"id": org_id, "name": catalog()[org_id].name, "count": got["count"], "samples": samples}
 
 
+VERIFY_STAGES = ("discover", "media", "rows")  # 그 밖은 수집(collect)
+ROWS_PER_ROUTE = 6
+ROWS_ROUTES = 8
+ROWS_CELL_CHARS = 40
+
+
+def rows_sample(
+    org_id: str,
+    *,
+    budget: float = DEFAULT_BUDGET,
+    fetcher: PageFetcher | None = None,
+    delay: float = parallel.DEFAULT_DELAY,
+    clock: Callable[[], float] = time.monotonic,
+) -> dict:
+    """점검용 — 캐시한 게시판 목록이 **칸으로 어떻게 나뉘는지** 보여 준다.
+
+    '이 게시판은 왜 0건인가·왜 제목 대신 파일 이름이 나오나'를 원문 HTML 없이 가려내는 데
+    쓴다. 날짜 달린 행만, 칸 글자는 앞 40자만(목록의 제목·날짜·단추 글자 — 본문이 아니다),
+    robots.txt 가 막은 주소는 열지 않는다.
+    """
+    from . import govweb
+    from .k2web_parse import coerce_date, parse_rows
+
+    org = catalog()[org_id]
+    started = clock()
+    deadline = _Deadline(
+        _limited(fetcher or TrackingFetcher(), delay), started + budget, clock=clock
+    )
+    routes = [r for r in (route_cache().get(org_id) or {}).get("routes") or [] if r[1] == "board"]
+    out = []
+    for category, _kind, url in routes[:ROWS_ROUTES]:
+        item: dict = {"category": category, "url": url}
+        out.append(item)
+        if not robots.allowed(url):
+            item["error"] = "robots.txt 차단"
+            continue
+        data = deadline(url)
+        if not data:
+            item["error"] = deadline.why(url)
+            continue
+        for name, rows in (("table", parse_rows(data)), ("items", govweb.parse_items(data))):
+            dated = [r for r in rows if any(coerce_date(t) for t, _ in r)]
+            item[name] = [
+                [[t[:ROWS_CELL_CHARS], h[:120]] for t, h in r[:8]] for r in dated[:ROWS_PER_ROUTE]
+            ]
+        item["picked"] = [
+            [r.title[:60], r.url[:120], str(r.published or "")]
+            for r in govweb.parse_list(data, url)[:ROWS_PER_ROUTE]
+        ]
+    return {
+        "id": org.id,
+        "name": org.name,
+        "elapsed": round(clock() - started, 1),
+        "routes": out,
+    }
+
+
 # ── 일괄 점검(배포 후 실측) ──────────────────────────────────────────────────
 def discover_only(
     org_id: str,
@@ -634,6 +691,7 @@ def verify(
     """여러 기관을 동시에 모아 요약만 돌려준다 — 경로 캐시를 굽는 재료가 된다.
 
     stage="discover" 면 발견만 하고 찾은 경로(found)를 돌려준다.
+    stage="rows" 면 캐시한 게시판 목록이 칸으로 나뉜 모양을 돌려준다(제목 고르기 점검).
     titles: 기관마다 글 제목을 이만큼 함께 돌려준다(제목 다듬기를 점검할 때 — 화면이
     보여 주는 것과 같은 제목·주소뿐이다).
     """
@@ -648,6 +706,11 @@ def verify(
         if stage == "discover":
             try:
                 return discover_only(org_id, budget=budget, fetcher=fetcher, skip=skip, delay=delay)
+            except Exception as e:
+                return {"id": org_id, "name": catalog()[org_id].name, "error": repr(e)[:200]}
+        if stage == "rows":
+            try:
+                return rows_sample(org_id, budget=budget, fetcher=fetcher, delay=delay)
             except Exception as e:
                 return {"id": org_id, "name": catalog()[org_id].name, "error": repr(e)[:200]}
         try:
@@ -731,7 +794,7 @@ def respond(handler: BaseHTTPRequestHandler, route: str) -> None:
                 fresh=q.get("fresh") != "0",
                 budget=budget,
                 workers=VERIFY_MAX_IDS,
-                stage=q.get("stage") if q.get("stage") in ("discover", "media") else "collect",
+                stage=q.get("stage") if q.get("stage") in VERIFY_STAGES else "collect",
                 skip=max(0, _int(q.get("skip"), 0)),
                 titles=min(max(_int(q.get("titles"), 0), 0), 200),
             )

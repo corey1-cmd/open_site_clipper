@@ -442,3 +442,55 @@ def test_unclosed_icon_glyph_does_not_swallow_the_next_rows():
     <li><a href="view.do?no=5">넷째 줄 공지 제목입니다</a><span>2026.10.04</span></li></ul>"""
     rows = govweb.parse_list(items.encode(), "https://www.x.ac.kr/list.do")
     assert [r.title for r in rows][-2:] == ["셋째 줄 공지 제목입니다", "넷째 줄 공지 제목입니다"]
+
+
+def test_file_name_links_do_not_take_the_title_or_the_post_address():
+    """목록에 첨부 파일 이름을 늘어놓는 게시판 — 파일 이름이 제목보다 길어도 글 링크가 제목이다
+    (금융위·해수부·성균관대 실측). 글 링크가 없으면 예전처럼 파일 링크라도 건다."""
+    items = """<ul>
+      <li><div class="subject"><a href="/no010101/87900?curPage=1">국민참여성장펀드 중간 판매 현황</a></div>
+        <div class="file"><a href="/comm/getFile?srvcId=BBSTY1&amp;upperNo=87900&amp;fileNo=1">\
+261007(보도자료) 국민참여성장펀드 중간(5영업일)판매 현황.hwpx</a></div>
+        <span class="date">2026-10-07</span></li>
+      <li><div class="subject"><a href="/no010101/87899?curPage=1">제2차 국민참여성장펀드 판매 결과</a></div>
+        <div class="file"><a href="/comm/getFile?srvcId=BBSTY1&amp;upperNo=87899&amp;fileNo=1">\
+(보도참고) 제2차 국민참여성장펀드 판매 결과 잔여물량 현황(10.6일).hwpx</a></div>
+        <span class="date">2026-10-06</span></li>
+    </ul>"""
+    rows = govweb.parse_list(items.encode(), "https://www.fsc.go.kr/no010101")
+    assert [(r.title, r.url, str(r.published)) for r in rows] == [
+        (
+            "국민참여성장펀드 중간 판매 현황",
+            "https://www.fsc.go.kr/no010101/87900?curPage=1",
+            "2026-10-07",
+        ),
+        (
+            "제2차 국민참여성장펀드 판매 결과",
+            "https://www.fsc.go.kr/no010101/87899?curPage=1",
+            "2026-10-06",
+        ),
+    ]
+    table = """<table>
+      <tr><td>3</td><td><a href="/doc/view.do?seq=68962">해파리 대량 발생 위기 경보 전면 해제</a></td>
+        <td><a href="/jfile/readDownloadFile.do?fileTypeSeq=68962&amp;fileNum=1">\
+(즉시) 해파리 대량 발생 위기 경보 전면 해제(수산자원정책과).pdf</a></td><td>2026-10-08</td></tr>
+      <tr><td>2</td><td><a href="/doc/view.do?seq=68961">N</a></td>
+        <td><a href="/jfile/readDownloadFile.do?fileTypeSeq=68961&amp;fileNum=1">입찰공고문(청사 시설관리).hml</a></td>
+        <td>2026-10-07</td></tr>
+      <tr><td>1</td><td>규정 개정 알림</td>
+        <td><a href="/regltn/7/6378/1/download.do">3-1-26_취업 규칙(전문)_20260618.hwp</a></td>
+        <td>2026-10-06</td></tr>
+    </table>"""
+    rows = govweb.parse_list(table.encode(), "https://www.mof.go.kr/doc/list.do")
+    assert [(r.title, r.url.rsplit("/", 1)[-1]) for r in rows] == [
+        ("해파리 대량 발생 위기 경보 전면 해제", "view.do?seq=68962"),
+        # 글 링크 글자가 너무 짧거나('N') 글 링크가 아예 없으면 파일 링크라도 건다
+        ("입찰공고문(청사 시설관리).hml", "readDownloadFile.do?fileTypeSeq=68961&fileNum=1"),
+        ("3-1-26_취업 규칙(전문)_20260618.hwp", "download.do"),
+    ]
+
+
+def test_hot_issue_badge_is_not_part_of_the_title():
+    assert govweb._clean_title("2027학년도 수시 1차 면접 신청 안내 핫이슈")[0] == (
+        "2027학년도 수시 1차 면접 신청 안내"
+    )
