@@ -96,6 +96,10 @@ _CHROME_WORDS = frozenset(
         "login",
     }
 )
+# 이웃한 두 낱말을 붙이면 껍데기 — 'user_service_list'(대구가톨릭대 바로가기 묶음) …
+_CHROME_JOINED = frozenset(
+    {"userservice", "quicklink", "quicklinks", "sitelink", "sitelinks", "relatedsite", "linksite"}
+)
 # 이렇게 시작하는 낱말도 껍데기('gnbWrap'·'footerArea'·'sideMenu').
 _CHROME_PREFIXES = (
     "gnb",
@@ -320,25 +324,6 @@ _FILE_URL_HINTS = (
 )
 _VIEW_HINTS = ("미리보기", "바로보기", "뷰어", "preview", "viewer")
 _TTS_HINTS = ("음성", "듣기", "inittts", "tts=")
-# 라벨이 이런 말뿐이면 이름이 없는 것 — 주소·앞 글자에서 파일 이름을 찾는다.
-_GENERIC_LABELS = frozenset(
-    {
-        "",
-        "다운로드",
-        "내려받기",
-        "받기",
-        "바로보기",
-        "미리보기",
-        "보기",
-        "뷰어",
-        "파일",
-        "첨부",
-        "첨부파일",
-        "download",
-        "view",
-        "preview",
-    }
-)
 # 첨부를 한꺼번에(ZIP) 받는 단추 — '일괄 다운로드' 에서 '다운로드' 를 떼면 이 말만 남는다.
 _ALL_FILES_LABELS = frozenset(
     {"일괄", "전체", "모두", "일괄받기", "전체받기", "전체파일", "첨부일괄"}
@@ -353,6 +338,15 @@ _LABEL_TAIL_RE = re.compile(
 _LABEL_NEWWIN_HEAD_RE = re.compile(r"^\s*새\s*창\s*(?:으로\s*)?열림\s*")
 # 깨진 파일 이름('????????.jpg') — 이름이 없는 것으로 본다.
 _MOJIBAKE_RE = re.compile(r"[?�_\s.\-]*\.[A-Za-z0-9]{2,5}")
+# 이 말들로만 된 라벨은 이름이 아니다 — '뷰어보기'·'문서뷰어'·'새창알림'·'바로보기 새창열기'(실측)
+_GENERIC_RE = re.compile(
+    r"(?:[\s()\[\]·:|/-]|새\s*창|열림|열기|이동|알림|문서|뷰어|바로|미리|보기|다운로드|내려받기|"
+    r"받기|파일|첨부|download|view(?:er)?|preview|open)*",
+    re.I,
+)
+# 눈에 안 보이는 글자(폭 없는 공백 등) — '일괄\u200b다운로드' 처럼 낱말 맞추기를 깬다
+_INVISIBLE_RE = re.compile("[\u200b-\u200d\u2060\ufeff]")
+MAX_LABEL = 80
 _NAME_PARAMS = (
     "filenameorg",
     "orgfilename",
@@ -475,9 +469,13 @@ def _words(value: str) -> list[str]:
 def _chrome_word(attrs: dict[str, str]) -> str:
     """id·class·role 에서 껍데기를 뜻하는 낱말(없으면 "")."""
     for key in ("id", "class", "role"):
-        for w in _words(attrs.get(key) or ""):
+        words = _words(attrs.get(key) or "")
+        for w in words:
             if w in _CHROME_WORDS or w.startswith(_CHROME_PREFIXES):
                 return w
+        for a, b in itertools.pairwise(words):
+            if a + b in _CHROME_JOINED:
+                return a + b
     role = (attrs.get("role") or "").lower()
     return role if role in ("navigation", "banner", "contentinfo") else ""
 
@@ -862,8 +860,21 @@ def _cut_after_ext(label: str) -> str:
     return label
 
 
+def _is_generic(label: str) -> bool:
+    return bool(_GENERIC_RE.fullmatch(label or ""))
+
+
+def _shorten(label: str, limit: int = MAX_LABEL) -> str:
+    """긴 이름은 줄이되 확장자는 남긴다(무슨 파일인지는 보이게)."""
+    if len(label) <= limit:
+        return label
+    m = re.search(r"\.[A-Za-z0-9]{2,5}$", label)
+    ext = m.group(0) if m else ""
+    return label[: limit - len(ext) - 1].rstrip() + "…" + ext
+
+
 def _clean(text: str) -> str:
-    label = _cut_after_ext(" ".join((text or "").split()))
+    label = _cut_after_ext(" ".join(_INVISIBLE_RE.sub("", text or "").split()))
     for _ in range(3):  # '공고문 (12KB) 다운로드' 처럼 꼬리가 겹친다
         before = label
         label = _SIZE_TAIL_RE.sub("", _LABEL_TAIL_RE.sub("", label)).strip()
@@ -880,14 +891,14 @@ def _file_label(a: _Anchor, url: str, text: str) -> str:
     label = _clean(text)
     if label.replace(" ", "") in _ALL_FILES_LABELS:
         return ALL_FILES_LABEL
-    if label.lower() not in _GENERIC_LABELS:
-        return label[:80]
+    if not _is_generic(label):
+        return label
     tries = [(a.title, False), (_name_from_url(url), False)]
     tries += [(alt, True) for alt in a.alts] + [(a.before, True)]
     for cand, need_ext in tries:
         c = _clean(cand)
-        if c and c.lower() not in _GENERIC_LABELS and (not need_ext or _HAS_EXT_RE.search(c)):
-            return c[:80]
+        if c and not _is_generic(c) and (not need_ext or _HAS_EXT_RE.search(c)):
+            return c
     return ""
 
 
@@ -998,7 +1009,9 @@ def extract(
         media.kept.append((url, img.where))
 
     files_seen: set[str] = set()
-    last_label = ""  # 바로 앞 첨부의 이름 — 이름 없는 '바로보기'·'뷰어' 링크에 붙인다
+    body_images = bool(media.images)  # 본문(편집기)에 실린 그림이 있는가
+    attached: list[tuple[str, str, str]] = []  # 그림 파일 첨부 (이름, 주소, 자리)
+    last_label = ""  # 바로 앞 첨부의 이름 — 이름 없는 단추('바로보기'·'다운로드')에 붙인다
     for a in scan.anchors:
         if a.chrome or a.pos < start or a.pos > end:
             continue
@@ -1021,18 +1034,29 @@ def extract(
         hay = f"{text} {url}".lower()
         if any(h in hay for h in _TTS_HINTS):
             continue  # 첨부를 소리로 읽어 주는 링크
-        label = _file_label(a, url, text)
+        name = _file_label(a, url, text)
         if any(h in hay for h in _VIEW_HINTS):
             # 문서 뷰어(바로보기·미리보기) — 이름은 링크 주소나 바로 앞 첨부에서
+            base = name or last_label
+            if base and body_images and _IMAGE_EXT_RE.search(base):
+                files_seen.add(url)
+                continue  # 본문에 이미 실린 사진의 '바로보기'
             kind = "보기"
-            name = label or last_label
-            label = f"{name} (바로보기)" if name else "바로보기"
+            label = f"{_shorten(base)} (바로보기)" if base else "바로보기"
+            last_label = name or last_label
         else:
-            kind = _file_kind(url, label)
+            kind = _file_kind(url, name)  # 종류는 이 링크 자신으로만(빌린 이름으로 정하지 않는다)
             if not kind:
                 continue
-            label = label or "첨부"
-            last_label = label
+            if not name and last_label:
+                if any(f.label == _shorten(last_label) for f in media.files):
+                    files_seen.add(url)
+                    continue  # 같은 첨부의 다른 단추(이름 없는 '받기')
+                name = last_label
+                if kind == "파일":
+                    kind = _file_kind(url, name) or kind
+            label = _shorten(name) if name else "첨부"
+            last_label = name or last_label
         files_seen.add(url)
         if allow is not None and not allow(url):
             if kind == "그림":
@@ -1043,16 +1067,25 @@ def extract(
             media.dropped.append((url, "다른 사이트 첨부"))
             continue
         if kind == "그림":
-            # 포스터를 본문 대신 그림 파일로 붙인 글 — 첨부 목록 대신 그림으로 보여 준다
-            if url not in seen and len(media.images) < MAX_IMAGES:
-                seen.add(url)
-                media.images.append(Image(src=url, full=url, alt=label))
-                media.kept.append((url, a.where))
+            attached.append((label, url, a.where))
             continue
         media.files.append(File(label, url, kind))
         media.kept.append((url, a.where))
         if len(media.files) >= MAX_FILES:
             break
+    # 그림 파일 첨부 — 본문에 그림이 없으면(포스터를 파일로만 붙인 글) 그림으로 보여 주고,
+    # 본문에 그림이 있으면 같은 사진을 두 번 보이지 않게 첨부 목록에 둔다.
+    for label, url, where in attached:
+        if url in seen:
+            continue
+        seen.add(url)
+        if body_images:
+            if len(media.files) < MAX_FILES:
+                media.files.append(File(label, url, "그림"))
+                media.kept.append((url, where))
+        elif len(media.images) < MAX_IMAGES:
+            media.images.append(Image(src=url, full=url, alt=label))
+            media.kept.append((url, where))
     media.images = media.images[:MAX_IMAGES]
 
     for t in scan.tables:

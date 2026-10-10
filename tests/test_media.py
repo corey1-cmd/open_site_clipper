@@ -49,12 +49,12 @@ def test_finds_the_poster_and_attachments_of_a_k2web_post():
     m = media.extract(K2WEB, HUFS, title=TITLE)
     assert m.title_found
     srcs = [i.src for i in m.images]
-    assert srcs[0] == "https://student.hufs.ac.kr/CrossEditor/binary/images/000560/포스터.png"
-    # 그림 파일로 붙인 포스터도 그림으로 보여 준다(첨부 목록에는 넣지 않는다)
-    assert srcs[1].endswith("download.do?seq=3") and len(srcs) == 2
+    assert srcs == ["https://student.hufs.ac.kr/CrossEditor/binary/images/000560/포스터.png"]
     assert [(f.label, f.kind) for f in m.files] == [
         ("공모전 요강.hwp", "HWP"),
         ("공모전 요강.hwp (바로보기)", "보기"),  # 이름 없는 미리보기 — 바로 앞 첨부의 이름
+        # 본문에 그림이 이미 있으면 그림 파일 첨부는 목록에(같은 사진을 두 번 보이지 않게)
+        ("웹포스터.jpg", "그림"),
     ]
     assert m.script_files == 1 and m.inline_images == 1
     assert m.tables == 1 and m.wide_tables == 1
@@ -379,3 +379,48 @@ def test_media_for_counts_other_site_pictures(allow_all):
     )
     assert [i["src"] for i in got["images"]] == ["https://www.test.ac.kr/upload/2026/p.png"]
     assert got["outside_images"] == 1 and got["outside_files"] == 0
+
+
+def test_poster_attached_only_as_a_file_is_shown_as_a_picture():
+    page = """<body><h3>공모전 포스터 안내입니다</h3><p>본문</p>
+    <ul class="file"><li><a href="/bbs/x/1/download.do?seq=3">웹포스터.jpg</a></li>
+    <li><a href="/viewer/view.do?seq=3">바로보기</a></li></ul></body>"""
+    m = media.extract(
+        page, "https://www.x.ac.kr/bbs/x/1/artclView.do", title="공모전 포스터 안내입니다"
+    )
+    assert [i.src.rsplit("/", 1)[-1] for i in m.images] == ["download.do?seq=3"]
+    # 본문 그림이 없으니 그림 파일의 '바로보기'는 남긴다
+    assert [(f.label, f.kind) for f in m.files] == [("웹포스터.jpg (바로보기)", "보기")]
+
+
+def test_photo_viewer_links_and_unnamed_second_buttons_are_not_repeated():
+    page = """<body><h3>동물보호의 날 기념식 사진</h3>
+    <img src="/upload/2026/a.jpg"><img src="/upload/2026/b.jpg">
+    <ul class="file">
+     <li><a href="/download.do?f=1">보도자료.hwpx</a> <a href="/download.do?f=1&amp;mode=2"></a>
+         <a href="/viewer/doc.html?f=1">뷰어보기</a></li>
+     <li><a href="/download.do?f=2">1.jpg</a> <a href="/viewer/doc.html?f=2">바로보기</a></li>
+     <li><span>공고문.pdf</span> <a href="/preview.do?f=3">문서뷰어</a> <a href="/fileDown.do?f=3"></a></li>
+    </ul></body>"""
+    m = media.extract(page, "https://www.x.go.kr/view.do?id=1", title="동물보호의 날 기념식 사진")
+    assert [(f.label, f.kind) for f in m.files] == [
+        ("보도자료.hwpx", "HWP"),  # 이름 없는 두 번째 '받기' 단추는 같은 첨부 — 한 번만
+        ("보도자료.hwpx (바로보기)", "보기"),  # '뷰어보기' 는 이름이 아니다
+        ("공고문.pdf (바로보기)", "보기"),
+        (
+            "공고문.pdf",
+            "PDF",
+        ),  # 이름 없는 받기 단추 — 앞의 이름을 빌린다(앞에 같은 이름의 받기가 없으므로)
+        ("1.jpg", "그림"),  # 본문에 사진이 있으면 그림 첨부는 목록에, 그 '바로보기'는 뺀다
+    ]
+
+
+def test_long_names_keep_their_extension_and_invisible_characters_do_not_break_words():
+    long = "사진1._임하수_산림청_차장(왼쪽에서_여섯번째)이_충북_충주시_수안보면_온천2리_마을회관에서_열린_소각산불_없는_우수_녹색마을_현판_수여식에_참석해_주민들과_기념촬영을_하고_있다.jpg"
+    page = f"""<body><h3>소각산불 없는 녹색마을 격려</h3><p>본문</p>
+    <a href="/cmm/fms/FileDown.do?atchFileId=A&amp;fileSn=1">{long}</a>
+    <a href="/common/downloadAllZip.do?bbs_seq=1">일괄\u200b다운로드</a></body>"""
+    m = media.extract(page, "https://www.x.go.kr/v.do?id=1", title="소각산불 없는 녹색마을 격려")
+    labels = [i.alt for i in m.images] + [f.label for f in m.files]
+    assert labels[0].endswith("….jpg") and len(labels[0]) <= media.MAX_LABEL
+    assert labels[1] == media.ALL_FILES_LABEL

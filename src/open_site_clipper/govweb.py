@@ -52,6 +52,8 @@ _ATTACH_HEAD_RE = re.compile(r"^첨부\s*파일\s*있음\s*(?:열기)?\s*")
 # 세미콜론까지 갖춘 것만 푼다('R&D'·'Q&A' 는 그대로). 잘린 꼬리('…&middo')는 뗀다.
 _ENTITY_RE = re.compile(r"&(?:#\d{1,7}|#x[0-9a-f]{1,6}|[a-z][a-z0-9]{1,7});", re.I)
 _BROKEN_ENTITY_TAIL_RE = re.compile(r"&[a-z]{2,8}$", re.I)
+# 폭 없는 공백 등 보이지 않는 글자 — 같은 제목이 다르게 보여 겹침 정리를 깬다
+_INVISIBLE_RE = re.compile("[\u200b-\u200d\u2060\ufeff]")
 # 첨부파일 칸 — '한글 파일 PDF 파일 이미지 파일' 처럼 파일 종류만 나열된다.
 # 이 칸이 제목보다 길어져 제목 자리를 빼앗는 일이 실제로 있었다(새만금개발청).
 _ATTACH_RE = re.compile(
@@ -110,7 +112,7 @@ def _unescape_twice(text: str) -> str:
 def _clean_title(text: str) -> tuple[str, str]:
     """제목에서 '[기관명]' 접두와 '새글'·'첨부파일 있음' 표시를 떼어 (제목, 기관명)으로."""
     unit = ""
-    title = _unescape_twice(" ".join(text.split()))
+    title = _unescape_twice(" ".join(_INVISIBLE_RE.sub("", text).split()))
     title = _ATTACH_HEAD_RE.sub("", title)
     title = _BADGE_RE.sub("", title)
     m = _ORG_PREFIX_RE.match(title)
