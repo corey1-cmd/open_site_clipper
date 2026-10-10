@@ -982,11 +982,6 @@
   "gov-mfds": {
    "routes": [
     [
-     "자료",
-     "board",
-     "https://mfds.go.kr/www/rss/list.do"
-    ],
-    [
      "법령",
      "board",
      "https://www.mfds.go.kr/brd/m_207/list.do"
@@ -3458,11 +3453,6 @@
   },
   "u-cau": {
    "routes": [
-    [
-     "스포츠단 활동",
-     "board",
-     "http://sport.cau.ac.kr/s_results"
-    ],
     [
      "중앙인 커뮤니티",
      "board",
@@ -8025,27 +8015,6 @@
    "count": 17,
    "checked": "2026-10-10"
   },
-  "u-ttc": {
-   "routes": [
-    [
-     "고지서출력",
-     "board",
-     "https://entr.ttc.ac.kr/contents/application/application06.do"
-    ],
-    [
-     "원서접수",
-     "board",
-     "https://entr.ttc.ac.kr/contents/application/application01.do"
-    ],
-    [
-     "합격자발표",
-     "board",
-     "https://entr.ttc.ac.kr/contents/application/application03.do"
-    ]
-   ],
-   "count": 5,
-   "checked": "2026-10-10"
-  },
   "u-ghu": {
    "routes": [
     [
@@ -8750,16 +8719,6 @@
      "https://www.ok.ac.kr/www/selectBbsNttList.do?bbsNo=63&key=38"
     ],
     [
-     "장학",
-     "board",
-     "https://www.ok.ac.kr/www/selectBbsNttList.do?bbsNo=28&key=5159"
-    ],
-    [
-     "참여",
-     "board",
-     "https://www.ok.ac.kr/www/selectBbsNttList.do?bbsNo=24&key=5468"
-    ],
-    [
      "채용",
      "board",
      "https://www.ok.ac.kr/www/selectBbsNttList.do?bbsNo=35&key=5167"
@@ -8768,11 +8727,6 @@
      "종합민원실",
      "board",
      "https://www.ok.ac.kr/www/selectBbsNttList.do?bbsNo=29&key=5160"
-    ],
-    [
-     "학사",
-     "board",
-     "https://www.ok.ac.kr/www/selectBbsNttList.do?bbsNo=27&key=5158"
     ],
     [
      "공지사항",
@@ -8911,11 +8865,6 @@
      "동아리",
      "board",
      "https://www.kijeon.ac.kr/kor/CMS/Board/Board.do?mCode=MN148"
-    ],
-    [
-     "문의사항",
-     "board",
-     "https://www.kijeon.ac.kr/kor/CMS/Board/Board.do?mCode=MN060"
     ],
     [
      "대학안내",

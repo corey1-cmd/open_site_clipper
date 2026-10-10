@@ -542,7 +542,8 @@ def test_script_link_titles_beat_file_names_and_take_the_attachment_address():
 
 def test_card_lists_with_only_a_details_button_take_the_text_title():
     """링크가 '자세히보기' 단추뿐인 카드형 목록 — 링크 밖의 제목 글을 쓰고 주소는 단추의 것
-    (한예종 뉴스레터·매거진 실측). 번호·'발행일 -'·'by 아이디' 는 제목감이 아니다."""
+    (한예종 뉴스레터·매거진 실측). 번호·'발행일 -'·'by 아이디' 는 제목감이 아니고, '바로가기'
+    단추뿐인 안내 표(원서접수 기간 — 대구공업대 실측)는 글 목록이 아니다."""
     page = """<ul>
       <li><span class="new">N</span><span>K-Arts</span><strong>매거진 K-Arts Vol.59</strong>
         <span>발행일 -</span><span>2026-09-28</span>
@@ -553,7 +554,11 @@ def test_card_lists_with_only_a_details_button_take_the_text_title():
         <a href="/s_results/15799">2026/10/04</a><a href="/s_results/15799">teamWebMaster</a>
         <a href="/s_results/15799">Views</a></li>
       <li><span>2026-09-01</span><p>캠퍼스 소식 모음</p><a href="/cop/bbs/list.do">더보기</a></li>
-    </ul>"""
+    </ul>
+    <table><tr><td>원서접수</td><td>2026-09-07∼2026-09-30</td><td>서비스 기간이 아닙니다.</td>
+      <td><a href="/contents/application/application01.do">바로가기</a></td></tr>
+    <tr><td>합격조회</td><td>2026-10-23∼2026-12-31</td><td>서비스 기간이 아닙니다.</td>
+      <td><a href="/contents/application/application03.do">바로가기</a></td></tr></table>"""
     base = "https://www.karts.ac.kr/cop/bbs/list.do"
     rows = govweb.parse_list(page.encode(), base)
     assert [(r.title, r.url.rsplit("=", 1)[-1], str(r.published)) for r in rows] == [

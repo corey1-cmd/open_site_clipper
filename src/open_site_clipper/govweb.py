@@ -376,8 +376,8 @@ def _title_cell(cells: list[tuple[str, str]], base_url: str) -> tuple[int, str, 
     """행에서 (제목 칸, 글 주소, 제목이 링크 밖 글인가)를 고른다. 못 고르면 None.
 
     차례: ① 글 링크(파일 아닌 진짜 주소, 글자 MIN_TITLE_LEN 이상) 중 가장 긴 것
-    ② 스크립트 링크 제목 — 주소는 같은 행의 첨부 파일·단추 주소, 없으면 목록 페이지
-    ③ 첨부 파일 링크(파일 이름이 곧 제목인 게시판) ④ 링크가 단추('자세히보기')뿐인
+    ② 스크립트 링크 제목 — 주소는 같은 행의 문서 보기 단추·첨부 파일, 없으면 목록 페이지
+    ③ 첨부 파일 링크(파일 이름이 곧 제목인 게시판) ④ 링크가 보기 단추('자세히보기')뿐인
     카드형 목록 — 링크 밖 글 중 제목감 + 단추 주소.
 
     첨부 파일 이름('261007(보도자료) … 현황.hwpx')이 제목보다 길어 제목을 밀어내고
@@ -386,7 +386,7 @@ def _title_cell(cells: list[tuple[str, str]], base_url: str) -> tuple[int, str, 
     '자세히보기'가 제목이 되던 것(한예종 실측)을 바로잡는다.
     """
     page = script = filed = None
-    page_url = file_url = button_url = view_url = ""
+    page_url = file_url = view_url = ""
     listing = urllib.parse.urlsplit(base_url)._replace(fragment="").geturl()
 
     def longer(i: int, j: int | None) -> bool:
@@ -397,13 +397,16 @@ def _title_cell(cells: list[tuple[str, str]], base_url: str) -> tuple[int, str, 
             continue
         url = _real_link(href, base_url) or _script_url(href, base_url)
         if _is_junk_title(text):
-            # 단추 주소 — 목록 자신을 가리키는 것('더보기' → 목록)은 글 주소가 아니다.
-            # 보는 단추('바로보기'·'자세히보기')를 내려받기('첨부파일 전체다운로드')보다 먼저.
-            if url and url.split("#", 1)[0] != listing and _is_button_text(text):
-                if _VIEW_WORD_RE.search(text):
-                    view_url = view_url or url
-                else:
-                    button_url = button_url or url
+            # 글을 '보는' 단추('자세히보기'·'바로보기'·'첨부파일 문서보기')의 주소 — 제목이
+            # 링크가 아닌 행의 글 주소로 쓴다. 목록 자신을 가리키는 것은 글 주소가 아니다.
+            if (
+                url
+                and not view_url
+                and url.split("#", 1)[0] != listing
+                and _is_button_text(text)
+                and _VIEW_WORD_RE.search(text)
+            ):
+                view_url = url
             continue
         if not url:
             if _is_script_link(href) and longer(i, script):
@@ -419,14 +422,16 @@ def _title_cell(cells: list[tuple[str, str]], base_url: str) -> tuple[int, str, 
     if script is not None and len(cells[script][0].strip()) >= MIN_TITLE_LEN:
         # 글 주소를 알 수 없으면 같은 행의 첨부(글의 내용)로, 그것도 없으면 **목록 페이지**로
         # 건다(제목을 조각으로 붙여 글마다 다른 주소가 되게). 지어낸 상세 주소가 아니다.
-        url = view_url or file_url or button_url or _board_anchor(base_url, cells[script][0])
+        url = view_url or file_url or _board_anchor(base_url, cells[script][0])
         return script, url, False
     if filed is not None:
         return filed, file_url, False
-    if view_url or button_url:
+    if view_url:
+        # '바로가기'·'더보기'·'다운로드' 단추뿐인 행은 글이 아니다(원서접수 안내 표 같은 것 —
+        # 대구공업대 실측). 글을 '보는' 단추가 있을 때만 링크 밖 글을 제목으로 삼는다.
         plain = _plain_title(cells)
         if plain is not None:
-            return plain, view_url or button_url, True
+            return plain, view_url, True
     return None
 
 
