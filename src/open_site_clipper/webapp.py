@@ -379,6 +379,7 @@ def _row(n: Notice) -> dict:
         "group": categories.canonical(n.category) if n.category else "미분류",
         "unit": n.unit if n.unit and n.unit not in (n.org, n.agency) else "",
         "origin": n.origin or (origin_label(n.url, "board") if n.url else ""),
+        "media": media_ready(n.url, n.title),
     }
 
 
@@ -411,12 +412,33 @@ def media_hosts() -> frozenset[str]:
     return frozenset(hosts)
 
 
+# 공공·교육 기관의 도메인 — 목록 기관의 글이 다른 기관 누리집(옛 도메인·입학처·사업단)
+# 으로 이어지기도 한다(강서대 글 → entrance.kcu.ac.kr). 상업 사이트(언론사 등)는 열지 않는다.
+_PUBLIC_SUFFIXES = (".ac.kr", ".go.kr", ".re.kr")
+
+
 def media_allowed(url: str) -> bool:
     parts = urllib.parse.urlsplit(url or "")
     host = (parts.hostname or "").lower()
     if parts.scheme not in ("http", "https") or not host or ":" in host or _IP_RE.match(host):
         return False
+    if host.endswith(_PUBLIC_SUFFIXES):
+        return True
     return any(host == h or host.endswith("." + h) for h in media_hosts())
+
+
+def media_ready(url: str, title: str) -> bool:
+    """이 글에 '그림·첨부' 단추를 달아도 되는가(화면이 단추를 그릴지 정한다)."""
+    return media_allowed(url) and not _board_anchor(url, title)
+
+
+# 글 화면이 아니라 파일(HWP·PDF·ZIP …)이 바로 내려오는 주소 — 파일의 첫 바이트.
+_BINARY_HEADS = (b"%PDF", b"PK\x03\x04", b"\xd0\xcf\x11\xe0", b"\x89PNG", b"\xff\xd8\xff", b"GIF8")
+
+
+def _looks_binary(data: bytes) -> bool:
+    head = data[:2048]
+    return head.startswith(_BINARY_HEADS) or b"\x00" in head
 
 
 def _board_anchor(url: str, title: str) -> bool:
@@ -457,6 +479,9 @@ def media_for(
     if data is None:
         why = getattr(get, "why", None)
         out["error"] = why(page) if callable(why) else "응답 없음"
+        return out
+    if _looks_binary(data):
+        out["error"] = "글 화면이 아니라 파일 주소입니다 — 원문 열기로 받으세요"
         return out
     found = media.extract(decode_text(data), page, title=title)
     # 본문을 iframe 으로 따로 띄우는 게시판 — 같은 사이트의 첫 iframe 을 한 번 더 본다.

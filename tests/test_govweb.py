@@ -281,3 +281,12 @@ def test_locked_posts_are_not_notices():
     <tr><td><a href="/v2">비밀글입니다</a></td><td>2026.10.06</td></tr>
     </table>"""
     assert govweb.parse_list(page.encode(), "https://x.ac.kr/temp/help") == []
+
+
+def test_paging_rows_and_button_words_are_not_titles():
+    """쪽 번호 줄('1 2 3 … 10')과 '자세히보기'가 글 제목으로 잡혔다(농협대·한예종 실측)."""
+    assert govweb._is_junk_title("1 2 3 4 5 6 7 8 9 10")
+    assert govweb._is_junk_title("처음 이전 1 2 3 다음 마지막")
+    assert govweb._is_junk_title("자세히보기")
+    assert not govweb._is_junk_title("2026학년도 2학기 국가근로장학생 모집")
+    assert not govweb._is_junk_title("2027 수시 1차 합격자 발표")

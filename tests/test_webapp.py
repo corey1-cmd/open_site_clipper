@@ -516,3 +516,14 @@ def test_cached_board_names_are_tidied_for_display(tiny_catalog):
     shown = {r["title"]: r["category"] for r in got["notices"]}
     assert shown == {"운동장 보수 안내": "공지사항", "축제 일정 안내": "기타"}
     assert [c for c, _k, _u in got["routes"]] == ["공지사항", "기타"]
+
+
+def test_rows_say_whether_pictures_can_be_looked_up(tiny_catalog):
+    """화면은 이 표시가 있는 글에만 '그림·첨부' 단추를 단다."""
+    webapp.media_hosts.cache_clear()
+    rec = Recorder(PAGES)
+    got = _collect(days=30, fetcher=rec)
+    assert got["notices"] and all(r["media"] for r in got["notices"])
+    anchor = f"{SITE}/list.do#%EC%9E%A5%ED%95%99%EC%83%9D%20%EB%AA%A8%EC%A7%91"
+    assert not webapp.media_ready(anchor, "장학생 모집")
+    assert not webapp.media_ready("https://news.example.com/a?id=1", "기사")

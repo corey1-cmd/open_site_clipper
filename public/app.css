@@ -225,6 +225,32 @@ main, .foot { max-width: 680px; margin: 0 auto; padding: 0 16px; }
   background: var(--seal); vertical-align: 3px;
 }
 .item .src { flex-basis: 100%; overflow-wrap: anywhere; opacity: .85; }
+.item .mbtn {
+  border: 1px solid var(--rule); background: var(--sheet); color: var(--blue);
+  border-radius: 999px; padding: 2px 10px; font: inherit; font-weight: 600; cursor: pointer;
+}
+.item .mbtn[aria-expanded="true"] { background: var(--blue-soft); border-color: var(--blue); }
+.media { margin-top: 10px; }
+.media .pics { display: grid; gap: 10px; }
+.media .pic {
+  display: block; border: 1px solid var(--rule); border-radius: 8px; overflow: hidden;
+  background: var(--sheet);
+}
+.media .pic img { display: block; width: 100%; height: auto; }
+.media .pic-fail { display: block; padding: 14px; font-size: 14px; color: var(--blue); }
+.media .files { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 6px; }
+.media .files a {
+  display: flex; gap: 8px; align-items: baseline; padding: 10px 12px; border: 1px solid var(--rule);
+  border-radius: 8px; background: var(--sheet); color: var(--ink); text-decoration: none;
+  overflow-wrap: anywhere; font-size: 15px;
+}
+.media .kind {
+  flex: none; font-size: 11px; font-weight: 700; letter-spacing: .02em; color: var(--blue);
+  border: 1px solid currentColor; border-radius: 4px; padding: 0 4px;
+}
+.media .mnote { margin: 8px 0 0; font-size: 13px; color: var(--ink-soft); }
+.media .mfoot { margin: 10px 0 0; font-size: 12px; color: var(--ink-soft); }
+.media .orig { color: var(--blue); font-weight: 600; }
 
 .fails { margin-top: 22px; }
 .fails summary { cursor: pointer; font-weight: 600; padding: 8px 0; }

@@ -482,6 +482,7 @@ function renderList() {
     }
     html += `<li class="item"><a class="t" href="${esc(safeUrl(n.url))}" target="_blank" rel="noopener">${n.fresh ? '<span class="new" title="새 글"></span>' : ''}${esc(n.title)}</a>` +
       `<div class="m"><span class="org">${esc(n.org)}</span><span>${esc(n.category || n.group)}</span>${n.unit ? `<span>${esc(n.unit)}</span>` : ''}` +
+      `${n.media ? `<button type="button" class="mbtn" data-url="${esc(n.url)}" data-title="${esc(n.title)}" aria-expanded="false">그림·첨부</button>` : ''}` +
       `${n.origin ? `<span class="src">${esc(n.origin)}</span>` : ''}</div></li>`;
   }
   html += '</ol>';
@@ -490,6 +491,88 @@ function renderList() {
   }
   box.innerHTML = html;
   $('#after').hidden = !run.finished;
+}
+
+// ── 글 한 건의 그림·첨부 ───────────────────────────────────────────────────
+// 학교 글 화면은 큰 그림을 원래 크기로 두고 가로 이동·확대를 막아 휴대폰에서 잘린다.
+// 서버가 그림·첨부의 **주소**만 찾아 주고, 그림은 이 화면이 원래 사이트에서 바로
+// 불러와 폭에 맞춰 보여 준다(누르면 그림만 열려 확대할 수 있다). 본문 글자는 없다.
+const MEDIA = new Map();          // 글 주소 → 서버 답(같은 글을 다시 열면 바로)
+const MEDIA_TIMEOUT = 40000;
+
+async function loadMedia(url, title) {
+  if (MEDIA.has(url)) return MEDIA.get(url);
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), MEDIA_TIMEOUT);
+  try {
+    const res = await fetch(`/api/media?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`, { signal: ctl.signal });
+    const body = await res.json().catch(() => ({ error: `서버 응답 오류(${res.status})` }));
+    if (res.ok && !body.error) MEDIA.set(url, body);
+    return res.ok ? body : { error: body.error || `서버 응답 오류(${res.status})` };
+  } catch (e) {
+    return { error: e.name === 'AbortError' ? '시간 초과' : '연결 실패' };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function mediaHtml(m, url) {
+  const open = `<a class="orig" href="${esc(safeUrl(url))}" target="_blank" rel="noopener">원문 열기</a>`;
+  if (m.error) {
+    return `<p class="mnote">${esc(plainWhy(m.error) || m.error)}</p><p>${open}</p>`;
+  }
+  const imgs = m.images || [];
+  const files = m.files || [];
+  let html = '';
+  if (imgs.length) {
+    html += `<div class="pics">${imgs.map((i) =>
+      `<a class="pic" href="${esc(safeUrl(i.full || i.src))}" target="_blank" rel="noreferrer noopener">` +
+      `<img src="${esc(safeUrl(i.src))}" alt="${esc(i.alt || '글에 실린 그림')}" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a>`).join('')}</div>` +
+      '<p class="mnote">그림을 누르면 그림만 따로 열립니다 — 두 손가락으로 확대·이동해 보세요.</p>';
+  }
+  if (files.length) {
+    html += `<ul class="files">${files.map((f) =>
+      `<li><a href="${esc(safeUrl(f.url))}" target="_blank" rel="noreferrer noopener"><span class="kind">${esc(f.kind)}</span>${esc(f.label)}</a></li>`).join('')}</ul>`;
+  }
+  const notes = [];
+  if (m.tables) {
+    notes.push(`이 글에는 표가 ${m.tables}개 있습니다. 표는 글자라 원문에서 보셔야 합니다` +
+      (m.wide_tables ? ' — 잘려 보이면 브라우저의 ‘데스크톱 사이트(PC 버전)’ 보기를 켜 보세요.' : '.'));
+  }
+  if (m.inline_images) notes.push(`원문에서만 보이는 그림이 ${m.inline_images}개 더 있습니다.`);
+  if (m.script_files) notes.push(`원문에서만 받을 수 있는 첨부가 ${m.script_files}개 더 있습니다.`);
+  if (!imgs.length && !files.length && !notes.length) notes.push('이 글에서 그림·첨부를 찾지 못했습니다.');
+  html += notes.map((t) => `<p class="mnote">${esc(t)}</p>`).join('');
+  return `${html}<p class="mfoot">그림·파일은 원래 사이트에서 바로 불러옵니다(이 앱은 저장하지 않습니다) · ${open}</p>`;
+}
+
+async function toggleMedia(btn) {
+  const item = btn.closest('.item');
+  let box = item.querySelector('.media');
+  if (box) {
+    const open = box.hidden;
+    box.hidden = !open;
+    btn.setAttribute('aria-expanded', String(open));
+    return;
+  }
+  box = document.createElement('div');
+  box.className = 'media';
+  box.setAttribute('aria-live', 'polite');
+  box.innerHTML = '<p class="mnote">그림·첨부를 찾는 중…</p>';
+  item.append(box);
+  btn.setAttribute('aria-expanded', 'true');
+  const m = await loadMedia(btn.dataset.url, btn.dataset.title);
+  box.innerHTML = mediaHtml(m, btn.dataset.url);
+}
+
+// 원래 사이트가 다른 곳에서 그림을 못 쓰게 막았으면 — 그림 자리에 '눌러서 열기'를 남긴다.
+function onPicError(e) {
+  const img = e.target;
+  if (!(img instanceof HTMLImageElement) || !img.closest('.pic')) return;
+  const span = document.createElement('span');
+  span.className = 'pic-fail';
+  span.textContent = '그림을 여기서 불러오지 못했습니다 — 눌러서 원래 사이트에서 열기';
+  img.replaceWith(span);
 }
 
 function shortWhy(r) {
@@ -646,8 +729,11 @@ function bindEvents() {
   $('#org-filter').addEventListener('change', (e) => { S.filter.org = e.target.value; S.shown = PAGE; renderList(); });
   $('#tq').addEventListener('input', (e) => { S.filter.q = e.target.value; S.shown = PAGE; renderList(); });
   $('#notices').addEventListener('click', (e) => {
-    if (e.target.id === 'more') { S.shown += PAGE; renderList(); }
+    if (e.target.id === 'more') { S.shown += PAGE; renderList(); return; }
+    const btn = e.target.closest('.mbtn');
+    if (btn) toggleMedia(btn);
   });
+  $('#notices').addEventListener('error', onPicError, true);
 
   $('#share').addEventListener('click', share);
   $('#save').addEventListener('click', saveReport);

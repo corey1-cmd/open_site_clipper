@@ -67,6 +67,9 @@ def _is_date_only(text: str) -> bool:
 
 
 # 잠긴 글 — 제목 대신 '비공개 - 비밀글이며 관리자와 작성자만 …' 이 나온다(민원·문의 게시판).
+_PAGING_RE = re.compile(
+    r"^(?:[\d\s<>«»‹›|·./\-]|처음|이전|다음|마지막|맨앞|맨뒤|prev|next|first|last)+$", re.I
+)
 _SECRET_RE = re.compile(r"^(?:비공개|비밀글)|비밀글(?:이며|입니다)|작성자만 열람", re.I)
 
 
@@ -74,6 +77,11 @@ def _is_junk_title(text: str) -> bool:
     """제목으로 볼 수 없는 칸 — 첨부 목록·주소·잠긴 글·지나치게 긴 메뉴 뭉치."""
     t = " ".join((text or "").split())
     if not t or _ATTACH_RE.match(t) or _URL_TITLE_RE.match(t) or _SECRET_RE.search(t):
+        return True
+    # 쪽 번호 줄('1 2 3 4 5 … 10')·'자세히보기' 같은 단추 글자가 글로 잡혔다(농협대·한예종 실측)
+    from . import categories
+
+    if _PAGING_RE.match(t) or categories.is_meaningless(t):
         return True
     # 메뉴 전체가 한 칸에 뭉쳐 들어온 경우(성평등가족부·식약처에서 관측)
     return len(t) > 120
