@@ -629,10 +629,13 @@ def verify(
     stage: str = "collect",
     skip: int = 0,
     delay: float = parallel.DEFAULT_DELAY,
+    titles: int = 0,
 ) -> list[dict]:
     """여러 기관을 동시에 모아 요약만 돌려준다 — 경로 캐시를 굽는 재료가 된다.
 
     stage="discover" 면 발견만 하고 찾은 경로(found)를 돌려준다.
+    titles: 기관마다 글 제목을 이만큼 함께 돌려준다(제목 다듬기를 점검할 때 — 화면이
+    보여 주는 것과 같은 제목·주소뿐이다).
     """
     known = [i for i in ids if i in catalog()][:VERIFY_MAX_IDS]
 
@@ -656,10 +659,13 @@ def verify(
         groups: dict[str, int] = {}
         for n in got["notices"]:
             groups[n["group"]] = groups.get(n["group"], 0) + 1
-        return {
+        out = {
             k: got[k]
             for k in ("id", "name", "count", "seen", "mode", "elapsed", "timed_out", "routes")
         } | {"groups": groups, "failures": got["failures"][:6], "notes": got["notes"][:4]}
+        if titles:
+            out["titles"] = [[n["title"], n["url"]] for n in got["notices"][:titles]]
+        return out
 
     with ThreadPoolExecutor(max_workers=max(1, min(workers, len(known) or 1))) as pool:
         return list(pool.map(one, known))
@@ -727,6 +733,7 @@ def respond(handler: BaseHTTPRequestHandler, route: str) -> None:
                 workers=VERIFY_MAX_IDS,
                 stage=q.get("stage") if q.get("stage") in ("discover", "media") else "collect",
                 skip=max(0, _int(q.get("skip"), 0)),
+                titles=min(max(_int(q.get("titles"), 0), 0), 200),
             )
             status, cache = 200, CACHE_VERIFY
             if q.get("format") == "tsv":
