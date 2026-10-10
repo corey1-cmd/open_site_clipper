@@ -251,3 +251,25 @@ def test_urls_written_inside_scripts_are_read_not_invented():
         "https://x.go.kr/board/view.do?no=7",
         "https://x.go.kr/n/view.jsp?id=8",
     ]
+
+
+def test_trailing_new_badge_is_not_part_of_the_title():
+    assert govweb._clean_title("[교외] 대산장학생 모집 공고(~11/11) 새글") == (
+        "대산장학생 모집 공고(~11/11)",
+        "교외",
+    )
+    assert govweb._clean_title("수강신청 안내 NEW")[0] == "수강신청 안내"
+
+
+def test_search_result_pages_are_not_boards():
+    from open_site_clipper import probe
+
+    assert probe.not_a_board("https://www.jbnu.ac.kr/web/search.do?searchKeyword=멘토링")
+    assert probe.not_a_board("https://www.x.ac.kr/search/")
+    assert not probe.not_a_board("https://www.x.ac.kr/bbs/list.do?searchKeyword=")
+    assert not probe.not_a_board("https://www.x.ac.kr/research/notice.do")
+
+
+def test_page_label_splits_glued_hyphen_names():
+    page = "<title>관세청-공지사항</title>".encode()
+    assert govweb.page_label(page) == "공지사항"

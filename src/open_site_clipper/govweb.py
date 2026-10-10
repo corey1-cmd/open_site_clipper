@@ -39,6 +39,8 @@ MAX_UNIT_LEN = 40
 _ORG_PREFIX_RE = re.compile(r"^\[([^\]]{2,40})\]\s*")
 # 목록에 섞이는 상태 표시 — 제목의 일부가 아니다.
 _BADGE_RE = re.compile(r"^(새글|NEW|신규|공지)\s+", re.I)
+# 제목 **뒤**에 붙는 배지 — K2Web 목록은 '… 모집 공고(~11/11) 새글' 처럼 끝에 단다.
+_BADGE_TAIL_RE = re.compile(r"\s+(새글|새 글|NEW|N)$", re.I)
 # 첨부파일 칸 — '한글 파일 PDF 파일 이미지 파일' 처럼 파일 종류만 나열된다.
 # 이 칸이 제목보다 길어져 제목 자리를 빼앗는 일이 실제로 있었다(새만금개발청).
 _ATTACH_RE = re.compile(
@@ -82,6 +84,7 @@ def _clean_title(text: str) -> tuple[str, str]:
         unit = m.group(1).strip()[:MAX_UNIT_LEN]
         title = title[m.end() :].strip()
     title = _BADGE_RE.sub("", title)  # '[기관] 새글 제목' 순서도 있다
+    title = _BADGE_TAIL_RE.sub("", title)
     return title, unit
 
 
@@ -272,7 +275,7 @@ def _rows_from(rows: list[list[tuple[str, str]]], base_url: str) -> list[Row]:
 
 # ── 게시판 이름 ──────────────────────────────────────────────────────────────
 # 제목 칸의 구분자 — '장학공지 | 한국외국어대학교' · '대학생활 > 장학 > 장학공지'
-_NAME_SEP_RE = re.compile(r"\s*(?:[|>:·</]|\s[-–—]\s)\s*")
+_NAME_SEP_RE = re.compile(r"\s*(?:[|>:·</]|\s[-–—]\s|(?<=[가-힣])-(?=[가-힣]))\s*")
 MAX_NAME_LEN = 14
 
 

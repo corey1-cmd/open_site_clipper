@@ -162,3 +162,22 @@ def test_k2web_feed_and_list_are_alternates_of_each_other():
     lst = "https://www.hufs.ac.kr/bbs/hufs/2182/artclList.do?layout=unknown"
     assert govcascade.alt_urls(feed)[0] == lst
     assert govcascade.alt_urls(lst)[0] == feed
+
+
+def test_relative_feed_links_become_absolute(monkeypatch):
+    """한국외대 K2Web 피드는 글 주소를 '/bbs/…' 로 준다 — 화면 링크가 우리 사이트로 가면 안 된다."""
+    monkeypatch.setattr(robots, "allowed", lambda url, **k: True)
+    feed = (
+        '<?xml version="1.0"?><rss version="2.0"><channel><title>t</title>'
+        "<item><title>장학생 모집</title><link>/bbs/hufs/2182/1/artclView.do</link></item>"
+        "</channel></rss>"
+    ).encode()
+    src = Source(
+        id="h",
+        name="한국외대",
+        kind="govorg",
+        url="",
+        routes=(("장학", "rss", "https://www.hufs.ac.kr/bbs/hufs/2182/rssList.do?row=50"),),
+    )
+    (res,) = govcascade.collect_routes(src, fetcher=lambda _u: feed)
+    assert res.notices[0].url == "https://www.hufs.ac.kr/bbs/hufs/2182/1/artclView.do"

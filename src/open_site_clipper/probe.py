@@ -53,8 +53,18 @@ _ARTICLE_PATH_RE = re.compile(r"(?:artclview|view\.(?:do|jsp|php|asp)$|/blog/[^/
 
 
 def not_a_board(url: str) -> bool:
-    """열어 보기 전에 게시판 후보에서 뺄 주소 — 첫 화면이거나 글 한 건."""
-    return looks_like_home(url) or looks_like_article(url)
+    """열어 보기 전에 게시판 후보에서 뺄 주소 — 첫 화면·글 한 건·검색 결과."""
+    return looks_like_home(url) or looks_like_article(url) or looks_like_search(url)
+
+
+_SEARCH_PATH_RE = re.compile(r"(?:^|/)(?:search|totalsearch|integratedsearch)(?:\.\w+)?/?$", re.I)
+
+
+def looks_like_search(url: str) -> bool:
+    """사이트 검색 결과(/web/search.do?searchKeyword=멘토링) — 날짜 달린 목록이지만
+    게시판이 아니라 그때그때 검색어에 걸린 글 묶음이다(전북대 실측)."""
+    path = urllib.parse.urlsplit(url).path.split(";", 1)[0]
+    return bool(_SEARCH_PATH_RE.search(path))
 
 
 def looks_like_article(url: str) -> bool:

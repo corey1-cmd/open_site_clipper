@@ -446,3 +446,35 @@ def test_plan_routes_folds_k2web_variants_and_caps():
     assert routes[0] == ("장학", "rss", f"{K2}/2182/rssList.do?row=50")
     assert sum("2182" in u for _c, _k, u in routes) == 1  # 같은 게시판은 한 번
     assert len(routes) == webapp.MAX_ROUTES
+
+
+def test_same_notice_on_two_boards_with_different_tags_is_shown_once(tiny_catalog):
+    a = "https://www.test.ac.kr/bbs/test/2182/artclList.do?layout=unknown"
+    b = "https://student.test.ac.kr/bbs/student/2431/artclList.do?layout=unknown"
+    pages = {
+        a: _board(
+            [
+                (
+                    f"{K2}/2182/9/artclView.do",
+                    "[공통][교외] 대산장학생 모집 공고(~11/11)",
+                    "2026.10.08",
+                ),
+                (f"{K2}/2182/8/artclView.do", "다른 장학 안내", "2026.10.01"),
+            ]
+        ),
+        b: _board(
+            [
+                (
+                    "https://student.test.ac.kr/x/9",
+                    "[교외] 대산장학생 모집 공고(~11/11) 새글",
+                    "2026.10.08",
+                ),
+                ("https://student.test.ac.kr/x/8", "또 다른 장학 안내", "2026.10.02"),
+            ]
+        ),
+    }
+    _cache(tiny_catalog, [["장학", "board", a], ["장학", "board", b]])
+    got = _collect(days=30, fetcher=Recorder(pages))
+    titles = [r["title"] for r in got["notices"]]
+    assert sum("대산장학생" in t for t in titles) == 1
+    assert len(titles) == 3

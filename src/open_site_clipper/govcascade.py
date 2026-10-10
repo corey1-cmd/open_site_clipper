@@ -122,6 +122,9 @@ def _parse_stage(source: Source, stage: str, data: bytes, url: str, category: st
         return [
             replace(
                 n,
+                # 피드가 상대 주소('/bbs/hufs/2182/268752/artclView.do')를 주는 곳이 있다 —
+                # 그대로 두면 화면의 링크가 우리 사이트로 향한다(한국외대 실측).
+                url=urllib.parse.urljoin(url, n.url) if n.url else n.url,
                 org=source.org,
                 site=source.site or source.name,
                 unit=source.site or source.name,

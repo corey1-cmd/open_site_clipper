@@ -25,6 +25,7 @@ from __future__ import annotations
 import contextlib
 import json
 import os
+import re
 import time
 import urllib.parse
 from collections.abc import Callable
@@ -349,8 +350,15 @@ def _newest_specific_first(n: Notice) -> tuple:
     return (-(n.published or date.min).toordinal(), group not in categories.SPECIFIC)
 
 
+# 같은 글이 두 게시판에 '[공통][교외] 제목' · '[교외] 제목 새글' 처럼 머리·꼬리만 달리
+# 올라온다(한국외대 장학공지 ↔ 학생지원팀 장학). 비교할 때만 떼어 낸다.
+_TAG_HEAD_RE = re.compile(r"^(?:\s*(?:\[[^\]]{1,20}\]|\([^)]{1,20}\)|【[^】]{1,20}】))+\s*")
+_TAG_TAIL_RE = re.compile(r"\s+(?:새글|새 글|new|n)$", re.I)
+
+
 def _title_key(n: Notice) -> str:
-    title = " ".join((n.title or "").split()).casefold()
+    title = " ".join((n.title or "").split())
+    title = _TAG_TAIL_RE.sub("", _TAG_HEAD_RE.sub("", title)).casefold()
     if not title or n.published is None:
         return ""
     return f"t\x1f{title}\x1f{n.published.isoformat()}"
