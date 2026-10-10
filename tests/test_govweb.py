@@ -614,3 +614,20 @@ def test_document_tables_with_a_download_button_take_the_text_title():
         ("법인일반업무회계 본예산 자금예산서", "etcResourceDown.do?site=x&ke", "2026-02-12"),
         # 날짜 없는 행의 링크 밖 글은 제목으로 삼지 않는다
     ]
+
+
+def test_undated_attachment_lines_inside_a_dated_board_are_not_notices():
+    """날짜 달린 글 사이의 날짜 없는 파일 줄은 그 글의 첨부다(서원대 규정 목록 실측)."""
+    page = """<table>
+      <tr><td>1-1-01</td><td>학교법인 서원학원 정관</td><td>2026-08-28</td>
+        <td><a href="/regltn/7/6395/1/synapView.do">[미리보기]</a></td></tr>
+      <tr><td></td><td><a href="/regltn/7/6395/1/download.do">1-1-01 학교법인서원학원정관_전문.hwp</a></td></tr>
+      <tr><td>3-1-01</td><td>직제 규정</td><td>2026-08-28</td>
+        <td><a href="/regltn/7/6392/1/synapView.do">[미리보기]</a></td></tr>
+      <tr><td></td><td><a href="/regltn/7/6392/1/download.do">3-1-01_직제 규정(전문).hwp</a></td></tr>
+    </table>"""
+    rows = govweb.parse_list(page.encode(), "https://www.seowon.ac.kr/seowon/301/subview.do")
+    assert [(r.title, r.url.rsplit("/", 1)[-1]) for r in rows] == [
+        ("학교법인 서원학원 정관", "synapView.do"),
+        ("직제 규정", "synapView.do"),
+    ]

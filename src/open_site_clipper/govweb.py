@@ -291,7 +291,9 @@ def parse_list(html_bytes: bytes, base_url: str) -> list[Row]:
     table = _rows_from(parse_rows(html_bytes), base_url)
     dated = sum(1 for r in table if r.published)
     if dated >= MIN_DATED:
-        return table
+        # 날짜 달린 글 목록 사이의 날짜 없는 파일 행은 글이 아니라 그 글의 첨부 줄이다
+        # ('3-1-26_취업 규칙(전문).hwp' — 서원대 규정 목록 실측)
+        return [r for r in table if r.published or not is_file_link(r.url)]
     items = [r for r in _rows_from(parse_items(html_bytes), base_url) if r.published]
     return items if len(items) > dated else table
 
