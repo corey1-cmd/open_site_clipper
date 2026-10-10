@@ -415,6 +415,10 @@ def test_row_metadata_glued_to_titles_is_trimmed():
 
 def test_buttons_menus_and_address_titles_are_not_notices():
     for junk in (
+        "다운로드 [미리보기]",
+        "(클릭)",
+        "[바로보기]",
+        "첨부파일 문서보기",
         "Views",
         "| 입학안내",
         "입시홈페이지 바로가기",
@@ -494,3 +498,65 @@ def test_hot_issue_badge_is_not_part_of_the_title():
     assert govweb._clean_title("2027학년도 수시 1차 면접 신청 안내 핫이슈")[0] == (
         "2027학년도 수시 1차 면접 신청 안내"
     )
+
+
+def test_script_link_titles_beat_file_names_and_take_the_attachment_address():
+    """제목이 스크립트 링크인 게시판 — 파일 이름·'첨부파일 문서보기'가 제목이 되지 않는다.
+    글 주소를 모르니 같은 행의 첨부(문서 보기가 있으면 그것)로, 없으면 목록으로 건다
+    (해수부·재정경제부·가야대 실측)."""
+    table = """<table>
+      <tr><td>187</td><td><a href="javascript:fn_selectDoc('68648')">국제해사기구(IMO) 소식 및 국제해사동향(제26-34호)</a></td>
+        <td>해사안전정책과</td>
+        <td><a href="/jfile/readDownloadFile.do?fileType=MOF_ARTICLE&amp;fileTypeSeq=68648&amp;fileNum=1">\
+(26-34호) imo소식 및 국제해사동향.f.pdf</a></td><td>2026.09.15.</td></tr>
+      <tr><td>185</td><td><a href="javascript:fn_selectDoc('68966')">인사발령(국장급 전보) 알림</a></td>
+        <td>운영지원과</td><td></td><td>2026.10.08.</td></tr>
+    </table>"""
+    base = "https://www.mof.go.kr/doc/ko/selectDocList.do?menuSeq=380"
+    rows = govweb.parse_list(table.encode(), base)
+    assert [(r.title, str(r.published)) for r in rows] == [
+        ("국제해사기구(IMO) 소식 및 국제해사동향(제26-34호)", "2026-09-15"),
+        ("인사발령(국장급 전보) 알림", "2026-10-08"),
+    ]
+    assert rows[0].url.startswith("https://www.mof.go.kr/jfile/readDownloadFile.do?")
+    assert rows[1].url.startswith(base + "#")  # 첨부가 없으면 목록으로
+
+    items = """<ul>
+      <li><a href="javascript:fn_egov_select('MOSF_000000000079565');">'생활비 경감 정책 아이디어 공모전' 시상</a>
+        <span>2026.10.08.</span><span>민생안정지원단</span>
+        <a href="/com/cmm/fms/AtchZipFileDown.do?atchFileId=ATCH_000000000032877">첨부파일 전체다운로드</a>
+        <a href="/com/synap/synapView.do?atchFileId=ATCH_000000000032877&amp;fileSn=1">첨부파일 문서보기</a></li>
+      <li><a href="javascript:fn_egov_select('MOSF_000000000079576');">관계부처 합동 10월 일자리전담반(TF) 개최</a>
+        <span>2026.10.08.</span><span>인력정책과</span></li>
+    </ul>"""
+    base = "https://www.mofe.go.kr/nw/nes/nesdta.do?bbsId=MOSFBBS_000000000028"
+    rows = govweb.parse_list(items.encode(), base)
+    assert [r.title for r in rows] == [
+        "'생활비 경감 정책 아이디어 공모전' 시상",
+        "관계부처 합동 10월 일자리전담반(TF) 개최",
+    ]
+    # 내려받기(zip)보다 문서 보기 단추
+    assert rows[0].url.startswith("https://www.mofe.go.kr/com/synap/synapView.do?")
+    assert rows[1].url.startswith(base + "#")
+
+
+def test_card_lists_with_only_a_details_button_take_the_text_title():
+    """링크가 '자세히보기' 단추뿐인 카드형 목록 — 링크 밖의 제목 글을 쓰고 주소는 단추의 것
+    (한예종 뉴스레터·매거진 실측). 번호·'발행일 -'·'by 아이디' 는 제목감이 아니다."""
+    page = """<ul>
+      <li><span class="new">N</span><span>K-Arts</span><strong>매거진 K-Arts Vol.59</strong>
+        <span>발행일 -</span><span>2026-09-28</span>
+        <a href="/cop/bbs/selectBoardViewCnt.do?bbsId=B150&amp;nttNo=70558">자세히보기</a></li>
+      <li><span>K-Arts</span><strong>뉴스레터 vol.223</strong><span>발행일 -</span><span>2026-09-29</span>
+        <a href="/cop/bbs/selectBoardViewCnt.do?bbsId=B22&amp;nttNo=70559">자세히보기</a></li>
+      <li><span>04</span><span>Oct</span><span>by teamWebMaster</span>
+        <a href="/s_results/15799">2026/10/04</a><a href="/s_results/15799">teamWebMaster</a>
+        <a href="/s_results/15799">Views</a></li>
+      <li><span>2026-09-01</span><p>캠퍼스 소식 모음</p><a href="/cop/bbs/list.do">더보기</a></li>
+    </ul>"""
+    base = "https://www.karts.ac.kr/cop/bbs/list.do"
+    rows = govweb.parse_list(page.encode(), base)
+    assert [(r.title, r.url.rsplit("=", 1)[-1], str(r.published)) for r in rows] == [
+        ("매거진 K-Arts Vol.59", "70558", "2026-09-28"),
+        ("뉴스레터 vol.223", "70559", "2026-09-29"),
+    ]

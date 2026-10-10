@@ -72,14 +72,23 @@ _INVISIBLE_RE = re.compile("[\u200b-\u200d\u2060\ufeff]")
 _ATTACH_RE = re.compile(
     r"^(?:(?:한글|워드|MS워드|엑셀|excel|word|hwp|PDF|이미지|image|기타|압축|zip|한셀|아래아)"
     r"\s*파일\s*)+$"
-    r"|^첨부\s*파일(?:\s*(?:전체|일괄))?\s*(?:다운로드|내려받기|보기)?$",
+    r"|^첨부\s*파일(?:\s*(?:전체|일괄))?\s*(?:다운로드|내려받기|(?:문서\s*)?보기)?$",
     re.I,
 )
 # 제목이 아니라 단추·메뉴 조각 — 'Views'(중앙대 스포츠단)·'| 입학안내'·'입시홈페이지
-# 바로가기'·'… 더보기'(백제예대 학과 화면 실측)
+# 바로가기'·'… 더보기'(백제예대 학과 화면 실측)·'바로보기'·'다운로드'(재정경제부 실측)
 _BUTTON_TITLE_RE = re.compile(
-    r"^(?:views?|read\s*more|more|details?|go|click)$|^\||바로\s*가기$|더\s*보기$", re.I
+    r"^(?:views?|read\s*more|more|details?|go|click|download)$|^\||바로\s*가기$|더\s*보기$"
+    r"|^(?:바로|미리|문서)\s*보기$|^(?:다운로드|내려\s*받기)$",
+    re.I,
 )
+# 단추 낱말만으로 된 칸 — '다운로드 [미리보기]'(서원대 규정)·'(클릭)'(금융위 이용안내)
+_BUTTON_WORDS_RE = re.compile(
+    r"^(?:(?:다운로드|내려\s*받기|(?:바로|미리|문서|상세|자세히)?\s*보기|클릭|열기|새\s*창|"
+    r"download|view|preview|click|more|go)\s*)+$",
+    re.I,
+)
+_BRACKETS_RE = re.compile(r"[\[\](){}<>「」『』]")
 _URL_IN_TITLE_RE = re.compile(r"https?://\S+")
 # 목록이 아니라 안내문·메뉴가 잘못 잡힌 경우 — 주소가 제목 자리에 온다.
 _URL_TITLE_RE = re.compile(r"^https?://", re.I)
@@ -119,12 +128,18 @@ _USER_ID_RE = re.compile(
 )
 
 
+def _only_buttons(text: str) -> bool:
+    return bool(_BUTTON_WORDS_RE.match(" ".join(_BRACKETS_RE.sub(" ", text).split())))
+
+
 def _is_junk_title(text: str) -> bool:
     """제목으로 볼 수 없는 칸 — 첨부 목록·주소·잠긴 글·지나치게 긴 메뉴 뭉치."""
     t = " ".join((text or "").split())
     if not t or _ATTACH_RE.match(t) or _URL_TITLE_RE.match(t) or _SECRET_RE.search(t):
         return True
     if _SPAM_RE.search(t) or _USER_ID_RE.match(t) or _BUTTON_TITLE_RE.search(t):
+        return True
+    if _only_buttons(t):
         return True
     # 주소가 제목의 절반 이상인 칸 — '… 구독 정보 서비스 주소 http://…'(식약처 RSS 안내)
     urls = sum(len(m) for m in _URL_IN_TITLE_RE.findall(t))
@@ -318,46 +333,119 @@ def _board_anchor(base_url: str, title: str) -> str:
     return f"{page}#{urllib.parse.quote(words)}"
 
 
+# 링크 없는 칸에서 제목을 고를 때 뺄 것 — 번호·'발행일 -' 같은 이름표·'by 아이디'
+_NUMBER_RE = re.compile(r"^[\d\s,.:/\-]+$")
+_LABEL_RE = re.compile(
+    r"^(?:발행일|등록일|작성일|게시일|작성자|글쓴이|조회수?|첨부|분류|구분|담당\s*부서)(?:\s|[:：\-]|$)"
+)
+_BYLINE_RE = re.compile(r"^(?:by|posted\s+by|written\s+by)\s", re.I)
+MAX_PLAIN_TITLE = 100  # 이보다 긴 링크 없는 글은 요약문이지 제목이 아니다
+_VIEW_WORD_RE = re.compile(r"보기|view|read", re.I)
+
+
+def _is_button_text(text: str) -> bool:
+    """'자세히보기'·'Views'·'첨부파일 문서보기' — 글 주소를 단 단추 글자."""
+    from . import categories
+
+    t = " ".join(text.split())
+    return bool(
+        _BUTTON_TITLE_RE.search(t)
+        or _ATTACH_RE.match(t)
+        or _only_buttons(t)
+        or categories.is_meaningless(t)
+    )
+
+
+def _plain_title(cells: list[tuple[str, str]]) -> int | None:
+    """링크가 아닌 칸 가운데 제목감(가장 긴 것) — 카드형 목록의 '매거진 K-Arts Vol.59'."""
+    best: int | None = None
+    for i, (text, href) in enumerate(cells):
+        t = " ".join(text.split())
+        if href or not MIN_TITLE_LEN <= len(t) <= MAX_PLAIN_TITLE:
+            continue
+        if _is_date_only(t) or _NUMBER_RE.match(t) or _LABEL_RE.match(t) or _BYLINE_RE.match(t):
+            continue
+        if _is_junk_title(t):
+            continue
+        if best is None or len(t) > len(" ".join(cells[best][0].split())):
+            best = i
+    return best
+
+
+def _title_cell(cells: list[tuple[str, str]], base_url: str) -> tuple[int, str, bool] | None:
+    """행에서 (제목 칸, 글 주소, 제목이 링크 밖 글인가)를 고른다. 못 고르면 None.
+
+    차례: ① 글 링크(파일 아닌 진짜 주소, 글자 MIN_TITLE_LEN 이상) 중 가장 긴 것
+    ② 스크립트 링크 제목 — 주소는 같은 행의 첨부 파일·단추 주소, 없으면 목록 페이지
+    ③ 첨부 파일 링크(파일 이름이 곧 제목인 게시판) ④ 링크가 단추('자세히보기')뿐인
+    카드형 목록 — 링크 밖 글 중 제목감 + 단추 주소.
+
+    첨부 파일 이름('261007(보도자료) … 현황.hwpx')이 제목보다 길어 제목을 밀어내고
+    글 대신 파일이 내려받아지던 것(금융위·해수부·성균관대·가야대 실측), 제목이 스크립트
+    링크라 파일 이름·'첨부파일 문서보기'가 제목이 되던 것(해수부·재정경제부 실측),
+    '자세히보기'가 제목이 되던 것(한예종 실측)을 바로잡는다.
+    """
+    page = script = filed = None
+    page_url = file_url = button_url = view_url = ""
+    listing = urllib.parse.urlsplit(base_url)._replace(fragment="").geturl()
+
+    def longer(i: int, j: int | None) -> bool:
+        return j is None or len(cells[i][0]) > len(cells[j][0])
+
+    for i, (text, href) in enumerate(cells):
+        if not href or not text.strip() or _is_date_only(text):
+            continue
+        url = _real_link(href, base_url) or _script_url(href, base_url)
+        if _is_junk_title(text):
+            # 단추 주소 — 목록 자신을 가리키는 것('더보기' → 목록)은 글 주소가 아니다.
+            # 보는 단추('바로보기'·'자세히보기')를 내려받기('첨부파일 전체다운로드')보다 먼저.
+            if url and url.split("#", 1)[0] != listing and _is_button_text(text):
+                if _VIEW_WORD_RE.search(text):
+                    view_url = view_url or url
+                else:
+                    button_url = button_url or url
+            continue
+        if not url:
+            if _is_script_link(href) and longer(i, script):
+                script = i
+            continue  # javascript:void(0) · #none 등 — 진짜 주소가 아니다
+        if is_file_link(url):
+            if longer(i, filed):
+                filed, file_url = i, url
+        elif len(text.strip()) >= MIN_TITLE_LEN and longer(i, page):
+            page, page_url = i, url
+    if page is not None:
+        return page, page_url, False
+    if script is not None and len(cells[script][0].strip()) >= MIN_TITLE_LEN:
+        # 글 주소를 알 수 없으면 같은 행의 첨부(글의 내용)로, 그것도 없으면 **목록 페이지**로
+        # 건다(제목을 조각으로 붙여 글마다 다른 주소가 되게). 지어낸 상세 주소가 아니다.
+        url = view_url or file_url or button_url or _board_anchor(base_url, cells[script][0])
+        return script, url, False
+    if filed is not None:
+        return filed, file_url, False
+    if view_url or button_url:
+        plain = _plain_title(cells)
+        if plain is not None:
+            return plain, view_url or button_url, True
+    return None
+
+
 def _rows_from(rows: list[list[tuple[str, str]]], base_url: str) -> list[Row]:
     out: list[Row] = []
     seen: set[str] = set()
 
     for cells in rows:
-        # ① 제목 칸 = 진짜 http(s) 링크를 달고 텍스트가 가장 긴 칸.
-        #    (첨부파일 아이콘 링크는 텍스트가 짧아 자연히 밀린다)
-        #    단 **글 링크가 파일 링크보다 먼저다** — 목록에 첨부 파일 이름을 함께 늘어놓는
-        #    게시판은 파일 이름('261007(보도자료) … 현황.hwpx')이 제목보다 길어 제목을
-        #    밀어내고, 글 대신 파일이 바로 내려받아진다(금융위·해수부·성균관대 실측).
-        #    글 링크 글이 너무 짧으면('N'·아이콘) 예전처럼 길이로만 고른다.
-        best: int | None = None
-        best_url = ""
-        best_rank = (False, 0)
-        script: int | None = None  # 주소가 스크립트에만 있는 제목 칸(진짜 링크가 없을 때만 쓴다)
-        for i, (text, href) in enumerate(cells):
-            if not href or not text.strip() or _is_junk_title(text) or _is_date_only(text):
-                continue
-            url = _real_link(href, base_url) or _script_url(href, base_url)
-            if not url:
-                if _is_script_link(href) and (script is None or len(text) > len(cells[script][0])):
-                    script = i
-                continue  # javascript:void(0) · #none 등 — 진짜 주소가 아니다
-            rank = (len(text.strip()) >= MIN_TITLE_LEN and not is_file_link(url), len(text))
-            if best is None or rank > best_rank:
-                best, best_url, best_rank = i, url, rank
-        if best is None and script is not None:
-            # 글 주소를 알 수 없으면 **목록 페이지**로 건다(제목을 조각으로 붙여 글마다
-            # 다른 주소가 되게). 지어낸 상세 주소가 아니라, 글이 실제로 보이는 곳이다.
-            best = script
-            best_url = _board_anchor(base_url, cells[script][0])
-        if best is None:
+        # ① 제목 칸과 글 주소(_title_cell 의 차례)
+        picked = _title_cell(cells, base_url)
+        if picked is None:
             continue
+        best, best_url, plain = picked
 
         title, unit = _clean_title(cells[best][0])
         if len(title) < MIN_TITLE_LEN:
             continue
         if best_url in seen:
             continue
-        seen.add(best_url)
 
         # ② 발행일 = 제목 칸 **뒤쪽**의 첫 날짜(게시일). 마감일이 그다음에 오므로
         #    앞에서부터 찾아야 게시일을 잡는다.
@@ -374,6 +462,9 @@ def _rows_from(rows: list[list[tuple[str, str]]], base_url: str) -> list[Row]:
                 if published:
                     break
 
+        if plain and published is None:
+            continue  # 링크 밖 글을 제목으로 삼는 것은 날짜 달린 행(글)에서만
+        seen.add(best_url)
         out.append(Row(title=title, url=best_url, unit=unit, published=published))
     return out
 
