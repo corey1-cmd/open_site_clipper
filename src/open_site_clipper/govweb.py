@@ -30,7 +30,7 @@ import re
 import urllib.parse
 from html.parser import HTMLParser
 
-from .k2web_parse import Row, coerce_date, parse_rows
+from .k2web_parse import Row, anchor_href, coerce_date, parse_rows
 
 MIN_TITLE_LEN = 4
 MAX_UNIT_LEN = 40
@@ -123,7 +123,7 @@ class _ItemParser(HTMLParser):
         if tag == "li":
             self._stack.append([])
         elif tag == "a":
-            self._href.append((dict(attrs).get("href") or "").strip())
+            self._href.append(anchor_href(attrs))
 
     def handle_startendtag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         self._flush()
@@ -178,6 +178,44 @@ def parse_list(html_bytes: bytes, base_url: str) -> list[Row]:
 MIN_DATED = 2
 
 
+def _real_link(href: str, base_url: str) -> str:
+    """진짜 글 주소면 절대 주소, 아니면 "" — '#'·'#none' 은 목록 자기 자신이다."""
+    h = (href or "").strip()
+    if not h or h.startswith("#") or h.lower().startswith("javascript"):
+        return ""
+    url = urllib.parse.urljoin(base_url, h)
+    return url if urllib.parse.urlsplit(url).scheme in ("http", "https") else ""
+
+
+# 스크립트 안에 주소가 문자열로 들어 있는 경우 — location.href='/bbs/view.do?id=3' ·
+# window.open("https://…") · fn_move('/notice/view.do?no=3'). 지어내지 않고 **읽는다**.
+_SCRIPT_URL_RE = re.compile(r"""['"]((?:https?://|/)[^'"\s]+)['"]""")
+
+
+def _script_url(href: str, base_url: str) -> str:
+    if not (href or "").lower().startswith("javascript"):
+        return ""
+    for m in _SCRIPT_URL_RE.finditer(href):
+        path = m.group(1)
+        tail = path.split("?", 1)[0].rsplit("/", 1)[-1]
+        if "?" in path or "." in tail:  # 파일·화면 주소꼴만(그냥 '/' 같은 것은 버린다)
+            url = urllib.parse.urljoin(base_url, path)
+            if urllib.parse.urlsplit(url).scheme in ("http", "https"):
+                return url
+    return ""
+
+
+def _is_script_link(href: str) -> bool:
+    h = (href or "").strip().lower()
+    return h.startswith("#") or h.startswith("javascript")
+
+
+def _board_anchor(base_url: str, title: str) -> str:
+    page = urllib.parse.urlsplit(base_url)._replace(fragment="").geturl()
+    words = " ".join(title.split())[:80]
+    return f"{page}#{urllib.parse.quote(words)}"
+
+
 def _rows_from(rows: list[list[tuple[str, str]]], base_url: str) -> list[Row]:
     out: list[Row] = []
     seen: set[str] = set()
@@ -187,14 +225,22 @@ def _rows_from(rows: list[list[tuple[str, str]]], base_url: str) -> list[Row]:
         #    (첨부파일 아이콘 링크는 텍스트가 짧아 자연히 밀린다)
         best: int | None = None
         best_url = ""
+        script: int | None = None  # 주소가 스크립트에만 있는 제목 칸(진짜 링크가 없을 때만 쓴다)
         for i, (text, href) in enumerate(cells):
             if not href or not text.strip() or _is_junk_title(text) or _is_date_only(text):
                 continue
-            url = urllib.parse.urljoin(base_url, href)
-            if urllib.parse.urlsplit(url).scheme not in ("http", "https"):
-                continue  # javascript:void(0) · #none 등 제외
+            url = _real_link(href, base_url) or _script_url(href, base_url)
+            if not url:
+                if _is_script_link(href) and (script is None or len(text) > len(cells[script][0])):
+                    script = i
+                continue  # javascript:void(0) · #none 등 — 진짜 주소가 아니다
             if best is None or len(text) > len(cells[best][0]):
                 best, best_url = i, url
+        if best is None and script is not None:
+            # 글 주소를 알 수 없으면 **목록 페이지**로 건다(제목을 조각으로 붙여 글마다
+            # 다른 주소가 되게). 지어낸 상세 주소가 아니라, 글이 실제로 보이는 곳이다.
+            best = script
+            best_url = _board_anchor(base_url, cells[script][0])
         if best is None:
             continue
 
@@ -222,3 +268,68 @@ def _rows_from(rows: list[list[tuple[str, str]]], base_url: str) -> list[Row]:
 
         out.append(Row(title=title, url=best_url, unit=unit, published=published))
     return out
+
+
+# ── 게시판 이름 ──────────────────────────────────────────────────────────────
+# 제목 칸의 구분자 — '장학공지 | 한국외국어대학교' · '대학생활 > 장학 > 장학공지'
+_NAME_SEP_RE = re.compile(r"\s*(?:[|>:·</]|\s[-–—]\s)\s*")
+MAX_NAME_LEN = 14
+
+
+class _HeadParser(HTMLParser):
+    """`<title>` 과 앞쪽 제목 태그(h1~h3)의 글만 모은다."""
+
+    _SKIP = frozenset({"script", "style", "template", "noscript", "nav", "footer"})
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.title = ""
+        self.heads: list[str] = []
+        self._tag = ""
+        self._buf: list[str] = []
+        self._skip = 0
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag in self._SKIP:
+            self._skip += 1
+        elif not self._skip and tag in ("title", "h1", "h2", "h3") and not self._tag:
+            self._tag, self._buf = tag, []
+
+    def handle_data(self, data: str) -> None:
+        if self._tag:
+            self._buf.append(data)
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag in self._SKIP:
+            self._skip = max(0, self._skip - 1)
+        elif tag == self._tag:
+            text = " ".join("".join(self._buf).split())
+            if tag == "title":
+                self.title = self.title or text
+            elif text and len(self.heads) < 12:
+                self.heads.append(text)
+            self._tag = ""
+
+
+def page_label(html_bytes: bytes | None) -> str:
+    """목록 페이지가 스스로 밝힌 게시판 이름 — '장학공지'·'학사 공지사항' 같은 것.
+
+    앵커가 'READ'·'더보기'뿐이라 이름을 모르는 게시판에 쓴다. 갈래 사전에 걸리는
+    짧은 조각만 받는다(기관 이름·메뉴 뭉치는 버린다). 못 찾으면 "".
+    """
+    from . import categories
+    from .fetch import decode_text
+
+    if not html_bytes:
+        return ""
+    parser = _HeadParser()
+    try:
+        parser.feed(decode_text(html_bytes))
+    except Exception:
+        return ""
+    for text in [parser.title, *parser.heads]:
+        for part in _NAME_SEP_RE.split(text or ""):
+            part = categories.strip_meaningless(part.strip())
+            if 2 <= len(part) <= MAX_NAME_LEN and categories.classify(part):
+                return part
+    return ""

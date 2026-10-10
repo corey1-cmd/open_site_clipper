@@ -99,7 +99,9 @@ def test_real_catalog_has_government_and_schools():
     orgs = webapp.catalog()
     sections = {o.section for o in orgs.values()}
     assert sections == {"정부", "학교"}
-    assert sum(o.section == "정부" for o in orgs.values()) == 65
+    gov = [o for o in orgs.values() if o.section == "정부"]
+    assert sum(o.id.startswith("gov-") for o in gov) == 65  # 중앙행정기관
+    assert "pub-kosaf" in orgs and orgs["pub-kosaf"].group == "공공기관"  # 장학 공지의 본거지
     schools = [o for o in orgs.values() if o.section == "학교"]
     assert len(schools) >= 350  # 4년제·전문대·사이버대 … 전국
     assert all(o.home.startswith(("https://", "http://")) for o in orgs.values())
@@ -351,3 +353,96 @@ def test_aia_repair_adds_missing_intermediate(monkeypatch):
     assert aia.repair("https://school.example/") is True
     assert loaded == [pem]
     assert aia.repair("https://school.example/other") is False  # 같은 호스트는 다시 안 함
+
+
+# ── 같은 이름의 게시판·제목 갈래 (한국외대 실측: 공지·학사·장학·채용이 전부 'READ') ──
+def _board(rows: list[tuple[str, str, str]]) -> bytes:
+    body = "".join(
+        f'<tr><td>{i}</td><td><a href="{href}">{title}</a></td><td>{day}</td></tr>'
+        for i, (href, title, day) in enumerate(rows)
+    )
+    return f"<table><tbody>{body}</tbody></table>".encode()
+
+
+K2 = "https://www.test.ac.kr/bbs/test"
+READ_BOARDS = {
+    f"{K2}/2180/artclList.do?layout=unknown": _board(
+        [
+            (f"{K2}/2180/1/artclView.do", "보건실 심폐소생술 교육 일정", "2026.10.08"),
+            (f"{K2}/2180/2/artclView.do", "2026학년도 2학기 교내장학금 신청 안내", "2026.10.07"),
+            (f"{K2}/2180/3/artclView.do", "인조잔디 운동장 보수 안내문", "2026.10.02"),
+        ]
+    ),
+    f"{K2}/2181/artclList.do?layout=unknown": _board(
+        [
+            (f"{K2}/2181/1/artclView.do", "2026-2학기 수강신청 정정 안내", "2026.10.06"),
+            (f"{K2}/2181/2/artclView.do", "2027년 2월 졸업예정자 학위청구 안내", "2026.10.05"),
+            (f"{K2}/2181/3/artclView.do", "복학 신청 기간 안내", "2026.10.01"),
+        ]
+    ),
+    f"{K2}/2182/artclList.do?layout=unknown": _board(
+        [
+            (f"{K2}/2182/1/artclView.do", "OO재단 장학생 선발 안내", "2026.10.08"),
+            (f"{K2}/2182/2/artclView.do", "국가근로장학생 추가 모집", "2026.10.04"),
+            (f"{K2}/2182/3/artclView.do", "2학기 학자금 대출 안내", "2026.09.30"),
+            # 공지 게시판에도 같이 올라온 글 — 한 번만 남는다
+            (f"{K2}/2182/4/artclView.do", "2026학년도 2학기 교내장학금 신청 안내", "2026.10.07"),
+        ]
+    ),
+}
+
+
+def _cache(tmp, routes):
+    (tmp / "route-cache.json").write_text(
+        json.dumps({"orgs": {"u-test": {"routes": routes}}}, ensure_ascii=False), encoding="utf-8"
+    )
+    webapp.route_cache.cache_clear()
+
+
+def test_boards_with_the_same_label_are_all_collected(tiny_catalog):
+    _cache(tiny_catalog, [["READ", "board", u] for u in READ_BOARDS])
+    got = _collect(days=30, fetcher=Recorder(READ_BOARDS))
+    titles = [r["title"] for r in got["notices"]]
+    assert "OO재단 장학생 선발 안내" in titles  # 예전에는 첫 게시판에서 멈춰 빠졌다
+    assert "복학 신청 기간 안내" in titles
+    assert titles.count("2026학년도 2학기 교내장학금 신청 안내") == 1  # 겹친 글은 한 번
+    # 게시판 이름은 내용으로 다듬어 돌려준다 — 캐시에 'READ' 대신 장학·학사가 남는다
+    labels = {u.split("/")[-2]: c for c, _k, u in got["routes"]}
+    assert labels["2182"] == "장학" and labels["2181"] == "학사"
+    assert labels["2180"] == "READ"  # 섞인 게시판은 이름을 지어내지 않는다
+
+
+def test_scholarship_titles_in_a_general_board_are_filed_as_scholarship(tiny_catalog):
+    _cache(tiny_catalog, [["공지", "board", f"{K2}/2180/artclList.do?layout=unknown"]])
+    got = _collect(days=30, fetcher=Recorder(READ_BOARDS))
+    by_title = {r["title"]: r["group"] for r in got["notices"]}
+    assert by_title["2026학년도 2학기 교내장학금 신청 안내"] == "장학"
+    assert by_title["인조잔디 운동장 보수 안내문"] == "공지"  # 강한 말이 없으면 게시판 갈래
+
+
+def test_preset_routes_are_kept_alongside_the_cache(tiny_catalog, monkeypatch):
+    """목록 파일에 적은 경로(한국외대 장학 게시판 등)는 캐시가 있어도 빠지지 않는다."""
+    _cache(tiny_catalog, [["READ", "board", f"{K2}/2180/artclList.do?layout=unknown"]])
+    org = webapp.catalog()["u-test"]
+    preset = (("장학", "rss", f"{K2}/2182/rssList.do?row=50"),)
+    monkeypatch.setitem(
+        webapp.catalog(),
+        "u-test",
+        webapp.replace(org, source=webapp.replace(org.source, routes=preset)),
+    )
+    rec = Recorder(READ_BOARDS)  # 피드는 없다 → 같은 게시판의 목록(artclList)으로 넘어간다
+    got = _collect(days=30, fetcher=rec)
+    assert f"{K2}/2182/rssList.do?row=50" in rec.asked
+    assert f"{K2}/2182/artclList.do?layout=unknown" in rec.asked
+    assert any(r["group"] == "장학" for r in got["notices"])
+
+
+def test_plan_routes_folds_k2web_variants_and_caps():
+    routes = webapp.plan_routes(
+        [("장학", "rss", f"{K2}/2182/rssList.do?row=50")],
+        [["READ", "board", f"{K2}/2182/artclList.do?layout=unknown"]],
+        [[f"기타{i}", "board", f"https://x.ac.kr/b{i}"] for i in range(30)],
+    )
+    assert routes[0] == ("장학", "rss", f"{K2}/2182/rssList.do?row=50")
+    assert sum("2182" in u for _c, _k, u in routes) == 1  # 같은 게시판은 한 번
+    assert len(routes) == webapp.MAX_ROUTES

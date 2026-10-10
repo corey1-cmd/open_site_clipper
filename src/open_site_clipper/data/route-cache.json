@@ -14,8 +14,8 @@
      "https://www.pps.go.kr/kor/sub.do?key=00047"
     ]
    ],
-   "count": 1,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "gov-mma": {
    "routes": [
@@ -58,10 +58,30 @@
      "달라지는 제도",
      "board",
      "https://www.mma.go.kr/board/boardList.do?mc=usr0000242&gesipan_id=125"
+    ],
+    [
+     "자유게시판",
+     "board",
+     "https://www.mma.go.kr/board/boardList.do?mc=usr0000039&gesipan_id=1"
+    ],
+    [
+     "장교부사관등 지원",
+     "board",
+     "https://www.mma.go.kr/board/boardList.do?gesipan_id=13&mc=usr0000137"
+    ],
+    [
+     "적극행정 우수공무원",
+     "board",
+     "https://www.mma.go.kr/board/boardList.do?mc=mma0002453&gesipan_id=349"
+    ],
+    [
+     "프로그램 내려받기",
+     "board",
+     "https://www.mma.go.kr/board/boardList.do?mc=usr0000285&gesipan_id=169"
     ]
    ],
-   "count": 20,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "gov-dapa": {
    "routes": [
@@ -71,8 +91,8 @@
      "https://www.dapa.go.kr/dapa/doc/selectDocList.do?menuSeq=3031&bbsSeq=443&ctgrySeq=381"
     ]
    ],
-   "count": 2,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "gov-police": {
    "routes": [
@@ -105,10 +125,40 @@
      "정책",
      "board",
      "https://www.police.go.kr/user/bbs/BD_selectBbsList.do?q_bbsCode=1008"
+    ],
+    [
+     "규제개혁",
+     "board",
+     "https://www.police.go.kr/user/bbs/BD_selectBbsList.do?q_bbsCode=1037"
+    ],
+    [
+     "사이버보안권고문",
+     "board",
+     "https://www.police.go.kr/user/bbs/BD_selectBbsList.do?q_bbsCode=1128"
+    ],
+    [
+     "공지",
+     "board",
+     "https://www.police.go.kr/user/bbs/BD_selectBbsList.do?q_bbsCode=1017"
+    ],
+    [
+     "보도자료",
+     "board",
+     "https://www.police.go.kr/user/bbs/BD_selectBbsList.do?q_bbsCode=1003"
+    ],
+    [
+     "정책",
+     "board",
+     "https://www.police.go.kr/user/bbs/BD_selectBbsList.do?q_bbsCode=1021"
+    ],
+    [
+     "공지",
+     "board",
+     "https://www.police.go.kr/user/bbs/BD_selectBbsList.do?q_bbsCode=1029"
     ]
    ],
-   "count": 25,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "gov-nfa": {
    "routes": [
@@ -151,10 +201,30 @@
      "소방장비 정보",
      "board",
      "https://www.nfa.go.kr/nfa/releaseinformation/0010"
+    ],
+    [
+     "119대응국",
+     "board",
+     "https://www.nfa.go.kr/nfa/releaseinformation/0013/0008"
+    ],
+    [
+     "기본규격",
+     "board",
+     "https://www.nfa.go.kr/nfa/releaseinformation/0010/0001"
+    ],
+    [
+     "기획조정관",
+     "board",
+     "https://www.nfa.go.kr/nfa/releaseinformation/0013/0007"
+    ],
+    [
+     "소식",
+     "board",
+     "https://www.nfa.go.kr/nfa/news/overseasInfo"
     ]
    ],
-   "count": 21,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "gov-fsc": {
    "routes": [
@@ -182,10 +252,40 @@
      "금융위의결정보",
      "board",
      "https://www.fsc.go.kr/no020101"
+    ],
+    [
+     "기고/강연/연설",
+     "board",
+     "https://www.fsc.go.kr/fsc020401"
+    ],
+    [
+     "부패공직자현황",
+     "board",
+     "https://www.fsc.go.kr/in100200"
+    ],
+    [
+     "웹툰",
+     "board",
+     "https://www.fsc.go.kr/no040104"
+    ],
+    [
+     "적극행정우수공무원",
+     "board",
+     "https://www.fsc.go.kr/ad040101"
+    ],
+    [
+     "정보그림(인포그래픽)",
+     "board",
+     "https://www.fsc.go.kr/no040103"
+    ],
+    [
+     "정부위원회현황",
+     "board",
+     "https://www.fsc.go.kr/po020401"
     ]
    ],
-   "count": 26,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "gov-acrc": {
    "routes": [
@@ -213,10 +313,45 @@
      "논문·시론 등",
      "board",
      "https://www.acrc.go.kr/menu.es?mid=a10508020000"
+    ],
+    [
+     "부패방지 의결정보",
+     "board",
+     "https://www.acrc.go.kr/menu.es?mid=a10504020000"
+    ],
+    [
+     "부패행위 현황 공개",
+     "board",
+     "https://www.acrc.go.kr/menu.es?mid=a10502080000"
+    ],
+    [
+     "빅데이터로 보는 국민의 소리",
+     "board",
+     "https://www.acrc.go.kr/menu.es?mid=a10302000000"
+    ],
+    [
+     "사전정보 공개",
+     "board",
+     "https://www.acrc.go.kr/menu.es?mid=a10502020000"
+    ],
+    [
+     "우수공무원 및 사례",
+     "board",
+     "https://www.acrc.go.kr/menu.es?mid=a10301020000"
+    ],
+    [
+     "위원회 의결정보",
+     "board",
+     "https://www.acrc.go.kr/menu.es?mid=a10504010000"
+    ],
+    [
+     "공지",
+     "board",
+     "https://www.acrc.go.kr/menu.es?mid=a10502140000"
     ]
    ],
-   "count": 2,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "gov-pipc": {
    "routes": [
@@ -254,10 +389,35 @@
      "공시송달",
      "board",
      "https://www.pipc.go.kr/np/cop/bbs/selectBoardList.do?bbsId=BS262&mCode=C010030000"
+    ],
+    [
+     "국가별 정보",
+     "board",
+     "https://www.pipc.go.kr/np/cop/bbs/selectBoardList.do?bbsId=BS105&mCode=D060010000"
+    ],
+    [
+     "금지물품 현황",
+     "board",
+     "https://www.pipc.go.kr/np/cop/bbs/selectBoardList.do?bbsId=BS204&mCode=A030050000"
+    ],
+    [
+     "부패행위자 정보",
+     "board",
+     "https://www.pipc.go.kr/np/cop/bbs/selectBoardList.do?bbsId=BS205&mCode=A030060000"
+    ],
+    [
+     "위원회 결과",
+     "board",
+     "https://www.pipc.go.kr/np/cop/bbs/selectBoardList.do?bbsId=BS297&mCode=A030120000"
+    ],
+    [
+     "행정기관 소속 위원회 현황",
+     "board",
+     "https://www.pipc.go.kr/np/cop/bbs/selectBoardList.do?bbsId=BS264&mCode=A030130000"
     ]
    ],
-   "count": 30,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "gov-ipkorea": {
    "routes": [
@@ -268,7 +428,7 @@
     ]
    ],
    "count": 0,
-   "checked": "2026-10-10"
+   "checked": "discover"
   },
   "gov-balance": {
    "routes": [
@@ -279,7 +439,7 @@
     ]
    ],
    "count": 0,
-   "checked": "2026-10-10"
+   "checked": "discover"
   },
   "gov-clip": {
    "routes": [
@@ -307,10 +467,15 @@
      "전체회의",
      "board",
      "https://www.clip.go.kr/base/board/list?boardManagementNo=1&menuLevel=2&menuNo=8"
+    ],
+    [
+     "정책",
+     "board",
+     "https://www.clip.go.kr/base/board/list?boardManagementNo=9&menuLevel=2&menuNo=12"
     ]
    ],
-   "count": 1,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "gov-cct": {
    "routes": [
@@ -320,8 +485,8 @@
      "https://www.cct.go.kr/?cate=005001"
     ]
    ],
-   "count": 5,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "gov-mois": {
    "routes": [
@@ -369,10 +534,25 @@
      "- 추모지원",
      "board",
      "https://www.mois.go.kr/frt/bbs/type001/commonSelectBoardList.do?bbsId=BBSMSTR_000000000570"
+    ],
+    [
+     "공유재산·물품관리",
+     "board",
+     "https://www.mois.go.kr/frt/bbs/type001/commonSelectBoardList.do?bbsId=BBSMSTR_000000000063"
+    ],
+    [
+     "공직선거",
+     "board",
+     "https://www.mois.go.kr/frt/bbs/type001/commonSelectBoardList.do?bbsId=BBSMSTR_000000000049"
+    ],
+    [
+     "국무·차관회의 회의록",
+     "board",
+     "https://www.mois.go.kr/frt/bbs/type001/commonSelectBoardList.do?bbsId=BBSMSTR_000000000430"
     ]
    ],
-   "count": 25,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "gov-mpva": {
    "routes": [
@@ -425,10 +605,20 @@
      "국가배상",
      "board",
      "https://www.mpva.go.kr/mpva/selectBbsNttList.do?bbsNo=356&key=1781"
+    ],
+    [
+     "국가보훈 장해진단서 제도",
+     "board",
+     "https://www.mpva.go.kr/mpva/selectBbsNttList.do?bbsNo=358&key=1787"
+    ],
+    [
+     "국무·차관회의",
+     "board",
+     "https://www.mpva.go.kr/mpva/selectBbsNttList.do?bbsNo=40&key=163"
     ]
    ],
-   "count": 40,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "gov-mcst": {
    "routes": [
@@ -446,10 +636,55 @@
      "보도자료",
      "rss",
      "https://www.mcst.go.kr/common/rss/press.jsp"
+    ],
+    [
+     "입찰",
+     "board",
+     "https://www.mcst.go.kr/site/s_data/generalData/dataList.jsp?pMenuCD=0405050000"
+    ],
+    [
+     "입찰",
+     "board",
+     "https://www.mcst.go.kr/site/s_open/generalData/dataList.jsp?pMenuCD=1103060000"
+    ],
+    [
+     "공지",
+     "board",
+     "https://www.mcst.go.kr/site/s_data/ordinance/instruction/instructionList.jsp"
+    ],
+    [
+     "공지",
+     "rss",
+     "https://www.mcst.go.kr/common/rss/notice.jsp"
+    ],
+    [
+     "보도자료",
+     "rss",
+     "https://www.mcst.go.kr/common/rss/explainpress.jsp"
+    ],
+    [
+     "보도자료",
+     "board",
+     "https://www.mcst.go.kr/site/s_notice/expPress/expPressList.jsp"
+    ],
+    [
+     "인사",
+     "board",
+     "https://www.mcst.go.kr/site/s_notice/person/personList.jsp"
+    ],
+    [
+     "입찰",
+     "board",
+     "https://www.mcst.go.kr/site/s_notice/notice/bidList.jsp"
+    ],
+    [
+     "보도자료",
+     "board",
+     "https://www.mcst.go.kr/site/s_notice/press/pressList.jsp"
     ]
    ],
-   "count": 24,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "gov-mafra": {
    "routes": [
@@ -469,8 +704,8 @@
      "https://www.mafra.go.kr/bbs/home/796/artclList.do?layout=unknown"
     ]
    ],
-   "count": 17,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "gov-motir": {
    "routes": [
@@ -493,10 +728,50 @@
      "공지",
      "board",
      "https://www.motir.go.kr/kor/article/ATCL32ba1ce4a"
+    ],
+    [
+     "공지",
+     "board",
+     "https://www.motir.go.kr/kor/article/ATCL369bcdf07"
+    ],
+    [
+     "공지",
+     "board",
+     "https://www.motir.go.kr/kor/article/ATCL520ce518e"
+    ],
+    [
+     "공지",
+     "board",
+     "https://www.motir.go.kr/kor/article/ATCL6c89ac4d8"
+    ],
+    [
+     "공지",
+     "board",
+     "https://www.motir.go.kr/kor/article/ATCL6e90bb9de"
+    ],
+    [
+     "공지",
+     "board",
+     "https://www.motir.go.kr/kor/article/ATCL6e90bb9de?searchCategory=1"
+    ],
+    [
+     "공지",
+     "board",
+     "https://www.motir.go.kr/kor/article/ATCL825d20c7e"
+    ],
+    [
+     "공지",
+     "board",
+     "https://www.motir.go.kr/kor/article/ATCL0c554f816"
+    ],
+    [
+     "보도자료",
+     "board",
+     "https://www.motir.go.kr/kor/article/ATCL03465409b"
     ]
    ],
-   "count": 27,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "gov-mohw": {
    "routes": [
@@ -524,10 +799,45 @@
      "정보보호",
      "board",
      "https://www.mohw.go.kr/menu.es?mid=a10105010000"
+    ],
+    [
+     "현지조사사전예고",
+     "board",
+     "https://www.mohw.go.kr/menu.es?mid=a10506020000"
+    ],
+    [
+     "현황",
+     "board",
+     "https://www.mohw.go.kr/menu.es?mid=a10412000000"
+    ],
+    [
+     "보도자료",
+     "board",
+     "https://www.mohw.go.kr/menu.es?mid=a10503000000"
+    ],
+    [
+     "공공복지전달체계",
+     "board",
+     "https://www.mohw.go.kr/menu.es?mid=a10408020000"
+    ],
+    [
+     "법률/시행령/시행규칙",
+     "board",
+     "https://www.mohw.go.kr/menu.es?mid=a10409010000"
+    ],
+    [
+     "법인/시설/단체",
+     "board",
+     "https://www.mohw.go.kr/menu.es?mid=a10413000000"
+    ],
+    [
+     "사업",
+     "board",
+     "https://www.mohw.go.kr/menu.es?mid=a10402000000"
     ]
    ],
-   "count": 18,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "gov-moel": {
    "routes": [
@@ -537,8 +847,8 @@
      "https://www.moel.go.kr/news/notice/noticeList.do?searchDivCd=001"
     ]
    ],
-   "count": 10,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "gov-mogef": {
    "routes": [
@@ -546,10 +856,15 @@
      "성평등가족부 RSS",
      "board",
      "https://mogef.go.kr/hg/rss/hg_rss_f001.do"
+    ],
+    [
+     "성평등가족부 RSS",
+     "rss",
+     "https://www.mogef.go.kr/hg/rss/hg_rss_f001.do"
     ]
    ],
-   "count": 9,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "gov-molit": {
    "routes": [
@@ -567,10 +882,15 @@
      "입법 ·행정 예고 더보기",
      "board",
      "https://www.molit.go.kr/USR/law/m_46/lst.jsp"
+    ],
+    [
+     "보도자료",
+     "board",
+     "https://www.molit.go.kr/USR/NEWS/m_72/lst.jsp"
     ]
    ],
-   "count": 30,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "gov-mof": {
    "routes": [
@@ -581,7 +901,7 @@
     ]
    ],
    "count": 0,
-   "checked": "2026-10-10"
+   "checked": "discover"
   },
   "gov-mss": {
    "routes": [
@@ -591,8 +911,8 @@
      "https://www.mss.go.kr/site/smba/ex/bbs/List.do?cbIdx=310"
     ]
    ],
-   "count": 2,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "gov-mpm": {
    "routes": [
@@ -615,10 +935,50 @@
      "복무제도 게시판",
      "board",
      "https://www.mpm.go.kr/mpm/info/infoService/serviceBoard"
+    ],
+    [
+     "승진·보직관리 게시판",
+     "board",
+     "https://www.mpm.go.kr/mpm/info/infoBiz/bizBoard"
+    ],
+    [
+     "연금·복지제도 게시판",
+     "board",
+     "https://www.mpm.go.kr/mpm/info/retireAnnuity/annuityBoard"
+    ],
+    [
+     "윤리제도 게시판",
+     "board",
+     "https://www.mpm.go.kr/mpm/info/infoEthics/BizEthicsBoard"
+    ],
+    [
+     "재해보상제도 게시판",
+     "board",
+     "https://www.mpm.go.kr/mpm/info/compens/compensBoard"
+    ],
+    [
+     "대통령령",
+     "board",
+     "https://www.mpm.go.kr/mpm/lawStat/infoLaw/lawPresident"
+    ],
+    [
+     "입법/행정 예고",
+     "board",
+     "https://www.mpm.go.kr/mpm/lawStat/infoLaw/lawMaking"
+    ],
+    [
+     "중점관리 대상사업",
+     "board",
+     "https://www.mpm.go.kr/mpm/open/openPolicy/openPolicyBiz"
+    ],
+    [
+     "총리령",
+     "board",
+     "https://www.mpm.go.kr/mpm/lawStat/infoLaw/lawPrimeMinister"
     ]
    ],
-   "count": 12,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "gov-moleg": {
    "routes": [
@@ -643,8 +1003,8 @@
      "https://www.moleg.go.kr/menu.es?mid=a10201080000"
     ]
    ],
-   "count": 26,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "gov-mfds": {
    "routes": [
@@ -652,10 +1012,15 @@
      "자료",
      "board",
      "https://mfds.go.kr/www/rss/list.do"
+    ],
+    [
+     "자료",
+     "rss",
+     "https://www.mfds.go.kr/www/rss/list.do"
     ]
    ],
-   "count": 40,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "gov-moip": {
    "routes": [
@@ -673,10 +1038,15 @@
      "공용차량 이용현황",
      "board",
      "https://www.moip.go.kr/ko/kpoBultnMgmt.do?menuCd=SCD0200651&parntMenuCd2=SCD0200413"
+    ],
+    [
+     "규제개선 추진",
+     "board",
+     "https://www.moip.go.kr/ko/kpoBultnMgmt.do?menuCd=SCD0200645&parntMenuCd2=SCD0200303"
     ]
    ],
    "count": 0,
-   "checked": "2026-10-10"
+   "checked": "discover"
   },
   "gov-nts": {
    "routes": [
@@ -686,8 +1056,8 @@
      "https://www.nts.go.kr/nts/bannerNtsListAll.do?mi=40685"
     ]
    ],
-   "count": 1,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "gov-pcccr": {
    "routes": [
@@ -703,7 +1073,7 @@
     ]
    ],
    "count": 0,
-   "checked": "2026-10-10"
+   "checked": "discover"
   },
   "gov-ne": {
    "routes": [
@@ -736,10 +1106,35 @@
      "자료",
      "board",
      "https://www.ne.go.kr/user/bbs/BD_selectBbsList.do?q_bbsSn=1016"
+    ],
+    [
+     "참여",
+     "board",
+     "https://www.ne.go.kr/user/bbs/BD_selectBbsList.do?q_bbsSn=1026"
+    ],
+    [
+     "기타",
+     "board",
+     "https://www.ne.go.kr/user/bbs/BD_selectBbsList.do?q_bbsSn=1028"
+    ],
+    [
+     "소식",
+     "board",
+     "https://www.ne.go.kr/user/bbs/BD_selectBbsList.do?q_bbsSn=1005"
+    ],
+    [
+     "자료",
+     "board",
+     "https://www.ne.go.kr/user/bbs/BD_selectBbsList.do?q_bbsSn=1025"
+    ],
+    [
+     "자료",
+     "board",
+     "https://www.ne.go.kr/user/bbs/BD_selectBbsList.do?q_bbsSn=1027"
     ]
    ],
-   "count": 7,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-catholic": {
    "routes": [
@@ -755,7 +1150,7 @@
     ]
    ],
    "count": 0,
-   "checked": "2026-10-10"
+   "checked": "discover"
   },
   "u-mtu": {
    "routes": [
@@ -808,10 +1203,20 @@
      "대학평의원회회의록",
      "board",
      "https://www.mtu.ac.kr/mtu/board/list.do?mId=372"
+    ],
+    [
+     "대학현황",
+     "board",
+     "https://www.mtu.ac.kr/mtu/board/list.do?mId=370"
+    ],
+    [
+     "설교문",
+     "board",
+     "https://www.mtu.ac.kr/mtu/board/list.do?mId=46"
     ]
    ],
-   "count": 31,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-gangseo": {
    "routes": [
@@ -859,10 +1264,25 @@
      "기타",
      "board",
      "https://gangseo.ac.kr/kcua/boardList?menuCode=MC0512"
+    ],
+    [
+     "사회복지학과",
+     "board",
+     "http://gangseo.ac.kr/kcua/boardList?menuCode=MC0508"
+    ],
+    [
+     "상담심리학과",
+     "board",
+     "http://gangseo.ac.kr/kcua/boardList?menuCode=MC0509"
+    ],
+    [
+     "식단",
+     "board",
+     "http://gangseo.ac.kr/kcua/boardList?menuCode=BC0707"
     ]
    ],
-   "count": 42,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-konkuk": {
    "routes": [
@@ -877,8 +1297,8 @@
      "https://www.konkuk.ac.kr/bbs/konkuk/234/artclList.do?layout=unknown"
     ]
    ],
-   "count": 12,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "gov-opm": {
    "routes": [
@@ -916,10 +1336,35 @@
      "자료",
      "board",
      "https://www.opm.go.kr/opm/info/policies.do"
+    ],
+    [
+     "자료",
+     "board",
+     "https://www.opm.go.kr/opm/open/corruption.do"
+    ],
+    [
+     "보도자료",
+     "board",
+     "https://www.opm.go.kr/opm/news/press2.do"
+    ],
+    [
+     "참여",
+     "board",
+     "https://www.opm.go.kr/opm/prime/speech.do"
+    ],
+    [
+     "인사",
+     "board",
+     "https://www.opm.go.kr/opm/news/prize.do"
+    ],
+    [
+     "자료",
+     "board",
+     "https://www.opm.go.kr/opm/info/performance_board.do"
     ]
    ],
-   "count": 26,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "gov-mofe": {
    "routes": [
@@ -944,8 +1389,8 @@
      "https://www.mofe.go.kr/2024/foreignExchange.do"
     ]
    ],
-   "count": 16,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "gov-moe": {
    "routes": [
@@ -956,7 +1401,7 @@
     ]
    ],
    "count": 0,
-   "checked": "2026-10-10"
+   "checked": "discover"
   },
   "gov-unikorea": {
    "routes": [
@@ -999,10 +1444,15 @@
      "수탁자 점검결과",
      "board",
      "https://www.unikorea.go.kr/web/unikorea/bbs/bbs_0000000000000198"
+    ],
+    [
+     "통일관련 기사",
+     "board",
+     "https://www.unikorea.go.kr/web/unikorea/bbs/bbs_0000000000000006"
     ]
    ],
-   "count": 27,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "gov-moj": {
    "routes": [
@@ -1010,10 +1460,20 @@
      "기타",
      "board",
      "http://www.moj.go.kr/bbs/moj/183/artclList.do?layout=unknown"
+    ],
+    [
+     "기타",
+     "board",
+     "http://www.moj.go.kr/bbs/moj/184/artclList.do?layout=unknown"
+    ],
+    [
+     "기타",
+     "board",
+     "http://www.moj.go.kr/bbs/moj/182/artclList.do?layout=unknown"
     ]
    ],
-   "count": 2,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "gov-rda": {
    "routes": [
@@ -1061,10 +1521,25 @@
      "기록관리정보",
      "board",
      "https://www.rda.go.kr/board/board.do?mode=list&prgId=opl_oplmanual"
+    ],
+    [
+     "농업기술",
+     "board",
+     "https://www.rda.go.kr/board/board.do?mode=list&prgId=syb_pubctebookEntry"
+    ],
+    [
+     "물품관리정보",
+     "board",
+     "https://www.rda.go.kr/board/board.do?mode=list&prgId=adm_atcmngtrasEntry"
+    ],
+    [
+     "정책",
+     "board",
+     "https://www.rda.go.kr/board/board.do?mode=list&prgId=adm_execmtgEntry"
     ]
    ],
-   "count": 14,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "gov-forest": {
    "routes": [
@@ -1084,8 +1559,8 @@
      "https://www.forest.go.kr/kfsweb/cop/bbs/selectBoardList.do?bbsId=BBSMSTR_1019&mn=NKFS_05_07_03"
     ]
    ],
-   "count": 13,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "gov-kdca": {
    "routes": [
@@ -1096,7 +1571,7 @@
     ]
    ],
    "count": 0,
-   "checked": "2026-10-10"
+   "checked": "discover"
   },
   "gov-kma": {
    "routes": [
@@ -1124,10 +1599,15 @@
      "- 차장",
      "board",
      "https://www.kma.go.kr/kma/public/integrity_04_02.jsp"
+    ],
+    [
+     "- 청장",
+     "board",
+     "https://www.kma.go.kr/kma/public/integrity_04.jsp"
     ]
    ],
-   "count": 11,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "gov-saemangeum": {
    "routes": [
@@ -1138,7 +1618,7 @@
     ]
    ],
    "count": 0,
-   "checked": "2026-10-10"
+   "checked": "discover"
   },
   "gov-kcg": {
    "routes": [
@@ -1173,8 +1653,8 @@
      "http://www.kcg.go.kr/kcg/na/ntt/selectNttList.do?mi=2915&bbsId=1016"
     ]
    ],
-   "count": 17,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "gov-kmcc": {
    "routes": [
@@ -1207,10 +1687,40 @@
      "정책",
      "board",
      "https://www.kmcc.go.kr/user.do?boardId=1006&page=A02020400&dc=K02020400"
+    ],
+    [
+     "자료",
+     "board",
+     "https://www.kmcc.go.kr/user.do?boardId=1022&page=A02160300&dc=K02160300"
+    ],
+    [
+     "자료",
+     "board",
+     "https://www.kmcc.go.kr/user.do?boardId=1025&page=A02050200&dc=K02050200"
+    ],
+    [
+     "자료",
+     "board",
+     "https://www.kmcc.go.kr/user.do?boardId=1027&page=A02060100&dc=K02060100"
+    ],
+    [
+     "정책",
+     "board",
+     "https://www.kmcc.go.kr/user.do?boardId=1008&page=A02020600&dc=K02020600"
+    ],
+    [
+     "자료",
+     "board",
+     "https://www.kmcc.go.kr/user.do?boardId=1030&page=A02060400&dc=K02060400"
+    ],
+    [
+     "정책",
+     "board",
+     "https://www.kmcc.go.kr/user.do?boardId=1064&page=A07030400&dc=K07030400"
     ]
    ],
-   "count": 20,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "gov-ftc": {
    "routes": [
@@ -1253,10 +1763,76 @@
      "경쟁법ㆍ제도",
      "board",
      "https://www.ftc.go.kr/www/selectBbsNttList.do?bordCd=601&key=484&searchDataSe=T1"
+    ],
+    [
+     "공정거래백서",
+     "board",
+     "https://www.ftc.go.kr/www/selectBbsNttList.do?bordCd=104&key=191"
+    ],
+    [
+     "국민마당",
+     "board",
+     "https://www.ftc.go.kr/www/selectBbsNttList.do?bordCd=209&key=281"
+    ],
+    [
+     "기타",
+     "board",
+     "https://www.ftc.go.kr/www/selectBbsNttList.do?bordCd=6&key=17"
+    ],
+    [
+     "외부인접촉보고현황",
+     "board",
+     "https://www.ftc.go.kr/www/selectBbsNttList.do?bordCd=215&key=290"
     ]
    ],
-   "count": 21,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
+  },
+  "u-khcu": {
+   "routes": [
+    [
+     "입학",
+     "board",
+     "https://go.khcu.ac.kr/ad/notice/list.do?page=1"
+    ],
+    [
+     "공지",
+     "board",
+     "https://www.khcu.ac.kr/notice/list.do?category=BUSINESS&page=1"
+    ],
+    [
+     "보도자료",
+     "board",
+     "http://www.khcu.ac.kr/notice/list.do?category=PRESS&page=1"
+    ],
+    [
+     "소식",
+     "board",
+     "https://www.khcu.ac.kr/notice/list.do?category=SPECIAL&page=1"
+    ],
+    [
+     "입찰",
+     "board",
+     "https://www.khcu.ac.kr/notice/list.do?condition=all&subCategory=PURCHASE&keyword=&category=GENERAL"
+    ],
+    [
+     "채용",
+     "board",
+     "https://www.khcu.ac.kr/notice/list.do?category=CAREER&page=1"
+    ],
+    [
+     "자료",
+     "board",
+     "https://www.khcu.ac.kr/notice/detail.do?category=GENERAL&seq=200375348"
+    ],
+    [
+     "학사",
+     "board",
+     "https://www.khcu.ac.kr/notice/detail.do?category=BUSINESS&seq=200253738"
+    ]
+   ],
+   "count": 0,
+   "checked": "discover"
   },
   "u-scau": {
    "routes": [
@@ -1267,7 +1843,7 @@
     ]
    ],
    "count": 0,
-   "checked": "2026-10-10"
+   "checked": "discover"
   },
   "u-cufs": {
    "routes": [
@@ -1277,8 +1853,8 @@
      "https://www.cufs.ac.kr/bbs/list.do?bbsId=BBS000079&menuId=MENU000312"
     ]
    ],
-   "count": 12,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-sdu": {
    "routes": [
@@ -1289,7 +1865,7 @@
     ]
    ],
    "count": 0,
-   "checked": "2026-10-10"
+   "checked": "discover"
   },
   "u-anyang": {
    "routes": [
@@ -1304,8 +1880,8 @@
      "https://www.anyang.ac.kr/iacf/"
     ]
    ],
-   "count": 3,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-eulji": {
    "routes": [
@@ -1316,7 +1892,7 @@
     ]
    ],
    "count": 0,
-   "checked": "2026-10-10"
+   "checked": "discover"
   },
   "u-cha": {
    "routes": [
@@ -1359,10 +1935,15 @@
      "글로벌 스토리",
      "board",
      "https://www.cha.ac.kr/%ea%b8%80%eb%a1%9c%eb%b2%8c/%ea%b8%80%eb%a1%9c%eb%b2%8c-%ec%8a%a4%ed%86%a0%eb%a6%ac/"
+    ],
+    [
+     "소식",
+     "rss",
+     "https://www.cha.ac.kr/feed/"
     ]
    ],
-   "count": 25,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-kau": {
    "routes": [
@@ -1390,10 +1971,35 @@
      "기금운용심의회",
      "board",
      "https://kau.ac.kr/kaulife/fund.php"
+    ],
+    [
+     "기부금공시",
+     "board",
+     "https://kau.ac.kr/kaulife/donation.php"
+    ],
+    [
+     "등록금심의위원회",
+     "board",
+     "https://kau.ac.kr/kaulife/tuition.php"
+    ],
+    [
+     "신청서",
+     "board",
+     "https://kau.ac.kr/kaulife/labappl.php"
+    ],
+    [
+     "제3자 제공내역",
+     "board",
+     "https://kau.ac.kr/privacy/provided.php"
+    ],
+    [
+     "청탁금지",
+     "board",
+     "https://kau.ac.kr/kaulife/nosolicitation.php"
     ]
    ],
-   "count": 35,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-bhu": {
    "routes": [
@@ -1403,8 +2009,8 @@
      "https://ipsi.bhu.ac.kr/ipsi"
     ]
    ],
-   "count": 2,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-bwc": {
    "routes": [
@@ -1415,7 +2021,7 @@
     ]
    ],
    "count": 0,
-   "checked": "2026-10-10"
+   "checked": "discover"
   },
   "u-kmcu": {
    "routes": [
@@ -1428,10 +2034,50 @@
      "홈페이지",
      "board",
      "https://www.kmcu.ac.kr/am/"
+    ],
+    [
+     "홈페이지",
+     "board",
+     "https://www.kmcu.ac.kr/animalhealth/"
+    ],
+    [
+     "홈페이지",
+     "board",
+     "https://www.kmcu.ac.kr/childedu/"
+    ],
+    [
+     "홈페이지",
+     "board",
+     "https://www.kmcu.ac.kr/coffee/"
+    ],
+    [
+     "홈페이지",
+     "board",
+     "https://www.kmcu.ac.kr/emt/"
+    ],
+    [
+     "홈페이지",
+     "board",
+     "https://www.kmcu.ac.kr/fashion/"
+    ],
+    [
+     "홈페이지",
+     "board",
+     "https://www.kmcu.ac.kr/food/"
+    ],
+    [
+     "홈페이지",
+     "board",
+     "https://www.kmcu.ac.kr/mecha/"
+    ],
+    [
+     "홈페이지",
+     "board",
+     "https://www.kmcu.ac.kr/nurse/"
     ]
    ],
-   "count": 12,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-ttc": {
    "routes": [
@@ -1451,8 +2097,8 @@
      "https://entr.ttc.ac.kr/contents/application/application03.do"
     ]
    ],
-   "count": 5,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-jesus": {
    "routes": [
@@ -1463,7 +2109,7 @@
     ]
    ],
    "count": 0,
-   "checked": "2026-10-10"
+   "checked": "discover"
   },
   "u-wku": {
    "routes": [
@@ -1473,8 +2119,8 @@
      "https://www.wku.ac.kr/feed"
     ]
    ],
-   "count": 10,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-daegu": {
    "routes": [
@@ -1484,8 +2130,8 @@
      "https://www.daegu.ac.kr/article/DG159/list?pageIndex=1"
     ]
    ],
-   "count": 2,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-dgau": {
    "routes": [
@@ -1508,10 +2154,30 @@
      "기타공연전시",
      "board",
      "https://www.dgau.ac.kr/play_etc"
+    ],
+    [
+     "언론보도",
+     "board",
+     "https://www.dgau.ac.kr/report"
+    ],
+    [
+     "코로나-19",
+     "board",
+     "https://www.dgau.ac.kr/covid_not"
+    ],
+    [
+     "학부 및 전공리플렛",
+     "board",
+     "https://www.dgau.ac.kr/media"
+    ],
+    [
+     "공지",
+     "board",
+     "https://www.dgau.ac.kr/notice_etc"
     ]
    ],
-   "count": 1,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-dhu": {
    "routes": [
@@ -1541,8 +2207,8 @@
      "https://www.dhu.ac.kr/pages/sub.htm?nav_code=dhu1576457517"
     ]
    ],
-   "count": 11,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-daeshin": {
    "routes": [
@@ -1552,8 +2218,8 @@
      "https://www.daeshin.ac.kr/html/04_campus/02_3.php"
     ]
    ],
-   "count": 14,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-dyu": {
    "routes": [
@@ -1591,10 +2257,31 @@
      "기타",
      "board",
      "http://scc.dyu.ac.kr/5158-2/7748-2/"
+    ],
+    [
+     "소식",
+     "rss",
+     "https://www.dyu.ac.kr/wp-content/plugins/kboard/rss.php"
+    ],
+    [
+     "소식",
+     "rss",
+     "https://www.dyu.ac.kr/feed/"
     ]
    ],
-   "count": 24,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
+  },
+  "u-yu": {
+   "routes": [
+    [
+     "입찰",
+     "rss",
+     "https://adm.yu.ac.kr/acportal/websquare/websquare.html?w2xPath=/acportal/com/cmmn/main/CmmnMainFrame.xml"
+    ]
+   ],
+   "count": 0,
+   "checked": "discover"
   },
   "u-sjs": {
    "routes": [
@@ -1605,7 +2292,7 @@
     ]
    ],
    "count": 0,
-   "checked": "2026-10-10"
+   "checked": "discover"
   },
   "u-suwoncatholic": {
    "routes": [
@@ -1616,7 +2303,7 @@
     ]
    ],
    "count": 0,
-   "checked": "2026-10-10"
+   "checked": "discover"
   },
   "u-shinhan": {
    "routes": [
@@ -1626,8 +2313,8 @@
      "https://www.shinhan.ac.kr/bbs/kr/191/artclList.do?layout=unknown"
     ]
    ],
-   "count": 2,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-acts": {
    "routes": [
@@ -1680,10 +2367,20 @@
      "FOCUS on ACTS",
      "board",
      "https://www.acts.ac.kr/modules/board/bd_list.asp?id=focus&left=prom1_1"
+    ],
+    [
+     "건의함",
+     "board",
+     "https://www.acts.ac.kr/modules/board/bd_list.asp?id=board_proposal&left=unilife4_3"
+    ],
+    [
+     "기도편지",
+     "board",
+     "https://www.acts.ac.kr/modules/board/bd_list.asp?id=mission_talk&left=prom7_1"
     ]
    ],
-   "count": 16,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-ajou": {
    "routes": [
@@ -1726,10 +2423,25 @@
      "세미나/포럼",
      "board",
      "https://www.ajou.ac.kr/kr/research/seminarforum.do"
+    ],
+    [
+     "아주교차로",
+     "board",
+     "https://www.ajou.ac.kr/kr/ajou/cross.do"
+    ],
+    [
+     "학교에 바라는 글",
+     "board",
+     "https://www.ajou.ac.kr/kr/ajou/wish.do"
+    ],
+    [
+     "함께하고 싶은 나의 교수님",
+     "board",
+     "https://www.ajou.ac.kr/kr/bachelor/bamedia-04.do"
     ]
    ],
-   "count": 41,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-yc": {
    "routes": [
@@ -1739,8 +2451,8 @@
      "https://www.yc.ac.kr/enter"
     ]
    ],
-   "count": 4,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-cmu": {
    "routes": [
@@ -1750,8 +2462,8 @@
      "https://www.cmu.ac.kr/homepage/default/page/subLocation.do?menu_no=10010110"
     ]
    ],
-   "count": 1,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-cntu": {
    "routes": [
@@ -1801,8 +2513,8 @@
      "https://www.cntu.ac.kr/ctchostel"
     ]
    ],
-   "count": 9,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-kbc": {
    "routes": [
@@ -1840,10 +2552,35 @@
      "대학평의원회",
      "board",
      "https://www.kbc.ac.kr/kor/CMS/Board/Board.do?mCode=MN044"
+    ],
+    [
+     "등록금심의위원회",
+     "board",
+     "https://www.kbc.ac.kr/kor/CMS/Board/Board.do?mCode=MN043"
+    ],
+    [
+     "언론에서 본 우리대학",
+     "board",
+     "https://www.kbc.ac.kr/kor/CMS/Board/Board.do?mCode=MN299"
+    ],
+    [
+     "이사회",
+     "board",
+     "https://www.kbc.ac.kr/kor/CMS/Board/Board.do?mCode=MN042"
+    ],
+    [
+     "질문과 답변",
+     "board",
+     "https://www.kbc.ac.kr/kor/CMS/Board/Board.do?mCode=MN102"
+    ],
+    [
+     "학생상담센터",
+     "board",
+     "https://www.kbc.ac.kr/kor/CMS/Board/Board.do?mCode=MN243"
     ]
    ],
-   "count": 9,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-uc": {
    "routes": [
@@ -1858,8 +2595,8 @@
      "https://www.uc.ac.kr/ipsi/CMS/Board/Board.do?mCode=MN046"
     ]
    ],
-   "count": 13,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-gtec": {
    "routes": [
@@ -1877,10 +2614,15 @@
      "기숙사",
      "board",
      "https://www.gtec.ac.kr/dorm"
+    ],
+    [
+     "시각정보디자인학과",
+     "board",
+     "https://www.gtec.ac.kr/design"
     ]
    ],
-   "count": 8,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-tk": {
    "routes": [
@@ -1915,8 +2657,8 @@
      "https://www.tk.ac.kr/bbs/board.php?bo_table=minutes1"
     ]
    ],
-   "count": 25,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-mkc": {
    "routes": [
@@ -1931,8 +2673,8 @@
      "https://www.mkc.ac.kr/house/"
     ]
    ],
-   "count": 16,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-pohang": {
    "routes": [
@@ -1943,7 +2685,7 @@
     ]
    ],
    "count": 0,
-   "checked": "2026-10-10"
+   "checked": "discover"
   },
   "u-hosan": {
    "routes": [
@@ -1953,8 +2695,8 @@
      "https://www.hosan.ac.kr/front/"
     ]
    ],
-   "count": 7,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-koje": {
    "routes": [
@@ -1992,10 +2734,35 @@
      "공용장비활용센터",
      "board",
      "https://www.koje.ac.kr/www/board/34?mc=225"
+    ],
+    [
+     "기부현황",
+     "board",
+     "https://www.koje.ac.kr/www/board/22"
+    ],
+    [
+     "기업지원 One-stop Servic",
+     "board",
+     "https://www.koje.ac.kr/www/board/33?mc=224"
+    ],
+    [
+     "대학평의원회 회의록",
+     "board",
+     "https://www.koje.ac.kr/www/board/18"
+    ],
+    [
+     "등록금심의위원회 회의록",
+     "board",
+     "https://www.koje.ac.kr/www/board/19"
+    ],
+    [
+     "법인정관",
+     "board",
+     "https://www.koje.ac.kr/www/board/9"
     ]
    ],
-   "count": 4,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-gimhae": {
    "routes": [
@@ -2005,8 +2772,8 @@
      "https://ipsi.gimhae.ac.kr/ipsi"
     ]
    ],
-   "count": 5,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-uhs": {
    "routes": [
@@ -2016,8 +2783,8 @@
      "http://iphak.uhs.ac.kr/ipsi/board/notice/list.do"
     ]
    ],
-   "count": 3,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-kangwon": {
    "routes": [
@@ -2070,10 +2837,20 @@
      "KNU SDGs Implementat",
      "board",
      "https://www.kangwon.ac.kr/ko/bbs/855/list.do"
+    ],
+    [
+     "감염병 대응",
+     "board",
+     "https://www.kangwon.ac.kr/ko/bbs/722/list.do"
+    ],
+    [
+     "교우광장",
+     "board",
+     "https://www.kangwon.ac.kr/ko/bbs/759/list.do"
     ]
    ],
-   "count": 95,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-ulsan": {
    "routes": [
@@ -2103,8 +2880,8 @@
      "http://www.ulsan.ac.kr/kor/CMS/Board/Board.do?mCode=MN224"
     ]
    ],
-   "count": 35,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-dcatholic": {
    "routes": [
@@ -2112,10 +2889,15 @@
      "기타",
      "board",
      "https://www.dcatholic.ac.kr/edu.php"
+    ],
+    [
+     "기타",
+     "board",
+     "https://www.dcatholic.ac.kr/funeral.php"
     ]
    ],
    "count": 0,
-   "checked": "2026-10-10"
+   "checked": "discover"
   },
   "u-sejong-hongik": {
    "routes": [
@@ -2168,10 +2950,20 @@
      "세종캠퍼스",
      "board",
      "https://sejong.hongik.ac.kr/kr/life/sejong-activity-list.do"
+    ],
+    [
+     "학생지원",
+     "board",
+     "https://sejong.hongik.ac.kr/kr/life/seoul-student-support-list.do"
+    ],
+    [
+     "Eduroam WIFI",
+     "board",
+     "https://sejong.hongik.ac.kr/kr/life/eduroam-wifi.do"
     ]
    ],
-   "count": 29,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-kduniv": {
    "routes": [
@@ -2219,10 +3011,15 @@
      "매뉴얼",
      "board",
      "http://www.kduniv.ac.kr/kor/CMS/Board/Board.do?mCode=MN080"
+    ],
+    [
+     "회의록 공개",
+     "board",
+     "http://www.kduniv.ac.kr/kor/CMS/Board/Board.do?mCode=MN360"
     ]
    ],
-   "count": 21,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-dankook": {
    "routes": [
@@ -2232,8 +3029,8 @@
      "https://www.dankook.ac.kr/web/kor/graduate_school"
     ]
    ],
-   "count": 12,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-honam": {
    "routes": [
@@ -2244,7 +3041,7 @@
     ]
    ],
    "count": 0,
-   "checked": "2026-10-10"
+   "checked": "discover"
   },
   "u-mokwon": {
    "routes": [
@@ -2274,8 +3071,8 @@
      "https://www.mokwon.ac.kr/kr/html/sub05/050506.html"
     ]
    ],
-   "count": 5,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-wsu": {
    "routes": [
@@ -2285,8 +3082,8 @@
      "https://www.wsu.ac.kr/proc/onestop_list.jsp"
     ]
    ],
-   "count": 3,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-inu": {
    "routes": [
@@ -2296,8 +3093,8 @@
      "https://www.inu.ac.kr:443/bbs/inu/246/artclList.do?layout=unknown"
     ]
    ],
-   "count": 5,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-inha": {
    "routes": [
@@ -2312,8 +3109,19 @@
      "https://www.inha.ac.kr/bbs/kr/10/artclList.do?layout=unknown"
     ]
    ],
-   "count": 6,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
+  },
+  "u-gwangju": {
+   "routes": [
+    [
+     "채용",
+     "board",
+     "https://jobpluscenter.gwangju.ac.kr/?site=job"
+    ]
+   ],
+   "count": 0,
+   "checked": "discover"
   },
   "u-songwon": {
    "routes": [
@@ -2346,10 +3154,40 @@
      "이사회 회의록",
      "board",
      "https://www.songwon.ac.kr/sb/SE_Board.asp?boardID=K010603&pgKey=164"
+    ],
+    [
+     "자유게시판",
+     "board",
+     "https://www.songwon.ac.kr/sb/SE_Board.asp?boardID=K0502&pgKey=65"
+    ],
+    [
+     "천원의 아침밥",
+     "board",
+     "https://www.songwon.ac.kr/sb/SE_Board.asp?boardID=breakfast&pgKey=239"
+    ],
+    [
+     "최근동정",
+     "board",
+     "https://www.songwon.ac.kr/sb/SE_Board.asp?boardID=K010104&pgKey=7"
+    ],
+    [
+     "취창업게시판",
+     "board",
+     "https://www.songwon.ac.kr/sb/SE_Board.asp?boardID=K050304&pgKey=201"
+    ],
+    [
+     "평의원회",
+     "board",
+     "https://www.songwon.ac.kr/sb/SE_Board.asp?boardID=K010509&pgKey=217"
+    ],
+    [
+     "학생식당 식단표",
+     "board",
+     "https://www.songwon.ac.kr/sb/SE_Board.asp?boardID=menu&pgKey=216"
     ]
    ],
-   "count": 9,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-jnu": {
    "routes": [
@@ -2382,10 +3220,40 @@
      "기타 관련 게시물 더보기",
      "board",
      "https://www.jnu.ac.kr/WebApp/web/HOM/COM/Board/board.aspx?boardID=5"
+    ],
+    [
+     "대학평의원회 회의록",
+     "board",
+     "https://www.jnu.ac.kr/WebApp/web/HOM/COM/Board/board.aspx?boardID=380"
+    ],
+    [
+     "분실물센터",
+     "board",
+     "https://www.jnu.ac.kr/WebApp/web/HOM/COM/Board/board.aspx?boardID=12"
+    ],
+    [
+     "사랑방",
+     "board",
+     "https://www.jnu.ac.kr/WebApp/web/HOM/COM/Board/board.aspx?boardID=15"
+    ],
+    [
+     "생활광장",
+     "board",
+     "https://www.jnu.ac.kr/WebApp/web/HOM/COM/Board/board.aspx?boardID=9"
+    ],
+    [
+     "아르바이트",
+     "board",
+     "https://www.jnu.ac.kr/WebApp/web/HOM/COM/Board/board.aspx?boardID=11"
+    ],
+    [
+     "우편물검색",
+     "board",
+     "https://www.jnu.ac.kr/WebApp/web/HOM/COM/Board/board.aspx?boardID=318"
     ]
    ],
-   "count": 49,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-chosun": {
    "routes": [
@@ -2395,8 +3263,8 @@
      "http://www3.chosun.ac.kr/bbs/chosun/117/artclList.do?layout=unknown"
     ]
    ],
-   "count": 15,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-jbnu": {
    "routes": [
@@ -2412,7 +3280,7 @@
     ]
    ],
    "count": 0,
-   "checked": "2026-10-10"
+   "checked": "discover"
   },
   "u-jj": {
    "routes": [
@@ -2422,8 +3290,8 @@
      "https://www.jj.ac.kr/iphak"
     ]
    ],
-   "count": 5,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-mokpo": {
    "routes": [
@@ -2433,8 +3301,8 @@
      "https://scholarship.mokpo.ac.kr/bbs/scholarship/600/artclList.do?layout=unknown"
     ]
    ],
-   "count": 9,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-mmu": {
    "routes": [
@@ -2450,7 +3318,7 @@
     ]
    ],
    "count": 0,
-   "checked": "2026-10-10"
+   "checked": "discover"
   },
   "u-scnu": {
    "routes": [
@@ -2483,10 +3351,40 @@
      "참여",
      "board",
      "https://www.scnu.ac.kr/SCNU/na/ntt/selectNttList.do?mi=1127&bbsId=1037"
+    ],
+    [
+     "자료",
+     "board",
+     "https://www.scnu.ac.kr/SCNU/na/ntt/selectNttList.do?mi=1122&bbsId=1033"
+    ],
+    [
+     "입학",
+     "board",
+     "https://www.scnu.ac.kr/iphak/na/ntt/selectNttList.do?mi=1676&bbsId=1213"
+    ],
+    [
+     "자료",
+     "board",
+     "https://www.scnu.ac.kr/haksa/na/ntt/selectNttList.do?mi=1424&bbsId=1158"
+    ],
+    [
+     "공지",
+     "board",
+     "https://www.scnu.ac.kr/SCNU/na/ntt/selectNttList.do?mi=1131&bbsId=1040"
+    ],
+    [
+     "참여",
+     "board",
+     "https://www.scnu.ac.kr/SCNU/na/ntt/selectNttList.do?mi=1126&bbsId=1036"
+    ],
+    [
+     "학사",
+     "board",
+     "https://www.scnu.ac.kr/SCNU/na/ntt/selectNttList.do?mi=1128&bbsId=1038"
     ]
    ],
-   "count": 8,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-mcu": {
    "routes": [
@@ -2529,10 +3427,15 @@
      "자유 게시판",
      "board",
      "https://www.mcu.ac.kr/bb/bbBoard.php?boardID=FREE&pageID=mcu0705000000"
+    ],
+    [
+     "공지",
+     "board",
+     "https://www.mcu.ac.kr/bb/bbBoard.php?boardID=YEGYEOLSAN&pageID=mcu0805000000"
     ]
    ],
-   "count": 4,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-jeju": {
    "routes": [
@@ -2578,7 +3481,7 @@
     ]
    ],
    "count": 0,
-   "checked": "2026-10-10"
+   "checked": "discover"
   },
   "u-dnue": {
    "routes": [
@@ -2616,10 +3519,15 @@
      "학생생활규정",
      "board",
      "http://www.dnue.ac.kr/kor/CMS/Board/Board.do?mCode=MN121"
+    ],
+    [
+     "학생활동 게시판 더보기",
+     "board",
+     "http://www.dnue.ac.kr/kor/CMS/Board/Board.do?mCode=MN170"
     ]
    ],
-   "count": 29,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-gnue": {
    "routes": [
@@ -2630,7 +3538,7 @@
     ]
    ],
    "count": 0,
-   "checked": "2026-10-10"
+   "checked": "discover"
   },
   "u-ginue": {
    "routes": [
@@ -2673,10 +3581,30 @@
      "경인광장",
      "board",
      "https://www.ginue.ac.kr/kor/CMS/Board/Board.do?mCode=MN275"
+    ],
+    [
+     "경인인성",
+     "board",
+     "https://www.ginue.ac.kr/kor/CMS/Board/Board.do?mCode=MN203"
+    ],
+    [
+     "대학요람",
+     "board",
+     "https://www.ginue.ac.kr/kor/CMS/Board/Board.do?mCode=MN278"
+    ],
+    [
+     "분실물/습득물",
+     "board",
+     "https://www.ginue.ac.kr/kor/CMS/Board/Board.do?mCode=MN139"
+    ],
+    [
+     "생활마당",
+     "board",
+     "https://www.ginue.ac.kr/kor/CMS/Board/Board.do?mCode=MN138"
     ]
    ],
-   "count": 33,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-cnue": {
    "routes": [
@@ -2689,10 +3617,66 @@
      "자료",
      "board",
      "https://www.cnue.ac.kr/cnue/info/curriculum.do"
+    ],
+    [
+     "공지",
+     "board",
+     "https://www.cnue.ac.kr/cnue/news/notice02.do"
+    ],
+    [
+     "공지",
+     "board",
+     "https://www.cnue.ac.kr/cnue/news/notice03.do"
+    ],
+    [
+     "공지",
+     "board",
+     "https://www.cnue.ac.kr/cnue/news/notice04.do"
     ]
    ],
-   "count": 3,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
+  },
+  "u-cje": {
+   "routes": [
+    [
+     "입학",
+     "board",
+     "https://www.cje.ac.kr/ipsi/?menu_cd=000026"
+    ],
+    [
+     "자료",
+     "board",
+     "https://www.cje.ac.kr/art/"
+    ],
+    [
+     "자료",
+     "board",
+     "https://www.cje.ac.kr/baeum/"
+    ],
+    [
+     "자료",
+     "board",
+     "https://www.cje.ac.kr/cjedu3/"
+    ],
+    [
+     "자료",
+     "board",
+     "https://www.cje.ac.kr/ctps/"
+    ],
+    [
+     "자료",
+     "board",
+     "https://www.cje.ac.kr/elder_edu/"
+    ],
+    [
+     "자료",
+     "board",
+     "https://www.cje.ac.kr/multicul/"
+    ]
+   ],
+   "count": 0,
+   "checked": "discover"
   },
   "u-cue": {
    "routes": [
@@ -2740,10 +3724,20 @@
      "생활정보",
      "board",
      "http://www.cue.ac.kr/kor/CMS/Board/Board.do?mCode=MN075"
+    ],
+    [
+     "안전·보건 건의함",
+     "board",
+     "http://www.cue.ac.kr/kor/CMS/Board/Board.do?mCode=MN264"
+    ],
+    [
+     "주거/장터",
+     "board",
+     "http://www.cue.ac.kr/kor/CMS/Board/Board.do?mCode=MN077"
     ]
    ],
-   "count": 34,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-kaist": {
    "routes": [
@@ -2778,8 +3772,8 @@
      "https://www.kaist.ac.kr/kr/html/footer/080701.html"
     ]
    ],
-   "count": 1,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-unist": {
    "routes": [
@@ -2805,7 +3799,7 @@
     ]
    ],
    "count": 0,
-   "checked": "2026-10-10"
+   "checked": "discover"
   },
   "u-karts": {
    "routes": [
@@ -2843,10 +3837,15 @@
      "매거진",
      "board",
      "https://www.karts.ac.kr/cop/bbs/selectBoardList.do?bbsId=BBSMSTR_000000000150"
+    ],
+    [
+     "언론보도",
+     "board",
+     "https://www.karts.ac.kr/cop/bbs/selectBoardList.do?bbsId=BBSMSTR_000000000015"
     ]
    ],
-   "count": 3,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-hufs": {
    "routes": [
@@ -2856,8 +3855,8 @@
      "https://www.hufs.ac.kr/bbs/hufs/2180/artclList.do?layout=unknown"
     ]
    ],
-   "count": 11,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-knsu": {
    "routes": [
@@ -2890,10 +3889,40 @@
      "개인정보 목적 외 이용 및 제3자 제",
      "board",
      "https://www.knsu.ac.kr/knsu/etc/testtest001.do"
+    ],
+    [
+     "개인정보 유출등 사고 대응 매뉴얼",
+     "board",
+     "https://www.knsu.ac.kr/knsu/etc/privacypolicy-manual.do"
+    ],
+    [
+     "개인정보처리방침 게시판",
+     "board",
+     "https://www.knsu.ac.kr/knsu/etc/privacypolicy.do"
+    ],
+    [
+     "건축, 토목 관련",
+     "board",
+     "https://www.knsu.ac.kr/knsu/unilife/architecture-civil-engineering.do"
+    ],
+    [
+     "국제대회",
+     "board",
+     "https://www.knsu.ac.kr/knsu/game/international-competition.do"
+    ],
+    [
+     "규정/지침",
+     "board",
+     "https://www.knsu.ac.kr/knsu/info/guideline.do"
+    ],
+    [
+     "기계설비, 소방 관련",
+     "board",
+     "https://www.knsu.ac.kr/knsu/unilife/mechanical-equipment-fire-fighting.do"
     ]
    ],
-   "count": 13,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-hanyang": {
    "routes": [
@@ -2903,8 +3932,8 @@
      "https://hanyang.ac.kr/news/notice/noticeList.do?searchDivCd=001"
     ]
    ],
-   "count": 30,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-hongik": {
    "routes": [
@@ -2939,8 +3968,8 @@
      "https://www.hongik.ac.kr/kr/introduction/speeches.do"
     ]
    ],
-   "count": 8,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-ks": {
    "routes": [
@@ -2968,10 +3997,20 @@
      "기타",
      "board",
      "http://kscms.ks.ac.kr/kor/CMS/Board/Board.do?mCode=MN092"
+    ],
+    [
+     "기타",
+     "board",
+     "http://kscms.ks.ac.kr/kor/CMS/Board/Board.do?mCode=MN094"
+    ],
+    [
+     "기타",
+     "board",
+     "http://kscms.ks.ac.kr/kor/CMS/Board/Board.do?mCode=MN091"
     ]
    ],
-   "count": 18,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-kmou": {
    "routes": [
@@ -2979,10 +4018,15 @@
      "R&D알리미",
      "board",
      "https://kmou.ac.kr/kmou/rss/rnd/unRndRss.do?mi=4844#sideContent"
+    ],
+    [
+     "R&D알리미",
+     "rss",
+     "https://www.kmou.ac.kr/kmou/rss/rnd/unRndRss.do?mi=4844#sideContent"
     ]
    ],
-   "count": 18,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-ghu": {
    "routes": [
@@ -3030,10 +4074,15 @@
      "GHU광장",
      "board",
      "https://www.ghu.ac.kr/GHUSquare"
+    ],
+    [
+     "개인정보 목적 외 이용·제3자 제공 ",
+     "board",
+     "https://www.ghu.ac.kr/OtherPurposesPrivacy"
     ]
    ],
-   "count": 13,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-seoyeong": {
    "routes": [
@@ -3043,8 +4092,8 @@
      "https://www.seoyeong.ac.kr/syu/na/ntt/selectNttList.do?mi=2285&bbsId=49&bsType=all"
     ]
    ],
-   "count": 10,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-cnc": {
    "routes": [
@@ -3087,10 +4136,30 @@
      "일반",
      "board",
      "https://www.cnc.ac.kr/board/?board=notice&site=cnc&mn=48&sc_cate=46"
+    ],
+    [
+     "장애학생지원센터",
+     "board",
+     "https://www.cnc.ac.kr/board/?board=j_notice&site=cnc&mn=133"
+    ],
+    [
+     "현장실습",
+     "board",
+     "https://www.cnc.ac.kr/board/?board=notice&site=cnc&mn=48&sc_cate=49"
+    ],
+    [
+     "현장실습게시판",
+     "board",
+     "https://www.cnc.ac.kr/board/?board=notice&site=cnc&mn=105&sc_cate=49"
+    ],
+    [
+     "CCTV운영관리방침",
+     "board",
+     "https://www.cnc.ac.kr/board/?board=personal_info&site=cnc&mn=153&sc_cate=70"
     ]
    ],
-   "count": 24,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-ut": {
    "routes": [
@@ -3115,8 +4184,8 @@
      "https://www.ut.ac.kr/cop/bbs/BBSMSTR_000000000076/selectBoardList.do"
     ]
    ],
-   "count": 17,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-kdu": {
    "routes": [
@@ -3124,10 +4193,15 @@
      "기타",
      "board",
      "https://www.kdu.ac.kr/home/sub.do?mncd=177"
+    ],
+    [
+     "기타",
+     "board",
+     "https://www.kdu.ac.kr/home/sub.do?mncd=182"
     ]
    ],
-   "count": 1,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-seowon": {
    "routes": [
@@ -3138,7 +4212,7 @@
     ]
    ],
    "count": 0,
-   "checked": "2026-10-10"
+   "checked": "discover"
   },
   "u-semyung": {
    "routes": [
@@ -3191,10 +4265,20 @@
      "논문집",
      "board",
      "https://www.semyung.ac.kr/cop/bbs/BBSMSTR_000000000721/selectBoardList.do"
+    ],
+    [
+     "대학평의원회",
+     "board",
+     "https://www.semyung.ac.kr/cop/bbs/BBSMSTR_000000000812/selectBoardList.do"
+    ],
+    [
+     "대학평의원회 회의록",
+     "board",
+     "https://www.semyung.ac.kr/cop/bbs/BBSMSTR_000000000771/selectBoardList.do"
     ]
    ],
-   "count": 27,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-u1": {
    "routes": [
@@ -3204,8 +4288,8 @@
      "https://www.u1.ac.kr/html/kr/info/info_0502.html"
     ]
    ],
-   "count": 3,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-cju": {
    "routes": [
@@ -3218,10 +4302,15 @@
      "소식",
      "board",
      "https://www.cju.ac.kr/www/selectBbsNttList.do?bbsNo=870&key=4423"
+    ],
+    [
+     "입학",
+     "board",
+     "https://www.cju.ac.kr/ipsi/selectBbsNttList.do?bbsNo=87&key=800&searchCtgry=%EC%A0%95%EC%8B%9C&"
     ]
    ],
-   "count": 18,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-konyang": {
    "routes": [
@@ -3264,10 +4353,20 @@
      "비교과",
      "board",
      "https://www.konyang.ac.kr/cop/bbs/BBSMSTR_000000000587/selectBoardList.do"
+    ],
+    [
+     "일반",
+     "board",
+     "https://www.konyang.ac.kr/cop/bbs/BBSMSTR_000000000583/selectBoardList.do"
+    ],
+    [
+     "학생",
+     "board",
+     "https://www.konyang.ac.kr/cop/bbs/BBSMSTR_000000000883/selectBoardList.do"
     ]
    ],
-   "count": 30,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-kongju": {
    "routes": [
@@ -3277,8 +4376,8 @@
      "https://www.kongju.ac.kr/bbs/KNU/2113/artclList.do?layout=unknown"
     ]
    ],
-   "count": 10,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-bu": {
    "routes": [
@@ -3288,8 +4387,8 @@
      "https://www.bu.ac.kr/mainNotice/web/artclList.do?layout=unknown"
     ]
    ],
-   "count": 2,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-sunmoon": {
    "routes": [
@@ -3314,8 +4413,8 @@
      "https://lily.sunmoon.ac.kr/Page2/UnivLife/VirusNotice.aspx"
     ]
    ],
-   "count": 19,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-joongbu": {
    "routes": [
@@ -3326,7 +4425,7 @@
     ]
    ],
    "count": 0,
-   "checked": "2026-10-10"
+   "checked": "discover"
   },
   "u-nonghyup": {
    "routes": [
@@ -3359,10 +4458,40 @@
      "- 규정/학칙",
      "board",
      "https://www.nonghyup.ac.kr/bbs/bbs_list.asp?tbl=m01022"
+    ],
+    [
+     "- 기금운용심의회 / 적립금공시",
+     "board",
+     "https://www.nonghyup.ac.kr/bbs/bbs_list.asp?tbl=m01030"
+    ],
+    [
+     "- 대학평의원회",
+     "board",
+     "https://www.nonghyup.ac.kr/bbs/bbs_list.asp?tbl=m01027"
+    ],
+    [
+     "정책",
+     "board",
+     "https://www.nonghyup.ac.kr/bbs/bbs_list.asp?tbl=m01029"
+    ],
+    [
+     "공지",
+     "board",
+     "https://www.nonghyup.ac.kr/bbs/bbs_list.asp?tbl=m01053"
+    ],
+    [
+     "공지",
+     "board",
+     "https://www.nonghyup.ac.kr/bbs/bbs_list.asp?tbl=m01122"
+    ],
+    [
+     "공지",
+     "board",
+     "https://www.nonghyup.ac.kr/bbs/bbs_list.asp?tbl=present5"
     ]
    ],
-   "count": 4,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-doowon": {
    "routes": [
@@ -3372,8 +4501,8 @@
      "https://www.doowon.ac.kr/bbs/kr/17/artclList.do?layout=unknown"
     ]
    ],
-   "count": 12,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-korea": {
    "routes": [
@@ -3399,7 +4528,7 @@
     ]
    ],
    "count": 0,
-   "checked": "2026-10-10"
+   "checked": "discover"
   },
   "u-kookmin": {
    "routes": [
@@ -3410,7 +4539,7 @@
     ]
    ],
    "count": 0,
-   "checked": "2026-10-10"
+   "checked": "discover"
   },
   "u-dongguk": {
    "routes": [
@@ -3420,8 +4549,8 @@
      "https://volunteers.dongguk.edu/article/notice/list"
     ]
    ],
-   "count": 3,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-dongduk": {
    "routes": [
@@ -3431,8 +4560,8 @@
      "https://www.dongduk.ac.kr/www/contents/kor-media.do?gotoMenuNo=kor-media"
     ]
    ],
-   "count": 10,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-syu": {
    "routes": [
@@ -3485,10 +4614,20 @@
      "브로슈어",
      "board",
      "https://www.syu.ac.kr/university-square/promotion/brochure/"
+    ],
+    [
+     "기부금",
+     "board",
+     "https://www.syu.ac.kr/sahmyook/donation/"
+    ],
+    [
+     "기획특집",
+     "board",
+     "https://www.syu.ac.kr/university-square/focus/"
     ]
    ],
-   "count": 53,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-smu": {
    "routes": [
@@ -3498,8 +4637,8 @@
      "https://www.smu.ac.kr/kor/intro/sympathyList.do"
     ]
    ],
-   "count": 7,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-kycu": {
    "routes": [
@@ -3532,10 +4671,15 @@
      "이사회회의록",
      "board",
      "https://www.kycu.ac.kr/cop/bbs/BBSMSTR_000000000331/selectBoardList.do"
+    ],
+    [
+     "총학생회",
+     "board",
+     "https://www.kycu.ac.kr/cop/bbs/BBSMSTR_000000000231/selectBoardList.do"
     ]
    ],
-   "count": 5,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-gjcu": {
    "routes": [
@@ -3545,8 +4689,8 @@
      "https://sangdam.gjcu.ac.kr/workframe.asp"
     ]
    ],
-   "count": 2,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-dcu": {
    "routes": [
@@ -3576,8 +4720,19 @@
      "https://www.dcu.ac.kr/aboutDCU/dcuStory_0101.htm"
     ]
    ],
-   "count": 29,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
+  },
+  "u-yncu": {
+   "routes": [
+    [
+     "기타",
+     "board",
+     "https://www.yncu.ac.kr/pages/introduction/introduction_04.asp?bcode=introduction"
+    ]
+   ],
+   "count": 0,
+   "checked": "discover"
   },
   "u-dongyang": {
    "routes": [
@@ -3587,8 +4742,8 @@
      "https://www.dongyang.ac.kr/bbs/dmu/676/artclList.do?layout=unknown"
     ]
    ],
-   "count": 2,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-postech": {
    "routes": [
@@ -3613,8 +4768,8 @@
      "https://www.postech.ac.kr/kor/newscenter/executive-expenses.do"
     ]
    ],
-   "count": 5,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-kaya": {
    "routes": [
@@ -3652,10 +4807,30 @@
      "이사회 회의록",
      "board",
      "https://www.kaya.ac.kr/Home/BBSList.mbz?action=MAPP_0000000336"
+    ],
+    [
+     "적립금 운용 현황",
+     "board",
+     "https://www.kaya.ac.kr/Home/BBSList.mbz?action=MAPP_0000000440"
+    ],
+    [
+     "커뮤니티",
+     "board",
+     "https://www.kaya.ac.kr/Home/Menu.do?action=MENU_0000000005"
+    ],
+    [
+     "대학평의원회",
+     "board",
+     "https://www.kaya.ac.kr/Home/Contents.mbz?action=MAPP_0000000268"
+    ],
+    [
+     "등록금심의위원회",
+     "board",
+     "https://www.kaya.ac.kr/Home/Contents.mbz?action=MAPP_0000000029"
     ]
    ],
-   "count": 12,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-ysu": {
    "routes": [
@@ -3698,10 +4873,25 @@
      "등록금심의위원회",
      "board",
      "http://www.ysu.ac.kr/kor/CMS/Board/Board.do?mCode=MN288"
+    ],
+    [
+     "영산사랑게시판",
+     "board",
+     "http://www.ysu.ac.kr/kor/CMS/Board/Board.do?mCode=MN301"
+    ],
+    [
+     "임원 및 이사회 회의록",
+     "board",
+     "http://www.ysu.ac.kr/kor/CMS/Board/Board.do?mCode=MN286"
+    ],
+    [
+     "카풀",
+     "board",
+     "http://www.ysu.ac.kr/kor/CMS/Board/Board.do?mCode=MN305"
     ]
    ],
-   "count": 25,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-inje": {
    "routes": [
@@ -3711,8 +4901,8 @@
      "https://www.inje.ac.kr/sotong/board/list.asp?m=2"
     ]
    ],
-   "count": 2,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-cs": {
    "routes": [
@@ -3755,10 +4945,20 @@
      "창신 소리터",
      "board",
      "https://www.cs.ac.kr/board/soriter"
+    ],
+    [
+     "창신Governance",
+     "board",
+     "https://www.cs.ac.kr/board/feedback"
+    ],
+    [
+     "총장님과 직접 대화해요",
+     "board",
+     "https://www.cs.ac.kr/board/president"
     ]
    ],
-   "count": 25,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-youngsan": {
    "routes": [
@@ -3791,10 +4991,40 @@
      "대학교당",
      "board",
      "https://www.youngsan.ac.kr/bbs/board.php?bo_table=3_1"
+    ],
+    [
+     "동아리",
+     "board",
+     "https://youngsan.ac.kr/bbs/board.php?bo_table=4_3"
+    ],
+    [
+     "법회·문답",
+     "board",
+     "https://youngsan.ac.kr/bbs/board.php?bo_table=4_4"
+    ],
+    [
+     "부설·부속기관",
+     "board",
+     "https://youngsan.ac.kr/bbs/board.php?bo_table=3_1"
+    ],
+    [
+     "영산광장",
+     "board",
+     "https://www.youngsan.ac.kr/bbs/board.php?bo_table=4_6"
+    ],
+    [
+     "영산스테이",
+     "board",
+     "https://www.youngsan.ac.kr/bbs/board.php?bo_table=3_4"
+    ],
+    [
+     "영산광장",
+     "board",
+     "https://youngsan.ac.kr/bbs/board.php?bo_table=4_6"
     ]
    ],
-   "count": 7,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-kumoh": {
    "routes": [
@@ -3814,8 +5044,8 @@
      "https://www.kumoh.ac.kr/ko/sub01_04.do"
     ]
    ],
-   "count": 13,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-cu": {
    "routes": [
@@ -3853,10 +5083,35 @@
      "바이러스/보안게시판",
      "board",
      "https://www.cu.ac.kr/plaza/community/virus"
+    ],
+    [
+     "안전관리게시판",
+     "board",
+     "https://www.cu.ac.kr/plaza/community/safety"
+    ],
+    [
+     "열린광장",
+     "board",
+     "https://www.cu.ac.kr/plaza/community/freein"
+    ],
+    [
+     "인터넷장터",
+     "board",
+     "https://www.cu.ac.kr/plaza/community/market"
+    ],
+    [
+     "자유게시판(교외)",
+     "board",
+     "https://www.cu.ac.kr/plaza/community/freeout"
+    ],
+    [
+     "하숙주거정보",
+     "board",
+     "https://www.cu.ac.kr/plaza/community/house"
     ]
    ],
-   "count": 71,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-sejong": {
    "routes": [
@@ -3871,8 +5126,8 @@
      "https://www.sejong.ac.kr/kor/intro/notice9.do"
     ]
    ],
-   "count": 5,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-sookmyung": {
    "routes": [
@@ -3912,8 +5167,19 @@
      "https://www.sookmyung.ac.kr/kr/information-use/privacy-history.do"
     ]
    ],
-   "count": 16,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
+  },
+  "u-ssu": {
+   "routes": [
+    [
+     "소식",
+     "rss",
+     "https://ssu.ac.kr/feed/"
+    ]
+   ],
+   "count": 0,
+   "checked": "discover"
   },
   "u-ewha": {
    "routes": [
@@ -3923,8 +5189,8 @@
      "https://www.ewha.ac.kr/ewha/news/ewha-press.do"
     ]
    ],
-   "count": 10,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-cau": {
    "routes": [
@@ -3937,15 +5203,10 @@
      "중앙인 커뮤니티",
      "board",
      "https://cauin.cau.ac.kr/cauin/"
-    ],
-    [
-     "기타",
-     "board",
-     "http://sport.cau.ac.kr/s_results"
     ]
    ],
-   "count": 13,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-chugye": {
    "routes": [
@@ -3988,10 +5249,30 @@
      "개인정보공시",
      "board",
      "https://www.chugye.ac.kr/mbs/university/jsp/board/list.jsp?boardId=545845&id=university_080500000000"
+    ],
+    [
+     "봉사활동",
+     "board",
+     "https://www.chugye.ac.kr/mbs/university/jsp/board/list.jsp?boardId=5200118&id=university_051900000000"
+    ],
+    [
+     "분실물/습득물",
+     "board",
+     "https://www.chugye.ac.kr/mbs/university/jsp/board/list.jsp?boardId=6818&id=university_050500000000"
+    ],
+    [
+     "비교과통합",
+     "board",
+     "https://www.chugye.ac.kr/mbs/university/jsp/board/list.jsp?boardId=5203489&id=university_041200000000"
+    ],
+    [
+     "신청서 양식",
+     "board",
+     "https://www.chugye.ac.kr/mbs/university/jsp/board/list.jsp?boardId=6776&id=university_040900000000"
     ]
    ],
-   "count": 17,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-ansan": {
    "routes": [
@@ -3999,10 +5280,30 @@
      "기타",
      "board",
      "https://cls.ansan.ac.kr/cls"
+    ],
+    [
+     "기타",
+     "board",
+     "https://www.ansan.ac.kr/dental"
+    ],
+    [
+     "기타",
+     "board",
+     "https://www.ansan.ac.kr/emergency"
+    ],
+    [
+     "기타",
+     "board",
+     "https://www.ansan.ac.kr/social"
+    ],
+    [
+     "기타",
+     "board",
+     "https://www.ansan.ac.kr/wellnessfood"
     ]
    ],
-   "count": 4,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-yeonsung": {
    "routes": [
@@ -4013,7 +5314,7 @@
     ]
    ],
    "count": 0,
-   "checked": "2026-10-10"
+   "checked": "discover"
   },
   "u-osan": {
    "routes": [
@@ -4028,8 +5329,19 @@
      "https://www.osan.ac.kr/?menuno=127"
     ]
    ],
-   "count": 12,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
+  },
+  "u-skuniv": {
+   "routes": [
+    [
+     "소식",
+     "rss",
+     "https://www.skuniv.ac.kr/feed"
+    ]
+   ],
+   "count": 0,
+   "checked": "discover"
   },
   "u-seoultech": {
    "routes": [
@@ -4062,10 +5374,25 @@
      "기타",
      "board",
      "https://www.seoultech.ac.kr/service/info/graduate/"
+    ],
+    [
+     "기타",
+     "board",
+     "https://www.seoultech.ac.kr/service/info/matters/"
+    ],
+    [
+     "참여",
+     "board",
+     "https://www.seoultech.ac.kr/service/sccenter"
+    ],
+    [
+     "참여",
+     "board",
+     "https://www.seoultech.ac.kr/service"
     ]
    ],
-   "count": 56,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-skku": {
    "routes": [
@@ -4080,8 +5407,8 @@
      "https://www.skku.edu/skku/campus/skk_comm/prs6.do"
     ]
    ],
-   "count": 11,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-sungshin": {
    "routes": [
@@ -4124,10 +5451,15 @@
      "일반 게시판 더보기",
      "board",
      "https://www.sungshin.ac.kr/bbs/main_kor/3182/artclList.do?layout=unknown"
+    ],
+    [
+     "채용",
+     "board",
+     "https://www.sungshin.ac.kr/bbs/main_kor/3183/artclList.do?layout=unknown"
     ]
    ],
-   "count": 43,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-snjc": {
    "routes": [
@@ -4152,8 +5484,8 @@
      "https://www.snjc.ac.kr/develop/development_fund_list.php"
     ]
    ],
-   "count": 4,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-hywoman": {
    "routes": [
@@ -4163,8 +5495,34 @@
      "https://www.hywoman.ac.kr?MENU_ID=2190"
     ]
    ],
-   "count": 4,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
+  },
+  "u-kit": {
+   "routes": [
+    [
+     "기타",
+     "rss",
+     "https://11-apply.kit.ac.kr/websquare/websquare.jsp?w2xPath=/html/aply/anun/AnunLoginTret.xml"
+    ],
+    [
+     "자료",
+     "rss",
+     "https://04-apply.kit.ac.kr/websquare/websquare.jsp?w2xPath=/html/aply/anun/AnunLoginTret.xml"
+    ],
+    [
+     "학사",
+     "rss",
+     "https://91-apply.kit.ac.kr/websquare/websquare.jsp?w2xPath=/html/aply/anun/AnunLoginTret.xml"
+    ],
+    [
+     "입학",
+     "rss",
+     "https://71-apply.kit.ac.kr/websquare/websquare.jsp?w2xPath=/html/aply/anun/AnunLoginTret.xml"
+    ]
+   ],
+   "count": 0,
+   "checked": "discover"
   },
   "u-dit": {
    "routes": [
@@ -4227,80 +5585,10 @@
      "사회복지융합계열 요양서비스전공",
      "board",
      "https://www.dit.ac.kr/recuperation/"
-    ],
-    [
-     "사회복지융합계열 헬스케어전공",
-     "board",
-     "https://www.dit.ac.kr/hc/"
-    ],
-    [
-     "소방안전관리과",
-     "board",
-     "https://www.dit.ac.kr/fs/"
-    ],
-    [
-     "스마트뷰티케어과",
-     "board",
-     "https://www.dit.ac.kr/smartbeauty/"
-    ],
-    [
-     "스마트웰니스의료뷰티과",
-     "board",
-     "https://www.dit.ac.kr/medicalbeauty/"
-    ],
-    [
-     "스마트푸드조리과",
-     "board",
-     "https://www.dit.ac.kr/smartfood/"
-    ],
-    [
-     "스포츠재활트레이닝과 스포츠경기지도자전",
-     "board",
-     "https://www.dit.ac.kr/pbk/"
-    ],
-    [
-     "스포츠재활트레이닝과 스포츠재활트레이닝",
-     "board",
-     "https://www.dit.ac.kr/ls/"
-    ],
-    [
-     "에너지·화학공학과",
-     "board",
-     "https://www.dit.ac.kr/chem/"
-    ],
-    [
-     "외식조리산업과",
-     "board",
-     "https://www.dit.ac.kr/foodn/"
-    ],
-    [
-     "의료피부미용과",
-     "board",
-     "https://www.dit.ac.kr/skin/"
-    ],
-    [
-     "전기자동차과",
-     "board",
-     "https://www.dit.ac.kr/motor/"
-    ],
-    [
-     "컴퓨터소프트웨어과",
-     "board",
-     "https://www.dit.ac.kr/cs/"
-    ],
-    [
-     "특수창의라이프과(3년제)",
-     "board",
-     "https://www.dit.ac.kr/scl/"
-    ],
-    [
-     "헤어뷰티과",
-     "board",
-     "https://www.dit.ac.kr/beauty/"
     ]
    ],
-   "count": 41,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-bist": {
    "routes": [
@@ -4310,8 +5598,8 @@
      "https://ipsi.bist.ac.kr/ipsi/board/list.php?menu=408&board_id=interviewquestion&re=1"
     ]
    ],
-   "count": 10,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-hsc": {
    "routes": [
@@ -4334,10 +5622,50 @@
      "소식",
      "board",
      "https://www.hsc.ac.kr/site/hsc/boardList.do?boardSeq=141&key=2161&category=행사안내"
+    ],
+    [
+     "학사",
+     "rss",
+     "https://nhis.hsc.ac.kr/websquare/websquare.jsp?w2xPath=/ui/system/login.xml"
+    ],
+    [
+     "학생정보시스템",
+     "rss",
+     "https://nhis.hsc.ac.kr/websquare/websquare.jsp?w2xPath=/ui/system/login_std.xml"
+    ],
+    [
+     "입학",
+     "board",
+     "https://ipsi.hsc.ac.kr/ipsi/selectBbsNttList.do?bbsNo=463&key=1456&searchCtgry=일반과정"
+    ],
+    [
+     "소식",
+     "board",
+     "https://www.hsc.ac.kr/site/hsc/boardList.do?boardSeq=141&key=45"
+    ],
+    [
+     "입학",
+     "board",
+     "http://ipsi.hsc.ac.kr/ipsi/selectBbsNttList.do?bbsNo=464&key=1457&searchCtgry=%EC%9D%BC%EB%B0%98%EA%B3%BC%EC%A0%95"
+    ],
+    [
+     "소식",
+     "board",
+     "https://www.hsc.ac.kr/site/hsc/boardList.do?boardSeq=141&key=2161&category=%ed%96%89%ec%82%ac%ec%95%88%eb%82%b4"
+    ],
+    [
+     "규정집",
+     "board",
+     "https://www.hsc.ac.kr/site/hsc/boardList.do?boardSeq=201&key=42"
+    ],
+    [
+     "성심학보",
+     "board",
+     "https://www.hsc.ac.kr/site/hsc/boardList.do?boardSeq=61&key=51"
     ]
    ],
-   "count": 27,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-ok": {
    "routes": [
@@ -4390,10 +5718,20 @@
      "도서관",
      "board",
      "https://www.ok.ac.kr/www/selectBbsNttList.do?bbsNo=29&key=5160"
+    ],
+    [
+     "등록금",
+     "board",
+     "https://www.ok.ac.kr/www/selectBbsNttList.do?bbsNo=27&key=5158"
+    ],
+    [
+     "보육교원연수원",
+     "board",
+     "https://www.ok.ac.kr/www/selectBbsNttList.do?bbsNo=620&key=5173"
     ]
    ],
-   "count": 11,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-tu": {
    "routes": [
@@ -4416,10 +5754,35 @@
      "등록금심의위원회",
      "board",
      "https://www.tu.ac.kr/tuhome/sub01_03_05.do"
+    ],
+    [
+     "봉사",
+     "board",
+     "https://www.tu.ac.kr/tuhome/sub07_01_06.do"
+    ],
+    [
+     "산학·창업 프로그램",
+     "board",
+     "https://www.tu.ac.kr/tuhome/sub07_04_01_01.do"
+    ],
+    [
+     "eCampus메뉴얼",
+     "board",
+     "https://www.tu.ac.kr/tuhome/sub06_01_11.do"
+    ],
+    [
+     "기금운용심의회",
+     "board",
+     "https://www.tu.ac.kr/tuhome/sub01_03_15.do"
+    ],
+    [
+     "기부금공개",
+     "board",
+     "https://www.tu.ac.kr/tuhome/sub01_03_14.do"
     ]
    ],
-   "count": 4,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-donga": {
    "routes": [
@@ -4457,10 +5820,15 @@
      "법인이사회",
      "board",
      "https://www.donga.ac.kr/kor/CMS/Board/Board.do?mCode=MN024"
+    ],
+    [
+     "청탁금지법 공시사항",
+     "board",
+     "https://www.donga.ac.kr/kor/CMS/Board/Board.do?mCode=MN050"
     ]
    ],
-   "count": 34,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-deu": {
    "routes": [
@@ -4488,10 +5856,25 @@
      "마이크로디그리",
      "board",
      "https://www.deu.ac.kr/www/deu-microdegree.do"
+    ],
+    [
+     "분실물센터",
+     "board",
+     "https://www.deu.ac.kr/www/deu-lostfound.do"
+    ],
+    [
+     "외부기관",
+     "board",
+     "https://www.deu.ac.kr/www/deu-external.do"
+    ],
+    [
+     "학칙",
+     "board",
+     "https://www.deu.ac.kr/www/deu-rule.do"
     ]
    ],
-   "count": 2,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-cup": {
    "routes": [
@@ -4501,8 +5884,8 @@
      "https://www.cup.ac.kr/entrance/home/front/news.do"
     ]
    ],
-   "count": 10,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-silla": {
    "routes": [
@@ -4520,15 +5903,10 @@
      "국제대학",
      "board",
      "https://sgc.silla.ac.kr/sgc/"
-    ],
-    [
-     "글로벌공과대학",
-     "board",
-     "https://sgc.silla.ac.kr/sgc/"
     ]
    ],
-   "count": 14,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-knu": {
    "routes": [
@@ -4558,8 +5936,8 @@
      "https://www.knu.ac.kr/wbbs/wbbs/bbs/btin/list.action?bbs_cde=33&menu_idx=222"
     ]
    ],
-   "count": 18,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-kmu": {
    "routes": [
@@ -4604,8 +5982,8 @@
      "http://www.kmu.ac.kr/pages/rssView.jsp?mnu_uid=374"
     ]
    ],
-   "count": 66,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-world": {
    "routes": [
@@ -4630,8 +6008,8 @@
      "https://www.world.ac.kr/com/bbs/Budding/selectBbsList.do?bbsId=0000000425"
     ]
    ],
-   "count": 5,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-bdu": {
    "routes": [
@@ -4641,8 +6019,8 @@
      "https://www.bdu.ac.kr/bduhome/sub01_06_04.do"
     ]
    ],
-   "count": 9,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-hj": {
    "routes": [
@@ -4657,8 +6035,8 @@
      "https://www.hj.ac.kr/hj/na/ntt/selectNttList.do?mi=200000461&bbsId=1010663"
     ]
    ],
-   "count": 16,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-paekche": {
    "routes": [
@@ -4686,10 +6064,25 @@
      "방송연예과",
      "board",
      "https://www.paekche.ac.kr/ict/department/?cms=broadcast"
+    ],
+    [
+     "실용댄스과",
+     "board",
+     "https://www.paekche.ac.kr/ict/department/?cms=dance"
+    ],
+    [
+     "실용음악과",
+     "board",
+     "https://www.paekche.ac.kr/ict/department/?cms=pmusic"
+    ],
+    [
+     "전자음악과",
+     "board",
+     "https://www.paekche.ac.kr/ict/department/?cms=emusic"
     ]
    ],
-   "count": 11,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-kijeon": {
    "routes": [
@@ -4732,10 +6125,25 @@
      "기숙사",
      "board",
      "https://www.kijeon.ac.kr/kor/CMS/Board/Board.do?mCode=MN252"
+    ],
+    [
+     "기타",
+     "board",
+     "https://www.kijeon.ac.kr/kor/CMS/Board/Board.do?mCode=MN175"
+    ],
+    [
+     "문의사항",
+     "board",
+     "https://www.kijeon.ac.kr/kor/CMS/Board/Board.do?mCode=MN060"
+    ],
+    [
+     "적립금",
+     "board",
+     "https://www.kijeon.ac.kr/kor/CMS/Board/Board.do?mCode=MN372"
     ]
    ],
-   "count": 20,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-jvision": {
    "routes": [
@@ -4785,8 +6193,8 @@
      "https://www.jvision.ac.kr?menu=244"
     ]
    ],
-   "count": 9,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-ysc": {
    "routes": [
@@ -4834,10 +6242,25 @@
      "게시판",
      "board",
      "http://www.ysc.ac.kr/kor/CMS/Board/Board.do?mCode=MN202"
+    ],
+    [
+     "자료",
+     "board",
+     "http://www.ysc.ac.kr/kor/CMS/Board/Board.do?mCode=MN135"
+    ],
+    [
+     "메이커 스페이스",
+     "board",
+     "http://www.ysc.ac.kr/kor/CMS/Board/Board.do?mCode=MN355"
+    ],
+    [
+     "비교과 더보기",
+     "board",
+     "https://www.ysc.ac.kr/kor/CMS/Board/Board.do?mCode=MN133&searchCategory=c009"
     ]
    ],
-   "count": 16,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-ck": {
    "routes": [
@@ -4875,10 +6298,15 @@
      "기부금",
      "board",
      "https://www.ck.ac.kr/archives/category/university-status/contributions"
+    ],
+    [
+     "공지",
+     "board",
+     "https://www.ck.ac.kr/archives/category/ck-notice/jobs-info-board"
     ]
    ],
-   "count": 6,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   },
   "u-ktc": {
    "routes": [
@@ -4896,10 +6324,15 @@
      "기타",
      "board",
      "https://www.ktc.ac.kr/board/board005"
+    ],
+    [
+     "기타",
+     "board",
+     "https://www.ktc.ac.kr/board/board007"
     ]
    ],
-   "count": 15,
-   "checked": "2026-10-10"
+   "count": 0,
+   "checked": "discover"
   }
  }
 }

@@ -23,9 +23,10 @@
 
 from __future__ import annotations
 
+import re
 import urllib.parse
 from collections.abc import Callable
-from dataclasses import replace
+from dataclasses import dataclass, field, replace
 
 from . import govweb, jsonapi, parse, robots
 from .cascade import (
@@ -50,6 +51,9 @@ KOREA_FEED_FMT = "https://www.korea.kr/rss/{code}.xml"
 KOREA_CATEGORY = "보도자료"
 
 
+_K2_BOARD_RE = re.compile(r"/bbs/[^/]+/\d+/(rssList\.do|artclList\.do)$", re.I)
+
+
 def korea_url(code: str) -> str:
     return KOREA_FEED_FMT.format(code=code)
 
@@ -66,6 +70,17 @@ def alt_urls(url: str) -> list[str]:
     host, out = parts.netloc, []
     if not host:
         return []
+    # ⓪ K2Web 게시판 — 같은 게시판의 피드와 목록은 서로의 대체 주소다.
+    #    /bbs/{site}/{id}/rssList.do ↔ /bbs/{site}/{id}/artclList.do
+    k2 = _K2_BOARD_RE.search(parts.path)
+    if k2:
+        other = "artclList.do" if k2.group(1).lower() == "rsslist.do" else "rssList.do"
+        query = "row=50" if other == "rssList.do" else "layout=unknown"  # 사이트가 스스로 거는 꼴
+        out.append(
+            urllib.parse.urlunsplit(
+                parts._replace(path=parts.path[: k2.start(1)] + other, query=query)
+            )
+        )
     # ① 모바일 도메인 — robots.txt 가 별도인 경우가 많다.
     if host.startswith("www."):
         out.append(urllib.parse.urlunsplit(parts._replace(netloc="m." + host[4:])))
@@ -214,3 +229,99 @@ def collect_org(
             trail = outcome.trail() or NOT_AVAILABLE
             failures.append(f"{source.org or source.name} {category} ({trail})")
     return notices, failures
+
+
+# ── 경로마다 모으기(웹 버전) ──────────────────────────────────────────────────
+@dataclass(slots=True)
+class RouteResult:
+    """설정·발견된 경로 하나를 (그 경로의 대체 주소까지) 시도한 결과."""
+
+    category: str
+    kind: str
+    url: str  # 실제로 글이 나온 주소(대체 주소일 수 있다) — 실패면 원래 주소
+    stage: str = ""  # 성공한 단계(rss·board·alt·datago·korea)
+    notices: list[Notice] = field(default_factory=list)
+    attempts: list[Attempt] = field(default_factory=list)
+
+    @property
+    def ok(self) -> bool:
+        return bool(self.notices)
+
+    def trail(self) -> str:
+        return Outcome(attempts=self.attempts).trail()
+
+
+def _try_stages(
+    source: Source,
+    category: str,
+    kind: str,
+    stages: list[tuple[str, str]],
+    *,
+    fetcher: Callable[[str], bytes | None],
+    check_robots: bool,
+) -> RouteResult:
+    """(단계, 주소)를 차례로 시도해 첫 성공에서 멈춘다 — collect_category 와 같은 규칙."""
+    result = RouteResult(category, kind, stages[0][1] if stages else "")
+    for stage, url in stages:
+        if stage == DATAGO and not source.api_paths:
+            result.attempts.append(Attempt(stage, url, reason=NOT_CONFIGURED))
+            continue
+        if check_robots and not robots.allowed(url):
+            result.attempts.append(Attempt(stage, url, reason=ROBOTS_BLOCKED))
+            continue
+        data = fetcher(url)
+        if not data:
+            why = getattr(fetcher, "why", None)
+            result.attempts.append(
+                Attempt(stage, url, reason=why(url) if callable(why) else FETCH_FAILED)
+            )
+            continue
+        notices = _parse_stage(source, stage, data, url, category)
+        notices = [replace(n, origin=origin_label(url, stage)) for n in notices]
+        if not notices:
+            result.attempts.append(Attempt(stage, url, reason=NO_ITEMS))
+            continue
+        result.attempts.append(Attempt(stage, url, count=len(notices)))
+        result.url, result.stage, result.notices = url, stage, notices
+        return result
+    return result
+
+
+def collect_routes(
+    source: Source,
+    *,
+    fetcher: Callable[[str], bytes | None],
+    check_robots: bool = True,
+) -> list[RouteResult]:
+    """**경로마다** 모은다 — 같은 이름의 게시판이 여럿이어도 전부 본다.
+
+    collect_category 는 한 카테고리에서 첫 성공에 멈춘다. 설정한 경로들이 같은
+    내용의 대체 주소일 때는 맞지만, 발견한 게시판들은 서로 다른 게시판이다. 홈의
+    탭 이름이 전부 'READ' 였던 한국외대는 공지만 모이고 학사·장학·채용이 빠졌다.
+    그래서 경로 하나하나를 (그 경로의 대체 주소까지) 시도하고, korea.kr 보도자료는
+    보도자료가 하나도 안 나왔을 때만 안전망으로 쓴다. 같은 글은 부르는 쪽에서 접는다.
+    """
+    results: list[RouteResult] = []
+    seen: set[str] = set()
+    for category, kind, url in source.routes:
+        if url in seen:
+            continue
+        seen.add(url)
+        stage = kind if kind in (RSS, BOARD, DATAGO) else BOARD
+        stages = [(stage, url)] + [(ALT, alt) for alt in alt_urls(url) if alt not in seen]
+        results.append(
+            _try_stages(source, category, kind, stages, fetcher=fetcher, check_robots=check_robots)
+        )
+    if source.korea_feed and not any(r.ok and r.category == KOREA_CATEGORY for r in results):
+        url = korea_url(source.korea_feed)
+        results.append(
+            _try_stages(
+                source,
+                KOREA_CATEGORY,
+                KOREA,
+                [(KOREA, url)],
+                fetcher=fetcher,
+                check_robots=check_robots,
+            )
+        )
+    return results

@@ -59,6 +59,7 @@ def test_vercelignore_keeps_what_functions_need():
         "src/open_site_clipper/data/route-cache.json",
         "examples/sources-gov.json",
         "examples/sources-schools.json",
+        "examples/sources-public.json",
         "public/index.html",
         "vercel.json",
     ]

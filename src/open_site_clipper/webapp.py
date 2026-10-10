@@ -52,6 +52,8 @@ ROUTE_CACHE_FILE = Path(__file__).with_name("data") / "route-cache.json"
 # 화면의 큰 묶음 → 기관 목록 파일. 목록을 늘리려면 여기에 파일만 더하면 된다.
 SECTIONS: tuple[tuple[str, str], ...] = (
     ("정부", "examples/sources-gov.json"),
+    # 공공기관(한국장학재단 …) — 같은 '정부 기관' 탭의 '공공기관' 묶음으로 보인다
+    ("정부", "examples/sources-public.json"),
     ("학교", "examples/sources-schools.json"),
 )
 
@@ -146,7 +148,7 @@ def catalog_payload() -> dict:
     cache = route_cache()
     return {
         "version": __version__,
-        "sections": [name for name, _rel in SECTIONS],
+        "sections": list(dict.fromkeys(name for name, _rel in SECTIONS)),
         "orgs": [
             {
                 "id": o.id,
@@ -190,23 +192,72 @@ class _Deadline:
 
 _ROUTE_KIND = {govcascade.RSS: "rss", govcascade.DATAGO: "datago"}
 
+# 한 기관에서 볼 게시판 수의 상한 — 캐시·발견 모두. 장학·학사·입학처럼 갈래가 분명한
+# 것을 앞에 둔다(같은 갈래 안에서는 설정·발견 순서를 지킨다).
+MAX_ROUTES = 12
+_SPECIFIC_FIRST = {name: i for i, name in enumerate(categories.ORDER)}
+
+
+def _route_rank(route: tuple[str, str, str] | list[str]) -> int:
+    group = categories.canonical(route[0])
+    if group in categories.SPECIFIC:
+        return _SPECIFIC_FIRST.get(group, 50)
+    return 100 + _SPECIFIC_FIRST.get(group, 50)
+
+
+def plan_routes(*groups) -> tuple[tuple[str, str, str], ...]:
+    """설정(프리셋) → 캐시 → 발견 순으로 합쳐 같은 주소를 접고 상한까지 고른다."""
+    merged: list[tuple[str, str, str]] = []
+    seen: set[str] = set()
+    for group in groups:
+        for route in group or ():
+            cat, kind, url = (str(x) for x in route)
+            key = _url_key(url)
+            if key in seen:
+                continue
+            seen.add(key)
+            merged.append((cat, kind, url))
+    ranked = sorted(range(len(merged)), key=lambda i: (_route_rank(merged[i]), i))
+    return tuple(merged[i] for i in sorted(ranked[:MAX_ROUTES]))
+
+
+def _url_key(url: str) -> str:
+    """같은 게시판의 다른 표기를 접는다 — K2Web 은 (호스트, 사이트, 번호)."""
+    parts = urllib.parse.urlsplit(url.strip())
+    m = govcascade._K2_BOARD_RE.search(parts.path)
+    if m:
+        return f"k2:{parts.netloc.lower()}{parts.path[: m.start(1)].lower()}"
+    return urllib.parse.urlunsplit(parts._replace(fragment="")).lower()
+
 
 def _cascade(source: Source, fetch: PageFetcher) -> tuple[list[Notice], list[str], list[list[str]]]:
-    """카테고리별 캐스케이드 — 공지·실패 사유·**실제로 나온 경로**를 함께 돌려준다."""
+    """경로마다 모아 공지·실패 사유·**실제로 나온 경로(다듬은 이름)**를 돌려준다.
+
+    게시판 이름이 갈래를 말하지 않으면(READ·더보기·공지 …) 글 제목에서 우세한
+    갈래로 이름을 다듬고, 글 하나하나는 제목에 장학·학사·입학 같은 말이 있으면 그
+    갈래로 분류한다 — '공지사항'에 올라온 장학 공지도 [장학]으로 거를 수 있게.
+    """
     notices: list[Notice] = []
-    failures: list[str] = []
     used: list[list[str]] = []
-    for category in govcascade.categories(source):
-        outcome = govcascade.collect_category(source, category, fetcher=fetch)
-        if outcome.notices:
-            notices.extend(outcome.notices)
-            hit = next((a for a in outcome.attempts if a.ok), None)
-            # korea.kr 피드는 korea_feed 에서 매번 다시 만들어지므로 적지 않는다.
-            if hit is not None and hit.strategy != govcascade.KOREA:
-                kind = _ROUTE_KIND.get(hit.strategy, "board")  # alt 는 게시판 주소다
-                used.append([category, kind, hit.url])
-        else:
-            failures.append(f"{category} ({outcome.trail() or '해당 없음'})")
+    ok_cats: set[str] = set()
+    tried: dict[str, list[str]] = {}
+    for res in govcascade.collect_routes(source, fetcher=fetch):
+        if not res.ok:
+            tried.setdefault(res.category, []).append(res.trail() or "해당 없음")
+            continue
+        label = res.category
+        if categories.canonical(label) not in categories.SPECIFIC:
+            label = categories.dominant([n.title for n in res.notices]) or label
+        ok_cats.add(res.category)
+        notices.extend(
+            replace(n, category=categories.notice_category(label, n.title)) for n in res.notices
+        )
+        # korea.kr 피드는 korea_feed 에서 매번 다시 만들어지므로 적지 않는다.
+        if res.stage != govcascade.KOREA:
+            used.append([label, _ROUTE_KIND.get(res.stage, "board"), res.url])
+    failures = [
+        f"{cat} ({' / '.join(trails)})" for cat, trails in tried.items() if cat not in ok_cats
+    ]
     return notices, failures, used
 
 
@@ -233,32 +284,38 @@ def collect_one(
     )
 
     cached = None if fresh else route_cache().get(org_id)
+    preset = org.source.routes  # 사람이 확인해 목록 파일에 적은 경로(예: 한국외대)
     source = org.source
     mode = "discover"
     notes: list[str] = []
     if cached and cached.get("routes"):
-        source = replace(source, routes=tuple(tuple(r) for r in cached["routes"]))
+        source = replace(source, routes=plan_routes(preset, cached["routes"]))
         mode = "cache"
-    elif source.home and not source.routes:
-        source, notes = govdiscover.enrich(source, fetcher=deadline)
+    elif source.home:
+        found, notes = govdiscover.enrich(replace(source, routes=()), fetcher=deadline)
+        source = replace(source, routes=plan_routes(preset, found.routes))
+        mode = "discover" if not preset else "preset"
 
     notices, failures, used = _cascade(source, deadline)
     if mode == "cache" and not notices and deadline.left() > REDISCOVER_MIN_LEFT:
         # 캐시해 둔 게시판이 바뀌었을 수 있다 — 홈에서 다시 찾는다.
-        source, notes = govdiscover.enrich(replace(org.source, routes=()), fetcher=deadline)
+        found, notes = govdiscover.enrich(replace(org.source, routes=()), fetcher=deadline)
+        source = replace(source, routes=plan_routes(preset, found.routes))
         notices, failures, used = _cascade(source, deadline)
         mode = "rediscover"
 
     today = today or datetime.now(KST).date()
     cutoff = today - timedelta(days=days)
     rows, seen = [], set()
-    for n in sorted(notices, key=lambda n: n.published or date.min, reverse=True):
+    for n in sorted(notices, key=_newest_specific_first):
         if n.published is not None and n.published < cutoff:
             continue
-        key = n.dedup_key()
-        if key in seen:
+        # 같은 글이 피드·목록·두 게시판으로 겹쳐 들어온다 — 링크로 한 번, (제목, 날짜)로
+        # 한 번 더 접는다. 먼저 온 것(갈래가 분명한 게시판의 것)을 남긴다.
+        keys = (n.dedup_key(), _title_key(n))
+        if any(k in seen for k in keys if k):
             continue
-        seen.add(key)
+        seen.update(k for k in keys if k)
         rows.append(_row(n))
 
     return {
@@ -284,6 +341,19 @@ def collect_one(
 def _limited(fetch: PageFetcher, delay: float) -> PageFetcher:
     """같은 서버에는 간격을 두고 — CLI 와 같은 예절(robots 의 Crawl-delay 우선)."""
     return parallel.HostLimiter(delay).wrap(fetch) if delay > 0 else fetch
+
+
+def _newest_specific_first(n: Notice) -> tuple:
+    """최신 글이 앞 — 같은 날 같은 글이면 갈래가 분명한 쪽이 남도록."""
+    group = categories.canonical(n.category) if n.category else categories.ETC
+    return (-(n.published or date.min).toordinal(), group not in categories.SPECIFIC)
+
+
+def _title_key(n: Notice) -> str:
+    title = " ".join((n.title or "").split()).casefold()
+    if not title or n.published is None:
+        return ""
+    return f"t\x1f{title}\x1f{n.published.isoformat()}"
 
 
 def _row(n: Notice) -> dict:

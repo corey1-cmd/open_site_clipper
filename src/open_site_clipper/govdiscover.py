@@ -22,7 +22,7 @@ import urllib.parse
 from collections.abc import Callable
 from functools import lru_cache
 
-from . import categories, govpaths, korean, probe
+from . import categories, govpaths, govweb, korean, probe
 from . import discover as _discover
 from .categories import CATEGORY_HINTS, classify
 from .fetch import decode_text
@@ -167,8 +167,23 @@ def mine_url_literals(data: bytes, base_url: str, home_host: str) -> list[str]:
 
 def _raw_label(text: str) -> str:
     """앵커 원문을 분류로 쓸지 판단한다 — '더보기'·'전체' 같은 말은 쓰지 않는다."""
-    flat = " ".join((text or "").split())[:20]
+    flat = categories.strip_meaningless(" ".join((text or "").split()))[:20]
     return categories.ETC if (not flat or categories.is_meaningless(flat)) else flat
+
+
+def refine_label(label: str, data: bytes | None, url: str) -> str:
+    """목록으로 판정된 게시판의 이름을 **내용으로** 다듬는다.
+
+    앵커 이름이 갈래를 분명히 말하면(장학·학사·채용 …) 그대로 둔다. 'READ'·'더보기'·
+    '공지'처럼 갈래를 말하지 않으면 ① 글 제목들에서 우세한 갈래 ② 페이지가 밝힌
+    게시판 이름(`<title>`·제목 태그) 순으로 고른다. 한국외대 홈은 공지·학사·장학·채용
+    네 탭이 전부 'READ' 였고, 이름이 같아 하나만 모이고 장학은 아예 빠졌다.
+    """
+    if categories.canonical(label) in categories.SPECIFIC or not data:
+        return label
+    rows = govweb.parse_list(data, url)
+    found = categories.dominant([r.title for r in rows]) or govweb.page_label(data)
+    return found or label
 
 
 def board_score(url: str, label: str) -> int:
@@ -360,9 +375,10 @@ def find_routes(
         if session.budget <= 0:
             notes.append(f"요청 예산 소진 — 후보 {len(candidates)}개 중 일부만 확인했습니다.")
             break
-        result = probe.classify(session.get(url), url, home_host=home_host)
+        got = session.get(url)
+        result = probe.classify(got, url, home_host=home_host)
         if result.collectible:
-            routes.append((label, kind, url))
+            routes.append((refine_label(label, got, url), kind, url))
         else:
             skipped[result.verdict] = skipped.get(result.verdict, 0) + 1
     for verdict, n in sorted(skipped.items()):
@@ -506,9 +522,10 @@ def _from_sitemap(
             if session.budget <= 0:
                 break
             seen.add(url)
-            result = probe.classify(session.get(url), url, home_host=home_host)
+            got = session.get(url)
+            result = probe.classify(got, url, home_host=home_host)
             if result.collectible:
-                routes.append((categories.from_url(url), "board", url))
+                routes.append((refine_label(categories.from_url(url), got, url), "board", url))
         if routes:
             notes.append(f"사이트맵에서 목록 {len(routes)}개를 찾았습니다: {sitemap}")
             break

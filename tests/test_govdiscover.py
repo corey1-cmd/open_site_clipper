@@ -208,3 +208,21 @@ def test_mining_is_off_when_home_has_a_real_menu():
         "https://www.big.go.kr/", fetcher=pages.get, check_robots=False
     )
     assert not any("본문 속 주소" in n for n in notes)
+
+
+def test_refine_label_names_read_tabs_by_their_content():
+    """홈의 탭이 전부 'READ' 여도 장학 게시판은 장학으로 이름이 붙는다(한국외대 실측)."""
+    from open_site_clipper import govdiscover
+
+    rows = "".join(
+        f'<tr><td><a href="/v{i}">{t}</a></td><td>2026.10.0{i}</td></tr>'
+        for i, t in enumerate(["OO재단 장학생 선발", "학자금 대출 안내", "근로장학 모집"], 1)
+    )
+    page = f"<table>{rows}</table>".encode()
+    assert govdiscover.refine_label("READ", page, "https://u.ac.kr/b") == "장학"
+    assert (
+        govdiscover.refine_label("장학", page, "https://u.ac.kr/b") == "장학"
+    )  # 분명한 이름은 그대로
+    titled = b"<title>\xed\x95\x99\xec\x82\xac\xea\xb3\xb5\xec\xa7\x80 | U</title><table></table>"
+    assert govdiscover.refine_label("READ", titled, "https://u.ac.kr/b") == "학사공지"
+    assert govdiscover.refine_label("READ", b"<table></table>", "https://u.ac.kr/b") == "READ"

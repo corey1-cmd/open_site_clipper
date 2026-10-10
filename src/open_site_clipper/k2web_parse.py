@@ -52,6 +52,21 @@ class Row:
     published: date | None = None
 
 
+def anchor_href(attrs: list[tuple[str, str | None]]) -> str:
+    """`<a>` 의 주소 — 주소가 스크립트에만 있으면 'javascript:…' 로 돌려준다.
+
+    eGov·옛 학교 스킨은 `<a href="#" onclick="fn_view('123')">` 처럼 주소를
+    스크립트에 넣는다. href 만 보면 '#'(= 목록 자기 자신)이라 모든 행이 같은
+    주소가 되고, 중복으로 접혀 '글 0~1건'으로 판정됐다(교육부 등 실측).
+    """
+    a = dict(attrs)
+    href = (a.get("href") or "").strip()
+    onclick = (a.get("onclick") or "").strip()
+    if onclick and (not href or href.startswith("#") or href.lower().startswith("javascript")):
+        return "javascript:" + onclick
+    return href
+
+
 class _RowParser(HTMLParser):
     """<tr> 단위로 칸(<td>/<th>) 텍스트와 링크를 모으는 최소 파서."""
 
@@ -68,9 +83,9 @@ class _RowParser(HTMLParser):
         elif tag in ("td", "th") and self._row is not None:
             self._cell, self._href = [], ""
         elif tag == "a" and self._cell is not None:
-            href = dict(attrs).get("href") or ""
+            href = anchor_href(attrs)
             if href and not self._href:
-                self._href = href.strip()
+                self._href = href
 
     def handle_data(self, data: str) -> None:
         if self._cell is not None:
@@ -178,6 +193,8 @@ def parse_list(html_bytes: bytes, base_url: str) -> list[Row]:
         if idx is None:
             continue
         title, href = cells[idx]
+        if href.lower().startswith("javascript"):
+            href = ARTICLE_RE.search(href).group(0)  # 스크립트 속 글 주소를 그대로 읽는다
         url = urllib.parse.urljoin(base_url, href)
         # 같은 글의 다른 표기(?layout=unknown 등)를 하나로 접는다.
         m = ARTICLE_RE.search(url)

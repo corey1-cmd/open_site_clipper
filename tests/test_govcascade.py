@@ -120,3 +120,45 @@ def test_collect_end_to_end_and_from_dicts():
     assert len(rep.notices) == 1 and rep.notices[0].org == "문화체육관광부"
     # routes·korea_feed 가 모두 없으면 채택하지 않는다.
     assert from_dicts([{"name": "x", "kind": "govorg"}]) == []
+
+
+# ── 경로마다 모으기(웹 버전) ──────────────────────────────────────────────────
+def test_collect_routes_sees_every_board_even_with_the_same_label(monkeypatch):
+    """발견한 게시판들은 대체 주소가 아니라 서로 다른 게시판이다 — 전부 본다."""
+    monkeypatch.setattr(robots, "allowed", lambda url, **k: True)
+    src = Source(
+        id="u",
+        name="시험대",
+        kind="govorg",
+        url="",
+        org="시험대",
+        routes=(
+            ("READ", "board", "https://www.u.ac.kr/bbs/u/1/artclList.do"),
+            ("READ", "board", "https://www.u.ac.kr/bbs/u/2/artclList.do"),
+        ),
+    )
+    results = govcascade.collect_routes(src, fetcher=lambda _u: BOARD)
+    assert [r.ok for r in results] == [True, True]  # collect_category 는 첫 성공에서 멈췄다
+
+
+def test_collect_routes_uses_korea_only_when_press_is_empty(monkeypatch):
+    monkeypatch.setattr(robots, "allowed", lambda url, **k: True)
+
+    def fx(url: str) -> bytes | None:
+        return RSS if ("press" in url or "korea.kr" in url) else BOARD
+
+    stages = [r.stage for r in govcascade.collect_routes(MCST, fetcher=fx)]
+    assert "korea" not in stages  # 기관 보도자료 피드가 됐으니 안전망은 쓰지 않는다
+
+    def no_press(url: str) -> bytes | None:
+        return RSS if "korea.kr" in url else None
+
+    last = govcascade.collect_routes(MCST, fetcher=no_press)[-1]
+    assert last.stage == "korea" and last.ok
+
+
+def test_k2web_feed_and_list_are_alternates_of_each_other():
+    feed = "https://www.hufs.ac.kr/bbs/hufs/2182/rssList.do?row=50"
+    lst = "https://www.hufs.ac.kr/bbs/hufs/2182/artclList.do?layout=unknown"
+    assert govcascade.alt_urls(feed)[0] == lst
+    assert govcascade.alt_urls(lst)[0] == feed

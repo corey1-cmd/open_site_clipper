@@ -12,6 +12,7 @@
     "  교명  KC대→강서대 · 동주대→부산보건대 · 재능대→인천재능대 · 국립 접두어 8곳(공주·군산·금오공과·목포·목포해양·순천·한국교통·한밭)",
     "주소가 바뀌었거나 사이트가 열리지 않으면 보고서에 사유가 남는다. 이 파일만 고치면 된다.",
     "",
+    "routes 를 적은 학교(한국외대)는 그 경로를 먼저 보고, 발견한 게시판을 뒤에 더한다 — 사람이 확인한 게시판 번호다(examples/sources-hufs.json).",
     "type·region 은 웹 화면의 묶음·필터에 쓰인다(수집에는 영향 없음)."
   ],
   "sources": [
@@ -346,7 +347,44 @@
       "kind": "govorg",
       "group": "4년제",
       "region": "서울",
-      "home": "https://www.hufs.ac.kr"
+      "home": "https://www.hufs.ac.kr",
+      "routes": [
+        [
+          "공지",
+          "rss",
+          "https://www.hufs.ac.kr/bbs/hufs/2180/rssList.do?row=50"
+        ],
+        [
+          "학사",
+          "rss",
+          "https://www.hufs.ac.kr/bbs/hufs/2181/rssList.do?row=50"
+        ],
+        [
+          "장학",
+          "rss",
+          "https://www.hufs.ac.kr/bbs/hufs/2182/rssList.do?row=50"
+        ],
+        [
+          "채용",
+          "rss",
+          "https://www.hufs.ac.kr/bbs/hufs/2183/rssList.do?row=50"
+        ],
+        [
+          "학술·세미나",
+          "rss",
+          "https://www.hufs.ac.kr/bbs/hufs/2188/rssList.do?row=50"
+        ],
+        [
+          "학생활동",
+          "rss",
+          "https://student.hufs.ac.kr/bbs/student/2436/rssList.do?row=50"
+        ],
+        [
+          "장학",
+          "rss",
+          "https://student.hufs.ac.kr/bbs/student/2431/rssList.do?row=50"
+        ]
+      ]
     },
     {
       "id": "u-knsu",

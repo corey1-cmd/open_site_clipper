@@ -256,3 +256,41 @@ def test_school_url_romanization_reads_sound_spelling():
     assert categories.from_url("https://x.ac.kr/ipsi/board/list") == "입학"
     # 정부 주소는 그대로
     assert categories.from_url("https://x.go.kr/news/notice/noticeList.do") == "공지"
+
+
+# ── 글 제목으로 갈래 정하기 ───────────────────────────────────────────────────
+def test_title_hints_use_only_strong_words():
+    from open_site_clipper import categories as c
+
+    assert c.for_title("2026학년도 2학기 국가근로장학생 모집") == "장학"
+    assert c.for_title("입학처 계약직 직원 채용 공고") == "채용"
+    assert c.for_title("2027학년도 수시모집 면접 안내") == "입학"
+    assert c.for_title("2026-2학기 수강신청 정정 안내") == "학사"
+    assert c.for_title("2026년 의료통역예비과정 교육안내") == ""  # '안내'·'교육'으로 정하지 않는다
+    assert c.for_title("SNS 기자단 모집") == ""  # '모집'만으로 채용이 아니다
+
+
+def test_notice_category_prefers_a_specific_board():
+    from open_site_clipper import categories as c
+
+    assert c.notice_category("공지", "교내장학금 신청 안내") == "장학"
+    assert c.notice_category("READ", "복학 신청 기간") == "학사"
+    assert c.notice_category("장학공지", "학생상담센터 집단상담 안내") == "장학공지"
+    assert c.notice_category("채용", "장학팀 직원 채용") == "채용"
+    assert c.notice_category("공지", "운동장 보수 안내") == "공지"
+
+
+def test_dominant_names_a_board_only_when_clear():
+    from open_site_clipper import categories as c
+
+    assert c.dominant(["장학생 선발", "학자금 대출 안내", "근로장학 모집", "상담 안내"]) == "장학"
+    assert c.dominant(["장학생 선발", "운동장 보수", "특강 안내", "축제", "선거"]) == ""
+    assert c.dominant(["장학생 선발"]) == ""  # 한 건으로는 이름을 붙이지 않는다
+
+
+def test_strip_meaningless_words_around_a_label():
+    from open_site_clipper import categories as c
+
+    assert c.strip_meaningless("HUFS Professors 더보기") == "HUFS Professors"
+    assert c.strip_meaningless("READ") == ""
+    assert c.is_meaningless("READ") and c.is_meaningless("read more")

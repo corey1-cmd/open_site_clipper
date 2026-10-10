@@ -46,8 +46,10 @@ BASE = "https://www.mcst.go.kr/site/s_notice/notice/jobList.jsp"
 
 def test_parses_rows_by_column_order_not_link_syntax():
     rows = govweb.parse_list(JOB_LIST.encode(), BASE)
-    # javascript: 링크 행은 주소가 없어 제외 → 3건.
-    assert len(rows) == 3
+    # javascript: 링크 행도 글이다 — 상세 주소를 모르므로 목록 페이지로 건다 → 4건.
+    assert len(rows) == 4
+    script = next(r for r in rows if r.unit == "국립민속국악원")
+    assert script.url.startswith(BASE + "#") and script.title == "국악연주단 기획단원 채용 공고"
     first = rows[0]
     assert first.title == "국립전주박물관 공무원[한시임기제] 채용 재공고"  # '새글' 배지 제거
     assert first.unit == "국립중앙박물관"  # [기관명] 접두를 부서로
@@ -88,7 +90,7 @@ def test_collect_govweb_end_to_end():
         category="채용",
     )
     rep = collect.collect([src], fetcher=lambda _s: JOB_LIST.encode())
-    assert len(rep.notices) == 3
+    assert len(rep.notices) == 4
     n = rep.notices[0]
     assert n.org == "문화체육관광부" and n.category == "채용"
     assert n.unit in {"국립중앙박물관", "한국예술종합학교", "문화체육관광부"}
@@ -214,3 +216,38 @@ def test_article_pages_are_not_boards():
         "https://www.example.ac.kr/bbs/k/123/artclList.do",
     ):
         assert not probe.not_a_board(url), url
+
+
+# eGov 게시판 — 모든 제목이 href="#" + onclick. 예전에는 행마다 주소가 '#'(목록 자신)이라
+# 한 건으로 접혀 '목록이 아님'으로 판정됐다(교육부 등).
+EGOV = """<table><tbody>
+<tr><td>3</td><td class="tit"><a href="#none" onclick="fn_view('103'); return false;">2026년 국가장학금 2차 신청 안내</a></td><td>2026-10-07</td></tr>
+<tr><td>2</td><td class="tit"><a href="#none" onclick="fn_view('102'); return false;">교원 임용시험 시행계획 공고</a></td><td>2026-10-02</td></tr>
+<tr><td>1</td><td class="tit"><a onclick="fn_view('101')">학교안전 점검 결과 알림</a></td><td>2026-09-28</td></tr>
+</tbody></table>"""
+
+
+def test_script_links_become_distinct_rows_pointing_at_the_board():
+    from open_site_clipper import probe
+
+    url = "https://www.moe.go.kr/boardCnts/listRenew.do?boardID=294"
+    rows = govweb.parse_list(EGOV.encode(), url)
+    assert [r.title for r in rows] == [
+        "2026년 국가장학금 2차 신청 안내",
+        "교원 임용시험 시행계획 공고",
+        "학교안전 점검 결과 알림",
+    ]
+    assert len({r.url for r in rows}) == 3 and all(r.url.startswith(url + "#") for r in rows)
+    assert probe.classify(EGOV.encode(), url).verdict == probe.LIST
+
+
+def test_urls_written_inside_scripts_are_read_not_invented():
+    page = """<table>
+    <tr><td><a href="#" onclick="location.href='/board/view.do?no=7'">장학생 선발 안내</a></td><td>2026.10.07</td></tr>
+    <tr><td><a href="javascript:window.open('https://x.go.kr/n/view.jsp?id=8')">채용 공고</a></td><td>2026.10.06</td></tr>
+    </table>"""
+    rows = govweb.parse_list(page.encode(), "https://x.go.kr/board/list.do")
+    assert [r.url for r in rows] == [
+        "https://x.go.kr/board/view.do?no=7",
+        "https://x.go.kr/n/view.jsp?id=8",
+    ]

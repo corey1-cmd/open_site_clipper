@@ -62,6 +62,14 @@ MEANINGLESS = frozenset(
         "detail",
         "prev",
         "next",
+        "read",
+        "read more",
+        "view more",
+        "more+",
+        "+more",
+        "+",
+        "더보기+",
+        "+더보기",
     }
 )
 
@@ -69,6 +77,16 @@ MEANINGLESS = frozenset(
 def is_meaningless(text: str) -> bool:
     """게시판 이름이 아니라 조작용 단어인가."""
     return " ".join((text or "").split()).lower() in MEANINGLESS
+
+
+def strip_meaningless(text: str) -> str:
+    """'HUFS Professors 더보기' → 'HUFS Professors' — 앞뒤의 조작용 단어만 뗀다."""
+    words = " ".join((text or "").split()).split(" ")
+    while words and words[-1].lower() in MEANINGLESS:
+        words.pop()
+    while words and words[0].lower() in MEANINGLESS:
+        words.pop(0)
+    return " ".join(words)
 
 
 # 대분류 → 그 분류로 볼 말들. 순서가 우선순위다(구체적인 것을 앞에 둔다).
@@ -217,6 +235,104 @@ def classify(text: str) -> str:
 def canonical(text: str) -> str:
     """요약용 대분류 — 못 정하면 '기타'로 떨어뜨린다(종수 폭발 방지)."""
     return classify(text) or ETC
+
+
+# 게시판 이름만으로 글의 갈래가 정해지는 대분류. '장학공지' 게시판의 글은 제목이
+# 무엇이든 장학이다. 나머지(공지·소식·자료·기타·'READ' 같은 앵커 원문)는 게시판
+# 이름이 갈래를 말해 주지 않으므로 글 제목을 본다.
+SPECIFIC = frozenset({"입학", "장학", "학사", "채용", "입찰", "인사", "보도자료"})
+
+# 글 **제목**으로 갈래를 정할 때 쓰는 강한 말만. 메뉴 사전(CATEGORY_HINTS)을 제목에
+# 그대로 쓰면 '안내'(자료)·'모집'(채용)·'행사'(소식)처럼 거의 모든 제목에 들어가는
+# 말이 갈래를 정해 버린다(실측: '의료통역예비과정 교육안내' → 자료). 제목에서는 그
+# 글이 무엇인지 분명히 말하는 말만 본다. 순서가 우선순위다 —
+# '국가근로장학생 모집'은 장학, '입학처 계약직 직원 채용'은 채용.
+TITLE_HINTS: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("장학", ("장학", "학자금", "scholarship")),
+    (
+        "채용",
+        ("채용", "임용", "공채", "구인", "인턴", "취업", "일자리", "recruit"),
+    ),
+    (
+        "입학",
+        (
+            "입학",
+            "입시",
+            "신입생",
+            "편입",
+            "수시모집",
+            "정시모집",
+            "수시 모집",
+            "정시 모집",
+            "모집요강",
+            "admission",
+        ),
+    ),
+    (
+        "학사",
+        (
+            "수강",
+            "졸업",
+            "학적",
+            "휴학",
+            "복학",
+            "계절학기",
+            "성적",
+            "학위",
+            "전과",
+            "복수전공",
+            "부전공",
+            "등록금",
+            "학사",
+        ),
+    ),
+    ("입찰", ("입찰", "낙찰", "견적", "제안요청", "수의계약", "계약공고")),
+    ("인사", ("인사발령", "인사 발령", "승진")),
+    ("보도자료", ("보도자료", "보도설명", "해명자료")),
+)
+
+
+def for_title(title: str) -> str:
+    """글 제목 → 대분류(강한 말이 없으면 "")."""
+    low = " ".join((title or "").split()).lower()
+    if not low:
+        return ""
+    for category, words in TITLE_HINTS:
+        if any(w in low for w in words):
+            return category
+    return ""
+
+
+def notice_category(board_label: str, title: str) -> str:
+    """글 하나의 갈래 — 게시판이 갈래를 말하면 게시판, 아니면 제목.
+
+    학교는 장학·학사 공지를 '공지사항' 한 게시판에 올리는 곳이 많다. 게시판 이름만
+    쓰면 그런 글이 전부 '공지'로 묻혀 [장학]으로 거를 수가 없었다.
+    """
+    if canonical(board_label) in SPECIFIC:
+        return board_label
+    return for_title(title) or board_label
+
+
+def dominant(titles: list[str], *, share: float = 0.4, minimum: int = 2) -> str:
+    """제목들에서 우세한 갈래 — 게시판 이름을 모를 때 내용으로 이름을 붙인다.
+
+    홈의 탭마다 'READ'·'더보기'만 달린 학교가 있다(한국외대: 공지·학사·장학·채용
+    네 게시판이 전부 'READ'). 장학 게시판은 제목의 대부분에 '장학'이 들어가므로
+    내용으로 알아볼 수 있다. 섞인 게시판(일반 공지)은 이름을 붙이지 않는다("").
+    """
+    counts: dict[str, int] = {}
+    total = 0
+    for t in titles:
+        total += 1
+        c = for_title(t)
+        if c:
+            counts[c] = counts.get(c, 0) + 1
+    if not counts:
+        return ""
+    rank = {name: i for i, (name, _w) in enumerate(TITLE_HINTS)}
+    best, n = max(counts.items(), key=lambda kv: (kv[1], -rank[kv[0]]))
+    return best if n >= minimum and n >= share * total else ""
 
 
 def from_url(url: str, fallback: str = ETC) -> str:
