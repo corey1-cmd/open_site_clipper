@@ -356,3 +356,20 @@ def test_attachment_marks_glued_to_titles():
         ("교원 공개채용 지원서 양식", "교원 공개채용 지원서 양식"),
     ]:
         assert govweb._clean_title(raw)[0] == want
+
+
+def test_spam_and_user_ids_are_not_titles():
+    for junk in (
+        "조루치료제{viavvv.com}비아그라효과레비트라 직구",
+        "teamWebMaster",
+        "webadmin",
+        "온라인 카지노 추천",
+    ):
+        assert govweb._is_junk_title(junk), junk
+    for ok in (
+        "강원랜드 카지노 부문 채용 공고",
+        "TOPIK 시험 안내",
+        "iPhone 앱 개발 특강",
+        "Notice",
+    ):
+        assert not govweb._is_junk_title(ok), ok

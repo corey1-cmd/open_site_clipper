@@ -84,12 +84,25 @@ _PAGING_RE = re.compile(
     r"^(?:[\d\s<>«»‹›|·./\-]|처음|이전|다음|마지막|맨앞|맨뒤|prev|next|first|last)+$", re.I
 )
 _SECRET_RE = re.compile(r"^(?:비공개|비밀글)|비밀글(?:이며|입니다)|작성자만 열람", re.I)
+# 광고 도배 글 — 문의·참여 게시판에 올라온다(전주기전대 실측 '조루치료제{viavvv.com}비아그라…').
+# 제목만으로 분명한 말만 둔다('카지노 채용' 같은 진짜 공고는 걸리지 않게).
+_SPAM_RE = re.compile(
+    r"비아그라|시알리스|레비트라|조루\s*치료|발기\s*부전|바카라|먹튀|토토\s*사이트|카지노\s*사이트|"
+    r"온라인\s*카지노|출장\s*(?:안마|마사지)|\{\s*[a-z0-9-]+\.(?:com|net|xyz|top|shop|kr)\s*\}",
+    re.I,
+)
+# 제목 대신 글쓴이 아이디가 잡힌 경우('teamWebMaster' — 중앙대 스포츠단 실측)
+_USER_ID_RE = re.compile(
+    r"^(?=[A-Za-z0-9_.]*(?:[a-z][A-Z]|admin|master|manager))[A-Za-z][A-Za-z0-9_.]{3,24}$"
+)
 
 
 def _is_junk_title(text: str) -> bool:
     """제목으로 볼 수 없는 칸 — 첨부 목록·주소·잠긴 글·지나치게 긴 메뉴 뭉치."""
     t = " ".join((text or "").split())
     if not t or _ATTACH_RE.match(t) or _URL_TITLE_RE.match(t) or _SECRET_RE.search(t):
+        return True
+    if _SPAM_RE.search(t) or _USER_ID_RE.match(t):
         return True
     # 쪽 번호 줄('1 2 3 4 5 … 10')·'자세히보기' 같은 단추 글자가 글로 잡혔다(농협대·한예종 실측)
     from . import categories
