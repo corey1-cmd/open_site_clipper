@@ -427,3 +427,18 @@ def test_buttons_menus_and_address_titles_are_not_notices():
     assert not govweb._is_junk_title(
         "홈페이지 개편 안내(https://new.x.ac.kr) 및 이용 방법과 달라진 메뉴 안내"
     )
+
+
+def test_unclosed_icon_glyph_does_not_swallow_the_next_rows():
+    """닫히지 않은 아이콘 요소가 뒤 칸·행의 글자까지 지우지 않는다."""
+    table = """<table><tr><td><a href="view.do?no=1"><i class="material-icons">lock 비밀 안내 글입니다</a></td>
+      <td>2026.10.08</td></tr>
+    <tr><td><a href="view.do?no=2">둘째 줄 공지 제목입니다</a></td><td>2026.10.07</td></tr></table>"""
+    rows = govweb.parse_list(table.encode(), "https://www.x.ac.kr/list.do")
+    assert "둘째 줄 공지 제목입니다" in [r.title for r in rows]
+    items = """<ul><li><a href="view.do?no=3"><span class="material-symbols-outlined">lock</a>
+      <span>2026.10.06</span></li>
+    <li><a href="view.do?no=4">셋째 줄 공지 제목입니다</a><span>2026.10.05</span></li>
+    <li><a href="view.do?no=5">넷째 줄 공지 제목입니다</a><span>2026.10.04</span></li></ul>"""
+    rows = govweb.parse_list(items.encode(), "https://www.x.ac.kr/list.do")
+    assert [r.title for r in rows][-2:] == ["셋째 줄 공지 제목입니다", "넷째 줄 공지 제목입니다"]

@@ -111,6 +111,8 @@ class _RowParser(HTMLParser):
         self._glyph: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag in ("tr", "td", "th"):
+            self._glyph = []  # 닫히지 않은 아이콘 요소가 다음 칸의 글자까지 삼키지 않게
         if tag not in _VOID_TAGS and is_glyph(attrs):
             self._glyph.append(tag)
         if tag == "tr":
@@ -132,6 +134,8 @@ class _RowParser(HTMLParser):
     def handle_endtag(self, tag: str) -> None:
         if self._glyph and tag == self._glyph[-1]:
             self._glyph.pop()
+        elif tag in ("tr", "td", "th", "a"):
+            self._glyph = []
         if tag == "a" and self._open_link is not None and self._cell is not None:
             start, href = self._open_link
             self._open_link = None

@@ -213,6 +213,8 @@ class _ItemParser(HTMLParser):
             self._skip += 1
             return
         self._flush()
+        if tag == "li":
+            self._glyph = []  # 닫히지 않은 아이콘 요소가 다음 행의 글자까지 삼키지 않게
         if tag not in self._VOID and is_glyph(attrs):
             self._glyph.append(tag)
         if tag == "li":
@@ -235,6 +237,8 @@ class _ItemParser(HTMLParser):
             return
         if self._glyph and tag == self._glyph[-1]:
             self._glyph.pop()
+        elif tag in ("li", "a"):
+            self._glyph = []
         self._flush()
         if tag == "a" and self._href:
             self._href.pop()
