@@ -98,7 +98,7 @@ pip install -e ".[dev]"
 ### 3) 확인
 
 ```bash
-open_site_clipper --version      # open_site_clipper 0.25.1
+open_site_clipper --version      # open_site_clipper 0.26.0
 python -m pytest -q              # 326 passed (인터넷 불필요)
 ```
 
