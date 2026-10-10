@@ -35,7 +35,7 @@ def test_vercel_config_runs_functions_in_seoul():
 
 def test_every_api_file_exposes_a_handler_for_its_route():
     files = sorted((ROOT / "api").glob("*.py"))
-    assert {f.stem for f in files} == {"catalog", "collect", "verify"}
+    assert {f.stem for f in files} == {"catalog", "collect", "media", "verify"}
     for f in files:
         assert fnmatch.fnmatch(f"api/{f.name}", "api/*.py")
         spec = importlib.util.spec_from_file_location(f"api_{f.stem}", f)
@@ -55,6 +55,8 @@ def test_vercelignore_keeps_what_functions_need():
     assert "pyproject.toml" in rules  # 있으면 패키지 설치를 시도한다
     needed = [
         "api/collect.py",
+        "api/media.py",
+        "src/open_site_clipper/media.py",
         "src/open_site_clipper/webapp.py",
         "src/open_site_clipper/data/route-cache.json",
         "examples/sources-gov.json",

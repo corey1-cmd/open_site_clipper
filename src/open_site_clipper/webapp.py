@@ -36,10 +36,10 @@ from functools import lru_cache
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-from . import __version__, categories, govcascade, govdiscover, parallel
+from . import __version__, categories, govcascade, govdiscover, media, parallel, robots
 from .cascade import origin_label
 from .collect import KST
-from .fetch import TrackingFetcher
+from .fetch import TrackingFetcher, decode_text
 from .model import Notice
 from .sources import Source, from_dicts
 
@@ -72,6 +72,9 @@ CACHE_EMPTY = "public, max-age=0, s-maxage=300, stale-while-revalidate=600"
 CACHE_CATALOG = "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400"
 # 점검은 무겁다 — 같은 요청이 10분 안에 또 오면(새로 고침·중복 실행) CDN 이 답한다.
 CACHE_VERIFY = "public, max-age=0, s-maxage=600"
+# 그림·첨부 주소는 글이 고쳐지지 않는 한 그대로다 — 하루 동안 CDN 이 대신 답한다.
+CACHE_MEDIA = "public, max-age=0, s-maxage=86400, stale-while-revalidate=86400"
+MEDIA_TIMEOUT = 12.0
 NO_STORE = "no-store"
 
 
@@ -379,6 +382,145 @@ def _row(n: Notice) -> dict:
     }
 
 
+# ── 글 한 건의 그림·첨부(휴대폰에서 잘리는 그림을 따로 보기) ──────────────────
+_IP_RE = re.compile(r"^[0-9.]+$")
+
+
+@lru_cache(maxsize=1)
+def media_hosts() -> frozenset[str]:
+    """그림·첨부를 찾아 줄 사이트 — 목록에 있는 기관 누리집(과 그 하위 사이트)만.
+
+    아무 주소나 받으면 이 서버가 남의 사이트를 대신 여는 통로가 된다. 목록 기관의
+    누리집·게시판 주소에서 뽑은 도메인(www. 를 뗀 것)과 그 하위 도메인만 연다.
+    """
+    hosts = {"korea.kr"}
+
+    def add(url: str) -> None:
+        host = (urllib.parse.urlsplit(url or "").hostname or "").lower()
+        if host and "." in host and not _IP_RE.match(host):
+            hosts.add(host.removeprefix("www."))
+
+    for org in catalog().values():
+        add(org.home)
+        for _c, _k, u in org.source.routes:
+            add(u)
+    for entry in route_cache().values():
+        for route in entry.get("routes") or []:
+            if isinstance(route, list) and len(route) == 3:
+                add(str(route[2]))
+    return frozenset(hosts)
+
+
+def media_allowed(url: str) -> bool:
+    parts = urllib.parse.urlsplit(url or "")
+    host = (parts.hostname or "").lower()
+    if parts.scheme not in ("http", "https") or not host or ":" in host or _IP_RE.match(host):
+        return False
+    return any(host == h or host.endswith("." + h) for h in media_hosts())
+
+
+def _board_anchor(url: str, title: str) -> bool:
+    """글 주소가 따로 없는 게시판(목록 주소#제목)인가 — govweb._board_anchor 가 만든 것."""
+    frag = urllib.parse.urlsplit(url).fragment
+    if not frag or not title:
+        return False
+    norm = re.compile(r"\s+")
+    return norm.sub("", urllib.parse.unquote(frag))[:40] == norm.sub("", title)[:40]
+
+
+def media_for(
+    url: str,
+    title: str = "",
+    *,
+    fetcher: PageFetcher | None = None,
+    debug: bool = False,
+    clock: Callable[[], float] = time.monotonic,
+) -> dict:
+    """글 화면에서 그림·첨부 **주소**와 표 개수를 찾는다(본문 글자는 돌려주지 않는다).
+
+    ValueError: 목록 기관의 사이트가 아닌 주소.
+    """
+    started = clock()
+    url = (url or "").strip()
+    if not media_allowed(url):
+        raise ValueError("목록에 있는 기관 누리집의 글 주소만 열 수 있습니다")
+    out: dict = {"url": url}
+    if _board_anchor(url, title):
+        out["error"] = "글마다 주소가 따로 없는 게시판입니다 — 원문 목록에서 열어 보세요"
+        return out
+    page = urllib.parse.urlsplit(url)._replace(fragment="").geturl()
+    if not robots.allowed(page):
+        out["error"] = "robots.txt 차단"
+        return out
+    get = fetcher or TrackingFetcher(timeout=MEDIA_TIMEOUT)
+    data = get(page)
+    if data is None:
+        why = getattr(get, "why", None)
+        out["error"] = why(page) if callable(why) else "응답 없음"
+        return out
+    found = media.extract(decode_text(data), page, title=title)
+    # 본문을 iframe 으로 따로 띄우는 게시판 — 같은 사이트의 첫 iframe 을 한 번 더 본다.
+    if not found.images and found.frames:
+        frame = found.frames[0]
+        if media_allowed(frame) and robots.allowed(frame):
+            sub = get(frame)
+            if sub:
+                inner = media.extract(decode_text(sub), frame)
+                found.images = inner.images
+                found.files = found.files or inner.files
+                found.tables += inner.tables
+                found.wide_tables += inner.wide_tables
+                found.inline_images += inner.inline_images
+    out.update(found.as_dict(debug=debug))
+    out["elapsed"] = round(clock() - started, 1)
+    return out
+
+
+def media_sample(
+    org_id: str,
+    *,
+    per_org: int = 3,
+    budget: float = DEFAULT_BUDGET,
+    fetcher: PageFetcher | None = None,
+    delay: float = parallel.DEFAULT_DELAY,
+) -> dict:
+    """점검용 — 기관의 최근 글을 게시판마다 하나씩 골라 그림·첨부를 찾아 본다."""
+    got = collect_one(org_id, days=30, budget=budget / 2, fetcher=fetcher, delay=delay)
+    picked: list[dict] = []
+    origins: set[str] = set()
+    for n in got["notices"]:
+        if n.get("origin", "") in origins:
+            continue
+        origins.add(n.get("origin", ""))
+        picked.append(n)
+        if len(picked) >= per_org:
+            break
+    samples = []
+    for n in picked:
+        try:
+            m = media_for(n["url"], n["title"], fetcher=fetcher)
+        except ValueError as e:
+            m = {"error": str(e)}
+        imgs = m.get("images") or []
+        samples.append(
+            {
+                "title": n["title"][:60],
+                "url": n["url"],
+                "images": len(imgs),
+                "files": len(m.get("files") or []),
+                "tables": m.get("tables", 0),
+                "wide": m.get("wide_tables", 0),
+                "inline": m.get("inline_images", 0),
+                "script_files": m.get("script_files", 0),
+                "title_found": m.get("title_found", False),
+                "error": m.get("error", ""),
+                "first": imgs[0]["src"] if imgs else "",
+                "file1": (m.get("files") or [{}])[0].get("label", ""),
+            }
+        )
+    return {"id": org_id, "name": catalog()[org_id].name, "count": got["count"], "samples": samples}
+
+
 # ── 일괄 점검(배포 후 실측) ──────────────────────────────────────────────────
 def discover_only(
     org_id: str,
@@ -430,6 +572,11 @@ def verify(
     known = [i for i in ids if i in catalog()][:VERIFY_MAX_IDS]
 
     def one(org_id: str) -> dict:
+        if stage == "media":
+            try:
+                return media_sample(org_id, budget=budget, fetcher=fetcher, delay=delay)
+            except Exception as e:
+                return {"id": org_id, "name": catalog()[org_id].name, "error": repr(e)[:200]}
         if stage == "discover":
             try:
                 return discover_only(org_id, budget=budget, fetcher=fetcher, skip=skip, delay=delay)
@@ -513,7 +660,7 @@ def respond(handler: BaseHTTPRequestHandler, route: str) -> None:
                 fresh=q.get("fresh") != "0",
                 budget=budget,
                 workers=VERIFY_MAX_IDS,
-                stage="discover" if q.get("stage") == "discover" else "collect",
+                stage=q.get("stage") if q.get("stage") in ("discover", "media") else "collect",
                 skip=max(0, _int(q.get("skip"), 0)),
             )
             status, cache = 200, CACHE_VERIFY
@@ -521,6 +668,12 @@ def respond(handler: BaseHTTPRequestHandler, route: str) -> None:
                 body, ctype = verify_tsv(results), "text"
             else:
                 body, ctype = {"results": results}, "json"
+        elif route == "media":
+            body = media_for(
+                q.get("url", ""), q.get("title", "")[:200], debug=q.get("debug") == "1"
+            )
+            status, ctype = 200, "json"
+            cache = CACHE_EMPTY if body.get("error") else CACHE_MEDIA
         else:
             raise NotFound(route)
     except NotFound as e:
