@@ -336,7 +336,7 @@ def page_label(html_bytes: bytes | None) -> str:
         return ""
     for text in [parser.title, *parser.heads]:
         for part in _NAME_SEP_RE.split(text or ""):
-            part = categories.strip_meaningless(part.strip())
+            part = categories.tidy_label(part)
             if 2 <= len(part) <= MAX_NAME_LEN and categories.classify(part):
                 return part
     return ""

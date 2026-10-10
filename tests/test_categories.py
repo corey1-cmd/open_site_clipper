@@ -306,7 +306,31 @@ def test_a_scholarship_agencys_general_board_is_not_renamed_scholarship():
         "입주기업 대상 기술 보호 사업 안내",
         "입주기업 ESG 컨설팅 참여 기업 조사",
         "예산군 학자금대출 이자지원",
-        "고교 취업연계 장려금 매뉴얼",
+        "입주기업 대상 법률 자문 안내",
     ]
     assert c.dominant(titles) == ""
     assert c.for_title("2학기 9월 국가근로 출근부 마감 안내") == "장학"
+    # 이름이 있는 게시판('공지')은 내용으로 이름을 바꾸지 않는다 — 장학 기관이라도
+    assert c.is_named("공지") and c.is_named("공지사항(목록)") and not c.is_named("READ")
+
+
+def test_scholarship_program_names_without_the_word_scholarship():
+    from open_site_clipper import categories as c
+
+    assert c.for_title("2026학년도 고교 취업연계 장려금 신청 매뉴얼 수정본 게시") == "장학"
+    assert c.for_title("2026년 근로장려금 신청 안내") == ""  # 국세청 — 장학이 아니다
+    assert c.for_title("청년일자리도약장려금 안내") == "채용"
+
+
+def test_tidy_label_cleans_names_left_in_the_route_cache():
+    from open_site_clipper import categories as c
+
+    assert c.tidy_label("공지사항(목록)") == "공지사항"
+    assert c.tidy_label("학교소식 (목록)") == "학교소식"
+    assert c.tidy_label("뉴스룸 게시판목록") == "뉴스룸"
+    assert c.tidy_label("일반공지목록") == "일반공지"
+    assert c.tidy_label("그림자의+밤") == "그림자의 밤"
+    assert c.tidy_label("HUFS Professors 더보기") == "HUFS Professors"
+    assert c.tidy_label("장학공지") == "장학공지"
+    for junk in ("더보기READ", "더보기MORE", "+MORE", "더 보기", "READ", "게시판목록", "기타"):
+        assert c.tidy_label(junk) == "", junk

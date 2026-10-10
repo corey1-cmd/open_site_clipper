@@ -246,9 +246,12 @@ def _cascade(source: Source, fetch: PageFetcher) -> tuple[list[Notice], list[str
         if not res.ok:
             tried.setdefault(res.category, []).append(res.trail() or "해당 없음")
             continue
-        label = res.category
-        if categories.canonical(label) not in categories.SPECIFIC:
-            label = categories.dominant([n.title for n in res.notices]) or label
+        # 캐시에 남은 '공지사항(목록)'·'더보기READ' 같은 이름은 여기서 다듬고,
+        # 이름을 모를 때만('READ' 등) 글 제목으로 이름을 짓는다.
+        label = categories.tidy_label(res.category)
+        if not categories.is_named(label):
+            titles = [n.title for n in res.notices]
+            label = categories.dominant(titles) or label or categories.from_url(res.url)
         ok_cats.add(res.category)
         notices.extend(
             replace(n, category=categories.notice_category(label, n.title)) for n in res.notices

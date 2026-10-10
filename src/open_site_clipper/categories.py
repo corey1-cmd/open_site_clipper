@@ -21,6 +21,8 @@
 
 from __future__ import annotations
 
+import re
+
 ETC = "기타"
 
 # 라벨로 쓰면 안 되는 앵커 텍스트 — 게시판 이름이 아니라 조작용 단어다.
@@ -87,6 +89,44 @@ def strip_meaningless(text: str) -> str:
     while words and words[0].lower() in MEANINGLESS:
         words.pop(0)
     return " ".join(words)
+
+
+_GLUE_WORDS = tuple(sorted({w.replace(" ", "") for w in MEANINGLESS}, key=len, reverse=True))
+# '공지사항(목록)' · '뉴스룸 게시판목록' · '일반공지목록' — 페이지 제목에 붙는 '목록' 꼬리.
+_LIST_TAIL_RE = re.compile(r"\s*[(\[]?\s*(?:게시판\s*)?목록\s*[)\]]?$")
+# '그림자의+밤' — 주소에서 온 이름의 '+'(공백).
+_PLUS_SPACE_RE = re.compile(r"(?<=[가-힣])\+(?=[가-힣])")
+
+
+def _glued_meaningless(text: str) -> bool:
+    """'더보기READ'·'readmore' — 조작용 단어만 붙여 쓴 말인가."""
+    s = (text or "").replace(" ", "").lower()
+    if not s:
+        return False
+    ok = [True] + [False] * len(s)  # ok[i]: s[:i] 를 조작용 단어로 다 나눌 수 있다
+    for i in range(1, len(s) + 1):
+        ok[i] = any(s[:i].endswith(w) and ok[i - len(w)] for w in _GLUE_WORDS)
+    return ok[-1]
+
+
+def tidy_label(text: str) -> str:
+    """게시판 이름을 화면에 보일 만하게 — 못 쓰는 이름이면 "".
+
+    실측 경로 캐시에 '공지사항(목록)'·'뉴스룸 게시판목록'·'더보기READ' 같은 이름이
+    남아, 갈래를 말하는 제목이 없는 글에 그 이름이 그대로 분류로 찍혔다.
+    """
+    flat = strip_meaningless(_PLUS_SPACE_RE.sub(" ", " ".join((text or "").split())))
+    if not flat or _glued_meaningless(flat):
+        return ""
+    return _LIST_TAIL_RE.sub("", flat).strip()  # '게시판목록' 뿐이면 이름이 없는 것
+
+
+def is_named(label: str) -> bool:
+    """게시판 이름이 갈래를 말하는가 — '공지사항'·'장학'은 예, 'READ'·'HUFS Students'는 아니오.
+
+    이름이 있는 게시판은 이름을 믿고, 이름을 모를 때만 글 제목으로 이름을 짓는다.
+    """
+    return bool(classify(tidy_label(label)))
 
 
 # 대분류 → 그 분류로 볼 말들. 순서가 우선순위다(구체적인 것을 앞에 둔다).
@@ -247,8 +287,15 @@ SPECIFIC = frozenset({"입학", "장학", "학사", "채용", "입찰", "인사"
 # 말이 갈래를 정해 버린다(실측: '의료통역예비과정 교육안내' → 자료). 제목에서는 그
 # 글이 무엇인지 분명히 말하는 말만 본다. 순서가 우선순위다 —
 # '국가근로장학생 모집'은 장학, '입학처 계약직 직원 채용'은 채용.
+#
+# '장려금' 하나만으로는 장학이 아니다(국세청 '근로장려금', 고용노동부 '고용장려금').
+# 한국장학재단의 '고교 취업연계 장려금'만 사업 이름째로 넣는다 — 안 넣으면 '취업'
+# 때문에 채용으로 간다(실측).
 TITLE_HINTS: tuple[tuple[str, tuple[str, ...]], ...] = (
-    ("장학", ("장학", "학자금", "국가근로", "scholarship")),
+    (
+        "장학",
+        ("장학", "학자금", "국가근로", "취업연계 장려금", "취업연계장려금", "scholarship"),
+    ),
     (
         "채용",
         ("채용", "임용", "공채", "구인", "인턴", "취업", "일자리", "recruit"),

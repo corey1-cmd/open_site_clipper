@@ -226,3 +226,19 @@ def test_refine_label_names_read_tabs_by_their_content():
     titled = b"<title>\xed\x95\x99\xec\x82\xac\xea\xb3\xb5\xec\xa7\x80 | U</title><table></table>"
     assert govdiscover.refine_label("READ", titled, "https://u.ac.kr/b") == "학사공지"
     assert govdiscover.refine_label("READ", b"<table></table>", "https://u.ac.kr/b") == "READ"
+
+
+def test_refine_label_trusts_a_named_general_board():
+    """'공지' 게시판은 학자금 글이 대부분이어도(한국장학재단) '장학'으로 바꾸지 않는다."""
+    from open_site_clipper import govdiscover
+
+    titles = ["학자금대출 이자지원", "학자금대출 지원기관 모집", "근로장학 모집", "입주기업 안내"]
+    rows = "".join(
+        f'<tr><td><a href="/v{i}">{t}</a></td><td>2026.10.0{i}</td></tr>'
+        for i, t in enumerate(titles, 1)
+    )
+    page = f"<table>{rows}</table>".encode()
+    assert govdiscover.refine_label("공지", page, "https://k.or.kr/b") == "공지"
+    # 페이지가 더 구체적인 이름을 밝히면 그 이름을 쓴다
+    titled = "<title>장학공지 | U</title>".encode() + page
+    assert govdiscover.refine_label("공지", titled, "https://u.ac.kr/b") == "장학공지"

@@ -410,7 +410,7 @@ def test_boards_with_the_same_label_are_all_collected(tiny_catalog):
     # 게시판 이름은 내용으로 다듬어 돌려준다 — 캐시에 'READ' 대신 장학·학사가 남는다
     labels = {u.split("/")[-2]: c for c, _k, u in got["routes"]}
     assert labels["2182"] == "장학" and labels["2181"] == "학사"
-    assert labels["2180"] == "READ"  # 섞인 게시판은 이름을 지어내지 않는다
+    assert labels["2180"] == "기타"  # 섞인 게시판은 이름을 지어내지 않는다('READ'는 이름이 아니다)
 
 
 def test_scholarship_titles_in_a_general_board_are_filed_as_scholarship(tiny_catalog):
@@ -479,3 +479,40 @@ def test_same_notice_on_two_boards_with_different_tags_is_shown_once(tiny_catalo
     titles = [r["title"] for r in got["notices"]]
     assert sum("대산장학생" in t for t in titles) == 1
     assert len(titles) == 3
+
+
+def test_a_named_general_board_keeps_its_name_even_if_mostly_scholarship(tiny_catalog):
+    """한국장학재단 일반 공지: 학자금 글이 대부분이어도 게시판은 '공지'다.
+
+    예전에는 게시판 전체가 '장학'이 되어 창업센터 입주기업 공지까지 장학으로 갔다.
+    """
+    url = "https://www.test.ac.kr/ko/notice.do?pg=PTKONotice_List"
+    rows = [
+        ("/v1", "2027학년도 학점은행제 학습자 학자금대출 지원기관 모집 안내", "2026.10.08"),
+        ("/v2", "입주기업 대상 기술 보호 사업 안내", "2026.10.08"),
+        ("/v3", "2026년 하반기 경상북도 학자금대출 이자지원 신청 안내", "2026.10.07"),
+        ("/v4", "2026년 하반기 예산군 학자금대출 이자지원 신청 안내", "2026.10.01"),
+        ("/v5", "2026학년도 고교 취업연계 장려금 신청 매뉴얼 수정본 게시", "2026.09.30"),
+    ]
+    _cache(tiny_catalog, [["공지", "board", url]])
+    got = _collect(days=30, fetcher=Recorder({url: _board(rows)}))
+    by_title = {r["title"]: r["group"] for r in got["notices"]}
+    assert by_title["입주기업 대상 기술 보호 사업 안내"] == "공지"
+    assert by_title["2026년 하반기 경상북도 학자금대출 이자지원 신청 안내"] == "장학"
+    assert by_title["2026학년도 고교 취업연계 장려금 신청 매뉴얼 수정본 게시"] == "장학"
+    assert got["routes"] == [["공지", "board", url]]
+
+
+def test_cached_board_names_are_tidied_for_display(tiny_catalog):
+    """캐시에 남은 '공지사항(목록)'·'더보기READ' 가 글의 분류로 찍히지 않는다."""
+    a = f"{K2}/17/artclList.do?layout=unknown"
+    b = f"{K2}/62/artclList.do?layout=unknown"
+    pages = {
+        a: _board([(f"{K2}/17/1/artclView.do", "운동장 보수 안내", "2026.10.08")]),
+        b: _board([(f"{K2}/62/1/artclView.do", "축제 일정 안내", "2026.10.07")]),
+    }
+    _cache(tiny_catalog, [["공지사항(목록)", "board", a], ["더보기READ", "board", b]])
+    got = _collect(days=30, fetcher=Recorder(pages))
+    shown = {r["title"]: r["category"] for r in got["notices"]}
+    assert shown == {"운동장 보수 안내": "공지사항", "축제 일정 안내": "기타"}
+    assert [c for c, _k, _u in got["routes"]] == ["공지사항", "기타"]

@@ -1400,7 +1400,7 @@
   "gov-dapa": {
    "routes": [
     [
-     "공지사항(목록)",
+     "공지사항",
      "board",
      "https://www.dapa.go.kr/dapa/doc/selectDocList.do?menuSeq=3031&bbsSeq=443&ctgrySeq=381"
     ],
@@ -2645,7 +2645,7 @@
      "https://www.catholic.ac.kr/ko/campuslife/notice.do?mode=list&srCategoryId=21"
     ],
     [
-     "뉴스룸 게시판목록",
+     "뉴스룸",
      "board",
      "https://www.catholic.ac.kr/ko/170ani/newsroom.do"
     ],
@@ -2660,7 +2660,7 @@
      "https://www.catholic.ac.kr/ko/service/Job-posting.do"
     ],
     [
-     "주요연구성과 게시판목록",
+     "주요연구성과",
      "board",
      "https://www.catholic.ac.kr/ko/research/result.do"
     ],
@@ -2675,7 +2675,7 @@
      "https://www.catholic.ac.kr/ko/campuslife/find.do"
     ],
     [
-     "총장연설문 게시판목록",
+     "총장연설문",
      "board",
      "https://www.catholic.ac.kr/ko/about/president_speech.do"
     ]
@@ -2833,7 +2833,7 @@
      "https://www.konkuk.ac.kr/bbs/konkuk/234/artclList.do?layout=unknown"
     ],
     [
-     "더보기READ",
+     "기타",
      "board",
      "https://www.konkuk.ac.kr/bbs/konkuk/259/artclList.do?layout=unknown"
     ],
@@ -3227,7 +3227,7 @@
   "u-skku": {
    "routes": [
     [
-     "성대뉴스 게시판목록",
+     "성대뉴스",
      "board",
      "https://www.skku.edu/skku/campus/skk_comm/news.do"
     ],
@@ -3247,7 +3247,7 @@
      "https://www.skku.edu/cms/uicomponent/popupZoneClick.do?siteId=skku&key=WlKbkVZpvmLLbHNKHupJ"
     ],
     [
-     "업무추진비 내역 게시판목록",
+     "업무추진비 내역",
      "board",
      "https://www.skku.edu/skku/campus/skk_comm/prs6.do"
     ]
@@ -3475,7 +3475,7 @@
   "u-chugye": {
    "routes": [
     [
-     "공지사항(목록)",
+     "공지사항",
      "board",
      "https://www.chugye.ac.kr/mbs/university/jsp/board/list.jsp?boardId=6784&id=university_050100000000"
     ],
@@ -3485,7 +3485,7 @@
      "https://www.chugye.ac.kr/mbs/grad/jsp/board/list.jsp?boardId=92150&id=grad_020101000000"
     ],
     [
-     "수상안내(목록)",
+     "수상안내",
      "board",
      "https://www.chugye.ac.kr/mbs/university/jsp/board/list.jsp?boardId=309165&id=university_051600000000"
     ],
@@ -3520,7 +3520,7 @@
      "https://www.chugye.ac.kr/mbs/university/jsp/board/list.jsp?boardId=6776&id=university_040900000000"
     ],
     [
-     "전산(IT)이용안내(목록)",
+     "전산(IT)이용안내",
      "board",
      "https://www.chugye.ac.kr/mbs/university/jsp/board/list.jsp?boardId=15023&id=university_051201000000"
     ],
@@ -3530,7 +3530,7 @@
      "https://www.chugye.ac.kr/mbs/university/"
     ],
     [
-     "학교소식 (목록)",
+     "학교소식",
      "board",
      "https://www.chugye.ac.kr/mbs/university/jsp/board/list.jsp?boardId=5203497&id=university_052300000000"
     ]
@@ -3643,7 +3643,7 @@
   "u-knsu": {
    "routes": [
     [
-     "공지사항 게시판목록",
+     "공지사항",
      "board",
      "https://www.knsu.ac.kr/knsu/unilife/notice.do"
     ],
@@ -3720,7 +3720,7 @@
   "u-hongik": {
    "routes": [
     [
-     "대학원 공지 게시판목록",
+     "대학원 공지",
      "board",
      "https://www.hongik.ac.kr/kr/education/notice-grad.do?mode=list&srCategoryId=378&srStartDt=&srEndDt=&srSearchKey=article_title&srSearchVal="
     ],
@@ -3853,7 +3853,7 @@
      "https://www.tu.ac.kr/tuhome/sub07_01_08.do"
     ],
     [
-     "업무추진비 게시판목록",
+     "업무추진비",
      "board",
      "https://www.tu.ac.kr/tuhome/sub01_03_06.do"
     ],
@@ -4041,7 +4041,7 @@
      "https://deu.ac.kr/www/deu-notice.do"
     ],
     [
-     "공지 게시판목록",
+     "공지",
      "board",
      "https://www.deu.ac.kr/www/deu-council-notice.do"
     ],
@@ -4346,7 +4346,7 @@
      "https://www.inu.ac.kr:443/bbs/inu/246/artclList.do?layout=unknown"
     ],
     [
-     "개인정보 목적 외 이용 및 제 3차 ",
+     "개인정보 목적 외 이용 및 제 3차",
      "board",
      "https://www.inu.ac.kr:443/inu/600/subview..do"
     ],
@@ -5639,12 +5639,12 @@
      "http://www.kdu.ac.kr/graduate"
     ],
     [
-     "일반공지목록",
+     "일반공지",
      "board",
      "https://www.kdu.ac.kr/home/sub.do?mncd=177"
     ],
     [
-     "극동뉴스목록",
+     "극동뉴스",
      "board",
      "https://www.kdu.ac.kr/home/sub.do?mncd=182"
     ]
@@ -6723,7 +6723,7 @@
      "https://www.postech.ac.kr/kor/newscenter/executive-expenses.do"
     ],
     [
-     "연설문 게시판목록",
+     "연설문",
      "board",
      "https://www.postech.ac.kr/kor/newscenter/speech.do"
     ],
@@ -7391,7 +7391,7 @@
      "https://www.unist.ac.kr/unist/center/domestic.do"
     ],
     [
-     "연설문 게시판목록",
+     "연설문",
      "board",
      "https://www.unist.ac.kr/unist/introduction/speech.do"
     ],
@@ -7749,12 +7749,12 @@
      "https://www.dongyang.ac.kr/bbs/dmu/677/artclList.do?layout=unknown"
     ],
     [
-     "더보기READ",
+     "기타",
      "board",
      "https://www.dongyang.ac.kr/bbs/dmu/679/artclList.do?layout=unknown"
     ],
     [
-     "더보기READ",
+     "기타",
      "board",
      "https://www.dongyang.ac.kr/bbs/dmu/762/artclList.do?layout=unknown"
     ]
@@ -8371,7 +8371,7 @@
      "https://www.doowon.ac.kr/bbs/kr/17/artclList.do?layout=unknown"
     ],
     [
-     "더보기MORE",
+     "기타",
      "board",
      "https://www.doowon.ac.kr/bbs/kr/62/artclList.do?layout=unknown"
     ],
@@ -8627,7 +8627,7 @@
      "https://www.ck.ac.kr/univ-life/general"
     ],
     [
-     "그림자의+밤",
+     "그림자의 밤",
      "board",
      "https://www.ck.ac.kr/search/%EA%B7%B8%EB%A6%BC%EC%9E%90%EC%9D%98%2B%EB%B0%A4"
     ],
