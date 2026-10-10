@@ -56,8 +56,13 @@ def bake(results: list[dict], today: str) -> dict:
         # 게시판 자체는 살아 있으므로 남긴다. 첫 화면·글 한 건 주소는 한 번 더 거른다.
         routes = [
             list(rt)
-            for rt in r.get("routes") or []
-            if rt[1] != "board" or not probe.not_a_board(rt[2])
+            for rt in webapp.plan_routes(
+                [
+                    (c, k, u.split("#", 1)[0])  # '#sideContent' 같은 조각은 같은 게시판
+                    for c, k, u in r.get("routes") or []
+                    if k != "board" or not probe.not_a_board(u)
+                ]
+            )
         ]
         if routes:
             orgs[r["id"]] = {
@@ -130,6 +135,17 @@ def report(results: list[dict], today: str, days: int) -> str:
             f"| {sec} | {c['점검']} | {c['글 있음']} | {c['연결(기간 내 새 글 없음)']} "
             f"| {c['못 모음']} | {c['건수']:,} |"
         )
+    # 갈래별(장학·학사·입학 …) — 점검 결과에 groups 가 있을 때만
+    by_group: dict[str, Counter] = {}
+    for r in results:
+        for g, n in (r.get("groups") or {}).items():
+            c = by_group.setdefault(g, Counter())
+            c["곳"] += 1
+            c["건"] += n
+    if by_group:
+        lines += ["", "## 갈래별", "", "| 갈래 | 글이 나온 곳 | 글 |", "|---|---:|---:|"]
+        for g, c in sorted(by_group.items(), key=lambda kv: -kv[1]["건"]):
+            lines.append(f"| {g} | {c['곳']} | {c['건']:,} |")
     for sec, reasons in why.items():
         lines += ["", f"## {sec} — 못 모은 이유", "", "| 이유 | 곳 |", "|---|---:|"]
         lines += [f"| {k} | {n} |" for k, n in reasons.most_common()]

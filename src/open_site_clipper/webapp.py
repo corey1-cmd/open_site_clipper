@@ -438,10 +438,13 @@ def verify(
             )
         except Exception as e:  # 한 기관의 오류가 묶음 전체를 막지 않게
             return {"id": org_id, "name": catalog()[org_id].name, "error": repr(e)[:200]}
+        groups: dict[str, int] = {}
+        for n in got["notices"]:
+            groups[n["group"]] = groups.get(n["group"], 0) + 1
         return {
             k: got[k]
             for k in ("id", "name", "count", "seen", "mode", "elapsed", "timed_out", "routes")
-        } | {"failures": got["failures"][:6], "notes": got["notes"][:4]}
+        } | {"groups": groups, "failures": got["failures"][:6], "notes": got["notes"][:4]}
 
     with ThreadPoolExecutor(max_workers=max(1, min(workers, len(known) or 1))) as pool:
         return list(pool.map(one, known))

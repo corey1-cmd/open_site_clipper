@@ -196,6 +196,7 @@ def test_verify_summarises_each_org(tiny_catalog):
     rows = webapp.verify(["u-test", "nope"], days=30, fetcher=Recorder(PAGES), delay=0)
     assert [r["id"] for r in rows] == ["u-test"]  # 모르는 id 는 조용히가 아니라 아예 받지 않는다
     assert rows[0]["count"] > 0 and rows[0]["routes"]
+    assert sum(rows[0]["groups"].values()) == rows[0]["count"]  # 갈래별 건수(보고서용)
     tsv = webapp.verify_tsv(rows)
     assert tsv.startswith("u-test\t시험대학교\t")
 

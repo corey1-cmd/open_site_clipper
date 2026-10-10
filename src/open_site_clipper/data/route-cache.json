@@ -69,8 +69,8 @@
      "https://www.customs.go.kr/kcs/na/ntt/selectNttList.do?mi=2896&bbsId=1365"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 36,
+   "checked": "2026-10-10"
   },
   "gov-pps": {
    "routes": [
@@ -135,8 +135,8 @@
      "https://www.pps.go.kr/kor/bbs/list.do?key=00039"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 5,
+   "checked": "2026-10-10"
   },
   "gov-spo": {
    "routes": [
@@ -181,8 +181,8 @@
      "https://www.spo.go.kr/site/spo/ex/board/List.do?cbIdx=1102"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 9,
+   "checked": "2026-10-10"
   },
   "gov-mma": {
    "routes": [
@@ -247,8 +247,8 @@
      "https://www.mma.go.kr/board/boardList.do?mc=usr0000285&gesipan_id=169"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 25,
+   "checked": "2026-10-10"
   },
   "gov-dapa": {
    "routes": [
@@ -263,8 +263,8 @@
      "https://www.dapa.go.kr/dapa/alim.do?menuSeq=4157"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 2,
+   "checked": "2026-10-10"
   },
   "gov-police": {
    "routes": [
@@ -329,8 +329,8 @@
      "https://www.police.go.kr/user/bbs/BD_selectBbsList.do?q_bbsCode=1029"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 38,
+   "checked": "2026-10-10"
   },
   "gov-nfa": {
    "routes": [
@@ -395,8 +395,8 @@
      "https://www.nfa.go.kr/nfa/news/overseasInfo"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 56,
+   "checked": "2026-10-10"
   },
   "gov-fsc": {
    "routes": [
@@ -461,8 +461,8 @@
      "https://www.fsc.go.kr/no020102"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 41,
+   "checked": "2026-10-10"
   },
   "gov-acrc": {
    "routes": [
@@ -484,7 +484,7 @@
     [
      "국민참여",
      "board",
-     "https://www.acrc.go.kr/menu.es?mid=a10304000000"
+     "https://acrc.go.kr/menu.es?mid=a10304000000"
     ],
     [
      "정보공개",
@@ -527,8 +527,8 @@
      "https://www.acrc.go.kr/menu.es?mid=a10502140000"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 30,
+   "checked": "2026-10-10"
   },
   "gov-pipc": {
    "routes": [
@@ -593,8 +593,8 @@
      "https://www.pipc.go.kr/np/cop/bbs/selectBoardList.do?bbsId=BS205&mCode=A030060000"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 30,
+   "checked": "2026-10-10"
   },
   "gov-better": {
    "routes": [
@@ -659,8 +659,8 @@
      "https://www.better.go.kr/mz.better.NewRefBetterTalkSlPL?tab_cd=06"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 46,
+   "checked": "2026-10-10"
   },
   "gov-ipkorea": {
    "routes": [
@@ -725,8 +725,8 @@
      "https://www.ipkorea.go.kr/board/list.do?bbsId=BBSMSTR_000000000009&category=REFERENCES"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 2,
+   "checked": "2026-10-10"
   },
   "gov-balance": {
    "routes": [
@@ -737,7 +737,7 @@
     ]
    ],
    "count": 0,
-   "checked": "discover"
+   "checked": "2026-10-10"
   },
   "gov-clip": {
    "routes": [
@@ -772,8 +772,8 @@
      "https://www.clip.go.kr/base/board/list?boardManagementNo=9&menuLevel=2&menuNo=12"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 1,
+   "checked": "2026-10-10"
   },
   "gov-cct": {
    "routes": [
@@ -783,8 +783,8 @@
      "https://www.cct.go.kr/?cate=005001"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 5,
+   "checked": "2026-10-10"
   },
   "gov-mois": {
    "routes": [
@@ -849,8 +849,8 @@
      "https://www.mois.go.kr/video/bbs/type019/commonSelectBoardArticle.do?bbsId=BBSMSTR_000000000255&nttId=129988"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 34,
+   "checked": "2026-10-10"
   },
   "gov-mpva": {
    "routes": [
@@ -915,8 +915,8 @@
      "https://www.mpva.go.kr/mpva/selectCmmrWebList.do?key=214"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 64,
+   "checked": "2026-10-10"
   },
   "gov-mcst": {
    "routes": [
@@ -981,8 +981,8 @@
      "https://www.mcst.go.kr/common/rss/explainpress.jsp"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 48,
+   "checked": "2026-10-10"
   },
   "gov-mafra": {
    "routes": [
@@ -1012,8 +1012,8 @@
      "https://www.mafra.go.kr/bbs/home/807/artclList.do?layout=unknown"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 29,
+   "checked": "2026-10-10"
   },
   "gov-motir": {
    "routes": [
@@ -1078,8 +1078,8 @@
      "https://www.motir.go.kr/kor/article/ATCL6c89ac4d8"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 49,
+   "checked": "2026-10-10"
   },
   "gov-mohw": {
    "routes": [
@@ -1144,8 +1144,8 @@
      "https://www.mohw.go.kr/menu.es?mid=a10401000000"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 46,
+   "checked": "2026-10-10"
   },
   "gov-moel": {
    "routes": [
@@ -1155,15 +1155,15 @@
      "https://www.moel.go.kr/news/notice/noticeList.do?searchDivCd=001"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 10,
+   "checked": "2026-10-10"
   },
   "gov-mogef": {
    "routes": [
     [
      "성평등가족부 RSS",
-     "rss",
-     "https://www.mogef.go.kr/hg/rss/hg_rss_f001.do"
+     "board",
+     "https://mogef.go.kr/hg/rss/hg_rss_f001.do"
     ],
     [
      "보도자료",
@@ -1204,15 +1204,10 @@
      "정보공개",
      "board",
      "https://www.mogef.go.kr/io/ind/io_ind_s057.do?mid=info317"
-    ],
-    [
-     "성평등가족부 RSS",
-     "board",
-     "https://mogef.go.kr/hg/rss/hg_rss_f001.do"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 31,
+   "checked": "2026-10-10"
   },
   "gov-molit": {
    "routes": [
@@ -1277,8 +1272,8 @@
      "https://www.molit.go.kr/molitum"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 63,
+   "checked": "2026-10-10"
   },
   "gov-mof": {
    "routes": [
@@ -1333,8 +1328,8 @@
      "https://www.mof.go.kr/doc/ko/selectDocList.do?menuSeq=971&bbsSeq=10"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 55,
+   "checked": "2026-10-10"
   },
   "gov-mss": {
    "routes": [
@@ -1399,8 +1394,8 @@
      "https://www.mss.go.kr/site/smba/submain/submain08.do?searchPosId=0085210"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 42,
+   "checked": "2026-10-10"
   },
   "gov-mpm": {
    "routes": [
@@ -1465,8 +1460,8 @@
      "https://www.mpm.go.kr/mpm/info/compens/compensBoard"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 27,
+   "checked": "2026-10-10"
   },
   "gov-moleg": {
    "routes": [
@@ -1496,15 +1491,15 @@
      "https://www.moleg.go.kr/menu.es?mid=a10201080000"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 23,
+   "checked": "2026-10-10"
   },
   "gov-mfds": {
    "routes": [
     [
      "자료",
-     "rss",
-     "https://www.mfds.go.kr/www/rss/list.do"
+     "board",
+     "https://mfds.go.kr/www/rss/list.do"
     ],
     [
      "법령",
@@ -1555,15 +1550,10 @@
      "국민소통",
      "board",
      "https://www.mfds.go.kr/brd/m_696/list.do"
-    ],
-    [
-     "자료",
-     "board",
-     "https://mfds.go.kr/www/rss/list.do"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 50,
+   "checked": "2026-10-10"
   },
   "gov-mods": {
    "routes": [
@@ -1573,8 +1563,8 @@
      "https://www.mods.go.kr/ijob/"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 25,
+   "checked": "2026-10-10"
   },
   "gov-moip": {
    "routes": [
@@ -1609,8 +1599,8 @@
      "https://www.moip.go.kr/ko/kpoBultnMgmt.do?menuCd=SCD0200609&parntMenuCd2=SCD0200049"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 7,
+   "checked": "2026-10-10"
   },
   "gov-nts": {
    "routes": [
@@ -1675,8 +1665,8 @@
      "https://www.nts.go.kr/nts/na/ntt/selectNttList.do?mi=2286&bbsId=131040"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 46,
+   "checked": "2026-10-10"
   },
   "gov-pcccr": {
    "routes": [
@@ -1692,7 +1682,7 @@
     ]
    ],
    "count": 0,
-   "checked": "discover"
+   "checked": "2026-10-10"
   },
   "gov-eslc": {
    "routes": [
@@ -1757,8 +1747,8 @@
      "https://www.eslc.go.kr/bbs/data/list.do?menu_idx=2436"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 15,
+   "checked": "2026-10-10"
   },
   "gov-k-cohesion": {
    "routes": [
@@ -1823,8 +1813,8 @@
      "https://www.k-cohesion.go.kr/PCNC/contents/P50500000000.do"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 26,
+   "checked": "2026-10-10"
   },
   "gov-ne": {
    "routes": [
@@ -1889,8 +1879,8 @@
      "https://www.ne.go.kr/user/bbs/BD_selectBbsList.do?q_bbsSn=1027"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 24,
+   "checked": "2026-10-10"
   },
   "pub-kosaf": {
    "routes": [
@@ -1910,8 +1900,8 @@
      "https://www.kosaf.go.kr/ko/ininfo.do?naviParam=DN,08,03,00"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 29,
+   "checked": "2026-10-10"
   },
   "u-catholic": {
    "routes": [
@@ -1956,8 +1946,8 @@
      "https://www.catholic.ac.kr/ko/about/president_speech.do"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 19,
+   "checked": "2026-10-10"
   },
   "u-mtu": {
    "routes": [
@@ -2022,8 +2012,8 @@
      "https://www.mtu.ac.kr/mtu/board/list.do?mId=536"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 10,
+   "checked": "2026-10-10"
   },
   "u-gangseo": {
    "routes": [
@@ -2088,8 +2078,8 @@
      "http://gangseo.ac.kr/kcua/boardView?menuCode=BC0703&boardNum=21649"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 16,
+   "checked": "2026-10-10"
   },
   "u-konkuk": {
    "routes": [
@@ -2144,8 +2134,8 @@
      "https://www.konkuk.ac.kr/bbs/research/4214/artclList.do?layout=unknown"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 65,
+   "checked": "2026-10-10"
   },
   "gov-opm": {
    "routes": [
@@ -2210,8 +2200,8 @@
      "https://www.opm.go.kr/opm/news/prize.do"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 48,
+   "checked": "2026-10-10"
   },
   "gov-mofe": {
    "routes": [
@@ -2271,8 +2261,8 @@
      "https://www.mofe.go.kr/lw/srsdlaword.do?bbsId=MOSFBBS_000000000054&menuNo=7080100"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 52,
+   "checked": "2026-10-10"
   },
   "gov-moe": {
    "routes": [
@@ -2337,8 +2327,8 @@
      "https://www.moe.go.kr/boardCnts/listRenew.do?boardID=72762&m=020503&s=moe"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 37,
+   "checked": "2026-10-10"
   },
   "gov-unikorea": {
    "routes": [
@@ -2388,8 +2378,8 @@
      "https://www.unikorea.go.kr/web/unikorea/bbs/bbs_0000000000000006"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 42,
+   "checked": "2026-10-10"
   },
   "gov-moj": {
    "routes": [
@@ -2409,8 +2399,8 @@
      "http://www.moj.go.kr/bbs/moj/182/artclList.do?layout=unknown"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 18,
+   "checked": "2026-10-10"
   },
   "gov-rda": {
    "routes": [
@@ -2475,8 +2465,8 @@
      "https://www.rda.go.kr/board/board.do?mode=list&prgId=igt_infograpEntry"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 49,
+   "checked": "2026-10-10"
   },
   "gov-forest": {
    "routes": [
@@ -2526,8 +2516,8 @@
      "https://www.forest.go.kr/kfsweb/cop/bbs/selectBoardList.do?bbsId=BBSMSTR_1020&mn=NKFS_05_07_07"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 39,
+   "checked": "2026-10-10"
   },
   "gov-kdca": {
    "routes": [
@@ -2577,8 +2567,8 @@
      "https://www.kdca.go.kr/bbs/kdca/57/artclList.do?layout=unknown"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 42,
+   "checked": "2026-10-10"
   },
   "gov-kma": {
    "routes": [
@@ -2613,11 +2603,6 @@
      "https://www.kma.go.kr/kma/public/integrity_04_02.jsp"
     ],
     [
-     "정보공개",
-     "board",
-     "https://www.kma.go.kr/kma/public/integrity_04.jsp"
-    ],
-    [
      "국립기상박물관",
      "board",
      "https://science.kma.go.kr/museum"
@@ -2628,8 +2613,8 @@
      "https://www.kma.go.kr/kma/"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 33,
+   "checked": "2026-10-10"
   },
   "gov-naacc": {
    "routes": [
@@ -2639,8 +2624,8 @@
      "https://naacc.go.kr/WEB/contents/N4040100000.do"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 1,
+   "checked": "2026-10-10"
   },
   "gov-saemangeum": {
    "routes": [
@@ -2700,8 +2685,8 @@
      "https://www.saemangeum.go.kr/sda/brd/list.do?key=2309093777364"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 20,
+   "checked": "2026-10-10"
   },
   "gov-kcg": {
    "routes": [
@@ -2751,8 +2736,8 @@
      "https://www.kcg.go.kr/kcg/na/ntt/selectNttList.do?mi=2798&bbsId=312"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 33,
+   "checked": "2026-10-10"
   },
   "gov-kmcc": {
    "routes": [
@@ -2817,8 +2802,8 @@
      "https://www.kmcc.go.kr/user.do?boardId=1030&page=A02060400&dc=K02060400"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 29,
+   "checked": "2026-10-10"
   },
   "gov-ftc": {
    "routes": [
@@ -2883,8 +2868,8 @@
      "https://www.ftc.go.kr/www/selectKdPbsvntRceptList.do?key=384"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 37,
+   "checked": "2026-10-10"
   },
   "u-ajou": {
    "routes": [
@@ -2944,13 +2929,13 @@
      "https://www.ajou.ac.kr/kr/bachelor/bamedia-04.do"
     ],
     [
-     "공지",
+     "학사",
      "board",
      "https://www.ajou.ac.kr/kr/ajou/notice.do"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 58,
+   "checked": "2026-10-10"
   },
   "u-anyang": {
    "routes": [
@@ -2965,8 +2950,8 @@
      "https://www.anyang.ac.kr/iacf/"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 3,
+   "checked": "2026-10-10"
   },
   "u-yongin": {
    "routes": [
@@ -2981,8 +2966,8 @@
      "https://www.yongin.ac.kr/cmn/board/SYSTEM_DEFAULT000031/bbsList.do"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 11,
+   "checked": "2026-10-10"
   },
   "u-eulji": {
    "routes": [
@@ -3042,8 +3027,8 @@
      "https://www.eulji.ac.kr?menuno=7333"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 42,
+   "checked": "2026-10-10"
   },
   "u-cha": {
    "routes": [
@@ -3051,11 +3036,6 @@
      "소식",
      "rss",
      "https://www.cha.ac.kr/wp-content/plugins/kboard/rss.php"
-    ],
-    [
-     "소식",
-     "rss",
-     "https://www.cha.ac.kr/feed/"
     ],
     [
      "공지사항",
@@ -3098,8 +3078,8 @@
      "https://www.cha.ac.kr/%ea%b8%80%eb%a1%9c%eb%b2%8c/%ea%b8%80%eb%a1%9c%eb%b2%8c-%ec%8a%a4%ed%86%a0%eb%a6%ac/"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 25,
+   "checked": "2026-10-10"
   },
   "u-ansan": {
    "routes": [
@@ -3129,8 +3109,8 @@
      "https://www.ansan.ac.kr/wellnessfood"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 7,
+   "checked": "2026-10-10"
   },
   "u-yeonsung": {
    "routes": [
@@ -3141,7 +3121,7 @@
     ]
    ],
    "count": 0,
-   "checked": "discover"
+   "checked": "2026-10-10"
   },
   "u-karts": {
    "routes": [
@@ -3186,11 +3166,46 @@
      "https://www.karts.ac.kr/cop/bbs/selectBoardList.do?bbsId=BBSMSTR_000000000022"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 13,
+   "checked": "2026-10-10"
   },
   "u-hufs": {
    "routes": [
+    [
+     "공지",
+     "rss",
+     "https://www.hufs.ac.kr/bbs/hufs/2180/rssList.do?row=50"
+    ],
+    [
+     "학사",
+     "rss",
+     "https://www.hufs.ac.kr/bbs/hufs/2181/rssList.do?row=50"
+    ],
+    [
+     "장학",
+     "rss",
+     "https://www.hufs.ac.kr/bbs/hufs/2182/rssList.do?row=50"
+    ],
+    [
+     "채용",
+     "board",
+     "https://www.hufs.ac.kr/bbs/hufs/2183/artclList.do?layout=unknown"
+    ],
+    [
+     "학술·세미나",
+     "rss",
+     "https://www.hufs.ac.kr/bbs/hufs/2188/rssList.do?row=50"
+    ],
+    [
+     "학생활동",
+     "rss",
+     "https://student.hufs.ac.kr/bbs/student/2436/rssList.do?row=50"
+    ],
+    [
+     "장학",
+     "board",
+     "https://student.hufs.ac.kr/bbs/student/2431/artclList.do?layout=unknown"
+    ],
     [
      "HUFS Professors",
      "board",
@@ -3202,11 +3217,6 @@
      "https://www.hufs.ac.kr/bbs/hufs/2190/artclList.do?layout=unknown"
     ],
     [
-     "공지",
-     "board",
-     "https://www.hufs.ac.kr/bbs/hufs/2180/artclList.do?layout=unknown"
-    ],
-    [
      "공지사항",
      "board",
      "https://iucf.hufs.ac.kr/iucf/iupd.do"
@@ -3215,25 +3225,10 @@
      "홈페이지 유지보수 신청",
      "board",
      "https://www.hufs.ac.kr/temp/help"
-    ],
-    [
-     "학사",
-     "board",
-     "https://www.hufs.ac.kr/bbs/hufs/2181/artclList.do?layout=unknown"
-    ],
-    [
-     "장학",
-     "board",
-     "https://www.hufs.ac.kr/bbs/hufs/2182/artclList.do?layout=unknown"
-    ],
-    [
-     "채용",
-     "board",
-     "https://www.hufs.ac.kr/bbs/hufs/2183/artclList.do?layout=unknown"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 145,
+   "checked": "2026-10-10"
   },
   "u-knsu": {
    "routes": [
@@ -3298,8 +3293,8 @@
      "https://www.knsu.ac.kr/knsu/game/east-asian-games.do"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 28,
+   "checked": "2026-10-10"
   },
   "u-hanyang": {
    "routes": [
@@ -3309,8 +3304,8 @@
      "https://hanyang.ac.kr/news/notice/noticeList.do?searchDivCd=001"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 26,
+   "checked": "2026-10-10"
   },
   "u-hongik": {
    "routes": [
@@ -3360,13 +3355,13 @@
      "https://inno.hongik.ac.kr/inno"
     ],
     [
-     "연설모음",
+     "학사",
      "board",
      "https://www.hongik.ac.kr/kr/introduction/speeches.do"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 18,
+   "checked": "2026-10-10"
   },
   "u-ks": {
    "routes": [
@@ -3411,13 +3406,13 @@
      "http://kscms.ks.ac.kr/kor/CMS/Board/Board.do?mCode=MN092"
     ],
     [
-     "기타",
+     "장학",
      "board",
      "http://kscms.ks.ac.kr/kor/CMS/Board/Board.do?mCode=MN094"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 54,
+   "checked": "2026-10-10"
   },
   "u-bist": {
    "routes": [
@@ -3427,8 +3422,8 @@
      "https://ipsi.bist.ac.kr/ipsi/board/list.php?menu=408&board_id=interviewquestion&re=1"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 10,
+   "checked": "2026-10-10"
   },
   "u-bhu": {
    "routes": [
@@ -3438,8 +3433,8 @@
      "https://ipsi.bhu.ac.kr/ipsi"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 2,
+   "checked": "2026-10-10"
   },
   "u-bwc": {
    "routes": [
@@ -3484,8 +3479,8 @@
      "https://www.bwc.ac.kr/sch/sub06/sub0609_list.asp"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 8,
+   "checked": "2026-10-10"
   },
   "u-kmcu": {
    "routes": [
@@ -3540,8 +3535,8 @@
      "https://www.kmcu.ac.kr/nurse/"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 17,
+   "checked": "2026-10-10"
   },
   "u-ttc": {
    "routes": [
@@ -3561,8 +3556,8 @@
      "https://entr.ttc.ac.kr/contents/application/application03.do"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 5,
+   "checked": "2026-10-10"
   },
   "u-chosun": {
    "routes": [
@@ -3577,8 +3572,8 @@
      "http://www3.chosun.ac.kr/bbs/chosun/119/artclList.do?layout=unknown"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 25,
+   "checked": "2026-10-10"
   },
   "u-honam": {
    "routes": [
@@ -3589,7 +3584,7 @@
     ]
    ],
    "count": 0,
-   "checked": "discover"
+   "checked": "2026-10-10"
   },
   "u-dju": {
    "routes": [
@@ -3654,8 +3649,8 @@
      "https://www.dju.ac.kr/dju/na/ntt/selectNttList.do?mi=4556&bbsId=2104"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 55,
+   "checked": "2026-10-10"
   },
   "u-mokwon": {
    "routes": [
@@ -3680,13 +3675,13 @@
      "https://www.mokwon.ac.kr/kr/html/sub05/050505.html"
     ],
     [
-     "등록금심의위원회",
+     "학사",
      "board",
      "https://www.mokwon.ac.kr/kr/html/sub05/050506.html"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 5,
+   "checked": "2026-10-10"
   },
   "u-pcu": {
    "routes": [
@@ -3751,8 +3746,8 @@
      "https://www.pcu.ac.kr/kor/article/hakdang"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 52,
+   "checked": "2026-10-10"
   },
   "u-wsu": {
    "routes": [
@@ -3762,8 +3757,8 @@
      "https://www.wsu.ac.kr/proc/onestop_list.jsp"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 3,
+   "checked": "2026-10-10"
   },
   "u-konyang": {
    "routes": [
@@ -3818,8 +3813,8 @@
      "https://www.konyang.ac.kr/cop/bbs/BBSMSTR_000000000883/selectBoardList.do"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 36,
+   "checked": "2026-10-10"
   },
   "u-kongju": {
    "routes": [
@@ -3854,29 +3849,8 @@
      "https://www.kongju.ac.kr/bbs/KNU/2165/artclList.do?layout=unknown"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
-  },
-  "u-kornu": {
-   "routes": [
-    [
-     "채용",
-     "board",
-     "https://www.kornu.ac.kr/mbs/kornukr/jsp/album/gallery.jsp?boardType=02&boardId=20&listType=02&boardSeq=4096038&mcategoryId=&id=kornukr_080102000000"
-    ],
-    [
-     "채용",
-     "board",
-     "https://www.kornu.ac.kr/mbs/kornukr/jsp/album/gallery.jsp?boardType=02&boardId=20&listType=02&boardSeq=4101752&mcategoryId=&id=kornukr_080102000000"
-    ],
-    [
-     "채용",
-     "board",
-     "https://www.kornu.ac.kr/mbs/kornukr/jsp/album/gallery.jsp?boardType=02&boardId=20&listType=02&boardSeq=4107005&mcategoryId=&id=kornukr_080102000000"
-    ]
-   ],
-   "count": 0,
-   "checked": "discover"
+   "count": 50,
+   "checked": "2026-10-10"
   },
   "u-bu": {
    "routes": [
@@ -3916,8 +3890,8 @@
      "https://www.bu.ac.kr/bbs/web/838/artclList.do?layout=unknown"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 53,
+   "checked": "2026-10-10"
   },
   "u-sunmoon": {
    "routes": [
@@ -3942,8 +3916,8 @@
      "https://lily.sunmoon.ac.kr/Page2/UnivLife/VirusNotice.aspx"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 19,
+   "checked": "2026-10-10"
   },
   "u-cs": {
    "routes": [
@@ -3998,8 +3972,8 @@
      "https://www.cs.ac.kr/board/president"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 25,
+   "checked": "2026-10-10"
   },
   "u-jeju": {
    "routes": [
@@ -4059,8 +4033,8 @@
      "https://www.jeju.ac.kr/square/doc.htm"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 1,
+   "checked": "2026-10-10"
   },
   "u-dnue": {
    "routes": [
@@ -4125,8 +4099,8 @@
      "http://www.dnue.ac.kr/kor/CMS/Contents/Contents.do?mCode=MN051"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 44,
+   "checked": "2026-10-10"
   },
   "u-gnue": {
    "routes": [
@@ -4137,7 +4111,7 @@
     ]
    ],
    "count": 0,
-   "checked": "discover"
+   "checked": "2026-10-10"
   },
   "u-ginue": {
    "routes": [
@@ -4202,8 +4176,8 @@
      "https://www.ginue.ac.kr/kor/CMS/Board/Board.do?mCode=MN124"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 49,
+   "checked": "2026-10-10"
   },
   "u-cnue": {
    "routes": [
@@ -4253,8 +4227,8 @@
      "https://www.cnue.ac.kr/cnue/news/notice04.do"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 54,
+   "checked": "2026-10-10"
   },
   "u-cje": {
    "routes": [
@@ -4284,7 +4258,7 @@
      "https://www.cje.ac.kr/ctps/"
     ],
     [
-     "자료",
+     "학사",
      "board",
      "https://www.cje.ac.kr/elder_edu/"
     ],
@@ -4294,8 +4268,8 @@
      "https://www.cje.ac.kr/multicul/"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 15,
+   "checked": "2026-10-10"
   },
   "u-cu": {
    "routes": [
@@ -4360,8 +4334,8 @@
      "https://www.cu.ac.kr/plaza/community/freein"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 101,
+   "checked": "2026-10-10"
   },
   "u-daegu": {
    "routes": [
@@ -4381,8 +4355,8 @@
      "https://www.daegu.ac.kr/article/DG164/list"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 28,
+   "checked": "2026-10-10"
   },
   "u-dgau": {
    "routes": [
@@ -4432,8 +4406,8 @@
      "https://www.dgau.ac.kr/notice_etc"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 3,
+   "checked": "2026-10-10"
   },
   "u-dhu": {
    "routes": [
@@ -4493,8 +4467,8 @@
      "https://www.dhu.ac.kr/HOME/exchange"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 22,
+   "checked": "2026-10-10"
   },
   "u-daeshin": {
    "routes": [
@@ -4509,21 +4483,11 @@
      "https://www.daeshin.ac.kr/html/02_admission/"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 14,
+   "checked": "2026-10-10"
   },
   "u-dyu": {
    "routes": [
-    [
-     "소식",
-     "rss",
-     "https://www.dyu.ac.kr/wp-content/plugins/kboard/rss.php"
-    ],
-    [
-     "소식",
-     "rss",
-     "https://www.dyu.ac.kr/feed/"
-    ],
     [
      "공모전",
      "board",
@@ -4565,19 +4529,8 @@
      "https://www.dyu.ac.kr/intro-2-2/corporation/"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
-  },
-  "u-yu": {
-   "routes": [
-    [
-     "입찰",
-     "rss",
-     "https://adm.yu.ac.kr/acportal/websquare/websquare.html?w2xPath=/acportal/com/cmmn/main/CmmnMainFrame.xml"
-    ]
-   ],
-   "count": 0,
-   "checked": "discover"
+   "count": 24,
+   "checked": "2026-10-10"
   },
   "u-dankook": {
    "routes": [
@@ -4587,8 +4540,8 @@
      "https://www.dankook.ac.kr/web/kor/graduate_school"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 12,
+   "checked": "2026-10-10"
   },
   "u-sjs": {
    "routes": [
@@ -4599,7 +4552,7 @@
     ]
    ],
    "count": 0,
-   "checked": "discover"
+   "checked": "2026-10-10"
   },
   "u-suwoncatholic": {
    "routes": [
@@ -4610,7 +4563,7 @@
     ]
    ],
    "count": 0,
-   "checked": "discover"
+   "checked": "2026-10-10"
   },
   "u-shinhan": {
    "routes": [
@@ -4620,8 +4573,8 @@
      "https://www.shinhan.ac.kr/bbs/kr/191/artclList.do?layout=unknown"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 2,
+   "checked": "2026-10-10"
   },
   "u-acts": {
    "routes": [
@@ -4686,8 +4639,8 @@
      "https://www.acts.ac.kr/modules/board/bd_list.asp?id=acts34&left=acts8_3"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 16,
+   "checked": "2026-10-10"
   },
   "u-uc": {
    "routes": [
@@ -4702,8 +4655,8 @@
      "https://www.uc.ac.kr/ipsi/CMS/Board/Board.do?mCode=MN047"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 11,
+   "checked": "2026-10-10"
   },
   "u-gtec": {
    "routes": [
@@ -4728,8 +4681,8 @@
      "https://www.gtec.ac.kr/design"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 8,
+   "checked": "2026-10-10"
   },
   "u-gimhae": {
    "routes": [
@@ -4739,8 +4692,8 @@
      "https://ipsi.gimhae.ac.kr/ipsi"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 5,
+   "checked": "2026-10-10"
   },
   "u-yc": {
    "routes": [
@@ -4750,8 +4703,8 @@
      "https://www.yc.ac.kr/enter"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 4,
+   "checked": "2026-10-10"
   },
   "u-cmu": {
    "routes": [
@@ -4761,8 +4714,8 @@
      "https://www.cmu.ac.kr/homepage/default/page/subLocation.do?menu_no=10010110"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 1,
+   "checked": "2026-10-10"
   },
   "u-cue": {
    "routes": [
@@ -4827,8 +4780,8 @@
      "http://www.cue.ac.kr/kor/CMS/Board/Board.do?mCode=MN077"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 43,
+   "checked": "2026-10-10"
   },
   "u-kaist": {
    "routes": [
@@ -4873,8 +4826,8 @@
      "https://www.kaist.ac.kr/kr/html/footer/080701.html"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 1,
+   "checked": "2026-10-10"
   },
   "u-unist": {
    "routes": [
@@ -4934,8 +4887,8 @@
      "https://www.unist.ac.kr/unist/education/forms.do"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 14,
+   "checked": "2026-10-10"
   },
   "u-ut": {
    "routes": [
@@ -4970,8 +4923,8 @@
      "https://www.ut.ac.kr/cop/bbs/BBSMSTR_000000000076/selectBoardList.do"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 17,
+   "checked": "2026-10-10"
   },
   "u-kdu": {
    "routes": [
@@ -4991,8 +4944,8 @@
      "https://www.kdu.ac.kr/home/sub.do?mncd=182"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 12,
+   "checked": "2026-10-10"
   },
   "u-seowon": {
    "routes": [
@@ -5012,8 +4965,8 @@
      "https://www.seowon.ac.kr/bbs/seowon/402/artclList.do?layout=unknown"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 8,
+   "checked": "2026-10-10"
   },
   "u-semyung": {
    "routes": [
@@ -5078,8 +5031,8 @@
      "https://www.semyung.ac.kr/prog/vwBoard/bbs03/kor/sub08_02_06/list.do"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 28,
+   "checked": "2026-10-10"
   },
   "u-u1": {
    "routes": [
@@ -5089,8 +5042,8 @@
      "https://www.u1.ac.kr/html/kr/info/info_0502.html"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 3,
+   "checked": "2026-10-10"
   },
   "u-jwu": {
    "routes": [
@@ -5155,8 +5108,8 @@
      "http://cnse.jwu.ac.kr/electra/site/deptSiteView.jwu"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 5,
+   "checked": "2026-10-10"
   },
   "u-cju": {
    "routes": [
@@ -5176,8 +5129,8 @@
      "https://www.cju.ac.kr/ipsi/selectBbsNttList.do?bbsNo=87&key=800&searchCtgry=%EC%A0%95%EC%8B%9C&"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 18,
+   "checked": "2026-10-10"
   },
   "u-iscu": {
    "routes": [
@@ -5188,7 +5141,7 @@
     ]
    ],
    "count": 0,
-   "checked": "discover"
+   "checked": "2026-10-10"
   },
   "u-world": {
    "routes": [
@@ -5223,8 +5176,8 @@
      "https://www.world.ac.kr/com/bbs/RecruitPro/selectBbsList.do?bbsId=0000000338"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 5,
+   "checked": "2026-10-10"
   },
   "u-hycu": {
    "routes": [
@@ -5235,7 +5188,7 @@
     ]
    ],
    "count": 0,
-   "checked": "discover"
+   "checked": "2026-10-10"
   },
   "u-bdu": {
    "routes": [
@@ -5270,8 +5223,8 @@
      "https://www.bdu.ac.kr/bduhome/sub01_06_04.do"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 18,
+   "checked": "2026-10-10"
   },
   "u-joongbu": {
    "routes": [
@@ -5282,7 +5235,7 @@
     ]
    ],
    "count": 0,
-   "checked": "discover"
+   "checked": "2026-10-10"
   },
   "u-hanseo": {
    "routes": [
@@ -5292,8 +5245,8 @@
      "https://www.hanseo.ac.kr/boardCnts/list.do?boardID=34&m=0901&s=hs"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 9,
+   "checked": "2026-10-10"
   },
   "u-jesus": {
    "routes": [
@@ -5359,7 +5312,7 @@
     ]
    ],
    "count": 0,
-   "checked": "discover"
+   "checked": "2026-10-10"
   },
   "u-kau": {
    "routes": [
@@ -5424,8 +5377,8 @@
      "https://career.kau.ac.kr/ko/dataroom"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 85,
+   "checked": "2026-10-10"
   },
   "u-uhs": {
    "routes": [
@@ -5450,8 +5403,8 @@
      "https://www.uhs.ac.kr/portalBbs/uhs/7/list.do?layout=unknown"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 21,
+   "checked": "2026-10-10"
   },
   "u-hsmu": {
    "routes": [
@@ -5511,8 +5464,8 @@
      "https://www.hsmu.ac.kr/web/contents/HSMU10104000.do"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 18,
+   "checked": "2026-10-10"
   },
   "u-kangwon": {
    "routes": [
@@ -5577,8 +5530,8 @@
      "https://www.kangwon.ac.kr/ko/bbs/760/list.do"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 105,
+   "checked": "2026-10-10"
   },
   "u-nonghyup": {
    "routes": [
@@ -5643,8 +5596,8 @@
      "https://www.nonghyup.ac.kr/bbs/bbs_list.asp?tbl=m01029"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 13,
+   "checked": "2026-10-10"
   },
   "u-du": {
    "routes": [
@@ -5709,8 +5662,8 @@
      "https://www.du.ac.kr/submenu.do?menuUrl=k8b%2fCUaWlntKYwhT%2fh%2bKUA%3d%3d&"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 12,
+   "checked": "2026-10-10"
   },
   "u-doowon": {
    "routes": [
@@ -5735,8 +5688,8 @@
      "https://www.doowon.ac.kr/bbs/kr/71/artclList.do?layout=unknown"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 22,
+   "checked": "2026-10-10"
   },
   "u-kbc": {
    "routes": [
@@ -5801,8 +5754,8 @@
      "https://www.kbc.ac.kr/kor/CMS/Board/Board.do?mCode=MN243"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 10,
+   "checked": "2026-10-10"
   },
   "u-tk": {
    "routes": [
@@ -5857,8 +5810,8 @@
      "https://www.tk.ac.kr/improve2/improve_list.php"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 40,
+   "checked": "2026-10-10"
   },
   "u-mkc": {
    "routes": [
@@ -5873,8 +5826,8 @@
      "https://www.mkc.ac.kr/ipsi/"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 3,
+   "checked": "2026-10-10"
   },
   "u-pohang": {
    "routes": [
@@ -5885,7 +5838,7 @@
     ]
    ],
    "count": 0,
-   "checked": "discover"
+   "checked": "2026-10-10"
   },
   "u-hosan": {
    "routes": [
@@ -5895,8 +5848,8 @@
      "https://www.hosan.ac.kr/front/"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 7,
+   "checked": "2026-10-10"
   },
   "u-koje": {
    "routes": [
@@ -5961,8 +5914,8 @@
      "https://www.koje.ac.kr/www/board/19"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 14,
+   "checked": "2026-10-10"
   },
   "u-ulsan": {
    "routes": [
@@ -6027,8 +5980,8 @@
      "http://www.ulsan.ac.kr/kor/CMS/Board/Board.do?mCode=MN107"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 46,
+   "checked": "2026-10-10"
   },
   "u-dcatholic": {
    "routes": [
@@ -6044,7 +5997,7 @@
     ]
    ],
    "count": 0,
-   "checked": "discover"
+   "checked": "2026-10-10"
   },
   "u-sejong-hongik": {
    "routes": [
@@ -6109,8 +6062,8 @@
      "https://sejong.hongik.ac.kr/kr/introduction/university-itselfevaluation.do"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 29,
+   "checked": "2026-10-10"
   },
   "u-gachon": {
    "routes": [
@@ -6150,8 +6103,8 @@
      "https://admission.gachon.ac.kr/admission/html/counsel/result.asp"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 24,
+   "checked": "2026-10-10"
   },
   "u-kangnam": {
    "routes": [
@@ -6172,7 +6125,7 @@
     ]
    ],
    "count": 0,
-   "checked": "discover"
+   "checked": "2026-10-10"
   },
   "u-kduniv": {
    "routes": [
@@ -6232,8 +6185,8 @@
      "http://www.kduniv.ac.kr/kor/CMS/Board/Board.do?mCode=MN360"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 21,
+   "checked": "2026-10-10"
   },
   "u-khu": {
    "routes": [
@@ -6278,8 +6231,8 @@
      "https://www.khu.ac.kr/kor/user/bbs/BMSR00057/list.do?menuNo=200359"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 21,
+   "checked": "2026-10-10"
   },
   "u-korea": {
    "routes": [
@@ -6305,7 +6258,7 @@
     ]
    ],
    "count": 0,
-   "checked": "discover"
+   "checked": "2026-10-10"
   },
   "u-kookmin": {
    "routes": [
@@ -6342,7 +6295,7 @@
     [
      "행사 일정",
      "board",
-     "https://80.kookmin.ac.kr/?utm_source=www&utm_medium=퀵링크&utm_campaign=메인페이지요소별클릭&utm_content=개교 80주년#kmu_ui_slogan"
+     "https://80.kookmin.ac.kr/?utm_source=www&utm_medium=퀵링크&utm_campaign=메인페이지요소별클릭&utm_content=개교 80주년"
     ],
     [
      "기타신규사업공지",
@@ -6360,8 +6313,8 @@
      "http://research.kookmin.ac.kr/information/ntis"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 30,
+   "checked": "2026-10-10"
   },
   "u-dongguk": {
    "routes": [
@@ -6426,8 +6379,8 @@
      "https://www.dongguk.edu/article/INTSTUNOTICE/list"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 72,
+   "checked": "2026-10-10"
   },
   "u-dongduk": {
    "routes": [
@@ -6457,13 +6410,13 @@
      "https://www.dongduk.ac.kr/www/contents/kor-budget.do"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 24,
+   "checked": "2026-10-10"
   },
   "u-syu": {
    "routes": [
     [
-     "소식",
+     "채용",
      "rss",
      "https://www.syu.ac.kr/feed/"
     ],
@@ -6523,8 +6476,8 @@
      "https://www.syu.ac.kr/lab"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 54,
+   "checked": "2026-10-10"
   },
   "u-smu": {
    "routes": [
@@ -6534,24 +6487,19 @@
      "https://www.smu.ac.kr/kor/intro/sympathyList.do"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 7,
+   "checked": "2026-10-10"
   },
   "u-kmou": {
    "routes": [
     [
      "R&D알리미",
-     "rss",
-     "https://www.kmou.ac.kr/kmou/rss/rnd/unRndRss.do?mi=4844#sideContent"
-    ],
-    [
-     "R&D알리미",
      "board",
-     "https://kmou.ac.kr/kmou/rss/rnd/unRndRss.do?mi=4844#sideContent"
+     "https://kmou.ac.kr/kmou/rss/rnd/unRndRss.do?mi=4844"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 17,
+   "checked": "2026-10-10"
   },
   "u-tu": {
    "routes": [
@@ -6611,13 +6559,13 @@
      "https://www.tu.ac.kr/tuhome/sub07_01_13.do"
     ],
     [
-     "등록",
+     "학사",
      "board",
      "https://www.tu.ac.kr/tuhome/sub07_01_04.do"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 14,
+   "checked": "2026-10-10"
   },
   "u-dongseo": {
    "routes": [
@@ -6682,8 +6630,8 @@
      "https://uni.dongseo.ac.kr/lifelong"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 57,
+   "checked": "2026-10-10"
   },
   "u-donga": {
    "routes": [
@@ -6748,8 +6696,8 @@
      "https://www.donga.ac.kr/kor/CMS/Board/Board.do?mCode=MN312"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 75,
+   "checked": "2026-10-10"
   },
   "u-deu": {
    "routes": [
@@ -6814,8 +6762,8 @@
      "https://www.deu.ac.kr/www/deu-external.do"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 45,
+   "checked": "2026-10-10"
   },
   "u-cup": {
    "routes": [
@@ -6880,8 +6828,8 @@
      "https://www.cup.ac.kr/entrance/home/front/board/List588.do"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 35,
+   "checked": "2026-10-10"
   },
   "u-silla": {
    "routes": [
@@ -6921,8 +6869,8 @@
      "https://www.silla.ac.kr/ko?pCode=scnotice"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 42,
+   "checked": "2026-10-10"
   },
   "u-knu": {
    "routes": [
@@ -6987,8 +6935,8 @@
      "https://www.knu.ac.kr/wbbs/wbbs/bbs/btin/list.action?bbs_cde=8&menu_idx=220"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 58,
+   "checked": "2026-10-10"
   },
   "u-kmu": {
    "routes": [
@@ -7043,7 +6991,7 @@
      "http://www.kmu.ac.kr/pages/rssView.jsp?mnu_uid=147"
     ],
     [
-     "소식",
+     "입찰",
      "rss",
      "http://www.kmu.ac.kr/pages/rssView.jsp?mnu_uid=148"
     ],
@@ -7053,8 +7001,8 @@
      "http://www.kmu.ac.kr/pages/rssView.jsp?mnu_uid=3445"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 110,
+   "checked": "2026-10-10"
   },
   "u-inu": {
    "routes": [
@@ -7099,8 +7047,8 @@
      "https://www.inu.ac.kr:443/bbs/inu/2611/artclList.do?layout=unknown"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 32,
+   "checked": "2026-10-10"
   },
   "u-inha": {
    "routes": [
@@ -7145,8 +7093,8 @@
      "https://www.inha.ac.kr/bbs/kr/8/artclList.do?layout=unknown"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 47,
+   "checked": "2026-10-10"
   },
   "u-gwangju": {
    "routes": [
@@ -7156,8 +7104,8 @@
      "https://jobpluscenter.gwangju.ac.kr/?site=job"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 17,
+   "checked": "2026-10-10"
   },
   "u-nambu": {
    "routes": [
@@ -7167,8 +7115,8 @@
      "https://ipsi.nambu.ac.kr/board/IPSI_BOARD_002/boardList.do?menuCd=ipsi004003"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 3,
+   "checked": "2026-10-10"
   },
   "u-songwon": {
    "routes": [
@@ -7233,8 +7181,8 @@
      "https://www.songwon.ac.kr/sb/SE_Board.asp?boardID=K010603&pgKey=164"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 23,
+   "checked": "2026-10-10"
   },
   "u-jnu": {
    "routes": [
@@ -7299,8 +7247,8 @@
      "https://www.jnu.ac.kr/MainGuide/Policy/Protection"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 55,
+   "checked": "2026-10-10"
   },
   "u-mcu": {
    "routes": [
@@ -7365,8 +7313,8 @@
      "https://www.mcu.ac.kr/bb/bbBoard.php?boardID=PROMOTION&pageID=mcu0709000000"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 15,
+   "checked": "2026-10-10"
   },
   "u-youngsan": {
    "routes": [
@@ -7431,8 +7379,8 @@
      "https://youngsan.ac.kr/bbs/board.php?bo_table=4_6"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 11,
+   "checked": "2026-10-10"
   },
   "u-kentech": {
    "routes": [
@@ -7443,7 +7391,7 @@
     ]
    ],
    "count": 0,
-   "checked": "discover"
+   "checked": "2026-10-10"
   },
   "u-kumoh": {
    "routes": [
@@ -7483,8 +7431,8 @@
      "https://www.kumoh.ac.kr/ko/sub01_04.do"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 55,
+   "checked": "2026-10-10"
   },
   "u-hj": {
    "routes": [
@@ -7499,8 +7447,8 @@
      "https://www.hj.ac.kr/hj/na/ntt/selectNttList.do?mi=200000461&bbsId=1010663"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 16,
+   "checked": "2026-10-10"
   },
   "u-paekche": {
    "routes": [
@@ -7550,8 +7498,8 @@
      "https://www.paekche.ac.kr/ict/pms/board.php?bo_table=main_room"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 19,
+   "checked": "2026-10-10"
   },
   "u-kijeon": {
    "routes": [
@@ -7616,8 +7564,8 @@
      "https://www.kijeon.ac.kr/kor/CMS/Board/Board.do?mCode=MN372"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 32,
+   "checked": "2026-10-10"
   },
   "u-jvision": {
    "routes": [
@@ -7682,8 +7630,8 @@
      "https://www.jvision.ac.kr?menu=245"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 9,
+   "checked": "2026-10-10"
   },
   "u-cntu": {
    "routes": [
@@ -7738,8 +7686,8 @@
      "https://www.cntu.ac.kr/rntc"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 9,
+   "checked": "2026-10-10"
   },
   "u-osan": {
    "routes": [
@@ -7754,8 +7702,8 @@
      "https://www.osan.ac.kr/?menuno=127"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 12,
+   "checked": "2026-10-10"
   },
   "u-ysc": {
    "routes": [
@@ -7820,8 +7768,8 @@
      "http://www.ysc.ac.kr/kor/CMS/Board/Board.do?mCode=MN164"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 19,
+   "checked": "2026-10-10"
   },
   "u-yuhan": {
    "routes": [
@@ -7886,8 +7834,8 @@
      "https://www.yuhan.ac.kr/bbs/data/list.do?menu_idx=3162"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 29,
+   "checked": "2026-10-10"
   },
   "u-ck": {
    "routes": [
@@ -7952,8 +7900,8 @@
      "https://www.ck.ac.kr/archives/category/ck-notice/general"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 7,
+   "checked": "2026-10-10"
   },
   "u-ktc": {
    "routes": [
@@ -7978,8 +7926,8 @@
      "https://www.ktc.ac.kr/board/board007"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 8,
+   "checked": "2026-10-10"
   },
   "u-khcu": {
    "routes": [
@@ -8024,8 +7972,8 @@
      "https://www.khcu.ac.kr/notice/detail.do?category=BUSINESS&seq=200253738"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 14,
+   "checked": "2026-10-10"
   },
   "u-scau": {
    "routes": [
@@ -8036,7 +7984,7 @@
     ]
    ],
    "count": 0,
-   "checked": "discover"
+   "checked": "2026-10-10"
   },
   "u-cufs": {
    "routes": [
@@ -8081,8 +8029,8 @@
      "https://www.cufs.ac.kr/bbs/list.do?bbsId=BBS000302&menuId=MENU000756"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 37,
+   "checked": "2026-10-10"
   },
   "u-sdu": {
    "routes": [
@@ -8093,7 +8041,7 @@
     ]
    ],
    "count": 0,
-   "checked": "discover"
+   "checked": "2026-10-10"
   },
   "u-snjc": {
    "routes": [
@@ -8143,8 +8091,8 @@
      "https://www.snjc.ac.kr/college/highlight_list.php"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 24,
+   "checked": "2026-10-10"
   },
   "u-sewu": {
    "routes": [
@@ -8154,8 +8102,8 @@
      "https://www.sewu.ac.kr/admission/"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 1,
+   "checked": "2026-10-10"
   },
   "u-hywoman": {
    "routes": [
@@ -8165,34 +8113,8 @@
      "https://www.hywoman.ac.kr?MENU_ID=2190"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
-  },
-  "u-kit": {
-   "routes": [
-    [
-     "기타",
-     "rss",
-     "https://11-apply.kit.ac.kr/websquare/websquare.jsp?w2xPath=/html/aply/anun/AnunLoginTret.xml"
-    ],
-    [
-     "자료",
-     "rss",
-     "https://04-apply.kit.ac.kr/websquare/websquare.jsp?w2xPath=/html/aply/anun/AnunLoginTret.xml"
-    ],
-    [
-     "학사",
-     "rss",
-     "https://91-apply.kit.ac.kr/websquare/websquare.jsp?w2xPath=/html/aply/anun/AnunLoginTret.xml"
-    ],
-    [
-     "입학",
-     "rss",
-     "https://71-apply.kit.ac.kr/websquare/websquare.jsp?w2xPath=/html/aply/anun/AnunLoginTret.xml"
-    ]
-   ],
-   "count": 0,
-   "checked": "discover"
+   "count": 4,
+   "checked": "2026-10-10"
   },
   "u-dit": {
    "routes": [
@@ -8257,19 +8179,8 @@
      "https://www.dit.ac.kr/scl/"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
-  },
-  "u-skuniv": {
-   "routes": [
-    [
-     "소식",
-     "rss",
-     "https://www.skuniv.ac.kr/feed"
-    ]
-   ],
-   "count": 0,
-   "checked": "discover"
+   "count": 9,
+   "checked": "2026-10-10"
   },
   "u-seoultech": {
    "routes": [
@@ -8319,8 +8230,8 @@
      "https://www.seoultech.ac.kr/service"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 60,
+   "checked": "2026-10-10"
   },
   "u-skku": {
    "routes": [
@@ -8350,21 +8261,11 @@
      "https://www.skku.edu/skku/campus/skk_comm/prs6.do"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 32,
+   "checked": "2026-10-10"
   },
   "u-hsc": {
    "routes": [
-    [
-     "학사",
-     "rss",
-     "https://nhis.hsc.ac.kr/websquare/websquare.jsp?w2xPath=/ui/system/login.xml"
-    ],
-    [
-     "학생정보시스템",
-     "rss",
-     "https://nhis.hsc.ac.kr/websquare/websquare.jsp?w2xPath=/ui/system/login_std.xml"
-    ],
     [
      "입학",
      "board",
@@ -8416,8 +8317,8 @@
      "https://www.hsc.ac.kr/site/hsc/boardList.do?boardSeq=141&key=45"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 33,
+   "checked": "2026-10-10"
   },
   "u-ok": {
    "routes": [
@@ -8482,8 +8383,8 @@
      "https://www.ok.ac.kr/www/selectBbsNttList.do?bbsNo=447&key=5074"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 10,
+   "checked": "2026-10-10"
   },
   "u-sungshin": {
    "routes": [
@@ -8548,8 +8449,8 @@
      "https://www.sungshin.ac.kr/bbs/main_kor/3207/artclList.do?layout=unknown"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 71,
+   "checked": "2026-10-10"
   },
   "u-sejong": {
    "routes": [
@@ -8569,8 +8470,8 @@
      "https://www.sejong.ac.kr/kor/intro/notice9.do"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 7,
+   "checked": "2026-10-10"
   },
   "u-sookmyung": {
    "routes": [
@@ -8605,7 +8506,7 @@
      "https://www.sookmyung.ac.kr/kr/university-life/document-form.do"
     ],
     [
-     "참여",
+     "학사",
      "board",
      "https://www.sookmyung.ac.kr/kr/intro/speech21.do"
     ],
@@ -8615,16 +8516,11 @@
      "https://www.sookmyung.ac.kr/kr/information-use/privacy-history.do"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 24,
+   "checked": "2026-10-10"
   },
   "u-ssu": {
    "routes": [
-    [
-     "소식",
-     "rss",
-     "https://ssu.ac.kr/feed/"
-    ],
     [
      "입학",
      "board",
@@ -8641,8 +8537,8 @@
      "https://scatch.ssu.ac.kr/%ea%b3%b5%ec%a7%80%ec%82%ac%ed%95%ad/"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 20,
+   "checked": "2026-10-10"
   },
   "u-ewha": {
    "routes": [
@@ -8667,8 +8563,8 @@
      "https://www.ewha.ac.kr/ewha/etc/safety.do"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 38,
+   "checked": "2026-10-10"
   },
   "u-puts": {
    "routes": [
@@ -8688,8 +8584,8 @@
      "https://www.puts.ac.kr/www/sub/haksa_dw/"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 11,
+   "checked": "2026-10-10"
   },
   "u-cau": {
    "routes": [
@@ -8704,8 +8600,8 @@
      "https://cauin.cau.ac.kr/cauin/"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 7,
+   "checked": "2026-10-10"
   },
   "u-chugye": {
    "routes": [
@@ -8770,8 +8666,8 @@
      "https://www.chugye.ac.kr/mbs/university/jsp/board/list.jsp?boardId=5203497&id=university_052300000000"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 26,
+   "checked": "2026-10-10"
   },
   "u-postech": {
    "routes": [
@@ -8811,8 +8707,8 @@
      "https://www.postech.ac.kr/kor/usage-guide/privacy_policy.do"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 5,
+   "checked": "2026-10-10"
   },
   "u-kaya": {
    "routes": [
@@ -8877,8 +8773,8 @@
      "https://www.kaya.ac.kr/Home/Menu.do?action=MENU_0000000005"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 26,
+   "checked": "2026-10-10"
   },
   "u-ysu": {
    "routes": [
@@ -8943,8 +8839,8 @@
      "http://www.ysu.ac.kr/kor/CMS/Board/Board.do?mCode=MN282"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 15,
+   "checked": "2026-10-10"
   },
   "u-inje": {
    "routes": [
@@ -8954,8 +8850,8 @@
      "https://www.inje.ac.kr/sotong/board/list.asp?m=2"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 6,
+   "checked": "2026-10-10"
   },
   "u-wku": {
    "routes": [
@@ -8965,8 +8861,8 @@
      "https://www.wku.ac.kr/feed"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 10,
+   "checked": "2026-10-10"
   },
   "u-jbnu": {
    "routes": [
@@ -8986,13 +8882,13 @@
      "https://fund.jbnu.ac.kr/notice/233"
     ],
     [
-     "소식",
+     "장학",
      "board",
      "https://fund.jbnu.ac.kr/notice/228"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 2,
+   "checked": "2026-10-10"
   },
   "u-jj": {
    "routes": [
@@ -9002,8 +8898,8 @@
      "https://www.jj.ac.kr/iphak"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 5,
+   "checked": "2026-10-10"
   },
   "u-mokpo": {
    "routes": [
@@ -9013,8 +8909,8 @@
      "https://scholarship.mokpo.ac.kr/bbs/scholarship/600/artclList.do?layout=unknown"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 9,
+   "checked": "2026-10-10"
   },
   "u-mmu": {
    "routes": [
@@ -9059,8 +8955,8 @@
      "https://www.mmu.ac.kr/OJ"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 27,
+   "checked": "2026-10-10"
   },
   "u-scnu": {
    "routes": [
@@ -9125,8 +9021,8 @@
      "https://www.scnu.ac.kr/SCNU/na/ntt/selectNttList.do?mi=1132&bbsId=1041"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 25,
+   "checked": "2026-10-10"
   },
   "u-kycu": {
    "routes": [
@@ -9166,8 +9062,8 @@
      "https://www.kycu.ac.kr/cop/bbs/BBSMSTR_000000000231/selectBoardList.do"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 6,
+   "checked": "2026-10-10"
   },
   "u-gjcu": {
    "routes": [
@@ -9177,8 +9073,8 @@
      "https://sangdam.gjcu.ac.kr/workframe.asp"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 2,
+   "checked": "2026-10-10"
   },
   "u-dcu": {
    "routes": [
@@ -9218,8 +9114,8 @@
      "https://www.dcu.ac.kr/aboutDCU/dcuStory_0101.htm"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 33,
+   "checked": "2026-10-10"
   },
   "u-yncu": {
    "routes": [
@@ -9244,8 +9140,8 @@
      "https://www.yncu.ac.kr/pages/introduction/introduction_04.asp?bcode=introduction"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 6,
+   "checked": "2026-10-10"
   },
   "u-dongyang": {
    "routes": [
@@ -9270,8 +9166,8 @@
      "https://www.dongyang.ac.kr/bbs/dmu/762/artclList.do?layout=unknown"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 14,
+   "checked": "2026-10-10"
   },
   "u-ghu": {
    "routes": [
@@ -9336,8 +9232,8 @@
      "https://www.ghu.ac.kr/Department/TeethHealth/"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 5,
+   "checked": "2026-10-10"
   },
   "u-seoyeong": {
    "routes": [
@@ -9347,8 +9243,8 @@
      "https://www.seoyeong.ac.kr/syu/na/ntt/selectNttList.do?mi=2285&bbsId=49&bsType=all"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 10,
+   "checked": "2026-10-10"
   },
   "u-cnc": {
    "routes": [
@@ -9413,8 +9309,8 @@
      "https://www.cnc.ac.kr/board/?board=counsel&site=cnc&mn=143"
     ]
    ],
-   "count": 0,
-   "checked": "discover"
+   "count": 8,
+   "checked": "2026-10-10"
   }
  }
 }
