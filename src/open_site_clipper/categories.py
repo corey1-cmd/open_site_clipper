@@ -248,7 +248,7 @@ SPECIFIC = frozenset({"입학", "장학", "학사", "채용", "입찰", "인사"
 # 글이 무엇인지 분명히 말하는 말만 본다. 순서가 우선순위다 —
 # '국가근로장학생 모집'은 장학, '입학처 계약직 직원 채용'은 채용.
 TITLE_HINTS: tuple[tuple[str, tuple[str, ...]], ...] = (
-    ("장학", ("장학", "학자금", "scholarship")),
+    ("장학", ("장학", "학자금", "국가근로", "scholarship")),
     (
         "채용",
         ("채용", "임용", "공채", "구인", "인턴", "취업", "일자리", "recruit"),
@@ -314,12 +314,16 @@ def notice_category(board_label: str, title: str) -> str:
     return for_title(title) or board_label
 
 
-def dominant(titles: list[str], *, share: float = 0.4, minimum: int = 2) -> str:
+def dominant(titles: list[str], *, share: float = 0.6, minimum: int = 2) -> str:
     """제목들에서 우세한 갈래 — 게시판 이름을 모를 때 내용으로 이름을 붙인다.
 
     홈의 탭마다 'READ'·'더보기'만 달린 학교가 있다(한국외대: 공지·학사·장학·채용
     네 게시판이 전부 'READ'). 장학 게시판은 제목의 대부분에 '장학'이 들어가므로
     내용으로 알아볼 수 있다. 섞인 게시판(일반 공지)은 이름을 붙이지 않는다("").
+
+    문턱이 60%인 까닭: 장학 기관의 **일반 공지**도 절반쯤은 학자금 글이다(한국장학재단
+    실측 ~45%). 40%로 두었더니 그 게시판이 '장학'이 되어 창업센터 입주기업 공지까지
+    장학으로 분류됐다. 이름을 붙이지 않아도 글마다 제목으로 다시 나누므로 잃는 것은 없다.
     """
     counts: dict[str, int] = {}
     total = 0

@@ -294,3 +294,19 @@ def test_strip_meaningless_words_around_a_label():
     assert c.strip_meaningless("HUFS Professors 더보기") == "HUFS Professors"
     assert c.strip_meaningless("READ") == ""
     assert c.is_meaningless("READ") and c.is_meaningless("read more")
+
+
+def test_a_scholarship_agencys_general_board_is_not_renamed_scholarship():
+    """한국장학재단 공지는 절반쯤이 학자금 글 — 그래도 게시판 이름을 '장학'으로 짓지 않는다."""
+    from open_site_clipper import categories as c
+
+    titles = [
+        "학자금대출 지원기관 모집",
+        "경상북도 학자금대출 이자지원",
+        "입주기업 대상 기술 보호 사업 안내",
+        "입주기업 ESG 컨설팅 참여 기업 조사",
+        "예산군 학자금대출 이자지원",
+        "고교 취업연계 장려금 매뉴얼",
+    ]
+    assert c.dominant(titles) == ""
+    assert c.for_title("2학기 9월 국가근로 출근부 마감 안내") == "장학"

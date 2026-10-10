@@ -66,10 +66,14 @@ def _is_date_only(text: str) -> bool:
     return len(rest) <= 4  # '년월일'·요일 한 글자 정도만 남아야 한다
 
 
+# 잠긴 글 — 제목 대신 '비공개 - 비밀글이며 관리자와 작성자만 …' 이 나온다(민원·문의 게시판).
+_SECRET_RE = re.compile(r"^(?:비공개|비밀글)|비밀글(?:이며|입니다)|작성자만 열람", re.I)
+
+
 def _is_junk_title(text: str) -> bool:
-    """제목으로 볼 수 없는 칸 — 첨부 목록·주소·지나치게 긴 메뉴 뭉치."""
+    """제목으로 볼 수 없는 칸 — 첨부 목록·주소·잠긴 글·지나치게 긴 메뉴 뭉치."""
     t = " ".join((text or "").split())
-    if not t or _ATTACH_RE.match(t) or _URL_TITLE_RE.match(t):
+    if not t or _ATTACH_RE.match(t) or _URL_TITLE_RE.match(t) or _SECRET_RE.search(t):
         return True
     # 메뉴 전체가 한 칸에 뭉쳐 들어온 경우(성평등가족부·식약처에서 관측)
     return len(t) > 120

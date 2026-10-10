@@ -273,3 +273,11 @@ def test_search_result_pages_are_not_boards():
 def test_page_label_splits_glued_hyphen_names():
     page = "<title>관세청-공지사항</title>".encode()
     assert govweb.page_label(page) == "공지사항"
+
+
+def test_locked_posts_are_not_notices():
+    page = """<table>
+    <tr><td><a href="/v1">비공개 - 비밀글이며 관리자와 작성자만 열람할 수 있습니다.</a></td><td>2026.10.07</td></tr>
+    <tr><td><a href="/v2">비밀글입니다</a></td><td>2026.10.06</td></tr>
+    </table>"""
+    assert govweb.parse_list(page.encode(), "https://x.ac.kr/temp/help") == []

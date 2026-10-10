@@ -2619,7 +2619,7 @@
   "pub-kosaf": {
    "routes": [
     [
-     "장학",
+     "공지",
      "board",
      "https://www.kosaf.go.kr/ko/notice.do?pg=PTKONotice_List&naviParam=DN,08,00,00"
     ],
@@ -3635,11 +3635,6 @@
      "공지사항",
      "board",
      "https://iucf.hufs.ac.kr/iucf/iupd.do"
-    ],
-    [
-     "홈페이지 유지보수 신청",
-     "board",
-     "https://www.hufs.ac.kr/temp/help"
     ]
    ],
    "count": 145,
