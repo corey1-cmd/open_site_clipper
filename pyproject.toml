@@ -58,4 +58,4 @@ ignore = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["src"]
+pythonpath = ["src", "."]  # tests 끼리 import(tests.test_deeplink) — `pytest` 로 불러도
