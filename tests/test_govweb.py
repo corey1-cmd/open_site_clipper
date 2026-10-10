@@ -373,3 +373,53 @@ def test_spam_and_user_ids_are_not_titles():
         "Notice",
     ):
         assert not govweb._is_junk_title(ok), ok
+
+
+def test_attachment_preview_cell_does_not_push_out_the_title():
+    """제목 옆 첨부 미리보기 칸이 글자가 더 길어도 제목·글 주소를 빼앗지 않는다(아주대·이화여대)."""
+    page = """<table><tr><td>1</td>
+      <td class="title"><a href="?mode=view&amp;articleNo=377206">아산 북한이탈청소년 장학생 선발 안내</a></td>
+      <td class="file"><a href="#none" class="attach">첨부파일</a>
+        <ul><li><a href="?mode=download&amp;articleNo=377206&amp;attachNo=1">별첨1_ 2027년 아산북한이탈청소년장학생 선발안내.pdf</a></li></ul></td>
+      <td>2026.10.08</td></tr></table>"""
+    rows = govweb.parse_list(page.encode(), "https://www.x.ac.kr/kr/notice.do")
+    assert [(r.title, r.url.rsplit("?", 1)[-1]) for r in rows] == [
+        ("아산 북한이탈청소년 장학생 선발 안내", "mode=view&articleNo=377206")
+    ]
+
+
+def test_row_metadata_glued_to_titles_is_trimmed():
+    for raw, want in [
+        ("교육과정혁신팀 계약직원 채용 인사총무팀 조회수 62 1", "교육과정혁신팀 계약직원 채용"),
+        ("캠페인 및 청년 현장 소통 새글 대외협력홍보팀 조회수 11", "캠페인 및 청년 현장 소통"),
+        (
+            "기술보증기금 상임이사 모집 공고 담당부서 벤처정책과 첨부 등록일 2026.10.08 조회 37",
+            "기술보증기금 상임이사 모집 공고",
+        ),
+        ("스펙업데이 신청 안내 조회 28", "스펙업데이 신청 안내"),
+        (
+            "제2회 교정본부 홍보콘텐츠 공모전 최종 심사 결과 공고 새글작성",
+            "제2회 교정본부 홍보콘텐츠 공모전 최종 심사 결과 공고",
+        ),
+        ("중장년 평생대학 공모사업&ap", "중장년 평생대학 공모사업"),
+        ("학적사항(졸업예정 여부) 조회(1건)", "학적사항(졸업예정 여부) 조회(1건)"),
+        ("논문 작성자 교육 안내", "논문 작성자 교육 안내"),
+        ("2026 장학금 지원 조회 시스템 안내", "2026 장학금 지원 조회 시스템 안내"),
+    ]:
+        assert govweb._clean_title(raw)[0] == want, raw
+
+
+def test_buttons_menus_and_address_titles_are_not_notices():
+    for junk in (
+        "Views",
+        "| 입학안내",
+        "입시홈페이지 바로가기",
+        "미륵제 실댄과 1등 더보기",
+        "첨부파일 전체다운로드",
+        "한글 파일 excel 파일",
+        "최신 정보 자료 제공 서비스 주소 http://www.mfds.go.kr/www/rss/brd.do?brdId=rgn0003&itm_seq_1=2",
+    ):
+        assert govweb._is_junk_title(junk), junk
+    assert not govweb._is_junk_title(
+        "홈페이지 개편 안내(https://new.x.ac.kr) 및 이용 방법과 달라진 메뉴 안내"
+    )

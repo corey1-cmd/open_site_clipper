@@ -73,6 +73,16 @@ GLYPH_CLASSES = ("material-icons", "material-symbols")
 _VOID_TAGS = frozenset({"br", "img", "hr", "input", "wbr", "meta", "link", "source", "col"})
 
 
+# 파일을 바로 내려받는 링크 — 칸의 대표 링크(글 주소)로 삼지 않는다. 제목 칸 옆의 첨부
+# 미리보기 칸('첨부파일 1. 입찰공고.hwp 2. 규격서.pdf' — 아주대·이화여대 실측)이 글자가
+# 더 길어 제목을 밀어내지 않게.
+_FILE_LINK_RE = re.compile(
+    r"download|filedown|file_down|getfile|atchfile|mode=down|"
+    r"\.(?:pdf|hwpx?|hml|docx?|xlsx?|pptx?|zip|jpe?g|png|gif)(?:$|[?#])",
+    re.I,
+)
+
+
 def is_glyph(attrs: list[tuple[str, str | None]]) -> bool:
     cls = (dict(attrs).get("class") or "").lower()
     return any(g in cls for g in GLYPH_CLASSES)
@@ -81,7 +91,7 @@ def is_glyph(attrs: list[tuple[str, str | None]]) -> bool:
 class _RowParser(HTMLParser):
     """<tr> 단위로 칸(<td>/<th>) 텍스트와 링크를 모으는 최소 파서.
 
-    링크가 든 칸은 **글자가 가장 긴 링크가 끝나는 데까지**가 그 칸의 글이다. 반응형
+    링크가 든 칸은 **글자가 가장 긴 링크(파일 링크 말고)가 끝나는 데까지**가 그 칸의 글이다. 반응형
     목록은 제목 칸 안에 휴대폰용 꼬리('새글'·'첨부파일이 1개 있음'·작성자·조회수)를
     숨겨 두는데, 그것까지 이으면 제목이 '… 공고 새글 작성자 학술정보과 작성일 2026.1'
     처럼 된다(인하대·인천대·아주대 실측). 꼬리에 날짜가 있으면 그 꼬리는 바로 뒤의
@@ -138,9 +148,10 @@ class _RowParser(HTMLParser):
         assert self._cell is not None and self._row is not None
         raw = "".join(self._cell)
         text, href, tail = raw, self._href, ""
-        if self._links:
+        pages = [span for span in self._links if not _FILE_LINK_RE.search(span[2])]
+        if pages:
             _start, end, link_href = max(
-                self._links, key=lambda span: len(raw[span[0] : span[1]].strip())
+                pages, key=lambda span: len(raw[span[0] : span[1]].strip())
             )
             text, tail = raw[:end], raw[end:]
             href = link_href or self._href

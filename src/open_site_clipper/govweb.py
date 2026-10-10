@@ -41,7 +41,18 @@ _ORG_PREFIX_RE = re.compile(r"^\[([^\]]{2,40})\]\s*")
 # 목록에 섞이는 상태 표시 — 제목의 일부가 아니다.
 _BADGE_RE = re.compile(r"^(새글|NEW|신규|공지)\s+", re.I)
 # 제목 **뒤**에 붙는 배지 — K2Web 목록은 '… 모집 공고(~11/11) 새글' 처럼 끝에 단다.
-_BADGE_TAIL_RE = re.compile(r"\s+(새글|새 글|NEW|N)$", re.I)
+_BADGE_TAIL_RE = re.compile(r"\s+(새\s?글(?:\s*작성\S*)?|NEW|N)$", re.I)
+# 목록 한 줄이 통째로 제목 칸에 든 경우의 꼬리 — '… 국제교육원운영팀 조회수 109'(성신여대),
+# '… 담당부서 벤처정책과 첨부 등록일 2026.10.08 조회 37'(중기부), '… 조회 28'(동서대).
+# '조회(1건)' 같은 제목 속 말은 숫자가 바로 붙지 않아 걸리지 않는다.
+_META_CUT_RE = re.compile(
+    r"\s+(?:담당\s*부서|작성자|글쓴이|등록일|작성일|게시일)\s*[:：]?\s*\S"
+    r"|\s+조회(?:수)?\s*[:：]?\s*\d[\d,]*(?:\s|$)"
+)
+# '조회수' 바로 앞의 작성 부서('… 채용 인사총무팀 조회수 62')
+_DEPT_TAIL_RE = re.compile(
+    r"\s+\S{1,20}(?:팀|과|처|센터|본부|사업단|지원단|위원회|연구소|교육원|대학원|학부|사무국)$"
+)
 # 첨부 표시 꼬리 — '… 공고 첨부파일이 1개 있음'(인하대)·'… 공개첨부파일'(국민통합위)·
 # '… 안내 첨부파일 있'(잘림). 화면 읽기용 숨은 글자가 제목 칸에 섞인 것이다.
 _ATTACH_TAIL_RE = re.compile(
@@ -57,8 +68,17 @@ _INVISIBLE_RE = re.compile("[\u200b-\u200d\u2060\ufeff]")
 # 첨부파일 칸 — '한글 파일 PDF 파일 이미지 파일' 처럼 파일 종류만 나열된다.
 # 이 칸이 제목보다 길어져 제목 자리를 빼앗는 일이 실제로 있었다(새만금개발청).
 _ATTACH_RE = re.compile(
-    r"^(?:(?:한글|워드|MS워드|엑셀|PDF|이미지|기타|압축|한셀|아래아)\s*파일\s*)+$", re.I
+    r"^(?:(?:한글|워드|MS워드|엑셀|excel|word|hwp|PDF|이미지|image|기타|압축|zip|한셀|아래아)"
+    r"\s*파일\s*)+$"
+    r"|^첨부\s*파일(?:\s*(?:전체|일괄))?\s*(?:다운로드|내려받기|보기)?$",
+    re.I,
 )
+# 제목이 아니라 단추·메뉴 조각 — 'Views'(중앙대 스포츠단)·'| 입학안내'·'입시홈페이지
+# 바로가기'·'… 더보기'(백제예대 학과 화면 실측)
+_BUTTON_TITLE_RE = re.compile(
+    r"^(?:views?|read\s*more|more|details?|go|click)$|^\||바로\s*가기$|더\s*보기$", re.I
+)
+_URL_IN_TITLE_RE = re.compile(r"https?://\S+")
 # 목록이 아니라 안내문·메뉴가 잘못 잡힌 경우 — 주소가 제목 자리에 온다.
 _URL_TITLE_RE = re.compile(r"^https?://", re.I)
 
@@ -102,7 +122,11 @@ def _is_junk_title(text: str) -> bool:
     t = " ".join((text or "").split())
     if not t or _ATTACH_RE.match(t) or _URL_TITLE_RE.match(t) or _SECRET_RE.search(t):
         return True
-    if _SPAM_RE.search(t) or _USER_ID_RE.match(t):
+    if _SPAM_RE.search(t) or _USER_ID_RE.match(t) or _BUTTON_TITLE_RE.search(t):
+        return True
+    # 주소가 제목의 절반 이상인 칸 — '… 구독 정보 서비스 주소 http://…'(식약처 RSS 안내)
+    urls = sum(len(m) for m in _URL_IN_TITLE_RE.findall(t))
+    if urls and urls * 2 >= len(t):
         return True
     # 쪽 번호 줄('1 2 3 4 5 … 10')·'자세히보기' 같은 단추 글자가 글로 잡혔다(농협대·한예종 실측)
     from . import categories
@@ -113,12 +137,20 @@ def _is_junk_title(text: str) -> bool:
     return len(t) > 120
 
 
+_ENTITY_NAMES = (
+    "amp", "apos", "quot", "lt", "gt", "nbsp", "middot", "lsquo", "rsquo",
+    "ldquo", "rdquo", "hellip", "ndash", "mdash", "bull", "times",
+)  # fmt: skip
+
+
 def _unescape_twice(text: str) -> str:
     if "&" not in text:
         return text
     fixed = _ENTITY_RE.sub(lambda m: html.unescape(m.group(0)), text)
-    if fixed != text:
-        fixed = _BROKEN_ENTITY_TAIL_RE.sub("", fixed)
+    tail = _BROKEN_ENTITY_TAIL_RE.search(fixed)
+    # 잘린 문자 참조 꼬리('…공모사업&ap') — 아는 이름의 앞부분일 때만 뗀다('R&Dlab' 은 둔다)
+    if tail and any(n.startswith(tail.group(0)[1:].lower()) for n in _ENTITY_NAMES):
+        fixed = fixed[: tail.start()].rstrip()
     return fixed
 
 
@@ -133,6 +165,12 @@ def _clean_title(text: str) -> tuple[str, str]:
         unit = m.group(1).strip()[:MAX_UNIT_LEN]
         title = title[m.end() :].strip()
     title = _BADGE_RE.sub("", title)  # '[기관] 새글 제목' 순서도 있다
+    m = _META_CUT_RE.search(title)
+    if m and m.start() >= MIN_TITLE_LEN:
+        head = title[: m.start()]
+        if m.group(0).lstrip().startswith("조회"):
+            head = _DEPT_TAIL_RE.sub("", head)  # 조회수 앞의 작성 부서
+        title = head
     for _ in range(2):  # '… 새글 첨부파일이 1개 있음' — 꼬리가 겹친다
         title = _BADGE_TAIL_RE.sub("", _ATTACH_TAIL_RE.sub("", title)).strip()
     return title, unit

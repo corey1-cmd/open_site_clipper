@@ -89,7 +89,8 @@ class HostLimiter:
             due = self._next_at.get(host, 0.0)
             if due > now:
                 time.sleep(due - now)
-            self._next_at[host] = max(now, due) + delay
+                now = time.monotonic()  # 늦게 깨어났으면 그때부터 센다(간격이 줄지 않게)
+            self._next_at[host] = now + delay
 
     def wrap(self, fetcher: Callable[[str], bytes | None]) -> Callable[[str], bytes | None]:
         """페처를 감싸 호출 직전에 간격을 지키게 한다.
