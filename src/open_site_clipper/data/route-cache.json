@@ -380,7 +380,7 @@
      "https://www.mpva.go.kr/mpva/selectBbsNttList.do?bbsNo=25&key=93"
     ],
     [
-     "입찰",
+     "생업지원",
      "board",
      "https://www.mpva.go.kr/mpva/selectBbsNttList.do?bbsNo=32&key=145"
     ],
@@ -523,7 +523,7 @@
      "https://www.motir.go.kr/kor/article/ATCL2527aa115"
     ],
     [
-     "보도자료",
+     "대변인정례발표",
      "board",
      "https://www.motir.go.kr/kor/article/ATCL2472ce1e5"
     ],
@@ -533,7 +533,7 @@
      "https://www.motir.go.kr/kor/article/ATCL516d59376"
     ],
     [
-     "채용",
+     "통상·FTA",
      "board",
      "https://www.motir.go.kr/kor/article/ATCL49260d97c"
     ],
@@ -722,7 +722,7 @@
      "https://www.molit.go.kr/USR/dca/m_37110/ist.jsp"
     ],
     [
-     "보도자료",
+     "대도시권광역교통위원회",
      "board",
      "https://www.molit.go.kr/mtc/intro.do"
     ],
@@ -844,7 +844,7 @@
      "https://www.mss.go.kr/site/smba/ex/bbs/List.do?cbIdx=310"
     ],
     [
-     "입찰",
+     "주요 행정정보",
      "board",
      "https://www.mss.go.kr/site/smba/ex/bbs/List.do?cbIdx=239"
     ],
@@ -869,12 +869,12 @@
      "https://www.mss.go.kr/site/smba/ex/bbs/List.do?cbIdx=81"
     ],
     [
-     "보도자료",
+     "현장앨범",
      "board",
      "https://www.mss.go.kr/site/smba/submain/submain08.do?searchPosId=0085200"
     ],
     [
-     "보도자료",
+     "현장앨범",
      "board",
      "https://www.mss.go.kr/site/smba/submain/submain08.do?searchPosId=0085210"
     ]
@@ -925,22 +925,22 @@
      "https://www.mpm.go.kr/mpm/info/infoService/serviceBoard"
     ],
     [
-     "공무원 인사제도",
+     "승진·보직관리",
      "board",
      "https://www.mpm.go.kr/mpm/info/infoBiz/bizBoard"
     ],
     [
-     "공무원 인사제도",
+     "연금·복지제도",
      "board",
      "https://www.mpm.go.kr/mpm/info/retireAnnuity/annuityBoard"
     ],
     [
-     "공무원 인사제도",
+     "윤리제도",
      "board",
      "https://www.mpm.go.kr/mpm/info/infoEthics/BizEthicsBoard"
     ],
     [
-     "공무원 인사제도",
+     "재해보상제도",
      "board",
      "https://www.mpm.go.kr/mpm/info/compens/compensBoard"
     ]
@@ -1090,7 +1090,7 @@
   "gov-nts": {
    "routes": [
     [
-     "보도자료",
+     "공지",
      "board",
      "https://www.nts.go.kr/nts/na/ntt/selectNttList.do?mi=2201&bbsId=1028"
     ],
@@ -1130,7 +1130,7 @@
      "https://www.nts.go.kr/nts/na/ntt/selectNttList.do?mi=12278&bbsId=131041"
     ],
     [
-     "채용",
+     "공지",
      "board",
      "https://www.nts.go.kr/nts/na/ntt/selectNttList.do?mi=2206&bbsId=1122"
     ],
@@ -1206,7 +1206,7 @@
      "https://www.customs.go.kr/kcs/na/ntt/selectNttList.do?mi=2933&bbsId=1389"
     ],
     [
-     "채용",
+     "공지",
      "board",
      "https://www.customs.go.kr/kcs/na/ntt/selectNttList.do?mi=2895&bbsId=1364"
     ],
@@ -1232,17 +1232,17 @@
      "https://www.pps.go.kr/kor/bbs/list.do?key=00645"
     ],
     [
-     "조달청",
+     "공개재분류",
      "board",
      "https://www.pps.go.kr/kor/bbs/list.do?key=01234"
     ],
     [
-     "조달청",
+     "국유재산",
      "board",
      "https://www.pps.go.kr/kor/bbs/list.do?key=00042"
     ],
     [
-     "조달청",
+     "기록관리기준표",
      "board",
      "https://www.pps.go.kr/kor/bbs/list.do?key=01235"
     ],
@@ -1252,32 +1252,32 @@
      "https://www.pps.go.kr/kor/bbs/list.do?key=01325"
     ],
     [
-     "조달청",
+     "내자구매",
      "board",
      "https://www.pps.go.kr/kor/bbs/list.do?key=00036"
     ],
     [
-     "조달청",
+     "맞춤형서비스(시설공사)",
      "board",
      "https://www.pps.go.kr/kor/bbs/list.do?key=01322"
     ],
     [
-     "조달청",
+     "물품목록등록",
      "board",
      "https://www.pps.go.kr/kor/bbs/list.do?key=01346"
     ],
     [
-     "조달청",
+     "벤처나라",
      "board",
      "https://www.pps.go.kr/kor/bbs/list.do?key=01335"
     ],
     [
-     "조달청",
+     "부패공직자 제재현황",
      "board",
      "https://www.pps.go.kr/kor/bbs/list.do?key=00101"
     ],
     [
-     "조달청",
+     "비축물자",
      "board",
      "https://www.pps.go.kr/kor/bbs/list.do?key=00039"
     ]
@@ -1527,12 +1527,12 @@
      "http://www.nfa.go.kr/nfsa/"
     ],
     [
-     "인사말",
+     "청장소개",
      "board",
      "https://www.nfa.go.kr/nfa/introduce/directorinfo"
     ],
     [
-     "인사말",
+     "기관소개",
      "board",
      "https://www.nfa.go.kr/nfa/introduce"
     ],
@@ -2240,7 +2240,7 @@
      "https://www.better.go.kr/project.NewProjectTaskSlPL"
     ],
     [
-     "채용",
+     "규제신문고",
      "board",
      "https://www.better.go.kr/hz.blltn.DataBlltnSlPL?tab_cd=05"
     ],
@@ -2421,7 +2421,7 @@
   "gov-eslc": {
    "routes": [
     [
-     "채용",
+     "공지",
      "board",
      "https://www.eslc.go.kr/bbs/data/list.do?menu_idx=2305"
     ],
@@ -2431,7 +2431,7 @@
      "https://www.eslc.go.kr/bbs/data/list.do?per_menu_idx=2074&menu_idx=2286"
     ],
     [
-     "채용",
+     "소식",
      "board",
      "https://www.eslc.go.kr/bbs/data/list.do?menu_idx=2073"
     ],
@@ -2471,7 +2471,7 @@
      "https://www.eslc.go.kr/bbs/data/list.do?menu_idx=2290"
     ],
     [
-     "채용",
+     "소식마당",
      "board",
      "https://www.eslc.go.kr/bbs/data/list.do?menu_idx=2286&bbs_mst_idx=BM0000000217"
     ],
@@ -2640,7 +2640,7 @@
   "u-catholic": {
    "routes": [
     [
-     "학사",
+     "공지",
      "board",
      "https://www.catholic.ac.kr/ko/campuslife/notice.do?mode=list&srCategoryId=21"
     ],
@@ -2686,7 +2686,7 @@
   "u-mtu": {
    "routes": [
     [
-     "입학안내",
+     "소식",
      "board",
      "https://www.mtu.ac.kr/mtu/board/list.do?mId=147"
     ],
@@ -2696,12 +2696,12 @@
      "https://www.mtu.ac.kr/mtu/board/list.do?mId=402"
     ],
     [
-     "입학안내",
+     "감리교신학대학교는 1887년 개교한 ",
      "board",
      "https://www.mtu.ac.kr/mtu/board/list.do?mId=144"
     ],
     [
-     "입학안내",
+     "감신갤러리",
      "board",
      "https://www.mtu.ac.kr/mtu/board/list.do?mId=363"
     ],
@@ -2721,27 +2721,27 @@
      "https://www.mtu.ac.kr/mtu/board/list.do?mId=372"
     ],
     [
-     "입학안내",
+     "설교문",
      "board",
      "https://www.mtu.ac.kr/mtu/board/list.do?mId=46"
     ],
     [
-     "입학안내",
+     "영성/채플",
      "board",
      "https://www.mtu.ac.kr/mtu/board/list.do?mId=161"
     ],
     [
-     "입학안내",
+     "이사회 회의록",
      "board",
      "https://www.mtu.ac.kr/mtu/board/list.do?mId=367"
     ],
     [
-     "입학안내",
+     "주간식단표",
      "board",
      "https://www.mtu.ac.kr/mtu/board/list.do?mId=482"
     ],
     [
-     "입학안내",
+     "총동문회활동",
      "board",
      "https://www.mtu.ac.kr/mtu/board/list.do?mId=536"
     ]
@@ -2767,12 +2767,12 @@
      "http://gangseo.ac.kr/kcua/boardList?menuCode=BC0702"
     ],
     [
-     "학사",
+     "신학과",
      "board",
      "http://gangseo.ac.kr/kcua/boardList?menuCode=MC0503"
     ],
     [
-     "강서 대학교 입학안내",
+     "진학티비 - 주대리가 간다 [ 강서대",
      "board",
      "http://entrance.gangseo.ac.kr/kcui/boardView?menuCode=MC0801&boardNum=1546"
     ],
@@ -2782,17 +2782,17 @@
      "http://entrance.gangseo.ac.kr/kcui/boardView?menuCode=MC0801&boardNum=1545"
     ],
     [
-     "입학",
+     "자료",
      "board",
      "http://gangseo.ac.kr/kcua/boardList?menuCode=MC0514"
     ],
     [
-     "강서 대학교 입학안내",
+     "자료",
      "board",
      "http://entrance.gangseo.ac.kr/kcui/boardView?menuCode=MC0801&boardNum=1549"
     ],
     [
-     "강서 대학교 입학안내",
+     "자료",
      "board",
      "http://entrance.gangseo.ac.kr/kcui/boardView?menuCode=MC0801&boardNum=1550"
     ],
@@ -2884,7 +2884,7 @@
      "https://www.khu.ac.kr/kor/user/bbs/BMSR00040/list.do?menuNo=200073"
     ],
     [
-     "학사",
+     "경희포럼",
      "board",
      "https://www.khu.ac.kr/kor/user/bbs/BMSR00040/list.do?menuNo=200280"
     ],
@@ -3139,7 +3139,7 @@
      "https://www.syu.ac.kr/university-square/promotion/advertising-2/"
     ],
     [
-     "삼육학원 기부금 모집 안내",
+     "기부금",
      "board",
      "https://www.syu.ac.kr/sahmyook/donation/"
     ],
@@ -3149,7 +3149,7 @@
      "https://www.syu.ac.kr/ecd0"
     ],
     [
-     "학사공지",
+     "경영대학원",
      "board",
      "https://www.syu.ac.kr/mba"
     ],
@@ -3196,7 +3196,7 @@
      "https://www.seoultech.ac.kr/service/report"
     ],
     [
-     "학사",
+     "민원서비스",
      "board",
      "https://www.seoultech.ac.kr/service/info/matters/"
     ],
@@ -3350,7 +3350,7 @@
      "https://www.sookmyung.ac.kr/kr/news/important-notice.do?mode=list&srSearchKey=&srSearchVal=%EC%9D%BC%EB%B0%98%C2%B7%ED%8A%B9%EC%88%98%C2%B7%EA%B5%90%EC%9C%A1"
     ],
     [
-     "학사",
+     "공지",
      "board",
      "https://www.sookmyung.ac.kr/kr/news/important-notice.do"
     ],
@@ -3510,12 +3510,12 @@
      "https://www.chugye.ac.kr/mbs/university/jsp/board/list.jsp?boardId=545845&id=university_080500000000"
     ],
     [
-     "학사안내",
+     "비교과통합",
      "board",
      "https://www.chugye.ac.kr/mbs/university/jsp/board/list.jsp?boardId=5203489&id=university_041200000000"
     ],
     [
-     "학사",
+     "신청서 양식",
      "board",
      "https://www.chugye.ac.kr/mbs/university/jsp/board/list.jsp?boardId=6776&id=university_040900000000"
     ],
@@ -3760,7 +3760,7 @@
      "https://oia.hongik.ac.kr/oia"
     ],
     [
-     "대학혁신지원사업단",
+     "사업단",
      "board",
      "https://inno.hongik.ac.kr/inno"
     ],
@@ -3944,12 +3944,12 @@
      "https://www.dongseo.ac.kr/kr?pCode=itservice01"
     ],
     [
-     "채용",
+     "건축공학과",
      "board",
      "http://uni.dongseo.ac.kr/archiengine/"
     ],
     [
-     "채용",
+     "건축학과(5년제 인증)",
      "board",
      "https://uni.dongseo.ac.kr/archiplan/"
     ],
@@ -3959,7 +3959,7 @@
      "https://www.dongseo.ac.kr/kr?pCode=MN2000311"
     ],
     [
-     "학사",
+     "미래커리어대학",
      "board",
      "https://uni.dongseo.ac.kr/lifelong"
     ]
@@ -4122,7 +4122,7 @@
      "https://www.cup.ac.kr/entrance/home/front/board/List292.do"
     ],
     [
-     "채용",
+     "자료",
      "board",
      "https://www.cup.ac.kr/entrance/home/front/board/List285.do"
     ],
@@ -4152,12 +4152,12 @@
      "https://www.cup.ac.kr/entrance/home/front/board/List589.do"
     ],
     [
-     "학사",
+     "등록금심의위원회",
      "board",
      "https://www.cup.ac.kr/entrance/home/front/board/List587.do"
     ],
     [
-     "학사",
+     "회의록",
      "board",
      "https://www.cup.ac.kr/entrance/home/front/board/List588.do"
     ]
@@ -4229,7 +4229,7 @@
      "https://www.knu.ac.kr/wbbs/wbbs/bbs/btin/stdList.action?menu_idx=42"
     ],
     [
-     "학사",
+     "KNU인물",
      "board",
      "https://www.knu.ac.kr/wbbs/wbbs/bbs/btin/list.action?bbs_cde=31&menu_idx=215"
     ],
@@ -4285,7 +4285,7 @@
      "https://www.kmu.ac.kr/page.jsp?mnu_uid=143"
     ],
     [
-     "학사",
+     "공지사항",
      "board",
      "https://www.kmu.ac.kr/page.jsp?mnu_uid=144"
     ],
@@ -4571,7 +4571,7 @@
      "https://www.jnu.ac.kr/WebApp/web/HOM/COM/Board/board.aspx?boardID=373"
     ],
     [
-     "학사",
+     "총장메시지",
      "board",
      "https://www.jnu.ac.kr/WebApp/web/HOM/COM/Board/board.aspx?boardID=181"
     ],
@@ -4592,7 +4592,7 @@
      "http://www3.chosun.ac.kr/bbs/chosun/117/artclList.do?layout=unknown"
     ],
     [
-     "채용",
+     "교내채용",
      "board",
      "http://www3.chosun.ac.kr/bbs/chosun/119/artclList.do?layout=unknown"
     ]
@@ -4614,7 +4614,7 @@
   "u-dju": {
    "routes": [
     [
-     "신입생안내",
+     "공지",
      "board",
      "https://www.dju.ac.kr/dju/na/ntt/selectNttList.do?mi=&bbsId=1040"
     ],
@@ -4629,12 +4629,12 @@
      "https://www.dju.ac.kr/dju/na/ntt/selectNttList.do?mi=1165&bbsId=1861"
     ],
     [
-     "학사",
+     "개인정보 목적외 이용·제공",
      "board",
      "https://www.dju.ac.kr/dju/na/ntt/selectNttList.do?mi=4353&bbsId=2001"
     ],
     [
-     "신입생안내",
+     "건강관리",
      "board",
      "https://www.dju.ac.kr/dju/na/ntt/selectNttList.do?mi=4555&bbsId=2103"
     ],
@@ -4649,27 +4649,27 @@
      "https://www.dju.ac.kr/dju/na/ntt/selectNttList.do?bbsId=1876&mi=4148"
     ],
     [
-     "신입생안내",
+     "사회봉사",
      "board",
      "https://www.dju.ac.kr/dju/na/ntt/selectNttList.do?mi=1191&bbsId=1043"
     ],
     [
-     "신입생안내",
+     "이사회회의록",
      "board",
      "https://www.dju.ac.kr/dju/na/ntt/selectNttList.do?mi=1122&bbsId=1024"
     ],
     [
-     "신입생안내",
+     "공지",
      "board",
      "https://www.dju.ac.kr/dju/na/ntt/selectNttList.do?mi=1188&bbsId=1040"
     ],
     [
-     "신입생안내",
+     "소식",
      "board",
      "https://www.dju.ac.kr/dju/na/ntt/selectNttList.do?mi=4148&bbsId=1876"
     ],
     [
-     "신입생안내",
+     "소식",
      "board",
      "https://www.dju.ac.kr/dju/na/ntt/selectNttList.do?mi=4556&bbsId=2104"
     ]
@@ -4761,7 +4761,7 @@
      "https://www.pcu.ac.kr/kor/article/plan2"
     ],
     [
-     "학사",
+     "등록금심의위원회",
      "board",
      "https://www.pcu.ac.kr/kor/article/plan"
     ],
@@ -4828,7 +4828,7 @@
      "http://www.ulsan.ac.kr/kor/CMS/Board/Board.do?mCode=MN111"
     ],
     [
-     "채용",
+     "기타",
      "board",
      "http://www.ulsan.ac.kr/kor/CMS/Board/Board.do?mCode=MN125"
     ],
@@ -4982,7 +4982,7 @@
      "https://web.kangnam.ac.kr/menu/board/info/f19069e6134f8f8aa7f689a4a675e66f.do?encMenuSeq=c5dc4b1d7b4dd402e5e6a7a8471eb55c&encMenuBoardSeq=15cfe6bfb7c3fe681875758cfe18e3b3"
     ],
     [
-     "입학",
+     "자료",
      "board",
      "https://web.kangnam.ac.kr/menu/board/info/f19069e6134f8f8aa7f689a4a675e66f.do?scrtWrtiYn=false&encMenuSeq=c5dc4b1d7b4dd402e5e6a7a8471eb55c&encMenuBoardSeq=4fc547700840e0f7907877547e05883c"
     ],
@@ -5158,7 +5158,7 @@
      "https://www.acts.ac.kr/modules/board/bd_list.asp?id=alumni_church&left=prom8_2"
     ],
     [
-     "학사",
+     "등록금심의위원회",
      "board",
      "https://www.acts.ac.kr/modules/board/bd_list.asp?id=acts34&left=acts8_3"
     ]
@@ -5219,7 +5219,7 @@
      "https://www.ajou.ac.kr/kr/ajou/wish.do"
     ],
     [
-     "학사지원",
+     "함께하고 싶은 나의 교수님",
      "board",
      "https://www.ajou.ac.kr/kr/bachelor/bamedia-04.do"
     ],
@@ -5251,7 +5251,7 @@
   "u-yongin": {
    "routes": [
     [
-     "장학",
+     "공지",
      "board",
      "https://www.yongin.ac.kr/cmn/board/SYSTEM_DEFAULT000001/noticeList.do?currentMenuNo=106100000"
     ],
@@ -5272,7 +5272,7 @@
      "https://admission.eulji.ac.kr/?menuno=2683"
     ],
     [
-     "공지사항-학사",
+     "공지",
      "board",
      "https://www.eulji.ac.kr?menuno=3160"
     ],
@@ -5292,7 +5292,7 @@
      "https://www.eulji.ac.kr?menuno=8184&calendar_no=105&year=2026&month=10"
     ],
     [
-     "공지사항-학사",
+     "대학생활",
      "board",
      "https://www.eulji.ac.kr?menuno=3159"
     ],
@@ -5389,7 +5389,7 @@
      "https://kaunews.kau.ac.kr/pages/press.php"
     ],
     [
-     "채용",
+     "소식",
      "board",
      "https://kaunews.kau.ac.kr/pages/event.php"
     ],
@@ -5414,12 +5414,12 @@
      "https://kau.ac.kr/kaulife/acdnoti.php"
     ],
     [
-     "학사",
+     "등록금심의위원회",
      "board",
      "https://kau.ac.kr/kaulife/tuition.php"
     ],
     [
-     "수업 및 성적수강지도 상담",
+     "수업",
      "board",
      "https://kau.ac.kr/kaulife/consulting.php"
     ],
@@ -5582,7 +5582,7 @@
      "https://www.kangwon.ac.kr/ko/bbs/759/list.do"
     ],
     [
-     "KNU브리핑",
+     "바로 잡습니다",
      "board",
      "https://www.kangwon.ac.kr/ko/bbs/776/list.do"
     ],
@@ -5634,7 +5634,7 @@
   "u-kdu": {
    "routes": [
     [
-     "학사",
+     "대학원",
      "board",
      "http://www.kdu.ac.kr/graduate"
     ],
@@ -5711,12 +5711,12 @@
      "https://www.semyung.ac.kr/cop/bbs/BBSMSTR_000000000721/selectBoardList.do"
     ],
     [
-     "학사",
+     "등록금심의위원회",
      "board",
      "https://www.semyung.ac.kr/cop/bbs/BBSMSTR_000000001121/selectBoardList.do"
     ],
     [
-     "학사",
+     "등록금심의위원회 회의록",
      "board",
      "https://www.semyung.ac.kr/cop/bbs/BBSMSTR_000000000711/selectBoardList.do"
     ],
@@ -5768,47 +5768,47 @@
      "http://chss.jwu.ac.kr/ssm/site/deptSiteView.jwu"
     ],
     [
-     "학사",
+     "국제통상학과",
      "board",
      "http://chss.jwu.ac.kr/trade/site/deptSiteView.jwu"
     ],
     [
-     "학사",
+     "말산업학과",
      "board",
      "http://cnse.jwu.ac.kr/Horseindustry/site/deptSiteView.jwu"
     ],
     [
-     "학사",
+     "법무법학과",
      "board",
      "http://chss.jwu.ac.kr/law/site/deptSiteView.jwu"
     ],
     [
-     "학사",
+     "생활체육학과",
      "board",
      "http://cnse.jwu.ac.kr/sports/site/deptSiteView.jwu"
     ],
     [
-     "채용",
+     "소방안전학과",
      "board",
      "http://cnse.jwu.ac.kr/fire/site/deptSiteView.jwu"
     ],
     [
-     "학사",
+     "스포츠산업학과",
      "board",
      "http://chss.jwu.ac.kr/sportindustry/site/deptSiteView.jwu"
     ],
     [
-     "학사",
+     "스포츠지도학과",
      "board",
      "http://chss.jwu.ac.kr/coaching/site/deptSiteView.jwu"
     ],
     [
-     "입학",
+     "융합기계·전기전자부품공학과",
      "board",
      "http://fusion.jwu.ac.kr/convergence/site/deptSiteView.jwu"
     ],
     [
-     "학사",
+     "전기전자공학과",
      "board",
      "http://cnse.jwu.ac.kr/electra/site/deptSiteView.jwu"
     ]
@@ -5947,7 +5947,7 @@
      "https://www.bu.ac.kr/bbs/web/1987/artclList.do?layout=unknown"
     ],
     [
-     "학사",
+     "학사공지",
      "board",
      "https://www.bu.ac.kr/bbs/web/788/artclList.do?layout=unknown"
     ],
@@ -6026,27 +6026,27 @@
      "https://www.jesus.ac.kr/enter/inner.php?sMenu=A1000"
     ],
     [
-     "입학",
+     "공지",
      "board",
      "https://www.jesus.ac.kr?menu=127"
     ],
     [
-     "입학",
+     "소식",
      "board",
      "https://www.jesus.ac.kr?menu=168"
     ],
     [
-     "입학",
+     "자료",
      "board",
      "https://www.jesus.ac.kr?menu=101"
     ],
     [
-     "입학",
+     "정책",
      "board",
      "https://www.jesus.ac.kr?menu=113"
     ],
     [
-     "입학",
+     "참여",
      "board",
      "https://www.jesus.ac.kr?menu=103"
     ],
@@ -6056,27 +6056,27 @@
      "https://www.jesus.ac.kr/enter/?menu=190"
     ],
     [
-     "입학",
+     "T&L",
      "board",
      "https://www.jesus.ac.kr?menu=137"
     ],
     [
-     "입학",
+     "UI소개",
      "board",
      "https://www.jesus.ac.kr?menu=164"
     ],
     [
-     "입학",
+     "각종양식파일",
      "board",
      "https://www.jesus.ac.kr?menu=55"
     ],
     [
-     "입학",
+     "간호학",
      "board",
      "https://www.jesus.ac.kr?menu=70"
     ],
     [
-     "입학",
+     "간호학부",
      "board",
      "https://www.jesus.ac.kr?menu=69"
     ]
@@ -6103,7 +6103,7 @@
      "https://www.jbnu.ac.kr/promo/data/newsplus.do"
     ],
     [
-     "입학",
+     "일반대학원",
      "board",
      "https://graduate.jbnu.ac.kr/bbs/board.php?bo_id=gent_notice"
     ],
@@ -6156,7 +6156,7 @@
      "https://www.mmu.ac.kr/admission/board/243"
     ],
     [
-     "입학정보",
+     "박물관",
      "board",
      "https://www.mmu.ac.kr/ce.mmu.ac.kr/OI"
     ],
@@ -6171,7 +6171,7 @@
      "https://www.mmu.ac.kr/S5"
     ],
     [
-     "채용",
+     "교원양성지원센터",
      "board",
      "https://www.mmu.ac.kr/OT"
     ],
@@ -6232,12 +6232,12 @@
      "https://www.scnu.ac.kr/SCNU/na/ntt/selectNttList.do?mi=1074&bbsId=1028"
     ],
     [
-     "학사",
+     "묻고·답하기",
      "board",
      "https://www.scnu.ac.kr/SCNU/na/ntt/selectNttList.do?mi=1202&bbsId=1079"
     ],
     [
-     "학사",
+     "봉사단",
      "board",
      "https://www.scnu.ac.kr/SCNU/na/ntt/selectNttList.do?mi=1129&bbsId=1039"
     ],
@@ -6273,7 +6273,7 @@
      "https://www.mcu.ac.kr/bb/bbBoard.php?boardID=SCHOLARSHIP&pageID=mcu0708000000"
     ],
     [
-     "채용",
+     "공지 사항",
      "board",
      "https://www.mcu.ac.kr/bb/bbBoard.php?pageID=mcu0701000000&boardID=NOTICE"
     ],
@@ -6855,7 +6855,7 @@
      "http://www.ysu.ac.kr/kor/CMS/Board/Board.do?mCode=MN289"
     ],
     [
-     "학사",
+     "대학생활",
      "board",
      "http://www.ysu.ac.kr/kor/CMS/Board/Board.do?mCode=MN292"
     ],
@@ -7131,7 +7131,7 @@
      "https://www.ginue.ac.kr/kor/CMS/Board/Board.do?mCode=MN203"
     ],
     [
-     "입학",
+     "수업정보",
      "board",
      "https://www.ginue.ac.kr/kor/CMS/Board/Board.do?mCode=MN065"
     ],
@@ -7187,7 +7187,7 @@
      "https://www.cnue.ac.kr/cnue/"
     ],
     [
-     "채용",
+     "공지",
      "board",
      "https://www.cnue.ac.kr/cnue/news/notice04.do"
     ]
@@ -7494,7 +7494,7 @@
      "https://www.cufs.ac.kr/bbs/list.do?bbsId=BBS000070&menuId=MENU000711"
     ],
     [
-     "입학",
+     "광고",
      "board",
      "https://www.cufs.ac.kr/bbs/list.do?bbsId=BBS000291&menuId=MENU000080&page=1&searchCnd=1&searchWrd=&categoryId=CATE000206"
     ],
@@ -7677,7 +7677,7 @@
      "https://www.dcu.ac.kr/dcuLife/notice_0101.htm"
     ],
     [
-     "학사공지",
+     "소식",
      "board",
      "https://www.dcu.ac.kr/dcuLife/notice_0201.htm"
     ],
@@ -7765,7 +7765,7 @@
   "u-snjc": {
    "routes": [
     [
-     "채용",
+     "공지",
      "board",
      "https://www.snjc.ac.kr/swcn_board/notice_list.php"
     ],
@@ -7790,7 +7790,7 @@
      "https://www.snjc.ac.kr/swcn_board/notice_list.php?qcate=학사공지"
     ],
     [
-     "학사",
+     "자료",
      "board",
      "https://www.snjc.ac.kr/swcn_board/bbs02_list.php"
     ],
@@ -7951,7 +7951,7 @@
      "https://www.bwc.ac.kr/sch/sub04/sub0408_list.asp"
     ],
     [
-     "학사",
+     "등록금심의회의록",
      "board",
      "https://www.bwc.ac.kr/sch/sub04/sub0409_list.asp"
     ],
@@ -8007,17 +8007,17 @@
      "https://www.kmcu.ac.kr/fashion/"
     ],
     [
-     "채용정보",
+     "홈페이지",
      "board",
      "https://www.kmcu.ac.kr/food/"
     ],
     [
-     "채용",
+     "홈페이지",
      "board",
      "https://www.kmcu.ac.kr/mecha/"
     ],
     [
-     "간호학과 국가시험 합겹",
+     "홈페이지",
      "board",
      "https://www.kmcu.ac.kr/nurse/"
     ]
@@ -8089,22 +8089,22 @@
      "https://www.ghu.ac.kr/Department/Nurse/"
     ],
     [
-     "장학",
+     "사회복지학과",
      "board",
      "https://www.ghu.ac.kr/Department/SocialGood/"
     ],
     [
-     "장학",
+     "상담복지학과",
      "board",
      "https://www.ghu.ac.kr/Department/Counseling"
     ],
     [
-     "학사",
+     "중독재활복지학과",
      "board",
      "https://www.ghu.ac.kr/Department/Addiction"
     ],
     [
-     "채용",
+     "치위생학과",
      "board",
      "https://www.ghu.ac.kr/Department/TeethHealth/"
     ]
@@ -8161,27 +8161,27 @@
      "https://www.cnc.ac.kr/board/?board=notice&site=cnc&mn=48&sc_cate=46"
     ],
     [
-     "학사안내",
+     "현장실습게시판",
      "board",
      "https://www.cnc.ac.kr/board/?board=notice&site=cnc&mn=105&sc_cate=49"
     ],
     [
-     "취업정보",
+     "취·창업정보",
      "board",
      "https://www.cnc.ac.kr/board/?board=startups&site=cnc&mn=137"
     ],
     [
-     "학사일정",
+     "학생상담프로그램",
      "board",
      "https://www.cnc.ac.kr/board/?board=counsel&site=cnc&mn=125"
     ],
     [
-     "학사내규",
+     "학칙",
      "board",
      "https://www.cnc.ac.kr/board/?board=school_regulations&site=cnc&mn=102"
     ],
     [
-     "학사일정",
+     "희망진로조사게시판",
      "board",
      "https://www.cnc.ac.kr/board/?board=counsel&site=cnc&mn=143"
     ]
@@ -8264,7 +8264,7 @@
      "https://www.nonghyup.ac.kr/bbs/bbs_list.asp?tbl=m01027"
     ],
     [
-     "학사",
+     "- 등록금심의위원회",
      "board",
      "https://www.nonghyup.ac.kr/bbs/bbs_list.asp?tbl=m01026"
     ],
@@ -8345,12 +8345,12 @@
      "https://www.du.ac.kr/submenu.do?menuord=5&submenuord=0&"
     ],
     [
-     "학사",
+     "등록금심의위원회",
      "board",
      "https://www.du.ac.kr/submenu.do?menuUrl=OT34%2bhoyJbbw%2fE%2fauQZPlQ%3d%3d&"
     ],
     [
-     "학사",
+     "묻고답하기",
      "board",
      "https://www.du.ac.kr/submenu.do?menuUrl=Mawra5WQmLhvCtvvsQhh1A%3d%3d&"
     ],
@@ -8465,7 +8465,7 @@
      "http://www.ysc.ac.kr/kor/CMS/Board/Board.do?mCode=MN361"
     ],
     [
-     "학사안내",
+     "자료",
      "board",
      "http://www.ysc.ac.kr/kor/CMS/Board/Board.do?mCode=MN135"
     ],
@@ -8785,7 +8785,7 @@
      "https://www.ok.ac.kr/www/selectBbsNttList.do?bbsNo=30&key=5161"
     ],
     [
-     "전문대학혁신지원사업",
+     "프로그램 갤러리",
      "board",
      "https://www.ok.ac.kr/www/selectBbsNttList.do?bbsNo=447&key=5074"
     ]
@@ -8913,7 +8913,7 @@
      "https://www.kijeon.ac.kr/kor/CMS/Board/Board.do?mCode=MN148"
     ],
     [
-     "취업지원",
+     "문의사항",
      "board",
      "https://www.kijeon.ac.kr/kor/CMS/Board/Board.do?mCode=MN060"
     ],
@@ -9096,7 +9096,7 @@
      "https://www.kbc.ac.kr/kor/CMS/Board/Board.do?mCode=MN044"
     ],
     [
-     "학사",
+     "등록금심의위원회",
      "board",
      "https://www.kbc.ac.kr/kor/CMS/Board/Board.do?mCode=MN043"
     ],
@@ -9152,17 +9152,17 @@
      "https://www.tk.ac.kr/bbs/board.php?bo_table=minutes1"
     ],
     [
-     "입학안내",
+     "대학평의원회",
      "board",
      "https://www.tk.ac.kr/sub/intro13.php"
     ],
     [
-     "입학안내",
+     "공지",
      "board",
      "https://www.tk.ac.kr/bbs/board.php?bo_table=notice_1"
     ],
     [
-     "입학안내",
+     "참여",
      "board",
      "https://www.tk.ac.kr/improve2/improve_list.php"
     ]
@@ -9211,7 +9211,7 @@
   "u-koje": {
    "routes": [
     [
-     "채용",
+     "공지",
      "board",
      "https://campus2021.koje.ac.kr/campus/board/12?mc=3429"
     ],
@@ -9266,7 +9266,7 @@
      "https://www.koje.ac.kr/www/board/33?mc=224"
     ],
     [
-     "학사",
+     "등록금심의위원회 회의록",
      "board",
      "https://www.koje.ac.kr/www/board/19"
     ]
