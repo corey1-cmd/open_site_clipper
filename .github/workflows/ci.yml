@@ -27,7 +27,16 @@ jobs:
       - name: Format check (ruff)
         run: ruff format --check src tests api scripts
       - name: Test (pytest)
-        run: pytest -q
+        shell: bash
+        run: |
+          set -o pipefail
+          pytest -q -rfE 2>&1 | tee pytest.log
+      - name: Show failing tests as annotations
+        if: failure()
+        shell: bash
+        run: |
+          grep -E "^(FAILED|ERROR) " pytest.log | head -20 | sed 's/^/::error::/' || true
+          grep -E "^E  " pytest.log | head -20 | sed 's/^/::error::/' || true
       - name: Smoke test (CLI demo)
         run: |
           open_site_clipper --demo --format markdown | head -20
