@@ -77,7 +77,7 @@ _VOID_TAGS = frozenset({"br", "img", "hr", "input", "wbr", "meta", "link", "sour
 # 미리보기 칸('첨부파일 1. 입찰공고.hwp 2. 규격서.pdf' — 아주대·이화여대 실측)이 글자가
 # 더 길어 제목을 밀어내지 않게.
 _FILE_LINK_RE = re.compile(
-    r"download|filedown|file_down|getfile|atchfile|mode=down|"
+    r"download|filedown|file_down|getfile|atchfile|mode=down|down\.(?:do|jsp|php|aspx?)\b|"
     r"\.(?:pdf|hwpx?|hml|docx?|xlsx?|pptx?|zip|jpe?g|png|gif)(?:$|[?#])",
     re.I,
 )

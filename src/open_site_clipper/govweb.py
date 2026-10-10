@@ -84,11 +84,11 @@ _BUTTON_TITLE_RE = re.compile(
 )
 # 단추 낱말만으로 된 칸 — '다운로드 [미리보기]'(서원대 규정)·'(클릭)'(금융위 이용안내)
 _BUTTON_WORDS_RE = re.compile(
-    r"^(?:(?:다운로드|내려\s*받기|(?:바로|미리|문서|상세|자세히)?\s*보기|클릭|열기|새\s*창|"
+    r"^(?:(?:다운로드|다운\s*받기|내려\s*받기|(?:바로|미리|문서|상세|자세히)?\s*보기|클릭|열기|새\s*창|"
     r"download|view|preview|click|more|go)\s*)+$",
     re.I,
 )
-_BRACKETS_RE = re.compile(r"[\[\](){}<>「」『』]")
+_BRACKETS_RE = re.compile(r"[\[\](){}<>「」『』※▪•·]")
 _URL_IN_TITLE_RE = re.compile(r"https?://\S+")
 # 목록이 아니라 안내문·메뉴가 잘못 잡힌 경우 — 주소가 제목 자리에 온다.
 _URL_TITLE_RE = re.compile(r"^https?://", re.I)
@@ -377,8 +377,8 @@ def _title_cell(cells: list[tuple[str, str]], base_url: str) -> tuple[int, str, 
 
     차례: ① 글 링크(파일 아닌 진짜 주소, 글자 MIN_TITLE_LEN 이상) 중 가장 긴 것
     ② 스크립트 링크 제목 — 주소는 같은 행의 문서 보기 단추·첨부 파일, 없으면 목록 페이지
-    ③ 첨부 파일 링크(파일 이름이 곧 제목인 게시판) ④ 링크가 보기 단추('자세히보기')뿐인
-    카드형 목록 — 링크 밖 글 중 제목감 + 단추 주소.
+    ③ 첨부 파일 링크(파일 이름이 곧 제목인 게시판) ④ 링크가 보기 단추('자세히보기')·
+    내려받기 단추(문서 파일)뿐인 목록 — 링크 밖 글 중 제목감 + 단추 주소(날짜 있는 행만).
 
     첨부 파일 이름('261007(보도자료) … 현황.hwpx')이 제목보다 길어 제목을 밀어내고
     글 대신 파일이 내려받아지던 것(금융위·해수부·성균관대·가야대 실측), 제목이 스크립트
@@ -386,7 +386,7 @@ def _title_cell(cells: list[tuple[str, str]], base_url: str) -> tuple[int, str, 
     '자세히보기'가 제목이 되던 것(한예종 실측)을 바로잡는다.
     """
     page = script = filed = None
-    page_url = file_url = view_url = ""
+    page_url = file_url = view_url = down_url = ""
     listing = urllib.parse.urlsplit(base_url)._replace(fragment="").geturl()
 
     def longer(i: int, j: int | None) -> bool:
@@ -399,14 +399,11 @@ def _title_cell(cells: list[tuple[str, str]], base_url: str) -> tuple[int, str, 
         if _is_junk_title(text):
             # 글을 '보는' 단추('자세히보기'·'바로보기'·'첨부파일 문서보기')의 주소 — 제목이
             # 링크가 아닌 행의 글 주소로 쓴다. 목록 자신을 가리키는 것은 글 주소가 아니다.
-            if (
-                url
-                and not view_url
-                and url.split("#", 1)[0] != listing
-                and _is_button_text(text)
-                and _VIEW_WORD_RE.search(text)
-            ):
-                view_url = url
+            if url and url.split("#", 1)[0] != listing and _is_button_text(text):
+                if _VIEW_WORD_RE.search(text):
+                    view_url = view_url or url
+                elif is_file_link(url):
+                    down_url = down_url or url  # '다운로드' 단추 — 행의 문서 파일
             continue
         if not url:
             if _is_script_link(href) and longer(i, script):
@@ -426,13 +423,34 @@ def _title_cell(cells: list[tuple[str, str]], base_url: str) -> tuple[int, str, 
         return script, url, False
     if filed is not None:
         return filed, file_url, False
-    if view_url:
-        # '바로가기'·'더보기'·'다운로드' 단추뿐인 행은 글이 아니다(원서접수 안내 표 같은 것 —
-        # 대구공업대 실측). 글을 '보는' 단추가 있을 때만 링크 밖 글을 제목으로 삼는다.
+    if view_url or down_url:
+        # 링크 밖 글을 제목으로 삼는 것은 글을 '보는' 단추나 문서를 '내려받는' 단추가 있을
+        # 때만('예결산 공고 | 2026-08-19 | 다운로드' — 동명대·아주대 실측). '바로가기'·'더보기'
+        # 단추뿐인 행은 글이 아니다(원서접수 안내 표 — 대구공업대 실측).
         plain = _plain_title(cells)
         if plain is not None:
-            return plain, view_url, True
+            return plain, view_url or down_url, True
     return None
+
+
+def _drop_echoed_tail(text: str, after: list[tuple[str, str]]) -> str:
+    """제목 링크 안에 숨은 휴대폰용 꼬리가 같은 행의 다음 칸들(부서·날짜·조회)을 되풀이하면 뗀다.
+
+    '… 참여 안내 학생지원팀 2026-10-08 157' 뒤에 칸 '학생지원팀'·'2026-10-08'·'157' 이 따로
+    있다(한국항공대 실측). 행의 다른 칸에 그대로 있는 글만, 날짜가 든 꼬리만 뗀다.
+    """
+    title = " ".join(text.split())
+    follow = [" ".join(t.split()) for t, _ in after if t.strip()][:6]
+    for start in range(len(follow)):
+        for end in range(len(follow), start, -1):
+            tail = " ".join(follow[start:end])
+            if (
+                title.endswith(" " + tail)
+                and len(title) - len(tail) > MIN_TITLE_LEN
+                and any(coerce_date(t) for t in follow[start:end])
+            ):
+                return title[: -len(tail)].rstrip()
+    return title
 
 
 def _rows_from(rows: list[list[tuple[str, str]]], base_url: str) -> list[Row]:
@@ -446,7 +464,7 @@ def _rows_from(rows: list[list[tuple[str, str]]], base_url: str) -> list[Row]:
             continue
         best, best_url, plain = picked
 
-        title, unit = _clean_title(cells[best][0])
+        title, unit = _clean_title(_drop_echoed_tail(cells[best][0], cells[best + 1 :]))
         if len(title) < MIN_TITLE_LEN:
             continue
         if best_url in seen:

@@ -565,3 +565,47 @@ def test_card_lists_with_only_a_details_button_take_the_text_title():
         ("매거진 K-Arts Vol.59", "70558", "2026-09-28"),
         ("뉴스레터 vol.223", "70559", "2026-09-29"),
     ]
+
+
+def test_hidden_tail_inside_the_title_link_that_repeats_the_row_is_dropped():
+    """제목 링크 안의 휴대폰용 꼬리(부서·날짜·조회)가 같은 행의 칸을 되풀이하면 뗀다(한국항공대)."""
+    page = """<table>
+      <tr><td>3969</td><td><a href="notice.php?mode=read&amp;seq=11308">[의료지원실] 「헌혈 X 치킨원정대」 참여 안내
+        <span class="m">학생지원팀 2026-10-08 157</span></a></td>
+        <td>학생지원팀</td><td>2026-10-08</td><td>157</td></tr>
+      <tr><td>3968</td><td><a href="notice.php?mode=read&amp;seq=11290">2학기 중간 시험 감독 모집 2026-10-06</a></td>
+        <td>인문자연학부</td><td>2026-10-06</td><td>232</td></tr>
+    </table>"""
+    rows = govweb.parse_list(page.encode(), "https://kau.ac.kr/kaulife/notice.php")
+    assert [(r.title, r.unit, str(r.published)) for r in rows] == [
+        ("「헌혈 X 치킨원정대」 참여 안내", "의료지원실", "2026-10-08"),
+        # 꼬리가 날짜 칸만 되풀이해도 뗀다(게시일은 따로 보인다)
+        ("2학기 중간 시험 감독 모집", "", "2026-10-06"),
+    ]
+    assert govweb._is_junk_title("※ 다운받기 바로보기")
+    # 날짜가 없는 꼬리(부서 이름만 같은 것)는 제목의 일부일 수 있어 그대로 둔다
+    assert govweb._drop_echoed_tail("학생지원팀 안내 학생지원팀", [("학생지원팀", "")]) == (
+        "학생지원팀 안내 학생지원팀"
+    )
+
+
+def test_document_tables_with_a_download_button_take_the_text_title():
+    """'예결산 공고' 표 — 제목은 링크 밖 글, 링크는 '다운로드' 단추(문서 파일)뿐(동명대·아주대 실측)."""
+    page = """<table>
+      <tr><td>44</td><td>2026학년도 법인회계 제1차 추가경정 자금예산 공고</td><td>2026-08-19</td>
+        <td><a href="?mode=download&amp;articleNo=423225&amp;attachNo=86018">다운로드</a></td></tr>
+      <tr><td>법인일반업무회계 본예산 자금예산서</td><td>2026.02.12</td>
+        <td><a href="/cms/etcResourceDown.do?site=x&amp;key=y">다운로드</a></td></tr>
+      <tr><td>예산 편성 지침(안내)</td><td></td>
+        <td><a href="/cms/etcResourceDown.do?site=x&amp;key=z">다운로드</a></td></tr>
+    </table>"""
+    rows = govweb.parse_list(page.encode(), "https://www.tu.ac.kr/tuhome/sub01_03_09.do")
+    assert [(r.title, r.url.rsplit("/", 1)[-1][:28], str(r.published)) for r in rows] == [
+        (
+            "2026학년도 법인회계 제1차 추가경정 자금예산 공고",
+            "sub01_03_09.do?mode=download",
+            "2026-08-19",
+        ),
+        ("법인일반업무회계 본예산 자금예산서", "etcResourceDown.do?site=x&ke", "2026-02-12"),
+        # 날짜 없는 행의 링크 밖 글은 제목으로 삼지 않는다
+    ]
