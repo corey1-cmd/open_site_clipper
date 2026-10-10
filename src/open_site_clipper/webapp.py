@@ -41,6 +41,7 @@ from .cascade import origin_label
 from .collect import KST
 from .fetch import TrackingFetcher, decode_text
 from .model import Notice
+from .probe import looks_like_article
 from .sources import Source, from_dicts
 
 PageFetcher = Callable[[str], "bytes | None"]
@@ -428,8 +429,12 @@ def media_allowed(url: str) -> bool:
 
 
 def media_ready(url: str, title: str) -> bool:
-    """이 글에 '그림·첨부' 단추를 달아도 되는가(화면이 단추를 그릴지 정한다)."""
-    return media_allowed(url) and not _board_anchor(url, title)
+    """이 글에 '그림·첨부' 단추를 달아도 되는가(화면이 단추를 그릴지 정한다).
+
+    글 주소가 따로 없는 게시판(목록#제목)과, 글이 곧 파일인 주소(….pdf·download.do)는
+    열어도 찾을 것이 없다 — 단추를 달지 않는다.
+    """
+    return media_allowed(url) and not _board_anchor(url, title) and not media.looks_like_file(url)
 
 
 # 글 화면이 아니라 파일(HWP·PDF·ZIP …)이 바로 내려오는 주소 — 파일의 첫 바이트.
@@ -441,13 +446,26 @@ def _looks_binary(data: bytes) -> bool:
     return head.startswith(_BINARY_HEADS) or b"\x00" in head
 
 
+_SPACES_RE = re.compile(r"\s+")
+_HANGUL_RE = re.compile(r"[가-힣]")
+
+
 def _board_anchor(url: str, title: str) -> bool:
-    """글 주소가 따로 없는 게시판(목록 주소#제목)인가 — govweb._board_anchor 가 만든 것."""
-    frag = urllib.parse.urlsplit(url).fragment
-    if not frag or not title:
+    """글 주소가 따로 없는 게시판(목록 주소#제목)인가 — govweb._board_anchor 가 만든 것.
+
+    조각은 목록 칸의 **날** 글자라 말머리('[답변] 면접 질문')·꼬리가 붙어 있고, 글 제목은
+    그것을 다듬은 것이다 — 제목이 조각 안에 들어 있으면 그 주소다. 제목 없이도 한글이 든
+    긴 조각은 페이지 안 위치표('#content')가 아니라 우리가 붙인 제목 조각으로 본다.
+    """
+    parts = urllib.parse.urlsplit(url)
+    if not parts.fragment:
         return False
-    norm = re.compile(r"\s+")
-    return norm.sub("", urllib.parse.unquote(frag))[:40] == norm.sub("", title)[:40]
+    flat = _SPACES_RE.sub("", urllib.parse.unquote(parts.fragment))
+    key = _SPACES_RE.sub("", title or "")[:30]
+    if len(key) >= 4 and key in flat:
+        return True
+    page = parts._replace(fragment="").geturl()
+    return len(flat) >= 6 and bool(_HANGUL_RE.search(flat)) and not looks_like_article(page)
 
 
 def media_for(
@@ -483,22 +501,35 @@ def media_for(
     if _looks_binary(data):
         out["error"] = "글 화면이 아니라 파일 주소입니다 — 원문 열기로 받으세요"
         return out
-    found = media.extract(decode_text(data), page, title=title)
+    # 목록 기관의 사이트 밖 그림·첨부(책 표지·기사 사진·문의 게시판의 광고)는 세기만 한다
+    found = media.extract(decode_text(data), page, title=title, allow=media_allowed)
     # 본문을 iframe 으로 따로 띄우는 게시판 — 같은 사이트의 첫 iframe 을 한 번 더 본다.
     if not found.images and found.frames:
         frame = found.frames[0]
         if media_allowed(frame) and robots.allowed(frame):
             sub = get(frame)
-            if sub:
-                inner = media.extract(decode_text(sub), frame)
+            if sub and not _looks_binary(sub):
+                inner = media.extract(decode_text(sub), frame, allow=media_allowed)
                 found.images = inner.images
-                found.files = found.files or inner.files
+                found.outside_images += inner.outside_images
+                if not found.files:
+                    found.files = inner.files
+                    found.outside_files += inner.outside_files
                 found.tables += inner.tables
                 found.wide_tables += inner.wide_tables
                 found.inline_images += inner.inline_images
+                found.kept += inner.kept
     out.update(found.as_dict(debug=debug))
     out["elapsed"] = round(clock() - started, 1)
     return out
+
+
+def _no_button_reason(url: str, title: str) -> str:
+    if not media_allowed(url):
+        return "단추 없음 — 목록 기관 밖 사이트"
+    if _board_anchor(url, title):
+        return "단추 없음 — 글 주소가 따로 없는 게시판"
+    return "단추 없음 — 글이 곧 파일인 주소"
 
 
 def media_sample(
@@ -522,25 +553,34 @@ def media_sample(
             break
     samples = []
     for n in picked:
-        try:
-            m = media_for(n["url"], n["title"], fetcher=fetcher)
-        except ValueError as e:
-            m = {"error": str(e)}
+        ready = media_ready(n["url"], n["title"])
+        if not ready:
+            # 화면에 단추가 없는 글 — 왜 없는지만 적는다(열어 보지 않는다)
+            m = {"error": _no_button_reason(n["url"], n["title"])}
+        else:
+            try:
+                m = media_for(n["url"], n["title"], fetcher=fetcher)
+            except ValueError as e:
+                m = {"error": str(e)}
         imgs = m.get("images") or []
+        files = m.get("files") or []
         samples.append(
             {
                 "title": n["title"][:60],
                 "url": n["url"],
+                "ready": ready,
                 "images": len(imgs),
-                "files": len(m.get("files") or []),
+                "files": len(files),
                 "tables": m.get("tables", 0),
                 "wide": m.get("wide_tables", 0),
                 "inline": m.get("inline_images", 0),
                 "script_files": m.get("script_files", 0),
+                "outside": [m.get("outside_images", 0), m.get("outside_files", 0)],
                 "title_found": m.get("title_found", False),
                 "error": m.get("error", ""),
-                "first": imgs[0]["src"] if imgs else "",
-                "file1": (m.get("files") or [{}])[0].get("label", ""),
+                # 점검하는 사람이 오탐을 가려낼 수 있게 — 주소와 첨부 이름만(본문 글자 없음)
+                "srcs": [i["src"] for i in imgs[:8]],
+                "labels": [f"{f['kind']}|{f['label']}" for f in files[:8]],
             }
         )
     return {"id": org_id, "name": catalog()[org_id].name, "count": got["count"], "samples": samples}

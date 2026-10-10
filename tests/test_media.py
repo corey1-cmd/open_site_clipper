@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import json
+import urllib.parse
 
 import pytest
 
@@ -58,7 +59,9 @@ def test_finds_the_poster_and_attachments_of_a_k2web_post():
     assert m.script_files == 1 and m.inline_images == 1
     assert m.tables == 1 and m.wide_tables == 1
     why = dict(m.dropped)
-    assert why["https://student.hufs.ac.kr/_res/hufs/img/common/logo.png"] == "껍데기 영역"
+    assert why["https://student.hufs.ac.kr/_res/hufs/img/common/logo.png"].startswith(
+        "껍데기 영역(header"
+    )
     assert why["https://student.hufs.ac.kr/img/ico_print.gif"].startswith("아이콘 이름")
     assert (
         why["https://student.hufs.ac.kr/sites/student/atchmnfl/bbs/2436/thumbnail/thumb_1.png"]
@@ -202,3 +205,177 @@ def test_media_for_explains_what_it_cannot_open(allow_all, monkeypatch):
     assert "파일 주소" in got["error"]
     monkeypatch.setattr(robots, "allowed", lambda url, **k: False)
     assert webapp.media_for("https://www.test.ac.kr/v.do?id=1", "x")["error"] == "robots.txt 차단"
+
+
+# ── 198곳 실측에서 걸러 낸 오탐(사이트 그림·대기 화면·목록 썸네일·남의 사이트) ──────
+def _kept(page: str, url: str, title: str, **kw) -> list[str]:
+    return [i.src.rsplit("/", 1)[-1] for i in media.extract(page, url, title=title, **kw).images]
+
+
+def test_site_pictures_that_slipped_through_the_first_check():
+    page = """<body><h3>표준상담 사례집 발간 안내</h3><div class="bbs_view">
+    <img src="/Web-home/fnct/bbs/JW_bbs_table/images/attachment.png">
+    <img src="/images/fileico/ichwp.gif"><img src="/images/sub/img_sub_visual1.jpg">
+    <img src="/images/videoNew/main/main_09.png"><img src="/usr/upload/ftp/sub-visual04.jpg">
+    <img src="/base/imgs/cmmn/contents/standby.gif"><img src="/Error.jpg">
+    <img src="/Board/images/Attach.htm?MENUCODE=1&FILENO=30790">
+    <img src="/upload/editor/2026/error.png"><img src="/upload/editor/logo_final.png">
+    </div></body>"""
+    got = _kept(page, "https://www.x.go.kr/view.do?id=1", "표준상담 사례집 발간 안내")
+    # 프로그램이 내주는 그림(쿼리)·올린 그림은 'error'·'logo' 이름이어도 글의 그림이다
+    assert got == ["Attach.htm?MENUCODE=1&FILENO=30790", "error.png", "logo_final.png"]
+
+
+def test_title_not_on_the_page_keeps_only_uploaded_pictures():
+    """접속 대기 화면·메뉴 화면 — 제목이 없으면 사이트 그림은 빼고 올린 그림만."""
+    page = """<body><img src="/cdn/univ_main6.jpg"><img src="/_Data/Editor/fd96f3aa29c2.jpg">
+    <img src="/data/2026/10/poster.png"></body>"""
+    got = _kept(page, "https://www.x.ac.kr/main", "생활관 입사 안내문 공지")
+    assert got == ["fd96f3aa29c2.jpg", "poster.png"]
+    # 제목 없이 부른 경우(본문 iframe)는 그대로 본다
+    assert len(_kept(page, "https://www.x.ac.kr/c.do", "")) == 3
+
+
+def test_xe_list_thumbnails_and_links_to_sibling_posts_are_not_the_post():
+    page = """<body><div class="read"><h1>2026 전국체전 결과 보고</h1>
+    <img src="/files/attach/images/4735/799/015/c6a68706f13a7b03f38c336af1a829f5.jpeg"></div>
+    <ul class="gallery"><li><a href="/s_results/15794"><img src="/files/thumbnails/794/015/300x300.fill.jpg?t=1"></a></li>
+    <li><a href="/s_results/15790"><img src="/files/attach/images/4735/790/015/a.jpg"></a></li></ul>
+    </body>"""
+    m = media.extract(page, "http://sport.x.ac.kr/s_results/15799", title="2026 전국체전 결과 보고")
+    assert [i.src.rsplit("/", 1)[-1] for i in m.images] == ["c6a68706f13a7b03f38c336af1a829f5.jpeg"]
+    why = {u.rsplit("/", 1)[-1]: r for u, r in m.dropped}
+    assert why["300x300.fill.jpg?t=1"] in ("목록 썸네일", "다른 글 링크")
+    assert why["a.jpg"] == "다른 글 링크"
+
+
+def test_same_picture_as_thumbnail_and_full_size_is_shown_once():
+    page = """<body><h3>포항 관제센터 개국식 사진</h3>
+    <a href="/upload/ntt_1/img_a.jpg"><img src="/upload/ntt_1/thumb/thumb_img_a.jpg" alt="사진 1"></a>
+    <a href="/upload/ntt_1/img_b.jpg"><img src="/upload/ntt_1/thumb/thumb_img_b.jpg" alt="사진 2"></a>
+    <img src="/upload/ntt_1/img_a.jpg"><img src="/upload/ntt_1/img_b.jpg"></body>"""
+    m = media.extract(page, "https://www.x.go.kr/v.do?nttSn=1", title="포항 관제센터 개국식 사진")
+    assert [(i.src.rsplit("/", 1)[-1], i.full.rsplit("/", 1)[-1]) for i in m.images] == [
+        ("thumb_img_a.jpg", "img_a.jpg"),
+        ("thumb_img_b.jpg", "img_b.jpg"),
+    ]
+
+
+def test_pictures_and_files_on_other_sites_are_only_counted():
+    page = """<body><h3>신착 도서 안내합니다</h3>
+    <img src="https://image.aladin.co.kr/product/1/cover.jpg"><img src="/upload/2026/a.png">
+    <a href="https://viagra.isweb.co.kr/image?code=1"><img src="https://viagra.isweb.co.kr/image?code=1"></a>
+    <a href="https://cdn.example.com/files/guide.pdf">안내서.pdf</a><a href="/down.do?id=1">요강.hwp</a>
+    <a href="https://img.example.com/big.jpg"><img src="/upload/2026/small.png"></a></body>"""
+    m = media.extract(
+        page,
+        "https://lib.x.go.kr/v.do?id=1",
+        title="신착 도서 안내합니다",
+        allow=lambda u: ".go.kr" in u,
+    )
+    assert [i.src.rsplit("/", 1)[-1] for i in m.images] == ["a.png", "small.png"]
+    assert m.images[1].full == m.images[1].src  # 큰 그림이 남의 사이트면 작은 그림을 연다
+    assert (m.outside_images, m.outside_files) == (2, 1)
+    assert [f.label for f in m.files] == ["요강.hwp"]
+    d = m.as_dict()
+    assert d["outside_images"] == 2 and d["outside_files"] == 1
+
+
+@pytest.mark.parametrize(
+    ("text", "label"),
+    [
+        ("공고문(제2026-127호).hwpx (크기:0.056MB , 다운로드:15)", "공고문(제2026-127호).hwpx"),
+        ("퇴직공직자 취업사실 공개.pdf (pdf,", "퇴직공직자 취업사실 공개.pdf"),
+        ("은평구민장학재단 선발공고.pdf (268.2K)", "은평구민장학재단 선발공고.pdf"),
+        ("출입국 서비스.hwp (다운로드 : 148회)", "출입국 서비스.hwp"),
+        ("구제역 확진(9.19.).pdf (파일 용량 :", "구제역 확진(9.19.).pdf"),
+        ("붙임1 공고문.hwp", "붙임1 공고문.hwp"),
+        ("결과 보고서 (12KB) 다운로드", "결과 보고서"),
+        ("육상 100m 기록표", "육상 100m 기록표"),
+        ("모집요강.pdf.pdf", "모집요강.pdf.pdf"),
+    ],
+)
+def test_attachment_names_lose_size_and_count_tails(text, label):
+    page = f'<body><h3>첨부 이름 정리 확인</h3><a href="/download.do?id=1">{text}</a></body>'
+    m = media.extract(page, "https://www.x.go.kr/v.do?id=1", title="첨부 이름 정리 확인")
+    assert [f.label for f in m.files] == [label]
+
+
+def test_attachment_links_with_icon_glyphs_new_window_words_and_zip_buttons():
+    page = """<body><h3>첨부 이름 정리 확인</h3>
+    <a href="/down.do?id=1">협약체결.hwpx <span class="material-symbols-outlined">chevron_forward</span></a>
+    <a href="/viewer/doc.html?fn=1">새창열림</a>
+    <a href="/common/downloadAllZip.do?bbs_seq=1">일괄다운로드</a>
+    <a href="/editor/view.do?f=2">????????.jpg 바로보기(새창)</a></body>"""
+    m = media.extract(page, "https://www.x.go.kr/v.do?id=1", title="첨부 이름 정리 확인")
+    assert [(f.label, f.kind) for f in m.files] == [
+        ("협약체결.hwpx", "HWP"),
+        ("협약체결.hwpx (바로보기)", "보기"),
+        (media.ALL_FILES_LABEL, "ZIP"),
+        ("첨부 모두 받기 (바로보기)", "보기"),
+    ]
+
+
+@pytest.mark.parametrize(
+    ("url", "is_file"),
+    [
+        (
+            "https://www.mof.go.kr/jfile/readDownloadFile.do?fileType=A&fileTypeSeq=1&fileNum=1",
+            True,
+        ),
+        ("https://www.fsc.go.kr/comm/getFile?srvcId=BBSTY1&upperNo=1&fileTy=ATTACH&fileNo=2", True),
+        ("https://www.seowon.ac.kr/regltn/seowon/7/6378/2/download.do", True),
+        ("https://www.skku.edu/skku/campus/press.do?mode=download&articleNo=1&attachNo=2", True),
+        ("https://www.mofe.go.kr/com/cmm/fms/AtchZipFileDown.do?atchFileId=A", True),
+        ("https://www.dgau.ac.kr/file/s1360/06/규정.pdf", True),
+        ("https://www.x.ac.kr/bbs/x/1/2/artclView.do", False),
+        ("https://www.x.ac.kr/board/view.do?mode=view&no=1", False),
+        ("https://www.x.ac.kr/pds/download/list.do", False),
+    ],
+)
+def test_notices_that_are_files_themselves(url, is_file):
+    assert media.looks_like_file(url) is is_file
+
+
+@pytest.mark.parametrize(
+    ("url", "uploaded"),
+    [
+        ("https://x.ac.kr/storage/board/1/20261006134118FJinfeKKOrU3.jpg", True),
+        ("https://x.go.kr/upload/kcg/na/bbs_315/ntt_72603/img_025a4127.jpg", True),
+        ("https://x.ac.kr/utl/web/imageSrc.do?path=abc&physical=def", True),
+        ("https://x.ac.kr/files/doc_form/a.png?resVer=2025", True),
+        ("https://x.ac.kr/images/common/logo.png?v=1.2", False),
+        ("https://x.ac.kr/cdn/univ_main6.jpg", False),
+    ],
+)
+def test_uploaded_picture_addresses(url, uploaded):
+    assert media.looks_uploaded(url) is uploaded
+
+
+def test_board_anchors_with_heads_tails_or_no_title(allow_all):
+    """목록 칸의 날 글자로 만든 조각 — 말머리·꼬리가 붙어도 알아본다(질병청·춘해보건대 실측)."""
+    raw = "[답변] 면접 질문"
+    url = "https://ipsi.x.ac.kr/board/boardList.do?menuCd=1#" + urllib.parse.quote(raw)
+    assert webapp._board_anchor(url, "면접 질문") and not webapp.media_ready(url, "면접 질문")
+    long = "https://www.x.go.kr/bbs/42/artclList.do#" + urllib.parse.quote(
+        "[10.8.목.조간] 임신당뇨병 산모의 자녀, 당뇨병 위험 최대 4배 이상 높아 새글"
+    )
+    assert webapp._board_anchor(long, "임신당뇨병 산모의 자녀, 당뇨병 위험 최대 4배 이상 높아")
+    assert webapp._board_anchor(long, "")  # 제목 없이도 — 한글 조각
+    assert not webapp._board_anchor("https://www.x.ac.kr/view.do?id=1#content", "제목입니다")
+    assert not webapp.media_ready("https://www.x.ac.kr/down/notice.pdf", "공고문")
+    assert webapp.media_ready("https://www.x.ac.kr/bbs/x/1/2/artclView.do", "공고문")
+
+
+def test_media_for_counts_other_site_pictures(allow_all):
+    pages = {
+        "https://www.test.ac.kr/view.do?id=8": (
+            "<body><h3>도서 안내 공지입니다</h3><img src='https://image.aladin.co.kr/c.jpg'>"
+            "<img src='/upload/2026/p.png'></body>"
+        ).encode()
+    }
+    got = webapp.media_for(
+        "https://www.test.ac.kr/view.do?id=8", "도서 안내 공지입니다", fetcher=pages.get
+    )
+    assert [i["src"] for i in got["images"]] == ["https://www.test.ac.kr/upload/2026/p.png"]
+    assert got["outside_images"] == 1 and got["outside_files"] == 0

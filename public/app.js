@@ -541,6 +541,13 @@ function mediaHtml(m, url) {
   }
   if (m.inline_images) notes.push(`원문에서만 보이는 그림이 ${m.inline_images}개 더 있습니다.`);
   if (m.script_files) notes.push(`원문에서만 받을 수 있는 첨부가 ${m.script_files}개 더 있습니다.`);
+  if (m.outside_images || m.outside_files) {
+    // 기관 누리집이 아닌 곳(책 표지·기사 사진·광고)의 그림은 이 화면에 불러오지 않는다
+    const parts = [];
+    if (m.outside_images) parts.push(`그림 ${m.outside_images}개`);
+    if (m.outside_files) parts.push(`첨부 ${m.outside_files}개`);
+    notes.push(`다른 사이트에 있는 ${parts.join('·')}는 원문에서 보세요.`);
+  }
   if (!imgs.length && !files.length && !notes.length) notes.push('이 글에서 그림·첨부를 찾지 못했습니다.');
   html += notes.map((t) => `<p class="mnote">${esc(t)}</p>`).join('');
   return `${html}<p class="mfoot">그림·파일은 원래 사이트에서 바로 불러옵니다(이 앱은 저장하지 않습니다) · ${open}</p>`;

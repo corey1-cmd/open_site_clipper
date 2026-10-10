@@ -26,11 +26,12 @@ HTML 을 직접 읽는다.
 
 from __future__ import annotations
 
+import html
 import re
 import urllib.parse
 from html.parser import HTMLParser
 
-from .k2web_parse import Row, anchor_href, coerce_date, parse_rows
+from .k2web_parse import Row, anchor_href, coerce_date, is_glyph, parse_rows
 
 MIN_TITLE_LEN = 4
 MAX_UNIT_LEN = 40
@@ -41,6 +42,16 @@ _ORG_PREFIX_RE = re.compile(r"^\[([^\]]{2,40})\]\s*")
 _BADGE_RE = re.compile(r"^(새글|NEW|신규|공지)\s+", re.I)
 # 제목 **뒤**에 붙는 배지 — K2Web 목록은 '… 모집 공고(~11/11) 새글' 처럼 끝에 단다.
 _BADGE_TAIL_RE = re.compile(r"\s+(새글|새 글|NEW|N)$", re.I)
+# 첨부 표시 꼬리 — '… 공고 첨부파일이 1개 있음'(인하대)·'… 공개첨부파일'(국민통합위)·
+# '… 안내 첨부파일 있'(잘림). 화면 읽기용 숨은 글자가 제목 칸에 섞인 것이다.
+_ATTACH_TAIL_RE = re.compile(
+    r"\s*첨부\s*파일(?:이|은)?\s*(?:\d+\s*개\s*)?(?:있음|있습니다|있|존재)?\.?$"
+)
+_ATTACH_HEAD_RE = re.compile(r"^첨부\s*파일\s*있음\s*(?:열기)?\s*")
+# 두 번 이스케이프된 문자 참조 — '&lsquo;2026 산학연협력 EXPO&rsquo;'(신라대 실측).
+# 세미콜론까지 갖춘 것만 푼다('R&D'·'Q&A' 는 그대로). 잘린 꼬리('…&middo')는 뗀다.
+_ENTITY_RE = re.compile(r"&(?:#\d{1,7}|#x[0-9a-f]{1,6}|[a-z][a-z0-9]{1,7});", re.I)
+_BROKEN_ENTITY_TAIL_RE = re.compile(r"&[a-z]{2,8}$", re.I)
 # 첨부파일 칸 — '한글 파일 PDF 파일 이미지 파일' 처럼 파일 종류만 나열된다.
 # 이 칸이 제목보다 길어져 제목 자리를 빼앗는 일이 실제로 있었다(새만금개발청).
 _ATTACH_RE = re.compile(
@@ -87,16 +98,28 @@ def _is_junk_title(text: str) -> bool:
     return len(t) > 120
 
 
+def _unescape_twice(text: str) -> str:
+    if "&" not in text:
+        return text
+    fixed = _ENTITY_RE.sub(lambda m: html.unescape(m.group(0)), text)
+    if fixed != text:
+        fixed = _BROKEN_ENTITY_TAIL_RE.sub("", fixed)
+    return fixed
+
+
 def _clean_title(text: str) -> tuple[str, str]:
-    """제목에서 '[기관명]' 접두와 '새글' 배지를 떼어 (제목, 기관명)으로."""
+    """제목에서 '[기관명]' 접두와 '새글'·'첨부파일 있음' 표시를 떼어 (제목, 기관명)으로."""
     unit = ""
-    title = _BADGE_RE.sub("", text.strip())
+    title = _unescape_twice(" ".join(text.split()))
+    title = _ATTACH_HEAD_RE.sub("", title)
+    title = _BADGE_RE.sub("", title)
     m = _ORG_PREFIX_RE.match(title)
     if m:
         unit = m.group(1).strip()[:MAX_UNIT_LEN]
         title = title[m.end() :].strip()
     title = _BADGE_RE.sub("", title)  # '[기관] 새글 제목' 순서도 있다
-    title = _BADGE_TAIL_RE.sub("", title)
+    for _ in range(2):  # '… 새글 첨부파일이 1개 있음' — 꼬리가 겹친다
+        title = _BADGE_TAIL_RE.sub("", _ATTACH_TAIL_RE.sub("", title)).strip()
     return title, unit
 
 
@@ -123,6 +146,7 @@ class _ItemParser(HTMLParser):
         self._buf: list[str] = []
         self._href: list[str] = []  # 열린 <a> 의 주소(중첩 대비 스택)
         self._skip = 0
+        self._glyph: list[str] = []  # 열린 아이콘 글꼴 요소(그 안 글자는 읽지 않는다)
 
     def _flush(self) -> None:
         text = " ".join("".join(self._buf).split())
@@ -135,6 +159,8 @@ class _ItemParser(HTMLParser):
             self._skip += 1
             return
         self._flush()
+        if tag not in self._VOID and is_glyph(attrs):
+            self._glyph.append(tag)
         if tag == "li":
             self._stack.append([])
         elif tag == "a":
@@ -144,7 +170,7 @@ class _ItemParser(HTMLParser):
         self._flush()
 
     def handle_data(self, data: str) -> None:
-        if not self._skip and self._stack:
+        if not self._skip and not self._glyph and self._stack:
             self._buf.append(data)
 
     def handle_endtag(self, tag: str) -> None:
@@ -153,6 +179,8 @@ class _ItemParser(HTMLParser):
             return
         if tag in self._VOID:
             return
+        if self._glyph and tag == self._glyph[-1]:
+            self._glyph.pop()
         self._flush()
         if tag == "a" and self._href:
             self._href.pop()

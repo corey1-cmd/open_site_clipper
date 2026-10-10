@@ -67,39 +67,88 @@ def anchor_href(attrs: list[tuple[str, str | None]]) -> str:
     return href
 
 
+# 글자로 그리는 아이콘 글꼴(Material) — 'lock'·'chevron_forward' 같은 글자가 제목에
+# 붙는다('lock졸업예정자 누적석차 조회' — 강원대 실측). 이 요소 안의 글자는 읽지 않는다.
+GLYPH_CLASSES = ("material-icons", "material-symbols")
+_VOID_TAGS = frozenset({"br", "img", "hr", "input", "wbr", "meta", "link", "source", "col"})
+
+
+def is_glyph(attrs: list[tuple[str, str | None]]) -> bool:
+    cls = (dict(attrs).get("class") or "").lower()
+    return any(g in cls for g in GLYPH_CLASSES)
+
+
 class _RowParser(HTMLParser):
-    """<tr> 단위로 칸(<td>/<th>) 텍스트와 링크를 모으는 최소 파서."""
+    """<tr> 단위로 칸(<td>/<th>) 텍스트와 링크를 모으는 최소 파서.
+
+    링크가 든 칸은 **글자가 가장 긴 링크가 끝나는 데까지**가 그 칸의 글이다. 반응형
+    목록은 제목 칸 안에 휴대폰용 꼬리('새글'·'첨부파일이 1개 있음'·작성자·조회수)를
+    숨겨 두는데, 그것까지 이으면 제목이 '… 공고 새글 작성자 학술정보과 작성일 2026.1'
+    처럼 된다(인하대·인천대·아주대 실측). 꼬리에 날짜가 있으면 그 꼬리는 바로 뒤의
+    칸으로 따로 둔다(게시일을 잃지 않게). 칸의 주소도 그 링크의 주소다 — 앞에 붙은
+    분류 링크('?sca=학사')·첨부 아이콘 링크가 글 주소 자리를 차지하지 않게.
+    """
 
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
         self.rows: list[list[tuple[str, str]]] = []  # 행 → [(텍스트, href)]
         self._row: list[tuple[str, str]] | None = None
         self._cell: list[str] | None = None
-        self._href = ""
+        self._size = 0  # 칸에 모인 글자 수
+        self._href = ""  # 칸의 첫 링크 주소
+        self._links: list[tuple[int, int, str]] = []  # 글자 있는 링크 (시작, 끝, 주소)
+        self._open_link: tuple[int, str] | None = None
+        self._glyph: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag not in _VOID_TAGS and is_glyph(attrs):
+            self._glyph.append(tag)
         if tag == "tr":
             self._row = []
         elif tag in ("td", "th") and self._row is not None:
-            self._cell, self._href = [], ""
+            self._cell, self._href, self._size = [], "", 0
+            self._links, self._open_link = [], None
         elif tag == "a" and self._cell is not None:
             href = anchor_href(attrs)
             if href and not self._href:
                 self._href = href
+            self._open_link = (self._size, href)
 
     def handle_data(self, data: str) -> None:
-        if self._cell is not None:
+        if self._cell is not None and not self._glyph:
             self._cell.append(data)
+            self._size += len(data)
 
     def handle_endtag(self, tag: str) -> None:
+        if self._glyph and tag == self._glyph[-1]:
+            self._glyph.pop()
+        if tag == "a" and self._open_link is not None and self._cell is not None:
+            start, href = self._open_link
+            self._open_link = None
+            if "".join(self._cell)[start:].strip():
+                self._links.append((start, self._size, href))
         if tag in ("td", "th") and self._cell is not None and self._row is not None:
-            text = " ".join("".join(self._cell).split())
-            self._row.append((text, self._href))
-            self._cell, self._href = None, ""
+            self._end_cell()
         elif tag == "tr" and self._row is not None:
             if self._row:
                 self.rows.append(self._row)
             self._row = None
+
+    def _end_cell(self) -> None:
+        assert self._cell is not None and self._row is not None
+        raw = "".join(self._cell)
+        text, href, tail = raw, self._href, ""
+        if self._links:
+            _start, end, link_href = max(
+                self._links, key=lambda span: len(raw[span[0] : span[1]].strip())
+            )
+            text, tail = raw[:end], raw[end:]
+            href = link_href or self._href
+        self._row.append((" ".join(text.split()), href))
+        tail = " ".join(tail.split())
+        if tail and coerce_date(tail):
+            self._row.append((tail, ""))
+        self._cell, self._href, self._links = None, "", []
 
 
 def coerce_date(text: str) -> date | None:

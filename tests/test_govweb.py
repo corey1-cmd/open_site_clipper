@@ -290,3 +290,69 @@ def test_paging_rows_and_button_words_are_not_titles():
     assert govweb._is_junk_title("자세히보기")
     assert not govweb._is_junk_title("2026학년도 2학기 국가근로장학생 모집")
     assert not govweb._is_junk_title("2027 수시 1차 합격자 발표")
+
+
+def test_hidden_mobile_tails_in_the_title_cell_are_not_the_title():
+    """반응형 목록 — 제목 칸 안의 휴대폰용 꼬리(새글·첨부·작성자·조회수)는 제목이 아니다."""
+    page = """<table><tr><th>번호</th><th>제목</th><th>작성일</th></tr>
+    <tr><td>1</td><td class="subject"><a href="/bbs/x/1/45759/artclView.do"><strong>전임연구원 채용 공고</strong></a>
+      <span class="new">새글</span><span class="hide">첨부파일이 1개 있음</span></td><td>2026.10.08</td></tr>
+    <tr><td>2</td><td class="subject"><a href="view.do?no=2">국가근로장학생 추가 모집 안내(~10/18)</a>
+      <span class="m">작성자 학술정보과</span><span class="m">작성일 2026.10.07</span></td></tr>
+    </table>"""
+    rows = govweb.parse_list(page.encode(), "https://www.x.ac.kr/list.do")
+    assert [(r.title, r.published) for r in rows] == [
+        ("전임연구원 채용 공고", date(2026, 10, 8)),
+        # 날짜가 꼬리에만 있으면 꼬리를 따로 칸으로 두어 게시일을 잃지 않는다
+        ("국가근로장학생 추가 모집 안내(~10/18)", date(2026, 10, 7)),
+    ]
+
+
+def test_category_link_before_the_title_does_not_take_the_post_address():
+    """그누보드 — 제목 칸 맨 앞의 분류 링크('?sca=학사')가 글 주소 자리를 차지하지 않는다."""
+    page = """<table><tr><td class="td_subject">
+      <a href="board.php?bo_table=notice&sca=%ED%95%99%EC%82%AC" class="bo_cate_link">학사</a>
+      <div class="bo_tit"><a href="board.php?bo_table=notice&wr_id=123">2학기 수강신청 정정 안내</a>
+      <span class="new_icon">N</span><span class="cnt_cmt">3</span></div></td>
+      <td class="td_datetime">2026-10-08</td></tr>
+    <tr><td class="td_subject"><a href="board.php?bo_table=notice&sca=x" class="bo_cate_link">장학</a>
+      <a href="board.php?bo_table=notice&wr_id=124">교외 장학생 선발 공고</a></td><td>2026-10-07</td></tr>
+    </table>"""
+    rows = govweb.parse_list(page.encode(), "https://www.x.ac.kr/bbs/board.php?bo_table=notice")
+    assert [(r.title, r.url.rsplit("&", 1)[-1]) for r in rows] == [
+        ("학사 2학기 수강신청 정정 안내", "wr_id=123"),
+        ("장학 교외 장학생 선발 공고", "wr_id=124"),
+    ]
+
+
+def test_icon_font_glyphs_and_double_escaped_entities_are_not_in_titles():
+    page = """<ul>
+    <li><a href="detail.do?pstSn=14454"><span class="material-symbols-outlined">lock</span>졸업예정자 누적석차 조회</a>
+        <span>2026.10.08</span></li>
+    <li><a href="view.do?idx=2328">신라대 앵커사업단, &amp;lsquo;2026 산학연협력 EXPO&amp;rsquo;서 교육&amp;middo</a>
+        <span>2026.10.07</span></li>
+    <li><a href="view.do?idx=2329">R&amp;D 지원사업 Q&amp;A 안내</a><span>2026.10.06</span></li>
+    </ul>"""
+    rows = govweb.parse_list(page.encode(), "https://www.x.ac.kr/bbs/list.do")
+    assert [r.title for r in rows] == [
+        "졸업예정자 누적석차 조회",
+        "신라대 앵커사업단, ‘2026 산학연협력 EXPO’서 교육",
+        "R&D 지원사업 Q&A 안내",
+    ]
+
+
+def test_attachment_marks_glued_to_titles():
+    for raw, want in [
+        ("2026년 3분기 업무추진비 집행내역 공개첨부파일", "2026년 3분기 업무추진비 집행내역 공개"),
+        (
+            "웹쉘탐지 솔루션 구매 업체 선정 (산학) 새글 첨부파일이 3개 있음",
+            "웹쉘탐지 솔루션 구매 업체 선정 (산학)",
+        ),
+        ("해외문화탐방 참가자 모집 안내 첨부파일 있", "해외문화탐방 참가자 모집 안내"),
+        (
+            "첨부파일 있음열기 정보공유체계 사업 예비설명회 안내",
+            "정보공유체계 사업 예비설명회 안내",
+        ),
+        ("교원 공개채용 지원서 양식", "교원 공개채용 지원서 양식"),
+    ]:
+        assert govweb._clean_title(raw)[0] == want
