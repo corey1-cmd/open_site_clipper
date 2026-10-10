@@ -173,22 +173,20 @@ def _raw_label(text: str) -> str:
 def refine_label(label: str, data: bytes | None, url: str) -> str:
     """목록으로 판정된 게시판의 이름을 **내용으로** 다듬는다.
 
-    앵커 이름이 갈래를 분명히 말하면(장학·학사·채용 …) 그대로 둔다. '공지'·'소식'처럼
-    이름은 있으나 넓은 게시판은 페이지가 더 구체적인 이름을 밝힐 때만 바꾼다.
-    'READ'·'더보기'처럼 이름을 모르면 ① 글 제목들에서 우세한 갈래 ② 페이지가 밝힌
+    **이름이 있으면 그 이름을 믿는다**('공지사항'·'등록금심의위원회'·'기계공학과').
+    'READ'·'더보기'처럼 이름을 모를 때만 ① 글 제목들에서 우세한 갈래 ② 페이지가 밝힌
     게시판 이름(`<title>`·제목 태그) 순으로 고른다. 한국외대 홈은 공지·학사·장학·채용
     네 탭이 전부 'READ' 였고, 이름이 같아 하나만 모이고 장학은 아예 빠졌다.
+
+    이름 있는 게시판까지 내용으로 바꿨더니(0.25.0) 실측에서 거꾸로 틀렸다 — 페이지
+    머리의 메뉴 제목을 읽어 일반 공지가 '입학안내'가 되고, 회의록 제목의 '등록금'
+    때문에 등록금심의위원회가 '학사'가, 장학 글이 많은 일반 공지가 '장학'이 됐다.
+    그런 게시판의 글은 제목으로 하나씩 나누므로(장학 글은 장학) 잃는 것이 없다.
     """
-    if categories.canonical(label) in categories.SPECIFIC or not data:
+    if categories.is_named(label) or not data:
         return label
-    page = govweb.page_label(data)
-    if categories.is_named(label):
-        # '공지'처럼 이름이 있는 게시판은 그 이름을 믿는다 — 페이지가 더 구체적인
-        # 이름(장학공지)을 밝힐 때만 바꾼다. 장학 기관의 일반 공지는 학자금 글이
-        # 대부분이어도 '장학' 게시판이 아니다(한국장학재단 실측).
-        return page if categories.canonical(page) in categories.SPECIFIC else label
     rows = govweb.parse_list(data, url)
-    return categories.dominant([r.title for r in rows]) or page or label
+    return categories.dominant([r.title for r in rows]) or govweb.page_label(data) or label
 
 
 def board_score(url: str, label: str) -> int:

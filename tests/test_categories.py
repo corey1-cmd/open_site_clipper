@@ -311,7 +311,8 @@ def test_a_scholarship_agencys_general_board_is_not_renamed_scholarship():
     assert c.dominant(titles) == ""
     assert c.for_title("2학기 9월 국가근로 출근부 마감 안내") == "장학"
     # 이름이 있는 게시판('공지')은 내용으로 이름을 바꾸지 않는다 — 장학 기관이라도
-    assert c.is_named("공지") and c.is_named("공지사항(목록)") and not c.is_named("READ")
+    assert c.is_named("공지") and c.is_named("공지사항(목록)") and c.is_named("등록금심의위원회")
+    assert not c.is_named("READ") and not c.is_named("더보기MORE") and not c.is_named("기타")
 
 
 def test_scholarship_program_names_without_the_word_scholarship():

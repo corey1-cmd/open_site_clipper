@@ -72,6 +72,9 @@ MEANINGLESS = frozenset(
         "+",
         "더보기+",
         "+더보기",
+        # '+ 전체목록보기' · '노사상생 게시판' — 실측 경로 캐시에서
+        "보기",
+        "게시판",
     }
 )
 
@@ -115,18 +118,22 @@ def tidy_label(text: str) -> str:
     실측 경로 캐시에 '공지사항(목록)'·'뉴스룸 게시판목록'·'더보기READ' 같은 이름이
     남아, 갈래를 말하는 제목이 없는 글에 그 이름이 그대로 분류로 찍혔다.
     """
-    flat = strip_meaningless(_PLUS_SPACE_RE.sub(" ", " ".join((text or "").split())))
+    flat = _PLUS_SPACE_RE.sub(" ", " ".join((text or "").split()))
+    if _glued_meaningless(flat):  # '더 보기' — 떼기 전에 통째로 본다('보기'만 떼면 '더')
+        return ""
+    flat = strip_meaningless(flat)
     if not flat or _glued_meaningless(flat):
         return ""
     return _LIST_TAIL_RE.sub("", flat).strip()  # '게시판목록' 뿐이면 이름이 없는 것
 
 
 def is_named(label: str) -> bool:
-    """게시판 이름이 갈래를 말하는가 — '공지사항'·'장학'은 예, 'READ'·'HUFS Students'는 아니오.
+    """게시판에 이름이 있는가 — '공지사항'·'등록금심의위원회'는 예, 'READ'·'기타'는 아니오.
 
     이름이 있는 게시판은 이름을 믿고, 이름을 모를 때만 글 제목으로 이름을 짓는다.
+    ('기타'는 발견 단계에서 이름을 모를 때 붙이는 자리표시다.)
     """
-    return bool(classify(tidy_label(label)))
+    return bool(tidy_label(label))
 
 
 # 대분류 → 그 분류로 볼 말들. 순서가 우선순위다(구체적인 것을 앞에 둔다).

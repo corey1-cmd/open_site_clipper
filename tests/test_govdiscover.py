@@ -228,17 +228,30 @@ def test_refine_label_names_read_tabs_by_their_content():
     assert govdiscover.refine_label("READ", b"<table></table>", "https://u.ac.kr/b") == "READ"
 
 
-def test_refine_label_trusts_a_named_general_board():
-    """'공지' 게시판은 학자금 글이 대부분이어도(한국장학재단) '장학'으로 바꾸지 않는다."""
-    from open_site_clipper import govdiscover
-
-    titles = ["학자금대출 이자지원", "학자금대출 지원기관 모집", "근로장학 모집", "입주기업 안내"]
+def _rows_page(titles: list[str], head: str = "") -> bytes:
     rows = "".join(
         f'<tr><td><a href="/v{i}">{t}</a></td><td>2026.10.0{i}</td></tr>'
         for i, t in enumerate(titles, 1)
     )
-    page = f"<table>{rows}</table>".encode()
-    assert govdiscover.refine_label("공지", page, "https://k.or.kr/b") == "공지"
-    # 페이지가 더 구체적인 이름을 밝히면 그 이름을 쓴다
-    titled = "<title>장학공지 | U</title>".encode() + page
-    assert govdiscover.refine_label("공지", titled, "https://u.ac.kr/b") == "장학공지"
+    return f"{head}<table>{rows}</table>".encode()
+
+
+def test_refine_label_trusts_a_named_board():
+    """이름이 있는 게시판은 내용·페이지 머리로 이름을 바꾸지 않는다(0.25.0 실측 오분류)."""
+    from open_site_clipper import govdiscover
+
+    # 한국장학재단 일반 공지 — 학자금 글이 대부분이어도 '장학' 게시판이 아니다
+    kosaf = _rows_page(
+        ["학자금대출 이자지원", "학자금대출 지원기관 모집", "근로장학 모집", "입주기업"]
+    )
+    assert govdiscover.refine_label("공지", kosaf, "https://k.or.kr/b") == "공지"
+    # 회의록 제목의 '등록금' 때문에 '학사'가 되던 위원회 게시판
+    minutes = _rows_page(["제3차 등록금심의위원회 회의록", "제2차 등록금심의위원회 회의록"])
+    assert govdiscover.refine_label("등록금심의위원회", minutes, "https://u.ac.kr/b") == (
+        "등록금심의위원회"
+    )
+    # 페이지 머리의 메뉴 제목('입학안내')으로 일반 공지를 바꾸지 않는다
+    menu = _rows_page(["축제 안내", "도서관 휴관"], head="<h2>입학안내</h2>")
+    assert govdiscover.refine_label("공지", menu, "https://u.ac.kr/b") == "공지"
+    # 이름을 모를 때('기타'·'READ')만 내용으로 짓는다
+    assert govdiscover.refine_label("기타", minutes, "https://u.ac.kr/b") == "학사"
