@@ -89,7 +89,11 @@ _BUTTON_WORDS_RE = re.compile(
     re.I,
 )
 _BRACKETS_RE = re.compile(r"[\[\](){}<>「」『』※▪•·]")
-_URL_IN_TITLE_RE = re.compile(r"https?://\S+")
+# 주소 — 'https://…' 와 'www.spo.go.kr'·'privacy.kisa.or.kr' 같은 맨 주소(개인정보처리방침의
+# 권익침해 구제 기관 표가 글로 잡혔다 — 질병청 실측)
+_URL_IN_TITLE_RE = re.compile(
+    r"https?://\S+|\b(?:[a-z0-9-]+\.)+(?:kr|com|net|org|edu|gov|int)\b(?:/\S*)?", re.I
+)
 # 목록이 아니라 안내문·메뉴가 잘못 잡힌 경우 — 주소가 제목 자리에 온다.
 _URL_TITLE_RE = re.compile(r"^https?://", re.I)
 

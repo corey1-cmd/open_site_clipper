@@ -426,8 +426,13 @@ def test_buttons_menus_and_address_titles_are_not_notices():
         "첨부파일 전체다운로드",
         "한글 파일 excel 파일",
         "최신 정보 자료 제공 서비스 주소 http://www.mfds.go.kr/www/rss/brd.do?brdId=rgn0003&itm_seq_1=2",
+        # 개인정보처리방침의 권익침해 구제 기관 표(질병청 실측)
+        "www.kopico.go.kr",
+        "privacy.kisa.or.kr",
+        "- 건강정보고속도로(www.myhealthway.co.kr",
     ):
         assert govweb._is_junk_title(junk), junk
+    assert not govweb._is_junk_title("한국장학재단(www.kosaf.go.kr) 2학기 국가장학금 신청 안내")
     assert not govweb._is_junk_title(
         "홈페이지 개편 안내(https://new.x.ac.kr) 및 이용 방법과 달라진 메뉴 안내"
     )
