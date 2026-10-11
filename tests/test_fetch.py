@@ -45,3 +45,30 @@ def test_fetch_url_blocks_local_schemes():
     # SSRF 방지 — http(s) 외 스킴은 네트워크 없이 즉시 None.
     assert fetch_url("file:///etc/passwd") is None
     assert fetch_url("ftp://example.com/a") is None
+
+
+def test_a_trickling_response_is_cut_off_after_twice_the_timeout(monkeypatch):
+    """소켓 시간 제한은 한 번의 읽기 한도라, 조금씩 흘리는 서버는 전체 시간으로 끊는다."""
+    import pytest
+
+    from open_site_clipper import fetch
+
+    ticks = iter([5.0, 20.0, 31.0, 99.0])
+    monkeypatch.setattr(fetch.time, "monotonic", lambda: next(ticks))
+
+    class Trickle:
+        def read(self, n):
+            return b"x" * 10
+
+    with pytest.raises(fetch._SlowResponse):
+        fetch._read_capped(Trickle(), 0.0, 15.0)
+
+    class Quick:
+        def __init__(self):
+            self.parts = [b"ab", b"cd", b""]
+
+        def read(self, n):
+            return self.parts.pop(0)
+
+    monkeypatch.setattr(fetch.time, "monotonic", lambda: 1.0)
+    assert fetch._read_capped(Quick(), 0.0, 15.0) == b"abcd"

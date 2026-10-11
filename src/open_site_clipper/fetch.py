@@ -15,6 +15,7 @@ import http.client
 import http.cookiejar
 import os
 import threading
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -120,8 +121,11 @@ def fetch_detail(
         try:
             from . import aia
 
+            started = time.monotonic()
             with _opener(aia.is_legacy(url)).open(req, timeout=timeout) as resp:
-                return _decompress(resp.read(_MAX_BYTES), resp.headers), ""
+                return _decompress(_read_capped(resp, started, timeout), resp.headers), ""
+        except _SlowResponse:
+            return None, f"응답이 너무 느림({timeout * SLOW_FACTOR:.0f}초 넘게 받는 중)"
         except urllib.error.HTTPError as e:
             hint = {403: "접근 거부(403)", 404: "주소 없음(404)", 429: "요청 과다(429)"}
             return None, hint.get(e.code, f"HTTP 오류({e.code})")
@@ -149,6 +153,30 @@ def fetch_detail(
                 continue  # 일시적으로 보이면 한 번 더
             return None, reason
     return None, reason
+
+
+# 한 응답을 받는 데 쓸 수 있는 전체 시간 = 시간 제한 × 이 배수. 시간 제한은 소켓 동작
+# **한 번**의 한도라, 조금씩 흘려보내는 서버는 몇 분이고 붙잡을 수 있다(실측: 기관 하나가
+# 점검 한 묶음을 2분 넘게 붙잡았다).
+SLOW_FACTOR = 2.0
+
+
+class _SlowResponse(Exception):
+    """전체 받기 시간을 넘긴 응답."""
+
+
+def _read_capped(resp, started: float, timeout: float) -> bytes:
+    chunks: list[bytes] = []
+    total = 0
+    while total < _MAX_BYTES:
+        chunk = resp.read(min(65536, _MAX_BYTES - total))
+        if not chunk:
+            break
+        chunks.append(chunk)
+        total += len(chunk)
+        if time.monotonic() - started > timeout * SLOW_FACTOR:
+            raise _SlowResponse
+    return b"".join(chunks)
 
 
 def _short_ssl(text: str) -> str:

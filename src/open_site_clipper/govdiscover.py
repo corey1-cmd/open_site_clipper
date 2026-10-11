@@ -337,6 +337,8 @@ def find_routes(
     # ① 표준 자동발견 피드 — 카테고리는 title 로 판정, 없으면 '소식'.
     for href, title in page.alternates:
         url = urllib.parse.urljoin(home_url, href)
+        if "/comments/feed" in url.lower():
+            continue  # 워드프레스 댓글 피드 — 공지가 아니다
         category = classify(title) or "소식"
         key = (category, url)
         if key in seen:
