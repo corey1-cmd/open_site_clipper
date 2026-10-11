@@ -260,6 +260,7 @@ class RouteResult:
     stage: str = ""  # 성공한 단계(rss·board·alt·datago·korea)
     notices: list[Notice] = field(default_factory=list)
     attempts: list[Attempt] = field(default_factory=list)
+    data: bytes = field(default=b"", repr=False)  # 글이 나온 첫 쪽(다음 쪽 링크를 찾는다)
 
     @property
     def ok(self) -> bool:
@@ -277,12 +278,8 @@ def _try_stages(
     *,
     fetcher: Callable[[str], bytes | None],
     check_robots: bool,
-    since: date | None = None,
 ) -> RouteResult:
-    """(단계, 주소)를 차례로 시도해 첫 성공에서 멈춘다 — collect_category 와 같은 규칙.
-
-    since 를 주면 게시판 표(BOARD·ALT)의 첫 쪽 글이 모두 그날 이후일 때 다음 쪽을 이어 읽는다.
-    """
+    """(단계, 주소)를 차례로 시도해 첫 성공에서 멈춘다 — collect_category 와 같은 규칙."""
     result = RouteResult(category, kind, stages[0][1] if stages else "")
     for stage, url in stages:
         if stage == DATAGO and not source.api_paths:
@@ -303,16 +300,21 @@ def _try_stages(
         if not notices:
             result.attempts.append(Attempt(stage, url, reason=NO_ITEMS))
             continue
-        if since is not None and stage in (BOARD, ALT):
-            notices = _more_pages(source, stage, data, url, category, notices, fetcher, since)
         result.attempts.append(Attempt(stage, url, count=len(notices)))
-        result.url, result.stage, result.notices = url, stage, notices
+        result.url, result.stage, result.notices, result.data = url, stage, notices, data
         return result
     return result
 
 
-MAX_MORE_PAGES = 4  # 첫 쪽 뒤로 더 읽는 쪽 수(기간 안의 글이 이어질 때만)
+MAX_MORE_PAGES = 4  # 게시판 하나에서 첫 쪽 뒤로 더 읽는 쪽 수(기간 안의 글이 이어질 때만)
+MAX_PAGES_PER_ORG = 16  # 기관 하나에서 더 읽는 쪽의 합 — 다른 게시판의 첫 쪽 몫을 먹지 않게
+MIN_LEFT_FOR_PAGES = 20.0  # 남은 시간이 이보다 적으면 더 읽지 않는다(초, 시간 제한 페처일 때)
 MIN_DATED_ON_PAGE = 3
+
+
+def _time_left(fetcher: Callable[[str], bytes | None]) -> float:
+    left = getattr(fetcher, "left", None)
+    return float(left()) if callable(left) else float("inf")
 
 
 def _more_pages(
@@ -324,6 +326,7 @@ def _more_pages(
     notices: list[Notice],
     fetcher: Callable[[str], bytes | None],
     since: date,
+    budget: list[int],
 ) -> list[Notice]:
     """쪽의 마지막 글(가장 오래된 일반 글)까지 기간 안이면 다음 쪽을 읽어 붙인다.
 
@@ -336,6 +339,8 @@ def _more_pages(
     for page_no in range(2, 2 + MAX_MORE_PAGES):
         dated = [n.published for n in page if n.published]
         if len(dated) < MIN_DATED_ON_PAGE or dated[-1] < since:
+            break
+        if budget[0] <= 0 or _time_left(fetcher) < MIN_LEFT_FOR_PAGES:
             break
         last = dated[-1]
         moved = False
@@ -354,6 +359,7 @@ def _more_pages(
             seen.update(n.url for n in new)
             out.extend(new)
             page_data, page_url, page = more_data, nxt, more
+            budget[0] -= 1
             moved = True
             break
         if not moved:
@@ -385,16 +391,16 @@ def collect_routes(
         stage = kind if kind in (RSS, BOARD, DATAGO) else BOARD
         stages = [(stage, url)] + [(ALT, alt) for alt in alt_urls(url) if alt not in seen]
         results.append(
-            _try_stages(
-                source,
-                category,
-                kind,
-                stages,
-                fetcher=fetcher,
-                check_robots=check_robots,
-                since=since,
-            )
+            _try_stages(source, category, kind, stages, fetcher=fetcher, check_robots=check_robots)
         )
+    if since is not None:
+        # 모든 게시판의 첫 쪽을 먼저 읽고, 남은 시간으로 앞쪽 게시판(갈래가 분명한 것)부터 다음 쪽
+        budget = [MAX_PAGES_PER_ORG]
+        for r in results:
+            if r.ok and r.stage in (BOARD, ALT) and r.data:
+                r.notices = _more_pages(
+                    source, r.stage, r.data, r.url, r.category, r.notices, fetcher, since, budget
+                )
     if source.korea_feed and not any(r.ok and r.category == KOREA_CATEGORY for r in results):
         url = korea_url(source.korea_feed)
         results.append(
