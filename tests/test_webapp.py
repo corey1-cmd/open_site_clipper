@@ -35,7 +35,11 @@ PAGES = {
     f"{SITE}": HOME.encode(),
     f"{SITE}/": HOME.encode(),
     f"{SITE}/bbs/notice/list.do": BOARD.encode(),
-    f"{SITE}/bbs/janghak/list.do": BOARD.replace("view.do?id=", "j.do?id=").encode(),
+    # 장학 게시판은 글이 다르다 — 같은 글만 내는 경로는 '글을 낸 경로'에서 빠진다
+    f"{SITE}/bbs/janghak/list.do": BOARD.replace("view.do?id=", "j.do?id=")
+    .replace("수강신청 안내", "교내 장학금 신청")
+    .replace("휴학 신청 기간", "국가장학금 2차 신청")
+    .encode(),
     f"{SITE}/intro/greeting.do": STATIC.encode(),
 }
 
@@ -558,3 +562,26 @@ def test_rows_say_whether_pictures_can_be_looked_up(tiny_catalog):
     anchor = f"{SITE}/list.do#%EC%9E%A5%ED%95%99%EC%83%9D%20%EB%AA%A8%EC%A7%91"
     assert not webapp.media_ready(anchor, "장학생 모집")
     assert not webapp.media_ready("https://news.example.com/a?id=1", "기사")
+
+
+def test_a_route_whose_posts_all_repeat_another_route_is_not_returned(tiny_catalog):
+    """K2Web 메뉴 화면과 RSS 처럼 같은 게시판의 다른 주소는 글이 전부 겹친다 — 캐시에 남기지 않는다."""
+    pages = dict(PAGES)
+    pages[f"{SITE}/bbs/janghak/list.do"] = BOARD.replace("view.do?id=", "j.do?id=").encode()
+    got = _collect(days=30, fetcher=Recorder(pages))
+    assert len(got["routes"]) == 1
+    assert len({r["title"] for r in got["notices"]}) == len(got["notices"])
+
+
+def test_plan_routes_takes_one_board_per_kind_before_seconds():
+    """학사 게시판이 여럿 잡혀도 대학 공지·보도자료·입찰이 상한에서 잘리지 않는다(항공대 실측)."""
+    many = [(f"학사{i}", "board", f"https://kau.ac.kr/h{i}.php") for i in range(20)]
+    others = [
+        ("일반공지", "board", "https://kau.ac.kr/notice.php"),
+        ("보도자료", "board", "https://kau.ac.kr/press.php"),
+        ("입찰", "board", "https://kau.ac.kr/bid.php"),
+    ]
+    routes = webapp.plan_routes(many, others)
+    urls = {u for _c, _k, u in routes}
+    assert {u for _c, _k, u in others} <= urls
+    assert len(routes) == webapp.MAX_ROUTES

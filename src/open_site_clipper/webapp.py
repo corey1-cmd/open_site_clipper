@@ -198,9 +198,9 @@ class _Deadline:
 
 _ROUTE_KIND = {govcascade.RSS: "rss", govcascade.DATAGO: "datago"}
 
-# 한 기관에서 볼 게시판 수의 상한 — 캐시·발견 모두. 장학·학사·입학처럼 갈래가 분명한
-# 것을 앞에 둔다(같은 갈래 안에서는 설정·발견 순서를 지킨다).
-MAX_ROUTES = 12
+# 한 기관에서 볼 게시판 수의 상한 — 캐시·발견 모두. 갈래마다 번갈아 고르고, 같은 차례에서는
+# 장학·학사·입학처럼 갈래가 분명한 것을 앞에 둔다(같은 갈래 안에서는 설정·캐시·발견 순서).
+MAX_ROUTES = 15
 _SPECIFIC_FIRST = {name: i for i, name in enumerate(categories.ORDER)}
 
 
@@ -212,7 +212,13 @@ def _route_rank(route: tuple[str, str, str] | list[str]) -> int:
 
 
 def plan_routes(*groups) -> tuple[tuple[str, str, str], ...]:
-    """설정(프리셋) → 캐시 → 발견 순으로 합쳐 같은 주소를 접고 상한까지 고른다."""
+    """설정(프리셋) → 캐시 → 발견 순으로 합쳐 같은 주소를 접고, **갈래마다 번갈아** 상한까지 고른다.
+
+    갈래 찾기로 학사·장학 게시판이 여럿 잡히자, 갈래가 분명한 것을 무조건 앞에 두던 예전 순서로는
+    대학 공지·보도자료·입찰 게시판이 상한에서 잘렸다(항공대 84건 → 12건). 그래서 갈래마다 첫
+    게시판을 먼저(갈래가 분명한 것부터), 그다음 두 번째 게시판 … 순으로 고른다. 돌려주는 순서는
+    합친 순서 그대로다.
+    """
     merged: list[tuple[str, str, str]] = []
     seen: set[str] = set()
     for group in groups:
@@ -223,8 +229,14 @@ def plan_routes(*groups) -> tuple[tuple[str, str, str], ...]:
                 continue
             seen.add(key)
             merged.append((cat, kind, url))
-    ranked = sorted(range(len(merged)), key=lambda i: (_route_rank(merged[i]), i))
-    return tuple(merged[i] for i in sorted(ranked[:MAX_ROUTES]))
+    level: dict[str, int] = {}
+    keyed = []
+    for i, route in enumerate(merged):
+        cat = categories.canonical(route[0])
+        keyed.append((level.get(cat, 0), _route_rank(route), i))
+        level[cat] = level.get(cat, 0) + 1
+    chosen = sorted(i for _lv, _rank, i in sorted(keyed)[:MAX_ROUTES])
+    return tuple(merged[i] for i in chosen)
 
 
 def _url_key(url: str) -> str:
@@ -236,7 +248,9 @@ def _url_key(url: str) -> str:
     return urllib.parse.urlunsplit(parts._replace(fragment="")).lower()
 
 
-def _cascade(source: Source, fetch: PageFetcher) -> tuple[list[Notice], list[str], list[list[str]]]:
+def _cascade(
+    source: Source, fetch: PageFetcher
+) -> tuple[list[Notice], list[str], list[list[str]], list[int]]:
     """경로마다 모아 공지·실패 사유·**실제로 나온 경로(다듬은 이름)**를 돌려준다.
 
     게시판 이름이 갈래를 말하지 않으면(READ·더보기·공지 …) 글 제목에서 우세한
@@ -244,6 +258,7 @@ def _cascade(source: Source, fetch: PageFetcher) -> tuple[list[Notice], list[str
     갈래로 분류한다 — '공지사항'에 올라온 장학 공지도 [장학]으로 거를 수 있게.
     """
     notices: list[Notice] = []
+    origins: list[int] = []  # 글마다 나온 경로(used 의 자리, korea.kr 은 -1)
     used: list[list[str]] = []
     ok_cats: set[str] = set()
     tried: dict[str, list[str]] = {}
@@ -258,16 +273,33 @@ def _cascade(source: Source, fetch: PageFetcher) -> tuple[list[Notice], list[str
             titles = [n.title for n in res.notices]
             label = categories.dominant(titles) or categories.from_url(res.url)
         ok_cats.add(res.category)
-        notices.extend(
-            replace(n, category=categories.notice_category(label, n.title)) for n in res.notices
-        )
         # korea.kr 피드는 korea_feed 에서 매번 다시 만들어지므로 적지 않는다.
+        where = -1
         if res.stage != govcascade.KOREA:
+            where = len(used)
             used.append([label, _ROUTE_KIND.get(res.stage, "board"), res.url])
+        for n in res.notices:
+            notices.append(replace(n, category=categories.notice_category(label, n.title)))
+            origins.append(where)
     failures = [
         f"{cat} ({' / '.join(trails)})" for cat, trails in tried.items() if cat not in ok_cats
     ]
-    return notices, failures, used
+    return notices, failures, used, origins
+
+
+def _contributing(notices: list[Notice], origins: list[int], used: list[list[str]]) -> list:
+    """겹치지 않는 글을 하나라도 낸 경로만 — 같은 게시판의 다른 주소(K2Web 메뉴 화면과 RSS)는
+    글이 전부 겹쳐 자리만 차지한다. 화면과 같은 순서로 접어 먼저 온 경로가 글을 갖는다."""
+    seen: set[str] = set()
+    gave: set[int] = set()
+    for i in sorted(range(len(notices)), key=lambda i: _newest_specific_first(notices[i])):
+        n = notices[i]
+        keys = [k for k in (n.dedup_key(), _title_key(n)) if k]
+        if any(k in seen for k in keys):
+            continue
+        seen.update(keys)
+        gave.add(origins[i])
+    return [route for j, route in enumerate(used) if j in gave]
 
 
 def _targets(org: Org) -> tuple[str, ...]:
@@ -312,15 +344,16 @@ def collect_one(
         source = replace(source, routes=plan_routes(preset, found.routes))
         mode = "discover" if not preset else "preset"
 
-    notices, failures, used = _cascade(source, deadline)
+    notices, failures, used, origins = _cascade(source, deadline)
     if mode == "cache" and not notices and deadline.left() > REDISCOVER_MIN_LEFT:
         # 캐시해 둔 게시판이 바뀌었을 수 있다 — 홈에서 다시 찾는다.
         found, notes = govdiscover.enrich(
             replace(org.source, routes=()), fetcher=deadline, targets=_targets(org)
         )
         source = replace(source, routes=plan_routes(preset, found.routes))
-        notices, failures, used = _cascade(source, deadline)
+        notices, failures, used, origins = _cascade(source, deadline)
         mode = "rediscover"
+    used = _contributing(notices, origins, used)
 
     today = today or datetime.now(KST).date()
     cutoff = today - timedelta(days=days)

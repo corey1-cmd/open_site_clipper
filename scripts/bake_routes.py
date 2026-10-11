@@ -70,11 +70,20 @@ def bake(results: list[dict], today: str) -> dict:
                 "count": r.get("count") or 0,
                 "checked": today,
             }
-        elif r["id"] in orgs and r.get("mode") in ("cache", "rediscover"):
+        elif r["id"] in orgs and r.get("mode") in ("cache", "rediscover") and not _unreachable(r):
             del orgs[r["id"]]  # 캐시 경로가 더는 글을 내지 않는다
     doc["updated"] = today
     CACHE.write_text(json.dumps(doc, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     return doc
+
+
+# 사이트에 닿지 못한 것 — 이때는 캐시 경로를 지우지 않는다(다음 점검에서는 열릴 수 있다).
+_UNREACHABLE = ("연결 실패", "시간 초과", "응답 없음", "Device or resource busy", "너무 느림")
+
+
+def _unreachable(r: dict) -> bool:
+    text = " ".join([r.get("error") or ""] + (r.get("failures") or []) + (r.get("notes") or []))
+    return bool(r.get("timed_out")) or any(k in text for k in _UNREACHABLE)
 
 
 # 못 모은 이유 — 사유 문자열의 앞쪽부터 맞는 것 하나(화면의 PLAIN 과 같은 생각).
