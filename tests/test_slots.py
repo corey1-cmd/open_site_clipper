@@ -564,3 +564,16 @@ def test_event_calendars_and_housing_boards_are_not_notice_boards():
     assert slots.not_notice("행사", "https://www.hallym.ac.kr/eventCldr/hallym/artclList.do")
     assert slots.not_notice("자취 · 하숙 · 원룸")
     assert not slots.not_notice("공지사항", "https://www.x.ac.kr/kor/notice.do")
+
+
+def test_department_boards_are_not_school_boards():
+    assert slots.department("물리치료학과")
+    assert slots.department("레저산업전공")
+    assert slots.department("공공인재학부")
+    assert not slots.department("학부입학")
+    assert not slots.department("공지사항")
+
+
+def test_calendar_queries_and_cafeteria_menus_are_not_notices():
+    assert slots.not_notice("학사", "https://www.eulji.ac.kr?menuno=8184&calendar_no=105&year=2026")
+    assert slots.not_notice("공지사항-식당메뉴", "https://www.eulji.ac.kr?menuno=7331")

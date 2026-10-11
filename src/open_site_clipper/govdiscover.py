@@ -466,6 +466,7 @@ def find_routes(
             for c in candidates
             if c[2] not in tested
             and not slots.not_notice(c[0], c[2])
+            and not slots.department(c[0])
             and not slots.same_page(c[2], home_url)
         ]
 

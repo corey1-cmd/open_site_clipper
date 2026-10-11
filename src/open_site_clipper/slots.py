@@ -59,7 +59,7 @@ _DEPT_RE = re.compile(r"학과|학부|전공|대학원|연구소|센터")
 _DEPARTMENT_RE = re.compile(r"(?:학과|학부|전공)$|학과\b|학과\s")
 # 게시판이어도 공지가 아닌 것 — 분실물, 개인정보 처리방침 판, 약관(일반 발견에도 쓴다)
 _JUNK_RE = re.compile(
-    r"분실|습득|개인정보|처리방침|약관|저작권|사이트\s*맵|로그인|자취|하숙|원룸|룸메이트|벼룩|중고|장터",
+    r"분실|습득|개인정보|처리방침|약관|저작권|사이트\s*맵|로그인|자취|하숙|원룸|룸메이트|벼룩|중고|장터|식당",
     re.I,
 )
 # 주소로 보는 공지 아닌 화면 — 행사 달력('eventCldr')·일정표
@@ -101,8 +101,14 @@ def not_notice(label: str, url: str = "") -> bool:
     return bool(
         _NOT_NOTICE_RE.search(label or "")
         or _JUNK_RE.search(label or "")
-        or (url and _JUNK_URL_RE.search(urllib.parse.urlsplit(url).path))
+        or (url and _JUNK_URL_RE.search(urllib.parse.urlsplit(url)._replace(fragment="").geturl()))
     )
+
+
+def department(label: str) -> bool:
+    """학과·전공 게시판 이름('물리치료학과'·'레저산업전공') — 학교 전체 공지가 아니라 한 학과의 것이라
+    학교 경로에서는 뺀다(을지대 실측: 학과 게시판 여섯 개가 상한을 채웠다)."""
+    return bool(_DEPARTMENT_RE.search(categories.tidy_label(label) or ""))
 
 
 def same_page(url: str, home_url: str) -> bool:
