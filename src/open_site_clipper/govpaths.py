@@ -397,6 +397,11 @@ _INTRO_PATH_RE = re.compile(r"intro", re.I)
 INTRO_MIN_LINKS = 40
 
 
+def not_home(url: str) -> bool:
+    """로그인·오류·방침 화면 — 관문이 가리켜도 홈으로 삼지 않는다(한라대 'topLogin' 실측)."""
+    return bool(_NOT_HOME_RE.search(urllib.parse.urlsplit(url).path))
+
+
 def needs_hop(data: bytes | None, url: str) -> bool:
     """이 화면을 홈으로 삼기 전에 한 번 더 따라가 봐야 하나 — 링크가 몇 개 없거나,
     주소가 인트로('…/intro/intro.asp')인데 링크가 메뉴만큼 많지 않을 때."""

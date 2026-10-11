@@ -9,10 +9,19 @@ from __future__ import annotations
 
 from open_site_clipper import discover, govdiscover, govpaths, slots
 
-BOARD = """<table><thead><tr><th>번호</th><th>제목</th><th>등록일</th></tr></thead><tbody>
-<tr><td>3</td><td><a href="view.do?id=3">세 번째 글</a></td><td>2026.10.08.</td></tr>
-<tr><td>2</td><td><a href="view.do?id=2">두 번째 글</a></td><td>2026.10.07.</td></tr>
-<tr><td>1</td><td><a href="view.do?id=1">첫 번째 글</a></td><td>2026.10.06.</td></tr>
+BOARD = (
+    "<table><thead><tr><th>번호</th><th>제목</th><th>등록일</th></tr></thead><tbody>"
+    + "".join(
+        f'<tr><td>{i}</td><td><a href="view.do?id={i}">{i}번째 글</a></td><td>2026.10.0{i}.</td></tr>'
+        for i in range(8, 1, -1)
+    )
+    + "</tbody></table>"
+)
+# 날짜 줄이 셋뿐인 목록 — 안내 화면 옆 '최근 글' 칸 같은 것
+FEW = """<table><tbody>
+<tr><td><a href="view.do?id=3">세 번째 글</a></td><td>2026.10.08.</td></tr>
+<tr><td><a href="view.do?id=2">두 번째 글</a></td><td>2026.10.07.</td></tr>
+<tr><td><a href="view.do?id=1">첫 번째 글</a></td><td>2026.10.06.</td></tr>
 </tbody></table>"""
 STATIC = "<html><body><h1>안내</h1><p>설명문입니다.</p></body></html>"
 
@@ -475,3 +484,77 @@ def test_gateways_that_move_by_config_file_or_to_a_new_domain_are_followed():
         "/hansung/index.do",
         "/hansung/main.do",
     )
+
+
+def test_a_list_with_only_a_few_dated_lines_yields_to_a_real_board():
+    """'장학 관련 서식'(날짜 4줄)보다 '장학공지'(10줄)를, 둘 다 없으면 게시판다운 이름의 대안만."""
+    home = "https://www.few.ac.kr/kor/index.do"
+    menu = "".join(f'<a href="/kor/m{i}.do">메뉴{i}</a>' for i in range(12))
+    pages = {
+        home: (
+            f"<html><body>{menu}"
+            '<a href="/kor/janghak/forms.do">장학 서식</a>'
+            '<a href="/kor/janghak/notice.do">장학공지</a>'
+            '<a href="/kor/ipsi/info.do">입학안내</a>'
+            '<a href="/kor/job/notice.do">채용 공지</a>'
+            "</body></html>"
+        ),
+        "https://www.few.ac.kr/kor/janghak/forms.do": FEW,
+        "https://www.few.ac.kr/kor/janghak/notice.do": BOARD,
+        "https://www.few.ac.kr/kor/ipsi/info.do": FEW,
+        "https://www.few.ac.kr/kor/job/notice.do": FEW,
+    }
+
+    def get(url: str) -> bytes | None:
+        page = pages.get(url)
+        return page.encode() if page else None
+
+    tested: dict[str, str] = {}
+    found = slots.fill(
+        get,
+        home,
+        slots.anchors(pages[home].encode()),
+        "www.few.ac.kr",
+        board_score=govdiscover.board_score,
+        tested=tested,
+        trace=[],
+    )
+    urls = {govdiscover.classify(label): url for label, _k, url in found}
+    assert urls["장학"].endswith("/janghak/notice.do")
+    assert urls["채용"].endswith("/job/notice.do")  # 게시판다운 이름이라 대안으로
+    assert "입학" not in urls  # '입학안내' 3줄은 갈래로 쓰지 않는다
+    assert "https://www.few.ac.kr/kor/ipsi/info.do" not in tested  # 일반 발견이 다시 볼 수 있게
+
+
+def test_a_gateway_that_names_a_login_page_and_a_config_file_reaches_the_menu():
+    """한라대: 관문 스크립트에 'topLogin' 문자열과 '/siteDomain/'+host+'.json' 이 함께 있다."""
+    gateway = (
+        '<html><head><script>var host = window.location.host; if (!host) location.href = "/topLogin/view.do";'
+        ' var jsonFilePath = "/siteDomain/"+host+".json"; fetch(jsonFilePath);</script></head></html>'
+    )
+    menu = "".join(f'<a href="/halla/{i}/subview.do">메뉴{i}</a>' for i in range(12))
+    pages = {
+        "https://www.halla.ac.kr/": gateway,
+        "https://www.halla.ac.kr/topLogin/view.do": "<html><body>login</body></html>",
+        "https://www.halla.ac.kr/siteDomain/www.halla.ac.kr.json": '{"mainUrl": "/halla/index.do"}',
+        "https://www.halla.ac.kr/halla/index.do": f'<html><body>{menu}<a href="/halla/9/subview.do">공지사항</a></body></html>',
+        "https://www.halla.ac.kr/halla/9/subview.do": BOARD,
+    }
+
+    def get(url: str) -> bytes | None:
+        page = pages.get(url)
+        return page.encode() if page else None
+
+    trace: list[str] = []
+    routes, notes = govdiscover.find_routes(
+        "https://www.halla.ac.kr/",
+        fetcher=get,
+        check_robots=False,
+        targets=slots.TARGETS,
+        trace=trace,
+    )
+    assert any(
+        "메뉴가 실린 화면을 찾았습니다: https://www.halla.ac.kr/halla/index.do" in n for n in notes
+    )
+    assert ("공지사항", "board", "https://www.halla.ac.kr/halla/9/subview.do") in routes
+    assert not any("topLogin" in t for t in trace)

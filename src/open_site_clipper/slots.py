@@ -71,6 +71,10 @@ _JOB_HUB_RE = re.compile(r"채용|취업|일자리|진로|인재개발|구인|�
 # 화면 안에 박힌 K2Web 목록 주소 — 메뉴 화면(subview.do)이 목록을 스크립트로 불러올 때
 _K2_LIST_RE = re.compile(r"(?:https?://[^\"'\s<>]+)?/bbs/[A-Za-z0-9_\-]+/\d+/artclList\.do", re.I)
 MINED_PER_SLOT = 2  # 안내 화면으로 판정된 게시판 이름의 화면에서 캐 볼 목록 주소 수
+# 갈래 게시판으로 바로 채우려면 날짜 달린 줄이 이만큼은 있어야 한다. 진짜 게시판은 한 쪽에
+# 10줄 안팎이고, 2~4줄짜리는 안내 화면 옆의 '최근 글' 칸인 경우가 많다('학과별 취업률'·
+# '입학·교육'). 적으면 이름이 게시판다울 때만 다른 후보가 없을 때의 대안으로 둔다.
+SLOT_MIN_DATED = 5
 
 
 # 연도가 든 글자는 메뉴가 아니라 최근 글 상자의 글 제목('2027년도 대산장학생 선발 공고')
@@ -362,6 +366,8 @@ def fill(
         )
     )
     filled: dict[str, Route] = {}
+    weak: dict[str, Route] = {}  # 날짜 줄이 적은 게시판다운 후보 — 끝까지 더 나은 것이 없을 때만
+    released: set[str] = set()
     tests_left = dict.fromkeys(targets, TESTS_PER_SLOT)
     hubs_left = dict.fromkeys(targets, HUBS_PER_SLOT)
     mined_left = dict.fromkeys(targets, MINED_PER_SLOT)
@@ -370,9 +376,16 @@ def fill(
         data = fetch(url)
         result = probe.classify(data, url, home_host=home_host)
         tested[url] = result.verdict
-        if result.collectible:
+        if result.collectible and result.dated >= SLOT_MIN_DATED:
             filled[slot] = (label, "board", url)
             trace.append(f"{slot} ○ {label} {short(url)} ({result.dated}/{result.rows})")
+            return
+        if result.collectible:
+            if _BOARDISH_RE.search(label) and slot not in weak:
+                weak[slot] = (label, "board", url)
+            else:
+                released.add(url)  # 갈래로는 안 쓰지만 목록이긴 하다 — 일반 발견이 다시 볼 수 있게
+            trace.append(f"{slot} △ {label} {short(url)} ({result.dated}/{result.rows})")
             return
         trace.append(f"{slot} × {label} {short(url)} {result.verdict}")
         if data and result.verdict in (probe.STATIC, probe.INDEX):
@@ -428,6 +441,14 @@ def fill(
                     tests_left[other] += min(n, TESTS_PER_HUB)
         if not progressed:
             break
+    for slot, route in weak.items():
+        if slot not in filled:
+            filled[slot] = route
+            trace.append(f"{slot} ○ (대안) {route[0]} {short(route[2])}")
+        else:
+            released.add(route[2])
+    for url in released:
+        tested.pop(url, None)
     missing = [s for s in targets if s not in filled]
     if missing:
         trace.append(f"못 채운 갈래 {','.join(missing)} (요청 {spent})")

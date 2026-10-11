@@ -278,14 +278,19 @@ def find_routes(
     # 학교는 입시 홍보 **인트로**가 흔하다 — 그림이 많아 관문보다 크고 '홈페이지 바로가기'
     # 링크로 본 화면을 가리킨다. 링크가 몇 개 없는 화면이면 그 링크들도 시험해 **메뉴가
     # 실린 화면**을 고른다(로그인·오류·manifest 로 끌려가던 것을 막는다).
+    visited = {home_url}
     for _hop in range(3):  # 관문 → 인트로 → 본 화면까지
         if session.budget <= 0 or not govpaths.needs_hop(data, home_url):
             break
-        explicit = govpaths.gateway_targets(data, home_url)
+        explicit = [
+            u
+            for u in govpaths.gateway_targets(data, home_url)
+            if u not in visited and not govpaths.not_home(u)
+        ]
         intro = [
             u
             for u in govpaths.intro_targets(data, home_url, urllib.parse.urlsplit(home_url).netloc)
-            if u not in explicit
+            if u not in explicit and u not in visited
         ]
         moved, used, fallback = b"", "", None
         for cand in (explicit + intro)[:5]:
@@ -305,6 +310,7 @@ def find_routes(
             used, moved = fallback
         if not moved:
             break
+        visited.add(used)
         notes.append(f"관문 페이지를 따라갔습니다: {used}")
         trace.append(f"관문·인트로 → {slots.short(used)}")
         home_url, data = used, moved  # home_host 는 아래에서 이 주소로 다시 계산된다
