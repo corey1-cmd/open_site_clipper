@@ -114,6 +114,26 @@ def _body_head(data: bytes, limit: int = 90) -> str:
     return (flat[:limit] + "…") if len(flat) > limit else (flat or "(내용 없음)")
 
 
+_SCRIPT_BODY_RE = re.compile(r"<script\b[^>]*>(.*?)</script\s*>", re.I | re.S)
+
+
+def _script_head(data: bytes | None, limit: int = 160) -> str:
+    """작은 홈(관문)의 인라인 스크립트 앞부분 — 어디로 보내려는지 진단할 수 있게.
+
+    '응답 1KB · 링크 0개'만으로는 그 관문이 무슨 방법으로 본 화면을 부르는지 모른다.
+    8KB 를 넘는 화면은 보지 않는다(관문이 아니다).
+    """
+    if not data or len(data) > 8192:
+        return ""
+    try:
+        text = decode_text(data)
+    except Exception:
+        return ""
+    code = " ".join(" ".join(m.group(1).split()) for m in _SCRIPT_BODY_RE.finditer(text))
+    code = "".join(c for c in code if c.isprintable()).strip()
+    return (code[:limit] + "…") if len(code) > limit else code
+
+
 # 본문 속 주소 문자열 — 상대("/a/b")와 절대("https://…") 둘 다. JSON 은 "\/" 로 적기도 한다.
 _LITERAL_RE = re.compile(r"""["'](/[^"'\s<>]{2,160}|https?://[^"'\s<>]{4,200})["']""")
 _ASSET_TAILS = (
@@ -259,9 +279,7 @@ def find_routes(
     # 링크로 본 화면을 가리킨다. 링크가 몇 개 없는 화면이면 그 링크들도 시험해 **메뉴가
     # 실린 화면**을 고른다(로그인·오류·manifest 로 끌려가던 것을 막는다).
     for _hop in range(3):  # 관문 → 인트로 → 본 화면까지
-        if session.budget <= 0 or govpaths.menu_links(data, home_url) >= (
-            govpaths.MIN_ENTRY_ANCHORS
-        ):
+        if session.budget <= 0 or not govpaths.needs_hop(data, home_url):
             break
         explicit = govpaths.gateway_targets(data, home_url)
         intro = [
@@ -277,7 +295,7 @@ def find_routes(
             if not got:
                 failed_gateways.append(f"{cand}({session.last_reason})")
                 continue
-            if govpaths.menu_links(got, cand) >= govpaths.MIN_ENTRY_ANCHORS:
+            if not govpaths.needs_hop(got, cand):
                 moved, used = got, cand
                 break
             if cand in explicit and fallback is None:
@@ -402,7 +420,15 @@ def find_routes(
             if (route[0], route[2]) not in seen:
                 seen.add((route[0], route[2]))
                 routes.append(route)
-        candidates = [c for c in candidates if c[2] not in tested]
+    if targets:
+        # 학교: 문의·Q&A·분실물·개인정보 처리방침 판과 홈 자신은 공지 게시판이 아니다
+        candidates = [
+            c
+            for c in candidates
+            if c[2] not in tested
+            and not slots.not_notice(c[0])
+            and not slots.same_page(c[2], home_url)
+        ]
 
     # ③ 구조 테스트 — 후보를 열어 '날짜 붙은 목록'만 남긴다.
     # 상한(max_candidates)에 소개·정책 메뉴만 차서 정작 게시판까지 못 가던 문제가
@@ -484,6 +510,7 @@ def find_routes(
             f"<a> {page.anchor_tags}개(주소없음 {page.dead_links}·data속성 {page.data_links}) · "
             f"내부 {internal}·외부제외 {external} · 후보 {len(candidates)}개(시험 {tried}건) · "
             f"본문머리[{_body_head(data)}]"
+            + (f" · 스크립트[{_script_head(data)}]" if _script_head(data) else "")
             + (f" · 관문시도실패[{'; '.join(failed_gateways[:2])}]" if failed_gateways else "")
             + ". "
             "메뉴가 JavaScript 로만 그려지거나 구조가 다를 수 있습니다"

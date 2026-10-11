@@ -324,6 +324,21 @@ def intro_targets(data: bytes, base_url: str, home_host: str) -> list[str]:
     return out[:5]
 
 
+# 인트로 화면 주소 — 링크가 꽤 있어도(팝업·배너 10여 개) 메뉴가 실린 본 화면이 아니다.
+_INTRO_PATH_RE = re.compile(r"intro", re.I)
+INTRO_MIN_LINKS = 40
+
+
+def needs_hop(data: bytes | None, url: str) -> bool:
+    """이 화면을 홈으로 삼기 전에 한 번 더 따라가 봐야 하나 — 링크가 몇 개 없거나,
+    주소가 인트로('…/intro/intro.asp')인데 링크가 메뉴만큼 많지 않을 때."""
+    n = menu_links(data, url)
+    if n < MIN_ENTRY_ANCHORS:
+        return True
+    path = urllib.parse.urlsplit(url).path
+    return bool(_INTRO_PATH_RE.search(path)) and n < INTRO_MIN_LINKS
+
+
 def menu_links(data: bytes | None, url: str) -> int:
     """화면에 실린 같은 사이트 링크 수 — 메뉴가 실린 진짜 화면인지 가늠한다."""
     if not data:

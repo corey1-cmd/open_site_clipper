@@ -54,6 +54,11 @@ _NOTICE_HUB_RE = re.compile(r"알림|소식|광장|마당|커뮤니티|community
 _SITEMAP_RE = re.compile(r"사이트\s*맵|site\s*map|전체\s*메뉴", re.I)
 # 공지 갈래에서 학과·기관 게시판보다 대학 공지를 먼저
 _DEPT_RE = re.compile(r"학과|학부|전공|대학원|연구소|센터")
+# 학과·전공 이름 — 갈래 말이 들어 있어도('공공인재학부'의 '인재') 그 갈래의 화면이 아니다.
+# '학부입학'은 학부 입학이라 끝이 '학부'인 것만 학과로 본다.
+_DEPARTMENT_RE = re.compile(r"(?:학과|학부|전공)$|학과\b|학과\s")
+# 게시판이어도 공지가 아닌 것 — 분실물, 개인정보 처리방침 판, 약관(일반 발견에도 쓴다)
+_JUNK_RE = re.compile(r"분실|습득|개인정보|처리방침|약관|저작권|사이트\s*맵|로그인", re.I)
 _MAIN_NOTICE = frozenset(
     {"공지사항", "공지", "일반공지", "전체공지", "대학공지", "통합공지", "notice", "notices"}
 )
@@ -64,10 +69,26 @@ _LOW_VALUE_RE = re.compile(r"자료|서식|양식|규정", re.I)
 def slot_of(text: str, targets: tuple[str, ...] = TARGETS) -> str:
     """메뉴 이름 → 채울 갈래('' = 채울 갈래가 아니다)."""
     label = categories.tidy_label(text)
-    if not label or len(label) > MAX_LABEL or _NOT_NOTICE_RE.search(label):
+    if not label or len(label) > MAX_LABEL or not_notice(label):
         return ""
     cat = categories.classify(label)
     return cat if cat in targets else ""
+
+
+def not_notice(label: str) -> bool:
+    """공지 게시판이 아닌 이름 — 문의·상담·Q&A·일정·후기·분실물·개인정보 처리방침."""
+    return bool(_NOT_NOTICE_RE.search(label or "") or _JUNK_RE.search(label or ""))
+
+
+def same_page(url: str, home_url: str) -> bool:
+    """홈과 같은 화면인가 — '…/university/' 와 '…/university/index.jsp'."""
+
+    def norm(u: str) -> tuple[str, str, str]:
+        parts = urllib.parse.urlsplit(u)
+        path = re.sub(r"/(?:index|main|default)\.\w+$", "/", parts.path or "/")
+        return (_bare(parts.netloc), path.rstrip("/"), parts.query)
+
+    return bool(home_url) and norm(url) == norm(home_url)
 
 
 def anchors(data: bytes) -> list[tuple[str, str]]:
@@ -110,9 +131,11 @@ def score(slot: str, label: str, url: str, home_host: str, board_score) -> int:
         s += 6
     if _LOW_VALUE_RE.search(label):
         s -= 3
+    if _DEPARTMENT_RE.search(label):
+        s -= 6  # 학과 게시판보다 대학 게시판
+    elif "대학원" in label:
+        s -= 3
     if slot == "공지":
-        if _bare(urllib.parse.urlsplit(url).netloc) == _bare(home_host):
-            s += 3
         if label.lower() in _MAIN_NOTICE:
             s += 4
         if _DEPT_RE.search(label):
@@ -127,6 +150,7 @@ class _Pool:
     home_host: str
     targets: tuple[str, ...]
     board_score: Callable[[str, str], int]
+    home_url: str = ""
     first: dict[str, tuple[str, str]] = field(default_factory=dict)  # 주소 → (갈래, 이름)
     queue: dict[str, list] = field(default_factory=dict)
     hubs: dict[str, list] = field(default_factory=dict)
@@ -144,7 +168,7 @@ class _Pool:
         return True
 
     def push_hub(self, slot: str, label: str, url: str) -> None:
-        if url in self.hub_seen:
+        if url in self.hub_seen or _DEPARTMENT_RE.search(label):
             return
         self.hub_seen.add(url)
         self.order += 1
@@ -195,6 +219,12 @@ class _Pool:
                 slot, label = hub_slot, f"{hub_slot} {label}"
             if fresh:
                 self.first[url] = (slot, label)
+            if slot == "공지" and _bare(urllib.parse.urlsplit(url).netloc) != _bare(self.home_host):
+                # 하위 사이트(취업지원센터·학생 커뮤니티)의 '공지사항'은 대학 공지가 아니다 —
+                # 공지 자리는 본교 주소만. 그 게시판은 일반 발견이 따로 줍는다.
+                continue
+            if slot and _DEPARTMENT_RE.search(label) and probe.looks_like_home(url):
+                continue  # 학과 홈은 갈래 화면이 아니다('공공인재학부' → 채용 화면 아님)
             if not slot:
                 if (
                     label
@@ -206,8 +236,9 @@ class _Pool:
                 continue
             if probe.looks_like_article(url) or probe.looks_like_search(url):
                 continue
-            if probe.looks_like_home(url):
-                self.push_hub(slot, label, url)  # 입학처 홈 같은 하위 사이트 첫 화면
+            if probe.looks_like_home(url) or same_page(url, self.home_url):
+                if not _DEPARTMENT_RE.search(label) and not same_page(url, self.home_url):
+                    self.push_hub(slot, label, url)  # 입학처 홈 같은 하위 사이트 첫 화면
                 continue
             if self._push(slot, label, url, HUB_BONUS if hub_slot and fresh else 0):
                 grown[slot] = grown.get(slot, 0) + 1
@@ -237,7 +268,7 @@ def fill(
 
     tested 에는 시험한 주소와 판정이 쌓인다(뒤의 일반 발견이 같은 주소를 다시 열지 않게).
     """
-    pool = _Pool(home_host, targets, board_score)
+    pool = _Pool(home_host, targets, board_score, home_url=home_url)
     pool.add(home_url, home_links)
     spent = 0
     kept: dict[str, bytes] = {}  # 안내 화면으로 판정된 것 — 갈래 화면으로 다시 쓸 때 재요청 없이

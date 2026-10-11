@@ -229,3 +229,54 @@ def test_gateway_strings_do_not_lead_to_manifests_or_login_pages():
     intro = b'<a href="/topLogin/view.do">login</a><a href="/kor/index.do">home</a>'
     picked = govpaths.intro_targets(intro, "https://www.spa.ac.kr/", "www.spa.ac.kr")
     assert picked == ["https://www.spa.ac.kr/kor/index.do"]
+
+
+def test_a_sub_sites_notice_does_not_take_the_universitys_notice_slot():
+    """사이트맵에 걸린 취업지원센터의 '공지사항'은 대학 공지 자리에 앉지 않는다(외대 실측)."""
+    pool = slots._Pool("www.gana.ac.kr", slots.TARGETS, govdiscover.board_score)
+    pool.add(
+        "https://www.gana.ac.kr/kor/sitemap.do",
+        [
+            ("https://job.gana.ac.kr/board/notice.do", "공지사항"),
+            ("https://gana.ac.kr/kor/notice.do", "공지사항"),  # www 없는 본교 주소는 본교
+        ],
+    )
+    assert pool.pop("공지") == ("공지사항", "https://gana.ac.kr/kor/notice.do")
+    assert pool.pop("공지") is None
+
+
+def test_department_pages_are_not_hubs_and_rank_below_university_boards():
+    pool = slots._Pool("www.gana.ac.kr", slots.TARGETS, govdiscover.board_score)
+    pool.add(
+        "https://www.gana.ac.kr/kor/index.do",
+        [
+            ("https://public.gana.ac.kr/", "공공인재학부"),  # '인재' → 채용이지만 학과 홈
+            ("/kor/dept/job.do", "기계공학과 채용"),
+            ("/kor/job/list.do", "채용공고"),
+        ],
+    )
+    assert pool.pop_hub("채용") is None
+    assert pool.pop("채용") == ("채용공고", "https://www.gana.ac.kr/kor/job/list.do")
+    assert slots.slot_of("학부입학") == "입학"  # 학부 입학은 학과가 아니다
+    assert slots.slot_of("모집요강") == "입학"  # 모집(채용)이 아니라 입학
+
+
+def test_junk_boards_and_the_home_itself_are_not_notice_boards():
+    for name in ("Q&A", "분실물/습득물", "개인정보처리방침", "입학상담", "자주 묻는 질문"):
+        assert slots.not_notice(name), name
+    assert not slots.not_notice("공지사항")
+    assert slots.same_page(
+        "https://www.chugye.ac.kr/mbs/university/",
+        "https://www.chugye.ac.kr/mbs/university/index.jsp",
+    )
+    assert not slots.same_page(
+        "https://www.chugye.ac.kr/mbs/university/jsp/board/list.jsp?boardId=6784",
+        "https://www.chugye.ac.kr/mbs/university/index.jsp",
+    )
+
+
+def test_an_intro_address_with_a_dozen_banner_links_is_not_the_home():
+    banners = "".join(f'<a href="/popup/{i}.asp">배너{i}</a>' for i in range(14))
+    intro = f'<html><body>{banners}<a href="/www/main/main.asp">홈페이지 바로가기</a></body></html>'
+    assert govpaths.needs_hop(intro.encode(), "https://www.puts.ac.kr/www/main/intro/intro.asp")
+    assert not govpaths.needs_hop(intro.encode(), "https://www.puts.ac.kr/www/main/main.asp")
