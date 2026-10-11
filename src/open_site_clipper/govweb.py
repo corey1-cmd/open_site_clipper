@@ -386,8 +386,8 @@ def _plain_title(cells: list[tuple[str, str]]) -> int | None:
     return best
 
 
-def _title_cell(cells: list[tuple[str, str]], base_url: str) -> tuple[int, str, bool] | None:
-    """행에서 (제목 칸, 글 주소, 제목이 링크 밖 글인가)를 고른다. 못 고르면 None.
+def _title_cell(cells: list[tuple[str, str]], base_url: str) -> tuple[int, str, bool, str] | None:
+    """행에서 (제목 칸, 글 주소, 제목이 링크 밖 글인가, 제목 링크의 스크립트)를 고른다. 못 고르면 None.
 
     차례: ① 글 링크(파일 아닌 진짜 주소, 글자 MIN_TITLE_LEN 이상) 중 가장 긴 것
     ② 스크립트 링크 제목 — 주소는 같은 행의 문서 보기 단추·첨부 파일, 없으면 목록 페이지
@@ -429,21 +429,22 @@ def _title_cell(cells: list[tuple[str, str]], base_url: str) -> tuple[int, str, 
         elif len(text.strip()) >= MIN_TITLE_LEN and longer(i, page):
             page, page_url = i, url
     if page is not None:
-        return page, page_url, False
+        return page, page_url, False, ""
     if script is not None and len(cells[script][0].strip()) >= MIN_TITLE_LEN:
         # 글 주소를 알 수 없으면 같은 행의 첨부(글의 내용)로, 그것도 없으면 **목록 페이지**로
         # 건다(제목을 조각으로 붙여 글마다 다른 주소가 되게). 지어낸 상세 주소가 아니다.
+        # 스크립트는 행에 남겨 두어 scriptlink 가 사이트 스크립트에서 글 주소를 찾게 한다.
         url = view_url or file_url or _board_anchor(base_url, cells[script][0])
-        return script, url, False
+        return script, url, False, cells[script][1]
     if filed is not None:
-        return filed, file_url, False
+        return filed, file_url, False, ""
     if view_url or down_url:
         # 링크 밖 글을 제목으로 삼는 것은 글을 '보는' 단추나 문서를 '내려받는' 단추가 있을
         # 때만('예결산 공고 | 2026-08-19 | 다운로드' — 동명대·아주대 실측). '바로가기'·'더보기'
         # 단추뿐인 행은 글이 아니다(원서접수 안내 표 — 대구공업대 실측).
         plain = _plain_title(cells)
         if plain is not None:
-            return plain, view_url or down_url, True
+            return plain, view_url or down_url, True, ""
     return None
 
 
@@ -476,7 +477,7 @@ def _rows_from(rows: list[list[tuple[str, str]]], base_url: str) -> list[Row]:
         picked = _title_cell(cells, base_url)
         if picked is None:
             continue
-        best, best_url, plain = picked
+        best, best_url, plain, script_js = picked
 
         title, unit = _clean_title(_drop_echoed_tail(cells[best][0], cells[best + 1 :]))
         if len(title) < MIN_TITLE_LEN:
@@ -502,7 +503,7 @@ def _rows_from(rows: list[list[tuple[str, str]]], base_url: str) -> list[Row]:
         if plain and published is None:
             continue  # 링크 밖 글을 제목으로 삼는 것은 날짜 달린 행(글)에서만
         seen.add(best_url)
-        out.append(Row(title=title, url=best_url, unit=unit, published=published))
+        out.append(Row(title=title, url=best_url, unit=unit, published=published, script=script_js))
     return out
 
 

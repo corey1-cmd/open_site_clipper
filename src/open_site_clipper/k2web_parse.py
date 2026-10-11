@@ -50,6 +50,13 @@ class Row:
     url: str
     unit: str = ""  # 작성 부서
     published: date | None = None
+    # 제목 링크가 스크립트였으면 그 스크립트(또는 data-* 표시) — scriptlink 가 글 주소를 찾는다
+    script: str = ""
+
+
+_SCRIPT_CALL_RE = re.compile(r"^javascript:\s*(?!void\b)[A-Za-z_$][\w$.]*\s*\(", re.I)
+# scriptlink.DATA_MARK 와 같은 값 — 순환 import 를 피하려고 여기에도 적는다
+DATA_MARK = "#data:"
 
 
 def anchor_href(attrs: list[tuple[str, str | None]]) -> str:
@@ -58,12 +65,26 @@ def anchor_href(attrs: list[tuple[str, str | None]]) -> str:
     eGov·옛 학교 스킨은 `<a href="#" onclick="fn_view('123')">` 처럼 주소를
     스크립트에 넣는다. href 만 보면 '#'(= 목록 자기 자신)이라 모든 행이 같은
     주소가 되고, 중복으로 접혀 '글 0~1건'으로 판정됐다(교육부 등 실측).
+
+    글 번호가 `data-id="554771"` 같은 속성에만 있고 클릭 처리기가 따로 붙는 게시판
+    (경상국립대·대전대 nttInfoBtn, 강원도립대)은 '#data:data-id=554771&class=…' 표시를
+    돌려준다 — 행마다 다른 주소가 되고, scriptlink 가 처리기를 읽어 글 주소를 찾는다.
     """
     a = dict(attrs)
     href = (a.get("href") or "").strip()
     onclick = (a.get("onclick") or "").strip()
-    if onclick and (not href or href.startswith("#") or href.lower().startswith("javascript")):
+    scripted = not href or href.startswith("#") or href.lower().startswith("javascript")
+    if onclick and scripted:
         return "javascript:" + onclick
+    if scripted and not _SCRIPT_CALL_RE.match(href):
+        data = [
+            (k, (v or "").strip()) for k, v in attrs if k.startswith("data-") and (v or "").strip()
+        ]
+        if data:
+            import urllib.parse
+
+            cls = (a.get("class") or "").strip()
+            return DATA_MARK + urllib.parse.urlencode(data + ([("class", cls)] if cls else []))
     return href
 
 

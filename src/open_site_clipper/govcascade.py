@@ -28,7 +28,7 @@ import urllib.parse
 from collections.abc import Callable
 from dataclasses import dataclass, field, replace
 
-from . import govweb, jsonapi, parse, robots
+from . import govweb, jsonapi, parse, robots, scriptlink
 from .cascade import (
     FETCH_FAILED,
     NO_ITEMS,
@@ -115,8 +115,19 @@ def _rows_to_notices(source: Source, rows: list, category: str) -> list[Notice]:
     ]
 
 
-def _parse_stage(source: Source, stage: str, data: bytes, url: str, category: str) -> list[Notice]:
-    """단계 종류에 맞는 파서로 넘긴다 — 파서는 전부 기존 것을 재사용한다."""
+def _parse_stage(
+    source: Source,
+    stage: str,
+    data: bytes,
+    url: str,
+    category: str,
+    fetcher: Callable[[str], bytes | None] | None = None,
+) -> list[Notice]:
+    """단계 종류에 맞는 파서로 넘긴다 — 파서는 전부 기존 것을 재사용한다.
+
+    게시판 표에서 제목이 스크립트 링크인 글은 fetcher 가 있으면 사이트 스크립트에서 글 주소를
+    찾아(첫 글을 열어 확인) 바꾼다 — scriptlink.
+    """
     if stage in (RSS, KOREA):
         parsed = parse.parse_rss(data, agency=source.name, category=category, rights=source.rights)
         return [
@@ -137,7 +148,10 @@ def _parse_stage(source: Source, stage: str, data: bytes, url: str, category: st
         )
         return _rows_to_notices(source, rows, category)
     # BOARD·ALT — 게시판 표(칸 순서 파서). CMS 가 달라도 표면 읽힌다.
-    return _rows_to_notices(source, govweb.parse_list(data, url), category)
+    rows = govweb.parse_list(data, url)
+    if fetcher is not None:
+        rows = scriptlink.resolve_rows(rows, data, url, fetcher, allowed=robots.allowed)
+    return _rows_to_notices(source, rows, category)
 
 
 def categories(source: Source) -> list[str]:
@@ -197,7 +211,7 @@ def collect_category(
                 Attempt(stage, url, reason=why(url) if callable(why) else FETCH_FAILED)
             )
             continue
-        notices = _parse_stage(source, stage, data, url, category)
+        notices = _parse_stage(source, stage, data, url, category, fetcher)
         notices = [replace(n, origin=origin_label(url, stage)) for n in notices]
         if not notices:
             outcome.attempts.append(Attempt(stage, url, reason=NO_ITEMS))
@@ -279,7 +293,7 @@ def _try_stages(
                 Attempt(stage, url, reason=why(url) if callable(why) else FETCH_FAILED)
             )
             continue
-        notices = _parse_stage(source, stage, data, url, category)
+        notices = _parse_stage(source, stage, data, url, category, fetcher)
         notices = [replace(n, origin=origin_label(url, stage)) for n in notices]
         if not notices:
             result.attempts.append(Attempt(stage, url, reason=NO_ITEMS))
