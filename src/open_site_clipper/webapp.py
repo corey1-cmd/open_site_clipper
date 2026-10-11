@@ -648,6 +648,13 @@ _PAGE_LIB_RE = re.compile(
 )
 
 
+def html_unescape_key(text: str) -> str:
+    """제목 조각을 HTML 원문에서 찾을 꼴로 — '&' 는 '&amp;' 로 적혀 있다."""
+    import html as _html
+
+    return _html.escape(text, quote=False)
+
+
 def page_sample(
     org_id: str,
     urls: list[str],
@@ -698,13 +705,28 @@ def page_sample(
         item["bytes"] = len(data)
         item["rows"] = [len(table), dated(table), len(items), dated(items)]
         item["dates_in_html"] = len(_PAGE_DATE_RE.findall(text))
-        item["picked"] = [
-            [r.title[:50], r.url[:160], str(r.published or "")]
-            for r in govweb.parse_list(data, url)[:8]
-        ]
+        picked = govweb.parse_list(data, url)
+        item["picked"] = [[r.title[:50], r.url[:160], str(r.published or "")] for r in picked[:8]]
+        # 글 주소를 못 얻은 행(목록#제목) — 제목 둘레의 마크업(링크·행의 속성)을 그대로 보인다
+        flat = " ".join(text.split())
+        around = []
+        for r in picked:
+            if "#" not in r.url or len(around) >= 2:
+                continue
+            key = r.title[:12]
+            at = flat.find(key)
+            if at < 0:
+                key = html_unescape_key(r.title[:12])
+                at = flat.find(key)
+            if at >= 0:
+                around.append(flat[max(0, at - 900) : at + 300])
+        item["around"] = around
+        titles = [" ".join(r.title.split())[:14] for r in picked if "#" in r.url]
         anchors, names = [], []
         for a in parts.anchors:
             if len(a.text) < 6:
+                continue
+            if titles and not any(t and t in a.text for t in titles):
                 continue
             keep = {
                 k: v[:160]
@@ -721,6 +743,16 @@ def page_sample(
             if len(anchors) >= PAGE_ANCHORS:
                 break
         item["anchors"] = anchors
+        for snippet in around:
+            for m in re.finditer(
+                r"""(?:onclick|href)\s*=\s*["']((?:javascript:)?[^"']{3,200})["']""", snippet
+            ):
+                js = m.group(1)
+                if js.startswith(("http", "/", "#", ".")) and "javascript" not in js:
+                    continue
+                call = scriptlink.call_of(js)
+                if call and call[0] not in names:
+                    names.append(call[0])
         item["forms"] = [
             {
                 "name": f.name,
