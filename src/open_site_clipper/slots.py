@@ -44,7 +44,7 @@ HUB_BONUS = 5  # 갈래 화면에서 새로 본 후보를 먼저 — 그 갈래�
 # 공지가 아닌 게시판·화면 — 학생이 올리는 문의·후기, 일정표, 식단, 자주 묻는 질문.
 _NOT_NOTICE_RE = re.compile(
     r"상담|문의|질문|q\s*&\s*a|qna|묻고|답하기|자유\s*게시|건의|칭찬|민원|faq|자주\s*묻는|"
-    r"일정|캘린더|calendar|달력|시간표|식단|후기|수기",
+    r"일정|캘린더|calendar|달력|시간표|식단|후기|수기|열린\s*광장|자유\s*광장",
     re.I,
 )
 # 게시판다운 이름 — '장학공지'·'취업게시판'·'입시소식'
@@ -62,8 +62,10 @@ _JUNK_RE = re.compile(
     r"분실|습득|개인정보|처리방침|약관|저작권|사이트\s*맵|로그인|자취|하숙|원룸|룸메이트|벼룩|중고|장터|식당",
     re.I,
 )
-# 주소로 보는 공지 아닌 화면 — 행사 달력('eventCldr')·일정표
-_JUNK_URL_RE = re.compile(r"cldr|calendar|schedule|schdul", re.I)
+# 주소로 보는 공지 아닌 화면 — 행사 달력('eventCldr')·일정표, 묻고 답하기('counsel/qna.asp'·'bo_table=ipsi_qna')
+_JUNK_URL_RE = re.compile(
+    r"cldr|calendar|schedule|schdul|(?:^|[/_=?&.\-])(?:qna|faq)(?:$|[/_=?&.\-])", re.I
+)
 # 날짜 달린 목록이어도 학교 공지가 아닌 것 — 공개 의무 자료(업무추진비·기부금·회의록·결산),
 # 사진·영상 모음, 연설문·칼럼, 언론에 실린 기사 모음(글이 언론사로 이어진다). 실측(2026-10-11):
 # 부산대 경로 26개 중 13개가 '갤러리·회의록·숙박정보·말과 글'이었고, 성균관대·경희대·포스텍도
@@ -72,7 +74,8 @@ _NOT_BOARD_RE = re.compile(
     r"업무\s*추진비|기부금|결산|예\s*산|등록금\s*심의|회의록|평의원회|정보\s*공시|공시\s*정보|"
     r"연설|말과\s*글|축사|칼럼|기고|갤러리|gallery|사진|포토|photo|영상|동영상|screen|웹진|webzine|"
     r"뉴스\s*레터|newsletter|클리핑|언론\s*보도|언론에\s*비친|언론\s*속|최근\s*활동|숙박|전경|투어|"
-    r"자랑스러운|명예의\s*전당|역대|규정집|학칙",
+    r"자랑스러운|명예의\s*전당|역대|규정집|학칙|심의\s*위원회|심의회|아카이빙|아카이브|archive|"
+    r"학과\s*(?:안내|소개)",
     re.I,
 )
 _MAIN_NOTICE = frozenset(
@@ -120,6 +123,14 @@ def not_notice(label: str, url: str = "") -> bool:
 def not_board(label: str) -> bool:
     """학교 공지가 아닌 목록 이름 — 업무추진비·기부금·회의록·갤러리·연설문·언론 보도 모음 …"""
     return bool(_NOT_BOARD_RE.search(label or ""))
+
+
+def qna_url(url: str) -> bool:
+    """묻고 답하기·자주 묻는 질문 글 주소('bo_table=d_qna&wr_id=…') — 학교 공지가 아니다."""
+    return bool(_QNA_URL_RE.search(url or ""))
+
+
+_QNA_URL_RE = re.compile(r"(?:^|[/_=?&.\-])(?:qna|faq)(?:$|[/_=?&.\-])", re.I)
 
 
 def department(label: str) -> bool:

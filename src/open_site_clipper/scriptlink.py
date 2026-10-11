@@ -612,6 +612,12 @@ class _Run:
         if m:
             idx = int(m.group(1))
             return idx if idx < len(self.ctx.parts.forms) else None
+        m = re.fullmatch(
+            r"[A-Za-z_$][\w$]*(?:\s*\.\s*[A-Za-z_$][\w$]*)*\s*\.\s*([A-Za-z_$][\w$]*)", ref
+        )
+        if m and not ref.startswith(("window.", "location.")):
+            # 객체에 담아 둔 폼 — article.searchForm(배재대 Article.js)
+            return self.ctx.form_by(m.group(1))
         return None
 
     def form_from_chain(self, chain: _Chain, env: dict[str, str]) -> int | None:
@@ -678,7 +684,8 @@ class _Run:
             return self.value(split_top(m.group(1), ",")[0], env, lenient, depth)
         m = _DATA_KEY_RE.fullmatch(p)
         if m:
-            return self.data.get(_norm_key(next(g for g in m.groups() if g)))
+            # 링크에 없는 data-* 는 빈 값 — 브라우저에서도 null(거짓)이라 조건을 따질 수 있다
+            return self.data.get(_norm_key(next(g for g in m.groups() if g)), "")
         got = self.read_input(p, env)
         if got is not None:
             return got
@@ -735,7 +742,9 @@ class _Run:
         """$('#id').val() · document.getElementById('id').value · f.name.value → 그 값."""
         m = re.fullmatch(r"""(?:\$|jQuery)\s*\(\s*['"]#([\w-]+)['"]\s*\)\s*\.\s*val\(\s*\)""", p)
         if m:
-            return self.ctx.input_value(self, by_id=m.group(1))
+            # 없는 입력칸의 값은 빈 값(undefined) — '$("#masterSecretYn").val() === "Y"' 를 따질 수 있게
+            got = self.ctx.input_value(self, by_id=m.group(1))
+            return "" if got is None else got
         m = re.fullmatch(
             r"""(?:\$|jQuery)\s*\(\s*['"][^'"]*\[\s*name\s*=\s*['"]?([\w-]+)['"]?\s*\][^'"]*['"]\s*\)"""
             r"""\s*\.\s*val\(\s*\)""",
@@ -790,6 +799,20 @@ class _Run:
         if v is None:
             return None
         return v not in ("", "0", "false")
+
+    def effectful(self, block: str) -> bool:
+        """주소를 만드는 블록인가 — 위치 이동·폼 값·제출, 또는 정의를 아는 사용자 함수 부르기."""
+        if _EFFECT_RE.search(block):
+            return True
+        for m in re.finditer(r"(?<![\w$.])([A-Za-z_][\w$]*(?:\.[A-Za-z_$][\w$]*)?)\s*\(", block):
+            name = m.group(1)
+            if (
+                name.split(".")[-1] not in _NOT_CALLS
+                and name not in ("$", "jQuery")
+                and self.ctx.function(name)
+            ):
+                return True
+        return False
 
     # ── 함수 부르기 ──
     def call_return(self, name: str, args: list[str], depth: int) -> str | None:
@@ -852,8 +875,9 @@ class _Run:
                         other, i = _body(code, k + 4)
                     verdict = self.truth(cond, env, depth)
                     if verdict is None:
-                        verdict = bool(_EFFECT_RE.search(then)) or not other
-                        if not _EFFECT_RE.search(then) and other is None:
+                        effect = self.effectful(then)
+                        verdict = effect or not other
+                        if not effect and other is None:
                             verdict = False  # 경고·return 뿐인 관문
                     branch = then if verdict else other
                     if branch and self.execute(branch, env, depth, returns):
@@ -1096,7 +1120,8 @@ class _Ctx:
             self._external = []
             if self.fetch is not None:
                 host = urllib.parse.urlsplit(self.page_url).hostname
-                for src in self.parts.srcs:
+                srcs = sorted(self.parts.srcs, key=lambda s: 0 if _BOARD_JS_RE.search(s) else 1)
+                for src in srcs:
                     if len(self._external) >= MAX_EXTERNAL:
                         break
                     full = urllib.parse.urljoin(self.page_url, src)
@@ -1116,21 +1141,32 @@ class _Ctx:
         return find_function(self.parts.scripts, name) or find_function(self.external(), name)
 
     def handlers(self, classes: list[str]) -> list[tuple[list[str], str]]:
-        """'.cls' 에 걸린 클릭 처리기들의 몸통."""
-        out = []
+        """'.cls' 에 걸린 클릭 처리기들의 몸통 — 그 클래스를 감싼 함수, 없으면 바로 뒤의 함수."""
+        out: list[tuple[list[str], str]] = []
+        fn_re = re.compile(r"function\s*[\w$]*\s*\(([^)]*)\)\s*\{|\(([^)]*)\)\s*=>\s*\{")
         for code in [*self.parts.scripts, *self.external()]:
             for cls in classes:
                 for m in re.finditer(r"\." + re.escape(cls) + r"\b", code):
-                    fm = re.compile(r"function\s*\(([^)]*)\)\s*\{|\(([^)]*)\)\s*=>\s*\{").search(
-                        code, m.end(), m.end() + 300
-                    )
-                    if fm:
+                    picked = None
+                    # $('.cls').click(function(){…}) · .on('click', '.cls', function(e){…}) — 바로 뒤
+                    fm = fn_re.search(code, m.end(), m.end() + 300)
+                    if fm and not re.search(r"[;{}]", code[m.end() : fm.start()]):
+                        picked = (fm, _block(code, fm.end()))
+                    else:
+                        # addEventListener('click', function(e){ … closest('.cls') … }) — 감싼 함수
+                        for fm in fn_re.finditer(code, max(0, m.start() - 600), m.start()):
+                            body = _block(code, fm.end())
+                            if fm.end() + len(body) > m.end():
+                                picked = (fm, body)
+                    if picked:
+                        fm, body = picked
                         params = [
                             p.strip()
                             for p in (fm.group(1) or fm.group(2) or "").split(",")
                             if p.strip()
                         ]
-                        out.append((params, _block(code, fm.end())))
+                        if (params, body) not in out:
+                            out.append((params, body))
                     if len(out) >= 4:
                         return out
         return out
@@ -1188,7 +1224,9 @@ class _Ctx:
         return None
 
 
-MAX_EXTERNAL = 6
+MAX_EXTERNAL = 8
+# 게시판 스크립트다운 이름 — 이것부터 받는다(고려대 portalBoardList.js 는 스무 번째였다)
+_BOARD_JS_RE = re.compile(r"board|bbs|list|article|notice|view|ntt|common", re.I)
 _LIB_RE = re.compile(
     r"jquery|bootstrap|swiper|slick|aos\.|gsap|lodash|moment|polyfill|analytics|gtag|kakao|naver|"
     r"google|facebook|chart|datepicker|select2|owl|fancybox|lightbox|tweenmax|scrollmagic|"
@@ -1284,6 +1322,7 @@ def _to_candidates(run: _Run, ctx: _Ctx) -> list[Candidate]:
         if merged and (static or not sets):
             out.append(Candidate("form_all", _with_query(base, list(merged.items()))))
         break
+    out += _variants(out, page)
     seen: set[str] = set()
     uniq = []
     for c in out:
@@ -1291,6 +1330,31 @@ def _to_candidates(run: _Run, ctx: _Ctx) -> list[Candidate]:
             seen.add(c.url)
             uniq.append(c)
     return uniq
+
+
+def _variants(cands: list[Candidate], page: str) -> list[Candidate]:
+    """확인에 쓸 덜 확실한 꼴 — 맨 뒤에 둔다.
+
+    - 'X.do' 목록의 사이트에서 확장자 없는 '/…/view' 주소(K2Web kurl() 이 '.do' 를 붙인다 —
+      협성대 '/portalBbs/uhs/4/99241/view' 는 404, '.do' 는 글)
+    - 값이 빈 쿼리를 단 action('…/detailView.do?pageIndex=&menu=2379' — 전북대 400)의 경로만
+    """
+    out: list[Candidate] = []
+    page_do = urllib.parse.urlsplit(page).path.endswith(".do")
+    for c in cands:
+        parts = urllib.parse.urlsplit(c.url)
+        last = parts.path.rsplit("/", 1)[-1]
+        if page_do and last and "." not in last:
+            out.append(
+                Candidate(
+                    c.kind + "_do", urllib.parse.urlunsplit(parts._replace(path=parts.path + ".do"))
+                )
+            )
+        if parts.query and c.kind in ("form_bare", "loc"):
+            out.append(
+                Candidate(c.kind + "_path", urllib.parse.urlunsplit(parts._replace(query="")))
+            )
+    return out
 
 
 _SESSION_RE = re.compile(r";jsessionid=[^?#]*", re.I)
@@ -1326,6 +1390,35 @@ def _flat(text: str) -> str:
     return _SPACE_RE.sub("", html.unescape(text or ""))
 
 
+_HEAD_TAG_RE = re.compile(r"^(?:\[[^\]]{1,20}\]|\([^)]{1,20}\)|【[^】]{1,20}】|<[^>]{1,20}>)\s*")
+
+
+def _title_keys(title: str) -> list[str]:
+    """글 화면에서 찾을 제목 조각들(18자) — 그대로, 앞의 짧은 낱말('국제'·'공 지')을 뗀 것,
+    앞 머리말('[심리상담센터]')을 뗀 것. 목록 칸에만 붙는 말이 글 화면에는 없을 수 있다."""
+    base = _ELLIPSIS_RE.sub("", " ".join((title or "").split())).strip()
+    forms = [base]
+    words = base.split(" ")
+    for n in (1, 2):
+        head = words[:n]
+        if len(words) > n and all(len(w) <= 4 and w[:1] not in "[(【<" for w in head):
+            forms.append(" ".join(words[n:]))
+    for form in list(forms):
+        s = form
+        while True:
+            t = _HEAD_TAG_RE.sub("", s, count=1)
+            if t == s:
+                break
+            s = t
+        forms.append(s)
+    keys: list[str] = []
+    for form in forms:
+        k = _flat(form)[:18]
+        if len(k) >= 6 and k not in keys:
+            keys.append(k)
+    return keys
+
+
 def looks_like_post(
     data: bytes | None, title: str, others: list[str], listing: bytes | None = None
 ) -> bool:
@@ -1345,9 +1438,15 @@ def looks_like_post(
         return False
     text = decode_text(data)
     page = _flat(text)
-    key = _flat(_ELLIPSIS_RE.sub("", title.strip()))[:18]
-    if len(key) < 4 or key not in page:
+    keys_of_title = _title_keys(title)
+    flat_others = [_flat(o) for o in others]
+    # 머리말을 뗀 조각은 다른 글 제목에도 들어 있으면 쓰지 않는다('1차 …'·'2차 …' 같은 연재 글)
+    usable = [
+        k for i, k in enumerate(keys_of_title) if i == 0 or not any(k in o for o in flat_others)
+    ]
+    if not usable or not any(k in page for k in usable):
         return False
+    key = keys_of_title[0]
     if listing is not None and page == _flat(decode_text(listing)):
         return False
     keys = [
@@ -1411,8 +1510,19 @@ def resolve_rows(
     return out
 
 
-KIND_ORDER = ("loc", "form_set", "form_bare", "form_all")
-MAX_CHECKS = 3
+KIND_ORDER = (
+    "loc",
+    "form_set",
+    "form_bare",
+    "form_all",
+    "loc_do",
+    "form_set_do",
+    "form_bare_do",
+    "form_all_do",
+    "loc_path",
+    "form_bare_path",
+)
+MAX_CHECKS = 4
 
 
 def _verified_kind(

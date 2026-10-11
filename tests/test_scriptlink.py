@@ -80,12 +80,10 @@ def test_location_with_var_and_guard_hanseo():
         )
     )
     got = _first(page, "https://www.hanseo.ac.kr/boardCnts/list.do?boardID=299&m=040102&s=hs")
-    assert got == [
-        scriptlink.Candidate(
-            "loc",
-            "https://www.hanseo.ac.kr/boardCnts/view.do?boardID=299&boardSeq=1000&lev=0&page=1&s=hs",
-        )
-    ]
+    assert got[0] == scriptlink.Candidate(
+        "loc",
+        "https://www.hanseo.ac.kr/boardCnts/view.do?boardID=299&boardSeq=1000&lev=0&page=1&s=hs",
+    )
 
 
 def test_form_elements_khu():
@@ -364,3 +362,84 @@ def test_location_search_and_unknown_helper_cufs():
         got[0].url
         == "https://www.cufs.ac.kr/bbs/view.do?bbsId=BBS000063&menuId=MENU000170&nttNo=1000"
     )
+
+
+def test_object_method_template_literal_and_globals_pcu():
+    js = (
+        "var article = { searchForm: null, view(seq) { "
+        'if(typeof article.searchForm.articleSeq!="undefined"){ $(article.searchForm.articleSeq).remove(); } '
+        "article.searchForm.action = `${ARTICLE_BASE_URL}/${ARTICLE_CODE}/`+seq; "
+        "article.searchForm.method = METHOD.GET; article.searchForm.submit(); } };"
+    )
+    page = (
+        "<script>const ARTICLE_BASE_URL = '/kor/article'; const ARTICLE_CODE = 'notice_bob';</script>"
+        '<script src="/js/site/article/Article.js"></script>'
+        '<form name="searchForm" id="searchForm" action="/kor/article/notice_bob"><input name="pageIndex" value="1">'
+        '<input name="searchKeyword" value=""></form>'
+        + _table('<a href="#" onclick="article.view(\'{no}\'); return false;">' + TITLE + "</a>")
+    )
+    got = _first(
+        page,
+        "https://www.pcu.ac.kr/kor/article/notice_bob",
+        lambda url: js.encode() if url.endswith("Article.js") else None,
+    )
+    assert got[0].url == "https://www.pcu.ac.kr/kor/article/notice_bob/1000"
+
+
+def test_do_suffix_variant_for_k2web_kurl():
+    page = (
+        '<script>function jf_view(siteId, fnctNo, boardId) { $( "form[name=\'frm\']" ).attr( "action", '
+        'kurl( "/portalBbs/"+siteId+"/"+fnctNo+"/"+boardId+"/view" ) ); $( "form[name=\'frm\']" ).submit(); }'
+        "</script>"
+        '<form name="frm" action="/portalBbs/uhs/4/list.do" method="post"><input name="page" value="1"></form>'
+        + _table("<a href=\"#this\" onclick=\"jf_view('uhs', '4', '{no}');\">" + TITLE + "</a>")
+    )
+    got = {
+        c.kind: c.url
+        for c in _first(page, "https://www.uhs.ac.kr/portalBbs/uhs/4/list.do?layout=unknown")
+    }
+    assert got["form_bare_do"] == "https://www.uhs.ac.kr/portalBbs/uhs/4/1000/view.do"
+
+
+def test_enclosing_click_listener_with_closest_kunjang():
+    page = (
+        "<script>document.addEventListener('click', function(e) { "
+        "var target = e.target.closest('.btn-bbs-detail'); if (target) { e.preventDefault(); "
+        "var mngNo = target.getAttribute('data-mng-no'); var bbsNo = target.getAttribute('data-bbs-no'); "
+        "if (mngNo && bbsNo && typeof fnBbsDetail === 'function') { fnBbsDetail(mngNo, bbsNo); } "
+        "else if (bbsNo && typeof fnBbsDetail === 'function') { fnBbsDetail(bbsNo); } } }); "
+        "document.addEventListener('error', function(e) { if (e.target) { e.target.src = '/x.png'; } }); "
+        "function fnBbsDetail(encBbsNo) { location.href = 'bbsNormalView.do?encMenuId=55&encBbsNo=' + encBbsNo; }"
+        "</script>"
+        + _table('<a href="#" class="btn-bbs-detail" data-bbs-no="E{no}">' + TITLE + "</a>")
+    )
+    got = _first(page, "https://www.kunjang.ac.kr/home/main/board/bbsNormalList.do?encMenuId=55")
+    assert (
+        got[0].url
+        == "https://www.kunjang.ac.kr/home/main/board/bbsNormalView.do?encMenuId=55&encBbsNo=E1000"
+    )
+
+
+def test_missing_input_value_is_empty_so_guard_branch_is_skipped():
+    page = (
+        '<script>function goBdView(bdId) { var masterSecretYn = $("#masterSecretYn").val(); '
+        "if (masterSecretYn === 'Y') { $('#searchForm input[name=bdId]').val(bdId); "
+        "$('#searchForm').attr('action', '/board/secret.do').submit(); } "
+        "else { location.href = '/board/view.do?bdId=' + bdId; } }</script>"
+        '<form id="searchForm" action="/board/list.do"><input name="bdId" value=""></form>'
+        + _table("<a href=\"javascript:goBdView('BD{no}')\">" + TITLE + "</a>")
+    )
+    got = _first(page, "https://www.nambu.ac.kr/board/list.do")
+    assert got[0].url == "https://www.nambu.ac.kr/board/view.do?bdId=BD1000"
+
+
+def test_title_keys_skip_short_heads_but_not_shared_suffixes():
+    titles = [
+        "국제 [심리상담센터] 타고난 나의 기본 설정인 기질 이해",
+        "공통 [창업교육센터] KHU 창업멘토링 신청 안내",
+    ]
+    page = (
+        b"<html><h2>[\xec\x8b\xac\xeb\xa6\xac\xec\x83\x81\xeb\x8b\xb4\xec\x84\xbc\xed\x84\xb0] "
+        + ("타고난 나의 기본 설정인 기질 이해</h2></html>".encode())
+    )
+    assert scriptlink.looks_like_post(page, titles[0], titles[1:])

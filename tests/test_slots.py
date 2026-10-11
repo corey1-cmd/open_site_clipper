@@ -598,3 +598,13 @@ def test_disclosure_galleries_and_press_clippings_are_not_school_notices():
         assert slots.not_notice(label), label
     for label in ("공지사항", "학사공지", "장학금", "보도자료", "PNU FOCUS", "채용공고", "입찰"):
         assert not slots.not_board(label), label
+
+
+def test_qna_urls_department_intros_and_committee_minutes():
+    assert slots.not_notice("입학", "https://admission.gachon.ac.kr/admission/html/counsel/qna.asp")
+    assert slots.not_notice("입학", "https://www.paekche.ac.kr/ict/pms/board.php?bo_table=ipsi_qna")
+    assert slots.qna_url("https://www.paekche.ac.kr/ict/pms/board.php?bo_table=d_qna&wr_id=40653")
+    assert not slots.qna_url("https://www.paekche.ac.kr/ict/pms/board.php?bo_table=ipsi_notice")
+    assert not slots.qna_url("https://www.qnap.example.ac.kr/notice")
+    for label in ("학과안내", "기금운용심의회", "ESG 아카이빙 콘텐츠", "MJC e-열린광장"):
+        assert slots.not_notice(label), label

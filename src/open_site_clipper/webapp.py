@@ -337,8 +337,8 @@ def collect_one(
     if cached and cached.get("routes"):
         routes = cached["routes"]
         if org.section == "학교":
-            # 예전 캐시에 남은 업무추진비·갤러리·회의록 같은 목록은 학교 공지가 아니다
-            routes = [r for r in routes if not slots.not_board(str(r[0]))]
+            # 예전 캐시에 남은 업무추진비·갤러리·회의록·묻고 답하기 같은 목록은 학교 공지가 아니다
+            routes = [r for r in routes if not slots.not_notice(str(r[0]), str(r[2]))]
         source = replace(source, routes=plan_routes(preset, routes))
         mode = "cache"
     elif source.home:
@@ -362,9 +362,12 @@ def collect_one(
     today = today or datetime.now(KST).date()
     cutoff = today - timedelta(days=days)
     rows, seen = [], set()
+    school = org.section == "학교"
     for n in sorted(notices, key=_newest_specific_first):
         if n.published is not None and n.published < cutoff:
             continue
+        if school and slots.qna_url(n.url):
+            continue  # 묻고 답하기 글(생활관 화면에 섞인 'd_qna' 글 — 백제예대)
         # 같은 글이 피드·목록·두 게시판으로 겹쳐 들어온다 — 링크로 한 번, (제목, 날짜)로
         # 한 번 더 접는다. 먼저 온 것(갈래가 분명한 게시판의 것)을 남긴다.
         keys = (n.dedup_key(), _title_key(n))
