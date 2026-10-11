@@ -185,6 +185,19 @@ def _replace_query(query: str, key: str, value: str) -> str:
     return lead + "&".join(out)
 
 
+def _object_pairs(literal: str) -> list[tuple[str, str]]:
+    """'{ action : x + y, method : 'get' }' → [('action', 'x + y'), ('method', "'get'")]."""
+    body = literal.strip()
+    if not (body.startswith("{") and body.endswith("}")):
+        return []
+    out = []
+    for item in split_top(body[1:-1], ","):
+        key, sep, value = item.partition(":")
+        if sep:
+            out.append((key.strip().strip("'\""), value.strip()))
+    return out
+
+
 def strip_js_prefix(js: str) -> str:
     """'javascript:' 머리(겹쳐 붙은 것까지)를 뗀다 — onclick 안의 'javascript:' 는 JS 라벨일 뿐이다."""
     body = (js or "").strip()
@@ -596,6 +609,7 @@ class _Run:
         self.steps = 0
         self._evaluating: set[str] = set()
         self._form_calls = 0
+        self._uncertain = False
 
     def done(self) -> bool:
         return bool(self.locations) or any(f.submitted for f in self.forms.values())
@@ -881,8 +895,14 @@ class _Run:
         params, body = found
         env = {p: (args[i] if i < len(args) else "") for i, p in enumerate(params)}
         result: list[str] = []
-        self.execute(body, env, depth, returns=result)
-        return result[0] if result else None
+        outer, self._uncertain = self._uncertain, False
+        try:
+            self.execute(body, env, depth, returns=result)
+            # 값을 모르는 조건으로 건너뛴 블록에 return 이 있었다 — 돌려준 값을 믿을 수 없다
+            # (checkBoardAuth: 권한 함수를 못 읽어 'false' 를 돌려주면 글 보기를 통째로 막는다)
+            return None if self._uncertain else (result[0] if result else None)
+        finally:
+            self._uncertain = outer
 
     def call(self, name: str, args: list[str], depth: int) -> bool:
         found = self.ctx.function(name)
@@ -937,6 +957,9 @@ class _Run:
                         verdict = effect or not other
                         if not effect and other is None:
                             verdict = False  # 경고·return 뿐인 관문
+                        skipped = other if verdict else then
+                        if skipped and re.search(r"\breturn\b", skipped):
+                            self._uncertain = True
                     branch = then if verdict else other
                     if branch and self.execute(branch, env, depth, returns):
                         return True
@@ -1058,6 +1081,14 @@ class _Run:
                     sel_name = nm.group(1)
                 elif im:
                     sel_id = im.group(1)
+                continue
+            if method in ("attr", "prop") and len(parts) == 1 and parts[0].strip().startswith("{"):
+                # .attr({ action: …, method: 'get' }) — 객체로 한꺼번에(남부대 board_view)
+                for key, expr in _object_pairs(parts[0]):
+                    if key.lower() == "action" and form is not None:
+                        url = self.either(expr, env, depth)
+                        if url is not None:
+                            self._form_state(form).action = url
                 continue
             if method in ("attr", "prop", "setAttribute") and len(parts) >= 2:
                 key = (self.value(parts[0], env, False, depth) or "").lower()

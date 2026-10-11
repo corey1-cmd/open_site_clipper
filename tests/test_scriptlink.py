@@ -570,3 +570,30 @@ def test_form_from_helper_returning_form_kaya():
     got = _first(page, "https://www.kaya.ac.kr/Home/BBSList.mbz?action=MAPP_0000000017")
     assert got[0].url == "https://www.kaya.ac.kr/Home//BBSView.mbz?schIdx=1000"
     assert any(c.url.endswith("BBSView.mbz?action=MAPP_0000000017&schIdx=1000") for c in got)
+
+
+def test_auth_helper_with_unknown_branches_does_not_block_view_nambu():
+    js = (
+        "function goBdView(bdId, masterBoardAuthV, authV, secretYn) { var $form = $('#searchForm'); "
+        'var boardId = $("#boardId").val(), masterSecretYn = $("#masterSecretYn").val(); '
+        "if(!checkBoardAuth(masterBoardAuthV, authV, '로그인', '권한')){ return false; } "
+        "if(masterSecretYn === 'Y'){ $('#searchForm input[name=bdId]').val(bdId); "
+        "if(secretYn == 'Y'){ $form.ajaxSubmit({}); } else { board_view(bdId); } } else { board_view(bdId); } }\n"
+        "function checkBoardAuth(masterAuth, userAuth, loginMsg, denyMsg) { if(hasBoardAuth(masterAuth, userAuth)){ "
+        "return true; } var auth = parseInt(masterAuth, 10); alert(denyMsg); return false; }\n"
+        "function board_view(bdId){ $('#searchForm input[name=bdId]').val(bdId); $('#searchForm').attr({ "
+        "action : prMap['cpath'] + '/board/' + $(\"#searchForm input[name=boardId]\").val() + '/boardView.do', "
+        "method : 'get', target : '_self' }).submit(); }"
+    )
+    page = (
+        '<script src="/site/nambu/nambukr/js/common-util.js?cpath=&v=1"></script>'
+        '<form name="searchForm" id="searchForm" method="get"><input name="menuCd" value="KR006006001">'
+        '<input id="boardId" name="boardId" value="NAMBU_BOARD_0003"><input name="bdId" value=""></form>'
+        + _table("<a href=\"javascript:goBdView('BD{no}', '0', '', '');\">" + TITLE + "</a>")
+    )
+    got = _first(
+        page,
+        "https://www.nambu.ac.kr/board/NAMBU_BOARD_0003/boardList.do?menuCd=KR006006001",
+        lambda url: js.encode() if "common-util" in url else None,
+    )
+    assert got[0].url == "https://www.nambu.ac.kr/board/NAMBU_BOARD_0003/boardView.do?bdId=BD1000"
