@@ -48,7 +48,8 @@ VERDICT_REASON = {
 # 글 한 건 주소 — '이전·다음 글' 목록 때문에 날짜 달린 목록처럼 보인다(실측: 그누보드
 # wr_id · ?mode=view&no= · ?ACT=R&CONTENTNO= · 워드프레스 /blog/글제목/).
 _ARTICLE_QUERY_RE = re.compile(
-    r"(?:^|&)(?:wr_id|articleno|contentno|nttsn|bbsidx)=\d|(?:^|&)(?:mode|action|act|type|cmd)=(?:view|read|r|detail)(?:&|$)",
+    r"(?:^|&)(?:wr_id|articleno|contentno|nttsn|bbsidx)=\d|"
+    r"(?:^|&)(?:\w*mode|action|act|type|cmd)=(?:view|read|r|detail)(?:&|$)",
     re.I,
 )
 # '/kcua/boardView?menuCode=…&boardNum=1545' 처럼 확장자 없는 글 보기 주소도(강서대 실측).

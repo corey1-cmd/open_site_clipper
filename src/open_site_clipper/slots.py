@@ -73,10 +73,14 @@ _K2_LIST_RE = re.compile(r"(?:https?://[^\"'\s<>]+)?/bbs/[A-Za-z0-9_\-]+/\d+/art
 MINED_PER_SLOT = 2  # 안내 화면으로 판정된 게시판 이름의 화면에서 캐 볼 목록 주소 수
 
 
+# 연도가 든 글자는 메뉴가 아니라 최근 글 상자의 글 제목('2027년도 대산장학생 선발 공고')
+_YEAR_RE = re.compile(r"(?:19|20)\d\d|\d+\s*(?:학년도|년도)")
+
+
 def slot_of(text: str, targets: tuple[str, ...] = TARGETS) -> str:
     """메뉴 이름 → 채울 갈래('' = 채울 갈래가 아니다)."""
     label = categories.tidy_label(text)
-    if not label or len(label) > MAX_LABEL or not_notice(label):
+    if not label or len(label) > MAX_LABEL or not_notice(label) or _YEAR_RE.search(label):
         return ""
     cat = categories.classify(label)
     return cat if cat in targets else ""
@@ -131,7 +135,9 @@ def sitemap_links(links: list[tuple[str, str]], base_url: str, home_host: str) -
     return out
 
 
-def score(slot: str, label: str, url: str, home_host: str, board_score) -> int:
+def score(
+    slot: str, label: str, url: str, home_host: str, board_score, home_section: str = ""
+) -> int:
     """이 후보가 그 갈래의 게시판일 가능성 — 클수록 먼저 시험한다."""
     s = board_score(url, label)
     if _BOARDISH_RE.search(label):
@@ -147,7 +153,15 @@ def score(slot: str, label: str, url: str, home_host: str, board_score) -> int:
             s += 4
         if _DEPT_RE.search(label):
             s -= 6
+        if home_section and _section(url) == home_section:
+            s += 3  # 홈과 같은 사이트 조각(K2Web '/mjukr/…') — 기록관('/record/…') 공지보다 먼저
     return s
+
+
+def _section(url: str) -> str:
+    """주소 경로의 첫 조각 — K2Web 은 사이트 이름('mjukr'), 아니면 언어·구역('kor')."""
+    segs = [x for x in urllib.parse.urlsplit(url).path.split("/") if x]
+    return segs[0].lower() if len(segs) > 1 else ""
 
 
 @dataclass
@@ -170,7 +184,8 @@ class _Pool:
             return False
         self.queued.add(url)
         self.order += 1
-        s = score(slot, label, url, self.home_host, self.board_score) + bonus
+        s = score(slot, label, url, self.home_host, self.board_score, _section(self.home_url))
+        s += bonus
         heapq.heappush(self.queue.setdefault(slot, []), (-s, self.order, label, url))
         return True
 
@@ -283,8 +298,11 @@ def list_literals(data: bytes, url: str, home_host: str, mine=None) -> list[str]
             out.append(target)
     if mine is not None:
         for target in mine(data, url, home_host):
-            if target not in out and target != here:
-                out.append(target)
+            if target in out or target == here or probe.not_a_board(target):
+                continue
+            if _NOT_NOTICE_RE.search(target) or _JUNK_RE.search(target):
+                continue  # 'academicCalendar.do' 같은 일정표·방침 화면
+            out.append(target)
     return out[:MINED_PER_SLOT]
 
 

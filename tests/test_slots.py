@@ -363,3 +363,32 @@ def test_k2web_menu_pages_are_boards_but_their_encoded_article_views_are_not():
         menu + "?enc=" + enc("fnct1|@@|/bbs/hufs/2180/artclList.do")
     )
     assert probe.looks_like_article("https://www.x.ac.kr/board/view.do?id=1")
+
+
+def test_a_slot_board_that_is_also_a_home_candidate_is_kept():
+    """홈 탭('학사 더보기')으로도 걸린 게시판을 갈래 채우기가 고르면 경로에 남아야 한다(강서대 실측)."""
+    home = "https://www.tab.ac.kr/kor/index.do"
+    menu = "".join(f'<a href="/kor/m{i}.do">메뉴{i}</a>' for i in range(12))
+    pages = {
+        home: f'<html><body>{menu}<a href="/kor/haksa/list.do">학사 더보기</a></body></html>',
+        "https://www.tab.ac.kr/kor/haksa/list.do": BOARD,
+    }
+
+    def get(url: str) -> bytes | None:
+        page = pages.get(url)
+        return page.encode() if page else None
+
+    routes, _ = govdiscover.find_routes(
+        home, fetcher=get, check_robots=False, targets=slots.TARGETS
+    )
+    assert [u for _c, _k, u in routes].count("https://www.tab.ac.kr/kor/haksa/list.do") == 1
+    assert any(govdiscover.classify(c) == "학사" for c, _k, _u in routes)
+
+
+def test_post_titles_in_a_latest_box_are_not_menus():
+    from open_site_clipper import probe
+
+    assert slots.slot_of("2027년도 대산장학생 선발 공고") == ""
+    assert slots.slot_of("2026학년도 입학안내") == ""
+    assert probe.looks_like_article("https://www.kw.ac.kr/ko/life/notice.jsp?BoardMode=view&DUID=1")
+    assert not probe.looks_like_article("https://www.kw.ac.kr/ko/life/notice.jsp?BoardMode=list")

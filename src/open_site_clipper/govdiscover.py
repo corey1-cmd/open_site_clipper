@@ -418,7 +418,9 @@ def find_routes(
             max_requests=min(slots.MAX_REQUESTS, max(0, session.budget - 10)),
             mine=mine_url_literals,
         ):
-            if (route[0], route[2]) not in seen:
+            # 같은 주소가 홈 후보로 이미 seen 에 있어도 경로로는 아직 없다 — 경로끼리만 비교한다
+            # (seen 으로 걸렀더니 '학사 더보기' 같은 홈 후보와 겹친 갈래 게시판이 사라졌다)
+            if route[2] not in {u for _c, _k, u in routes}:
                 seen.add((route[0], route[2]))
                 routes.append(route)
     if targets:
