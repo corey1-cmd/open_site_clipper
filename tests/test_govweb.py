@@ -648,3 +648,16 @@ def test_icon_words_between_a_tag_and_the_title_are_dropped():
         ("Happy New Year 행사 안내", "Happy New Year 행사 안내"),
     ]:
         assert govweb._clean_title(raw)[0] == want
+
+
+def test_nested_info_list_inside_each_item_gives_the_row_its_date():
+    """성균관대 공지: <li><dl><dt><a>제목</a></dt><dd><ul><li>번호</li><li>날짜</li></ul></dd></dl></li>."""
+    item = (
+        '<li><dl><dt><a href="?mode=view&articleNo={n}">{n}번 공지사항 제목입니다</a></dt>'
+        "<dd><ul><li>No.{n}</li><li>학사지원팀</li><li>2026-10-0{d}</li><li>조회수 12</li></ul></dd></dl></li>"
+    )
+    html = ("<ul>" + "".join(item.format(n=n, d=n) for n in range(1, 5)) + "</ul>").encode()
+    rows = govweb.parse_list(html, "https://www.skku.edu/skku/campus/skk_comm/notice01.do")
+    assert [r.title for r in rows][:2] == ["1번 공지사항 제목입니다", "2번 공지사항 제목입니다"]
+    assert rows[0].published.isoformat() == "2026-10-01"
+    assert rows[0].url.endswith("notice01.do?mode=view&articleNo=1")

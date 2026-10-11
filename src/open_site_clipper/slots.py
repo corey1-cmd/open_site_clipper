@@ -482,6 +482,20 @@ def fill(
             if not data:
                 trace.append(f"{slot} 갈래 화면 못 엶 {label} {short(url)}")
                 continue
+            if url not in tested:
+                # 갈래 화면 자체가 그 갈래의 목록인 경우 — 국민대 '교내채용'(공지 게시판의 채용 묶음)
+                result = probe.classify(data, url, home_host=home_host)
+                tested[url] = result.verdict
+                if (
+                    result.collectible
+                    and result.dated >= SLOT_MIN_DATED
+                    and not not_notice(label, url)
+                ):
+                    filled[slot] = (label, "board", url)
+                    trace.append(
+                        f"{slot} ○ {label} {short(url)} ({result.dated}/{result.rows}) 갈래 화면"
+                    )
+                    continue
             links = anchors(data)
             grown = pool.add(url, links, hub_slot=slot)
             trace.append(

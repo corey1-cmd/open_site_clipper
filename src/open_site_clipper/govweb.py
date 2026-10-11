@@ -215,7 +215,8 @@ class _ItemParser(HTMLParser):
 
     칸 = 요소 경계에서 끊은 글 조각, 링크 안의 조각은 그 링크 주소를 단다.
     그러면 표와 같은 원리(가장 긴 링크 칸 = 제목, 그 뒤 날짜 = 게시일)가 그대로 선다.
-    `<li>` 안에 `<li>` 가 있으면(펼침 메뉴) 안쪽이 따로 한 행이 된다.
+    `<li>` 안에 `<li>` 가 있으면 안쪽이 따로 한 행이 되고(펼침 메뉴), 바깥 행에도 그 칸이 붙는다
+    (글 한 줄 안의 정보 목록 — 번호·작성자·날짜).
     """
 
     _VOID = frozenset({"br", "img", "hr", "input", "wbr", "meta", "link", "source"})
@@ -274,6 +275,11 @@ class _ItemParser(HTMLParser):
             row = self._stack.pop()
             if row:
                 self.rows.append(row)
+                if self._stack:
+                    # 바깥 행에도 붙인다 — 글 한 줄 안의 작은 목록(<dd><ul><li>번호</li><li>2026-10-10</li>…)이
+                    # 날짜 칸인 게시판(성균관대 공지)에서 제목 행이 날짜를 잃지 않게. 펼침 메뉴는 날짜가
+                    # 없어 바깥 행이 글로 잡히지 않는다.
+                    self._stack[-1].extend(row)
 
 
 def parse_items(html_bytes: bytes) -> list[list[tuple[str, str]]]:
