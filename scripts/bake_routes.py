@@ -54,16 +54,14 @@ def bake(results: list[dict], today: str) -> dict:
     for r in results:
         # routes = 실제로 글이 나온 경로만(verify 가 돌려준다). 기간 안 새 글이 0건이어도
         # 게시판 자체는 살아 있으므로 남긴다. 첫 화면·글 한 건 주소는 한 번 더 거른다.
-        routes = [
-            list(rt)
-            for rt in webapp.plan_routes(
-                [
-                    (c, k, u.split("#", 1)[0])  # '#sideContent' 같은 조각은 같은 게시판
-                    for c, k, u in r.get("routes") or []
-                    if k != "board" or not probe.not_a_board(u)
-                ]
-            )
+        got = [
+            (c, k, u.split("#", 1)[0])  # '#sideContent' 같은 조각은 같은 게시판
+            for c, k, u in r.get("routes") or []
+            if k != "board" or not probe.not_a_board(u)
         ]
+        # 시간 제한에 걸린 점검은 못 열어 본 경로가 있다 — 글을 낸 경로를 앞에 두고 예전 경로도 남긴다
+        keep = (orgs.get(r["id"]) or {}).get("routes") if r.get("timed_out") else None
+        routes = [list(rt) for rt in webapp.plan_routes(got, keep)]
         if routes:
             orgs[r["id"]] = {
                 "routes": routes,

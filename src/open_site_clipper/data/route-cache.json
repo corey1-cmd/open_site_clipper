@@ -69,8 +69,8 @@
      "https://www.opm.go.kr/opm/news/prize.do"
     ]
    ],
-   "count": 48,
-   "checked": "2026-10-10"
+   "count": 45,
+   "checked": "2026-10-11"
   },
   "gov-mofe": {
    "routes": [
@@ -105,11 +105,6 @@
      "https://www.mofe.go.kr/sns/2024/foreignExchange.do"
     ],
     [
-     "한눈에 보는 정책",
-     "board",
-     "https://www.mofe.go.kr/2024/foreignExchange.do"
-    ],
-    [
      "행정예고",
      "board",
      "https://www.mofe.go.kr/lw/lap/TbPrvntcList.do?bbsId=MOSFBBS_000000000055&menuNo=7050300"
@@ -130,8 +125,8 @@
      "https://www.mofe.go.kr/lw/srsdlaword.do?bbsId=MOSFBBS_000000000054&menuNo=7080100"
     ]
    ],
-   "count": 52,
-   "checked": "2026-10-10"
+   "count": 59,
+   "checked": "2026-10-11"
   },
   "gov-moe": {
    "routes": [
@@ -181,23 +176,13 @@
      "https://www.moe.go.kr/boardCnts/listRenew.do?boardID=327&m=0305&s=moe"
     ],
     [
-     "보도자료",
-     "board",
-     "https://www.moe.go.kr/boardCnts/listRenew.do?boardID=294&m=020402&s=moe"
-    ],
-    [
-     "인사",
-     "board",
-     "https://www.moe.go.kr/boardCnts/listRenew.do?boardID=193&m=020601&s=moe"
-    ],
-    [
      "입찰",
      "board",
      "https://www.moe.go.kr/boardCnts/listRenew.do?boardID=72762&m=020503&s=moe"
     ]
    ],
    "count": 37,
-   "checked": "2026-10-10"
+   "checked": "2026-10-11"
   },
   "gov-unikorea": {
    "routes": [
@@ -247,8 +232,8 @@
      "https://www.unikorea.go.kr/web/unikorea/bbs/bbs_0000000000000006"
     ]
    ],
-   "count": 42,
-   "checked": "2026-10-10"
+   "count": 40,
+   "checked": "2026-10-11"
   },
   "gov-moj": {
    "routes": [
@@ -269,7 +254,7 @@
     ]
    ],
    "count": 18,
-   "checked": "2026-10-10"
+   "checked": "2026-10-11"
   },
   "gov-mois": {
    "routes": [
@@ -327,15 +312,10 @@
      "뉴스",
      "board",
      "https://www.mois.go.kr/frt/bbs/type002/commonSelectBoardList.do?bbsId=BBSMSTR_000000000215"
-    ],
-    [
-     "행정안전부 동영상뉴스",
-     "board",
-     "https://www.mois.go.kr/video/bbs/type019/commonSelectBoardArticle.do?bbsId=BBSMSTR_000000000255&nttId=129988"
     ]
    ],
-   "count": 34,
-   "checked": "2026-10-10"
+   "count": 33,
+   "checked": "2026-10-11"
   },
   "gov-mpva": {
    "routes": [
@@ -400,8 +380,8 @@
      "https://www.mpva.go.kr/mpva/selectCmmrWebList.do?key=214"
     ]
    ],
-   "count": 64,
-   "checked": "2026-10-10"
+   "count": 61,
+   "checked": "2026-10-11"
   },
   "gov-mcst": {
    "routes": [
@@ -446,28 +426,13 @@
      "https://www.mcst.go.kr/site/s_data/generalData/dataList.jsp?pMenuCD=0405050000"
     ],
     [
-     "인사",
-     "rss",
-     "https://www.mcst.go.kr/common/rss/noticePerson.jsp"
-    ],
-    [
-     "보도자료",
-     "rss",
-     "https://www.mcst.go.kr/common/rss/press.jsp"
-    ],
-    [
      "입찰",
      "board",
      "https://www.mcst.go.kr/site/s_open/generalData/dataList.jsp?pMenuCD=1103060000"
-    ],
-    [
-     "보도자료",
-     "rss",
-     "https://www.mcst.go.kr/common/rss/explainpress.jsp"
     ]
    ],
-   "count": 48,
-   "checked": "2026-10-10"
+   "count": 47,
+   "checked": "2026-10-11"
   },
   "gov-mafra": {
    "routes": [
@@ -498,7 +463,7 @@
     ]
    ],
    "count": 29,
-   "checked": "2026-10-10"
+   "checked": "2026-10-11"
   },
   "gov-motir": {
    "routes": [
@@ -563,8 +528,8 @@
      "https://www.motir.go.kr/kor/article/ATCL6c89ac4d8"
     ]
    ],
-   "count": 49,
-   "checked": "2026-10-10"
+   "count": 48,
+   "checked": "2026-10-11"
   },
   "gov-mohw": {
    "routes": [
@@ -604,19 +569,9 @@
      "https://www.mohw.go.kr/menu.es?mid=a10410060000"
     ],
     [
-     "법령",
-     "board",
-     "https://www.mohw.go.kr/menu.es?mid=a10409010000"
-    ],
-    [
      "법인/시설/단체",
      "board",
      "https://www.mohw.go.kr/menu.es?mid=a10413000000"
-    ],
-    [
-     "보도자료",
-     "board",
-     "https://www.mohw.go.kr/menu.es?mid=a10503010000"
     ],
     [
      "자주찾는 사전정보",
@@ -629,8 +584,8 @@
      "https://www.mohw.go.kr/menu.es?mid=a10401000000"
     ]
    ],
-   "count": 46,
-   "checked": "2026-10-10"
+   "count": 44,
+   "checked": "2026-10-11"
   },
   "gov-moel": {
    "routes": [
@@ -641,7 +596,7 @@
     ]
    ],
    "count": 10,
-   "checked": "2026-10-10"
+   "checked": "2026-10-11"
   },
   "gov-mogef": {
    "routes": [
@@ -692,7 +647,7 @@
     ]
    ],
    "count": 31,
-   "checked": "2026-10-10"
+   "checked": "2026-10-11"
   },
   "gov-molit": {
    "routes": [
@@ -710,11 +665,6 @@
      "채용",
      "board",
      "https://www.molit.go.kr/USR/BORD0201/m_81/LST.jsp"
-    ],
-    [
-     "포토뉴스",
-     "board",
-     "https://www.molit.go.kr/USR/cyberPhoto/m_23639/lst.jsp?master_seq=4859&hongbo_gbn_cd=3&lcmspage=1"
     ],
     [
      "뉴스",
@@ -757,8 +707,8 @@
      "https://www.molit.go.kr/molitum"
     ]
    ],
-   "count": 63,
-   "checked": "2026-10-10"
+   "count": 62,
+   "checked": "2026-10-11"
   },
   "gov-mof": {
    "routes": [
@@ -813,8 +763,8 @@
      "https://www.mof.go.kr/doc/ko/selectDocList.do?menuSeq=971&bbsSeq=10"
     ]
    ],
-   "count": 55,
-   "checked": "2026-10-10"
+   "count": 58,
+   "checked": "2026-10-11"
   },
   "gov-mss": {
    "routes": [
@@ -879,8 +829,8 @@
      "https://www.mss.go.kr/site/smba/submain/submain08.do?searchPosId=0085210"
     ]
    ],
-   "count": 42,
-   "checked": "2026-10-10"
+   "count": 40,
+   "checked": "2026-10-11"
   },
   "gov-mpm": {
    "routes": [
@@ -946,7 +896,7 @@
     ]
    ],
    "count": 27,
-   "checked": "2026-10-10"
+   "checked": "2026-10-11"
   },
   "gov-moleg": {
    "routes": [
@@ -977,7 +927,7 @@
     ]
    ],
    "count": 23,
-   "checked": "2026-10-10"
+   "checked": "2026-10-11"
   },
   "gov-mfds": {
    "routes": [
@@ -1032,8 +982,8 @@
      "https://www.mfds.go.kr/brd/m_696/list.do"
     ]
    ],
-   "count": 50,
-   "checked": "2026-10-10"
+   "count": 10,
+   "checked": "2026-10-11"
   },
   "gov-mods": {
    "routes": [
@@ -1043,8 +993,8 @@
      "https://www.mods.go.kr/ijob/"
     ]
    ],
-   "count": 25,
-   "checked": "2026-10-10"
+   "count": 24,
+   "checked": "2026-10-11"
   },
   "gov-moip": {
    "routes": [
@@ -1080,7 +1030,7 @@
     ]
    ],
    "count": 7,
-   "checked": "2026-10-10"
+   "checked": "2026-10-11"
   },
   "gov-nts": {
    "routes": [
@@ -1146,7 +1096,7 @@
     ]
    ],
    "count": 46,
-   "checked": "2026-10-10"
+   "checked": "2026-10-11"
   },
   "gov-customs": {
    "routes": [
@@ -1211,8 +1161,8 @@
      "https://www.customs.go.kr/kcs/na/ntt/selectNttList.do?mi=2896&bbsId=1365"
     ]
    ],
-   "count": 36,
-   "checked": "2026-10-10"
+   "count": 34,
+   "checked": "2026-10-11"
   },
   "gov-pps": {
    "routes": [
@@ -1278,7 +1228,7 @@
     ]
    ],
    "count": 5,
-   "checked": "2026-10-10"
+   "checked": "2026-10-11"
   },
   "gov-spo": {
    "routes": [
@@ -1315,16 +1265,11 @@
     [
      "참여민원",
      "board",
-     "https://spo.go.kr/site/spo/ex/board/List.do?cbIdx=10794"
-    ],
-    [
-     "참여민원",
-     "board",
      "https://www.spo.go.kr/site/spo/ex/board/List.do?cbIdx=1102"
     ]
    ],
-   "count": 9,
-   "checked": "2026-10-10"
+   "count": 10,
+   "checked": "2026-10-11"
   },
   "gov-mma": {
    "routes": [
@@ -1352,11 +1297,6 @@
      "사이버홍보관",
      "board",
      "https://www.mma.go.kr/board/boardList.do?mc=usr0000273&gesipan_id=170"
-    ],
-    [
-     "보도자료",
-     "board",
-     "https://www.mma.go.kr/board/boardList.do?mc=mma0000392&gesipan_id=15"
     ],
     [
      "병무소식",
@@ -1390,7 +1330,7 @@
     ]
    ],
    "count": 25,
-   "checked": "2026-10-10"
+   "checked": "2026-10-11"
   },
   "gov-dapa": {
    "routes": [
@@ -1406,7 +1346,7 @@
     ]
    ],
    "count": 2,
-   "checked": "2026-10-10"
+   "checked": "2026-10-11"
   },
   "gov-police": {
    "routes": [
@@ -1472,7 +1412,7 @@
     ]
    ],
    "count": 38,
-   "checked": "2026-10-10"
+   "checked": "2026-10-11"
   },
   "gov-nfa": {
    "routes": [
@@ -1512,11 +1452,6 @@
      "https://www.nfa.go.kr/nfa/communication/fireart"
     ],
     [
-     "소통",
-     "board",
-     "https://www.nfa.go.kr/nfa/communication/fireart/award"
-    ],
-    [
      "메인 비주얼 알림",
      "board",
      "http://www.nfa.go.kr/nfsa/"
@@ -1527,18 +1462,13 @@
      "https://www.nfa.go.kr/nfa/introduce/directorinfo"
     ],
     [
-     "기관소개",
-     "board",
-     "https://www.nfa.go.kr/nfa/introduce"
-    ],
-    [
      "소식",
      "board",
      "https://www.nfa.go.kr/nfa/news/overseasInfo"
     ]
    ],
    "count": 56,
-   "checked": "2026-10-10"
+   "checked": "2026-10-11"
   },
   "gov-rda": {
    "routes": [
@@ -1580,11 +1510,6 @@
     [
      "정책홍보",
      "board",
-     "https://www.rda.go.kr/board/board.do?mode=list&prgId=syb_webzineEntry"
-    ],
-    [
-     "정책홍보",
-     "board",
      "https://www.rda.go.kr/board/board.do?mode=list&prgId=syb_pubctebookEntry"
     ],
     [
@@ -1603,8 +1528,8 @@
      "https://www.rda.go.kr/board/board.do?mode=list&prgId=igt_infograpEntry"
     ]
    ],
-   "count": 49,
-   "checked": "2026-10-10"
+   "count": 48,
+   "checked": "2026-10-11"
   },
   "gov-forest": {
    "routes": [
@@ -1654,8 +1579,8 @@
      "https://www.forest.go.kr/kfsweb/cop/bbs/selectBoardList.do?bbsId=BBSMSTR_1020&mn=NKFS_05_07_07"
     ]
    ],
-   "count": 39,
-   "checked": "2026-10-10"
+   "count": 38,
+   "checked": "2026-10-11"
   },
   "gov-kdca": {
    "routes": [
@@ -1663,11 +1588,6 @@
      "보도자료",
      "board",
      "https://www.kdca.go.kr/bbs/kdca/42/artclList.do?layout=unknown"
-    ],
-    [
-     "최신글 소식",
-     "board",
-     "https://www.kdca.go.kr/kdca/3507/subview..do"
     ],
     [
      "보도설명자료",
@@ -1706,7 +1626,7 @@
     ]
    ],
    "count": 42,
-   "checked": "2026-10-10"
+   "checked": "2026-10-11"
   },
   "gov-kma": {
    "routes": [
@@ -1752,7 +1672,7 @@
     ]
    ],
    "count": 33,
-   "checked": "2026-10-10"
+   "checked": "2026-10-11"
   },
   "gov-naacc": {
    "routes": [
@@ -1763,7 +1683,7 @@
     ]
    ],
    "count": 1,
-   "checked": "2026-10-10"
+   "checked": "2026-10-11"
   },
   "gov-saemangeum": {
    "routes": [
@@ -1824,7 +1744,7 @@
     ]
    ],
    "count": 20,
-   "checked": "2026-10-10"
+   "checked": "2026-10-11"
   },
   "gov-kcg": {
    "routes": [
@@ -1875,7 +1795,7 @@
     ]
    ],
    "count": 33,
-   "checked": "2026-10-10"
+   "checked": "2026-10-11"
   },
   "gov-kmcc": {
    "routes": [
@@ -1922,11 +1842,6 @@
     [
      "자료",
      "board",
-     "https://www.kmcc.go.kr/user.do?boardId=1022&page=A02160300&dc=K02160300"
-    ],
-    [
-     "자료",
-     "board",
      "https://www.kmcc.go.kr/user.do?boardId=1025&page=A02050200&dc=K02050200"
     ],
     [
@@ -1940,8 +1855,8 @@
      "https://www.kmcc.go.kr/user.do?boardId=1030&page=A02060400&dc=K02060400"
     ]
    ],
-   "count": 29,
-   "checked": "2026-10-10"
+   "count": 27,
+   "checked": "2026-10-11"
   },
   "gov-ftc": {
    "routes": [
@@ -2006,8 +1921,8 @@
      "https://www.ftc.go.kr/www/selectKdPbsvntRceptList.do?key=384"
     ]
    ],
-   "count": 37,
-   "checked": "2026-10-10"
+   "count": 35,
+   "checked": "2026-10-11"
   },
   "gov-fsc": {
    "routes": [
@@ -2067,8 +1982,8 @@
      "https://www.fsc.go.kr/no020102"
     ]
    ],
-   "count": 41,
-   "checked": "2026-10-10"
+   "count": 37,
+   "checked": "2026-10-11"
   },
   "gov-acrc": {
    "routes": [
@@ -2133,8 +2048,8 @@
      "https://www.acrc.go.kr/menu.es?mid=a10502140000"
     ]
    ],
-   "count": 30,
-   "checked": "2026-10-10"
+   "count": 23,
+   "checked": "2026-10-11"
   },
   "gov-pipc": {
    "routes": [
@@ -2199,8 +2114,8 @@
      "https://www.pipc.go.kr/np/cop/bbs/selectBoardList.do?bbsId=BS205&mCode=A030060000"
     ]
    ],
-   "count": 30,
-   "checked": "2026-10-10"
+   "count": 29,
+   "checked": "2026-10-11"
   },
   "gov-better": {
    "routes": [
@@ -2265,8 +2180,8 @@
      "https://www.better.go.kr/mz.better.NewRefBetterTalkSlPL?tab_cd=06"
     ]
    ],
-   "count": 46,
-   "checked": "2026-10-10"
+   "count": 43,
+   "checked": "2026-10-11"
   },
   "gov-ipkorea": {
    "routes": [
@@ -2332,7 +2247,7 @@
     ]
    ],
    "count": 2,
-   "checked": "2026-10-10"
+   "checked": "2026-10-11"
   },
   "gov-balance": {
    "routes": [
@@ -2343,7 +2258,7 @@
     ]
    ],
    "count": 0,
-   "checked": "2026-10-10"
+   "checked": "2026-10-11"
   },
   "gov-clip": {
    "routes": [
@@ -2379,7 +2294,7 @@
     ]
    ],
    "count": 1,
-   "checked": "2026-10-10"
+   "checked": "2026-10-11"
   },
   "gov-cct": {
    "routes": [
@@ -2390,7 +2305,7 @@
     ]
    ],
    "count": 5,
-   "checked": "2026-10-10"
+   "checked": "2026-10-11"
   },
   "gov-pcccr": {
    "routes": [
@@ -2406,7 +2321,7 @@
     ]
    ],
    "count": 0,
-   "checked": "2026-10-10"
+   "checked": "2026-10-11"
   },
   "gov-eslc": {
    "routes": [
@@ -2419,11 +2334,6 @@
      "보도자료",
      "board",
      "https://www.eslc.go.kr/bbs/data/list.do?per_menu_idx=2074&menu_idx=2286"
-    ],
-    [
-     "소식",
-     "board",
-     "https://www.eslc.go.kr/bbs/data/list.do?menu_idx=2073"
     ],
     [
      "인사",
@@ -2456,23 +2366,13 @@
      "https://www.eslc.go.kr/bbs/data/list.do?menu_idx=2358"
     ],
     [
-     "소식마당",
-     "board",
-     "https://www.eslc.go.kr/bbs/data/list.do?menu_idx=2290"
-    ],
-    [
-     "소식마당",
-     "board",
-     "https://www.eslc.go.kr/bbs/data/list.do?menu_idx=2286&bbs_mst_idx=BM0000000217"
-    ],
-    [
      "채용",
      "board",
      "https://www.eslc.go.kr/bbs/data/list.do?menu_idx=2436"
     ]
    ],
    "count": 15,
-   "checked": "2026-10-10"
+   "checked": "2026-10-11"
   },
   "gov-k-cohesion": {
    "routes": [
@@ -2538,7 +2438,7 @@
     ]
    ],
    "count": 26,
-   "checked": "2026-10-10"
+   "checked": "2026-10-11"
   },
   "gov-ne": {
    "routes": [
@@ -2603,8 +2503,8 @@
      "https://www.ne.go.kr/user/bbs/BD_selectBbsList.do?q_bbsSn=1027"
     ]
    ],
-   "count": 24,
-   "checked": "2026-10-10"
+   "count": 22,
+   "checked": "2026-10-11"
   },
   "pub-kosaf": {
    "routes": [
@@ -2625,7 +2525,7 @@
     ]
    ],
    "count": 29,
-   "checked": "2026-10-10"
+   "checked": "2026-10-11"
   },
   "u-catholic": {
    "routes": [
@@ -2680,7 +2580,7 @@
      "https://www.catholic.ac.kr/ko/campuslife/notice.do"
     ]
    ],
-   "count": 19,
+   "count": 32,
    "checked": "2026-10-11"
   },
   "u-mtu": {
@@ -2711,12 +2611,7 @@
      "https://www.mtu.ac.kr/mtu/board/list.do?mId=147"
     ],
     [
-     "입학",
-     "board",
-     "https://www.mtu.ac.kr/mtu/board/list.do?mId=402"
-    ],
-    [
-     "감리교신학대학교는 1887년 개교한 ",
+     "감리교신학대학교는 1887년 개교한",
      "board",
      "https://www.mtu.ac.kr/mtu/board/list.do?mId=144"
     ],
@@ -2761,7 +2656,7 @@
      "https://www.mtu.ac.kr/mtu/board/list.do?mId=364"
     ]
    ],
-   "count": 10,
+   "count": 41,
    "checked": "2026-10-11"
   },
   "u-gangseo": {
@@ -2790,11 +2685,6 @@
      "채용/입찰공고",
      "board",
      "http://gangseo.ac.kr/kcua/boardList?menuCode=BC0704"
-    ],
-    [
-     "강서공지",
-     "board",
-     "http://gangseo.ac.kr/kcua/boardList?menuCode=BC0701"
     ],
     [
      "자료",
@@ -2842,7 +2732,7 @@
      "https://gangseo.ac.kr/kcua/boardList?menuCode=MC0512"
     ]
    ],
-   "count": 16,
+   "count": 46,
    "checked": "2026-10-11"
   },
   "u-konkuk": {
@@ -2883,11 +2773,6 @@
      "https://www.konkuk.ac.kr/bbs/konkuk/259/artclList.do?layout=unknown"
     ],
     [
-     "장학",
-     "board",
-     "https://www.konkuk.ac.kr/bbs/konkuk/235/artclList.do?layout=unknown"
-    ],
-    [
      "기타",
      "board",
      "https://www.konkuk.ac.kr/bbs/konkuk/237/artclList.do?layout=unknown"
@@ -2923,7 +2808,7 @@
      "https://www.konkuk.ac.kr/konkuk/2096/subview.do"
     ]
    ],
-   "count": 65,
+   "count": 75,
    "checked": "2026-10-11"
   },
   "u-khu": {
@@ -2979,7 +2864,7 @@
      "https://www.khu.ac.kr/kor/user/bbs/BMSR00057/list.do?menuNo=200359"
     ]
    ],
-   "count": 21,
+   "count": 31,
    "checked": "2026-10-11"
   },
   "u-korea": {
@@ -3020,17 +2905,12 @@
      "http://registrar.korea.ac.kr/eduinfo/program/internal_in.do"
     ],
     [
-     "고려대학교 교육정보",
-     "board",
-     "http://registrar.korea.ac.kr/eduinfo/program/internal_out.do"
-    ],
-    [
      "공지",
      "board",
      "https://www.korea.ac.kr/ko/580/subview.do"
     ]
    ],
-   "count": 0,
+   "count": 17,
    "checked": "2026-10-11"
   },
   "u-kookmin": {
@@ -3054,11 +2934,6 @@
      "일반공지",
      "board",
      "http://kist.kookmin.ac.kr/?page_id=323"
-    ],
-    [
-     "일반공지",
-     "board",
-     "http://kist.kookmin.ac.kr/?page_id=67"
     ],
     [
      "공지사항",
@@ -3162,7 +3037,7 @@
      "https://www.dongguk.edu/article/ACARESE/list"
     ]
    ],
-   "count": 72,
+   "count": 89,
    "checked": "2026-10-11"
   },
   "u-dongduk": {
@@ -3171,11 +3046,6 @@
      "입찰채용공고",
      "board",
      "https://www.dongduk.ac.kr/www/contents/kor-bidding-info.do"
-    ],
-    [
-     "입찰",
-     "board",
-     "https://www.dongduk.ac.kr/www/contents/kor-bidding-info.do?gotoMenuNo=kor-bidding-info"
     ],
     [
      "언론보도",
@@ -3188,11 +3058,6 @@
      "https://www.dongduk.ac.kr/www/contents/kor-campus.do"
     ],
     [
-     "공지사항",
-     "board",
-     "https://www.dongduk.ac.kr/www/contents/kor-noti.do"
-    ],
-    [
      "예결산공고",
      "board",
      "https://www.dongduk.ac.kr/www/contents/kor-budget.do"
@@ -3201,19 +3066,9 @@
      "채용",
      "board",
      "https://www.dongduk.ac.kr/www/contents/kor-jobs.do?gotoMenuNo=kor-jobs"
-    ],
-    [
-     "공지사항",
-     "board",
-     "https://www.dongduk.ac.kr/www/contents/kor-noti.do?gotoMenuNo=kor-noti"
-    ],
-    [
-     "채용",
-     "board",
-     "https://www.dongduk.ac.kr/www/contents/kor-jobs.do"
     ]
    ],
-   "count": 24,
+   "count": 25,
    "checked": "2026-10-11"
   },
   "u-syu": {
@@ -3294,7 +3149,7 @@
      "https://www.syu.ac.kr/university-square/notice/job-offer/"
     ]
    ],
-   "count": 54,
+   "count": 70,
    "checked": "2026-10-11"
   },
   "u-smu": {
@@ -3310,7 +3165,7 @@
      "https://www.smu.ac.kr/kor/intro/sympathyList.do"
     ]
    ],
-   "count": 7,
+   "count": 16,
    "checked": "2026-10-11"
   },
   "u-seoultech": {
@@ -3336,24 +3191,9 @@
      "https://www.seoultech.ac.kr/service/info/job"
     ],
     [
-     "장학",
-     "board",
-     "https://www.seoultech.ac.kr/service/info/janghak/"
-    ],
-    [
      "학사",
      "board",
      "https://www.seoultech.ac.kr/service/sccenter"
-    ],
-    [
-     "채용",
-     "board",
-     "https://www.seoultech.ac.kr/service/info/job/"
-    ],
-    [
-     "참여",
-     "board",
-     "https://www.seoultech.ac.kr/service"
     ],
     [
      "SEOULTECH광장",
@@ -3371,22 +3211,12 @@
      "https://www.seoultech.ac.kr/service/report"
     ],
     [
-     "공지",
-     "board",
-     "https://www.seoultech.ac.kr/service/info"
-    ],
-    [
      "채용",
      "board",
      "https://www.seoultech.ac.kr/service/info/recruit/"
-    ],
-    [
-     "학사",
-     "board",
-     "https://www.seoultech.ac.kr/service/info/matters/"
     ]
    ],
-   "count": 60,
+   "count": 74,
    "checked": "2026-10-11"
   },
   "u-skku": {
@@ -3468,21 +3298,6 @@
      "https://www.sungshin.ac.kr/bbs/main_kor/3206/artclList.do?layout=unknown"
     ],
     [
-     "입학",
-     "board",
-     "https://www.sungshin.ac.kr/bbs/main_kor/3184/artclList.do?layout=unknown"
-    ],
-    [
-     "장학",
-     "board",
-     "https://www.sungshin.ac.kr/bbs/main_kor/4719/artclList.do?layout=unknown"
-    ],
-    [
-     "채용",
-     "board",
-     "https://www.sungshin.ac.kr/bbs/main_kor/3183/artclList.do?layout=unknown"
-    ],
-    [
      "성신이벤트",
      "board",
      "https://www.sungshin.ac.kr/bbs/main_kor/5316/artclList.do?layout=unknown"
@@ -3508,7 +3323,7 @@
      "https://www.sungshin.ac.kr/main_kor/10946/subview.do"
     ]
    ],
-   "count": 71,
+   "count": 67,
    "checked": "2026-10-11"
   },
   "u-sejong": {
@@ -3549,7 +3364,7 @@
      "https://www.sejong.ac.kr/kor/intro/notice9.do"
     ]
    ],
-   "count": 7,
+   "count": 24,
    "checked": "2026-10-11"
   },
   "u-sookmyung": {
@@ -3600,7 +3415,7 @@
      "https://www.sookmyung.ac.kr/kr/intro/conference-record.do"
     ]
    ],
-   "count": 24,
+   "count": 27,
    "checked": "2026-10-11"
   },
   "u-ssu": {
@@ -3629,14 +3444,9 @@
      "공지사항",
      "board",
      "https://scatch.ssu.ac.kr/%ea%b3%b5%ec%a7%80%ec%82%ac%ed%95%ad/"
-    ],
-    [
-     "소식",
-     "rss",
-     "https://ssu.ac.kr/feed/"
     ]
    ],
-   "count": 20,
+   "count": 32,
    "checked": "2026-10-11"
   },
   "u-ewha": {
@@ -3662,7 +3472,7 @@
      "https://www.ewha.ac.kr/ewha/etc/safety.do"
     ]
    ],
-   "count": 38,
+   "count": 37,
    "checked": "2026-10-11"
   },
   "u-puts": {
@@ -3736,14 +3546,9 @@
      "학사",
      "board",
      "https://www.puts.ac.kr/www/sub/haksa_db/"
-    ],
-    [
-     "입찰",
-     "board",
-     "https://www.puts.ac.kr/www/board/list.general.asp?design=lounge&m1=6&m2=9&m3=1&bd_name=jangshin_zEtc02"
     ]
    ],
-   "count": 11,
+   "count": 69,
    "checked": "2026-10-11"
   },
   "u-cau": {
@@ -3764,7 +3569,7 @@
      "http://sport.cau.ac.kr/s_results"
     ]
    ],
-   "count": 7,
+   "count": 13,
    "checked": "2026-10-11"
   },
   "u-chugye": {
@@ -3845,7 +3650,7 @@
      "https://www.chugye.ac.kr/mbs/university/jsp/board/list.jsp?boardId=5220963&id=university_011300000000"
     ]
    ],
-   "count": 26,
+   "count": 38,
    "checked": "2026-10-11"
   },
   "u-karts": {
@@ -3902,26 +3707,6 @@
   "u-hufs": {
    "routes": [
     [
-     "공지안내",
-     "board",
-     "https://www.hufs.ac.kr/hufs/11281/subview.do"
-    ],
-    [
-     "학사",
-     "board",
-     "https://www.hufs.ac.kr/hufs/11282/subview.do"
-    ],
-    [
-     "장학",
-     "board",
-     "https://www.hufs.ac.kr/hufs/11283/subview.do"
-    ],
-    [
-     "채용",
-     "board",
-     "https://www.hufs.ac.kr/hufs/11284/subview.do"
-    ],
-    [
      "공지",
      "rss",
      "https://www.hufs.ac.kr/bbs/hufs/2180/rssList.do?row=50"
@@ -3957,6 +3742,16 @@
      "https://student.hufs.ac.kr/bbs/student/2431/artclList.do?layout=unknown"
     ],
     [
+     "학사",
+     "board",
+     "https://www.hufs.ac.kr/hufs/11282/subview.do"
+    ],
+    [
+     "장학",
+     "board",
+     "https://www.hufs.ac.kr/hufs/11283/subview.do"
+    ],
+    [
      "HUFS Professors",
      "board",
      "https://www.hufs.ac.kr/bbs/hufs/2189/artclList.do?layout=unknown"
@@ -3977,7 +3772,7 @@
      "https://www.hufs.ac.kr/hufs/11144/subview.do"
     ]
    ],
-   "count": 145,
+   "count": 132,
    "checked": "2026-10-11"
   },
   "u-knsu": {
@@ -4058,7 +3853,7 @@
      "https://www.knsu.ac.kr/knsu/unilife/mechanical-equipment-fire-fighting.do"
     ]
    ],
-   "count": 28,
+   "count": 24,
    "checked": "2026-10-11"
   },
   "u-hanyang": {
@@ -4150,7 +3945,7 @@
      "https://www.hongik.ac.kr/kr/newscenter/notice.do?mode=list&srCategoryId=36&srStartDt=&srEndDt=&srSearchKey=article_title&srSearchVal="
     ]
    ],
-   "count": 18,
+   "count": 78,
    "checked": "2026-10-11"
   },
   "u-ks": {
@@ -4211,7 +4006,7 @@
      "http://kscms.ks.ac.kr/kor/CMS/Board/Board.do?mCode=MN092"
     ]
    ],
-   "count": 54,
+   "count": 67,
    "checked": "2026-10-11"
   },
   "u-kmou": {
@@ -4227,7 +4022,7 @@
      "https://www.kmou.ac.kr/kmou/rss/rnd/unRndRss.do?mi=4844"
     ]
    ],
-   "count": 17,
+   "count": 0,
    "checked": "2026-10-11"
   },
   "u-tu": {
@@ -4308,7 +4103,7 @@
      "https://www.tu.ac.kr/tuhome/sub07_01_13.do"
     ]
    ],
-   "count": 14,
+   "count": 34,
    "checked": "2026-10-11"
   },
   "u-dongseo": {
@@ -4389,7 +4184,7 @@
      "https://uni.dongseo.ac.kr/ic/"
     ]
    ],
-   "count": 57,
+   "count": 85,
    "checked": "2026-10-11"
   },
   "u-donga": {
@@ -4423,11 +4218,6 @@
      "홍보센터",
      "board",
      "https://www.donga.ac.kr/kor/CMS/Board/Board.do?mCode=MN044"
-    ],
-    [
-     "장학",
-     "board",
-     "https://www.donga.ac.kr/kor/CMS/Board/Board.do?mCode=MN152"
     ],
     [
      "대학자체평가",
@@ -4470,7 +4260,7 @@
      "https://www.donga.ac.kr/kor/CMS/Board/Board.do?mCode=MN024"
     ]
    ],
-   "count": 75,
+   "count": 82,
    "checked": "2026-10-11"
   },
   "u-deu": {
@@ -4489,11 +4279,6 @@
      "채용",
      "board",
      "https://www.deu.ac.kr/www/deu-job.do"
-    ],
-    [
-     "공지",
-     "board",
-     "https://deu.ac.kr/www/deu-notice.do"
     ],
     [
      "공지",
@@ -4551,7 +4336,7 @@
      "https://www.deu.ac.kr/www/deu-rule.do"
     ]
    ],
-   "count": 45,
+   "count": 55,
    "checked": "2026-10-11"
   },
   "u-cup": {
@@ -4632,7 +4417,7 @@
      "https://www.cup.ac.kr/entrance/home/front/ruleBookAll.do"
     ]
    ],
-   "count": 35,
+   "count": 50,
    "checked": "2026-10-11"
   },
   "u-silla": {
@@ -4661,11 +4446,6 @@
      "일반공지",
      "board",
      "https://www.silla.ac.kr/ko?pCode=gnotice"
-    ],
-    [
-     "신라대학교 사이버홍보관",
-     "board",
-     "https://www.silla.ac.kr/cyber/"
     ],
     [
      "채용",
@@ -4724,11 +4504,6 @@
      "https://www.knu.ac.kr/wbbs/wbbs/bbs/btin/list.action?bbs_cde=11&menu_idx=73"
     ],
     [
-     "학사",
-     "board",
-     "https://www.knu.ac.kr/wbbs/wbbs/bbs/btin/stdList.action?menu_idx=42&test=812"
-    ],
-    [
      "입찰",
      "board",
      "https://www.knu.ac.kr/wbbs/"
@@ -4759,7 +4534,7 @@
      "https://iac.knu.ac.kr/changup"
     ]
    ],
-   "count": 58,
+   "count": 69,
    "checked": "2026-10-11"
   },
   "u-kmu": {
@@ -4800,29 +4575,9 @@
      "https://www.kmu.ac.kr/page.jsp?mnu_uid=143"
     ],
     [
-     "장학",
-     "board",
-     "https://www.kmu.ac.kr/page.jsp?mnu_uid=145"
-    ],
-    [
-     "장학",
-     "rss",
-     "http://www.kmu.ac.kr/pages/rssView.jsp?mnu_uid=145"
-    ],
-    [
      "채용",
      "rss",
      "http://www.kmu.ac.kr/pages/rssView.jsp?mnu_uid=147"
-    ],
-    [
-     "소식",
-     "rss",
-     "http://www.kmu.ac.kr/pages/rssView.jsp?mnu_uid=148"
-    ],
-    [
-     "구매",
-     "board",
-     "https://www.kmu.ac.kr/uni/main/page.jsp?mnu_uid=148&"
     ],
     [
      "대학평의원회",
@@ -4840,7 +4595,7 @@
      "http://www.kmu.ac.kr/pages/rssView.jsp?mnu_uid=374"
     ]
    ],
-   "count": 110,
+   "count": 86,
    "checked": "2026-10-11"
   },
   "u-inu": {
@@ -4873,17 +4628,7 @@
     [
      "학사",
      "board",
-     "https://www.inu.ac.kr:443/bbs/inu/246/artclList.do?layout=unknown"
-    ],
-    [
-     "학사",
-     "board",
      "https://www.inu.ac.kr:443/bbs/inu/247/artclList.do?layout=unknown"
-    ],
-    [
-     "장학",
-     "board",
-     "https://www.inu.ac.kr:443/bbs/inu/249/artclList.do?layout=unknown"
     ],
     [
      "교육시험",
@@ -4896,11 +4641,6 @@
      "https://www.inu.ac.kr:443/bbs/inu/253/artclList.do?layout=unknown"
     ],
     [
-     "행사",
-     "board",
-     "https://www.inu.ac.kr:443/bbs/inu/2611/artclList.do?layout=unknown"
-    ],
-    [
      "보도자료",
      "board",
      "https://www.inu.ac.kr:443/inu/13580/subview.do"
@@ -4911,17 +4651,12 @@
      "https://www.inu.ac.kr:443/inu/10772/subview.do"
     ],
     [
-     "채용",
-     "board",
-     "https://www.inu.ac.kr:443/inu/1530/subview.do"
-    ],
-    [
      "People",
      "board",
      "https://www.inu.ac.kr:443/inu/10773/subview.do"
     ]
    ],
-   "count": 32,
+   "count": 69,
    "checked": "2026-10-11"
   },
   "u-inha": {
@@ -4967,24 +4702,9 @@
      "https://www.inha.ac.kr/bbs/kr/70/artclList.do?layout=unknown"
     ],
     [
-     "공지사항",
-     "board",
-     "https://www.inha.ac.kr/bbs/kr/8/artclList.do?layout=unknown"
-    ],
-    [
      "공지",
      "board",
      "https://www.inha.ac.kr/kr/944/subview.do"
-    ],
-    [
-     "소식",
-     "board",
-     "https://www.inha.ac.kr/kr/1541/subview.do"
-    ],
-    [
-     "입찰",
-     "board",
-     "https://www.inha.ac.kr/kr/951/subview.do"
     ],
     [
      "교원 창업자",
@@ -4997,7 +4717,7 @@
      "https://fund.inha.ac.kr/fund/14811/subview.do"
     ]
    ],
-   "count": 47,
+   "count": 48,
    "checked": "2026-10-11"
   },
   "u-gwangju": {
@@ -5008,7 +4728,7 @@
      "https://jobpluscenter.gwangju.ac.kr/?site=job"
     ]
    ],
-   "count": 17,
+   "count": 16,
    "checked": "2026-10-11"
   },
   "u-nambu": {
@@ -5064,7 +4784,7 @@
      "https://www.nambu.ac.kr/board/NAMBU_BOARD_0004/boardList.do?menuCd=KR006006003"
     ]
    ],
-   "count": 3,
+   "count": 45,
    "checked": "2026-10-11"
   },
   "u-songwon": {
@@ -5128,11 +4848,6 @@
      "이사회 회의록",
      "board",
      "https://www.songwon.ac.kr/sb/SE_Board.asp?boardID=K010603&pgKey=164"
-    ],
-    [
-     "공지사항",
-     "board",
-     "https://www.songwon.ac.kr/sb/SE_Board.asp?pgKey=64&boardID=NOTICE"
     ],
     [
      "공지",
@@ -5226,7 +4941,7 @@
      "https://www.jnu.ac.kr/WebApp/web/HOM/COM/Board/board.aspx?boardID=5&cate=8"
     ]
    ],
-   "count": 55,
+   "count": 100,
    "checked": "2026-10-11"
   },
   "u-chosun": {
@@ -5250,16 +4965,6 @@
      "교내채용",
      "board",
      "http://www3.chosun.ac.kr/chosun/219/subview.do"
-    ],
-    [
-     "교내일반공지",
-     "board",
-     "http://www3.chosun.ac.kr/bbs/chosun/117/artclList.do?layout=unknown"
-    ],
-    [
-     "교내채용",
-     "board",
-     "http://www3.chosun.ac.kr/bbs/chosun/119/artclList.do?layout=unknown"
     ],
     [
      "공지",
@@ -5307,7 +5012,7 @@
      "http://www3.chosun.ac.kr/chosun/260/subview.do"
     ]
    ],
-   "count": 25,
+   "count": 59,
    "checked": "2026-10-11"
   },
   "u-honam": {
@@ -5349,11 +5054,6 @@
      "https://www.dju.ac.kr/dju/na/ntt/selectNttList.do?mi=6561&bbsId=2574"
     ],
     [
-     "공지",
-     "board",
-     "https://www.dju.ac.kr/dju/na/ntt/selectNttList.do?mi=&bbsId=1040"
-    ],
-    [
      "건강관리",
      "board",
      "https://www.dju.ac.kr/dju/na/ntt/selectNttList.do?mi=4555&bbsId=2103"
@@ -5376,11 +5076,6 @@
     [
      "소식",
      "board",
-     "https://www.dju.ac.kr/dju/na/ntt/selectNttList.do?mi=4148&bbsId=1876"
-    ],
-    [
-     "소식",
-     "board",
      "https://www.dju.ac.kr/dju/na/ntt/selectNttList.do?mi=4556&bbsId=2104"
     ],
     [
@@ -5392,14 +5087,9 @@
      "입찰",
      "board",
      "https://www.dju.ac.kr/dju/na/ntt/selectNttList.do?mi=7426&bbsId=2770"
-    ],
-    [
-     "채용",
-     "board",
-     "https://www.dju.ac.kr/dju/na/ntt/selectNttList.do?bbsId=2574&mi=6561"
     ]
    ],
-   "count": 55,
+   "count": 61,
    "checked": "2026-10-11"
   },
   "u-mokwon": {
@@ -5455,7 +5145,7 @@
      "http://www.mokwon.ac.kr/human/html/sub06/0601.html?mode=V&no=cf17f61d6b20fbda1ee4b18d05f9bb44&GotoPage=1"
     ]
    ],
-   "count": 5,
+   "count": 27,
    "checked": "2026-10-11"
   },
   "u-pcu": {
@@ -5529,14 +5219,9 @@
      "정책",
      "board",
      "https://www.pcu.ac.kr/kor/article/cost_regulations"
-    ],
-    [
-     "/kor/article/Notify_",
-     "board",
-     "https://www.pcu.ac.kr/kor/article/Notify_1/1758988571"
     ]
    ],
-   "count": 52,
+   "count": 49,
    "checked": "2026-10-11"
   },
   "u-wsu": {
@@ -5637,11 +5322,6 @@
      "기타",
      "board",
      "https://www.dcatholic.ac.kr/edu.php"
-    ],
-    [
-     "기타",
-     "board",
-     "https://www.dcatholic.ac.kr/funeral.php"
     ]
    ],
    "count": 0,
@@ -5658,74 +5338,9 @@
      "수강",
      "board",
      "https://sejong.hongik.ac.kr/kr/education/notice-grad.do?mode=list&srCategoryId=595&srStartDt=&srEndDt=&srSearchKey=article_title&srSearchVal="
-    ],
-    [
-     "장학",
-     "board",
-     "https://sejong.hongik.ac.kr/kr/education/notice-undergrad.do?mode=list&srCategoryId=24&srStartDt=&srEndDt=&srSearchKey=article_title&srSearchVal="
-    ],
-    [
-     "입학공지",
-     "board",
-     "https://sejong.hongik.ac.kr/kr/admission/notice-military.do"
-    ],
-    [
-     "채용/모집",
-     "board",
-     "https://sejong.hongik.ac.kr/kr/newscenter/notice.do?mode=list&srCategoryId=35&srStartDt=&srEndDt=&srSearchKey=article_title&srSearchVal="
-    ],
-    [
-     "입찰",
-     "board",
-     "https://sejong.hongik.ac.kr/kr/education/notice-undergrad.do?mode=list&srCategoryId=536&srStartDt=&srEndDt=&srSearchKey=article_title&srSearchVal="
-    ],
-    [
-     "장학",
-     "board",
-     "https://sejong.hongik.ac.kr/kr/education/notice-grad.do?mode=list&srCategoryId=379&srStartDt=&srEndDt=&srSearchKey=article_title&srSearchVal="
-    ],
-    [
-     "학사",
-     "board",
-     "https://sejong.hongik.ac.kr/kr/education/notice-grad.do?mode=list&srCategoryId=380&srStartDt=&srEndDt=&srSearchKey=article_title&srSearchVal="
-    ],
-    [
-     "소식",
-     "board",
-     "https://sejong.hongik.ac.kr/kr/newscenter/news.do?mode=list&srSearchKey=article_title&srSearchVal="
-    ],
-    [
-     "입학",
-     "board",
-     "https://sejong.hongik.ac.kr/kr/admission/notice-admission.do"
-    ],
-    [
-     "자료",
-     "board",
-     "https://sejong.hongik.ac.kr/kr/research/research-news.do"
-    ],
-    [
-     "대학생활",
-     "board",
-     "https://sejong.hongik.ac.kr/kr/life/seoul-activity-list.do"
-    ],
-    [
-     "인사",
-     "board",
-     "https://sejong.hongik.ac.kr/kr/introduction/greeting.do"
-    ],
-    [
-     "정책",
-     "board",
-     "https://sejong.hongik.ac.kr/kr/introduction/university-itselfevaluation.do"
-    ],
-    [
-     "입찰",
-     "board",
-     "https://sejong.hongik.ac.kr/kr/newscenter/notice.do?mode=list&srCategoryId=36&srStartDt=&srEndDt=&srSearchKey=article_title&srSearchVal="
     ]
    ],
-   "count": 29,
+   "count": 28,
    "checked": "2026-10-11"
   },
   "u-gachon": {
@@ -5806,7 +5421,7 @@
      "https://www.gachon.ac.kr/kor/789/subview.do"
     ]
    ],
-   "count": 24,
+   "count": 80,
    "checked": "2026-10-11"
   },
   "u-kangnam": {
@@ -5858,11 +5473,6 @@
      "http://www.kduniv.ac.kr/kor/CMS/Board/Board.do?mCode=MN286"
     ],
     [
-     "장학",
-     "board",
-     "https://www.kduniv.ac.kr/kor/CMS/Board/Board.do?mCode=MN284"
-    ],
-    [
      "예결산공고",
      "board",
      "http://www.kduniv.ac.kr/kor/CMS/Board/Board.do?mCode=MN223"
@@ -5908,7 +5518,7 @@
      "http://www.kduniv.ac.kr/kor/CMS/Board/Board.do?mCode=MN378"
     ]
    ],
-   "count": 21,
+   "count": 29,
    "checked": "2026-10-11"
   },
   "u-dankook": {
@@ -5917,11 +5527,6 @@
      "학사정보",
      "board",
      "https://www.dankook.ac.kr/web/kor/edu_info"
-    ],
-    [
-     "대학원",
-     "board",
-     "https://www.dankook.ac.kr/web/kor/graduate_school"
     ]
    ],
    "count": 12,
@@ -5940,7 +5545,7 @@
      "https://www.sjs.ac.kr/ht_ml/w_01ed/1040.php"
     ]
    ],
-   "count": 0,
+   "count": 1,
    "checked": "2026-10-11"
   },
   "u-suwoncatholic": {
@@ -6022,7 +5627,7 @@
      "https://www.shinhan.ac.kr/kr/10007/subview.do"
     ]
    ],
-   "count": 2,
+   "count": 18,
    "checked": "2026-10-11"
   },
   "u-acts": {
@@ -6103,7 +5708,7 @@
      "https://www.acts.ac.kr/modules/board/bd_list.asp?id=acts37&left=acts8_7"
     ]
    ],
-   "count": 16,
+   "count": 21,
    "checked": "2026-10-11"
   },
   "u-ajou": {
@@ -6179,7 +5784,7 @@
      "http://faculty.ajou.ac.kr/faculty/"
     ]
    ],
-   "count": 58,
+   "count": 72,
    "checked": "2026-10-11"
   },
   "u-anyang": {
@@ -6240,7 +5845,7 @@
      "https://www.anyang.ac.kr/main/introduction/business-promotion-fee.do"
     ]
    ],
-   "count": 3,
+   "count": 47,
    "checked": "2026-10-11"
   },
   "u-yongin": {
@@ -6261,7 +5866,7 @@
      "https://www.yongin.ac.kr/cmn/board/SYSTEM_DEFAULT000031/bbsList.do"
     ]
    ],
-   "count": 11,
+   "count": 17,
    "checked": "2026-10-11"
   },
   "u-eulji": {
@@ -6280,11 +5885,6 @@
      "입학안내",
      "board",
      "https://admission.eulji.ac.kr/?menuno=2683"
-    ],
-    [
-     "대학생활",
-     "board",
-     "https://www.eulji.ac.kr?menuno=3159"
     ],
     [
      "미디어 속 을지",
@@ -6337,7 +5937,7 @@
      "https://admission.eulji.ac.kr/?menuno=8005"
     ]
    ],
-   "count": 42,
+   "count": 37,
    "checked": "2026-10-11"
   },
   "u-cha": {
@@ -6368,11 +5968,6 @@
      "https://www.cha.ac.kr/%ed%95%99%ea%b5%90%ec%86%8c%ea%b0%9c/%ed%95%99%ea%b5%90%ed%98%84%ed%99%a9/%ea%b5%90%ec%9c%a1%eb%a7%8c%ec%a1%b1%eb%8f%84-%ec%a1%b0%ec%82%ac/"
     ],
     [
-     "채용",
-     "board",
-     "https://www.cha.ac.kr/?kboard_content_redirect=22975"
-    ],
-    [
      "총장동정",
      "board",
      "https://www.cha.ac.kr/%ed%95%99%ea%b5%90%ec%86%8c%ea%b0%9c/%ec%b4%9d%ec%9e%a5%ec%8b%a4/%ec%b4%9d%ec%9e%a5%eb%8f%99%ec%a0%95/"
@@ -6393,17 +5988,12 @@
      "https://www.cha.ac.kr/%ea%b8%80%eb%a1%9c%eb%b2%8c/%ea%b8%80%eb%a1%9c%eb%b2%8c-%ec%8a%a4%ed%86%a0%eb%a6%ac/"
     ],
     [
-     "소식",
-     "rss",
-     "https://www.cha.ac.kr/feed/"
-    ],
-    [
      "공지",
      "board",
      "https://www.cha.ac.kr/%ec%82%b0%ed%95%99%e2%80%a7%ec%97%b0%ea%b5%ac/%ec%97%b0%ea%b5%ac%ec%a7%80%ec%9b%90/%ea%b3%b5%ec%a7%80%ec%82%ac%ed%95%ad/"
     ]
    ],
-   "count": 25,
+   "count": 24,
    "checked": "2026-10-11"
   },
   "u-kau": {
@@ -6464,27 +6054,12 @@
      "https://kau.ac.kr/kaulife/compliment.php"
     ],
     [
-     "학사",
-     "board",
-     "https://kau.ac.kr/kaulife/early.php"
-    ],
-    [
-     "입학",
-     "board",
-     "https://kau.ac.kr/admission/grad.php"
-    ],
-    [
      "정책",
      "board",
      "https://kau.ac.kr/kaulife/busipromo.php"
-    ],
-    [
-     "입학",
-     "board",
-     "https://kau.ac.kr/admission/univ.php"
     ]
    ],
-   "count": 85,
+   "count": 89,
    "checked": "2026-10-11"
   },
   "u-uhs": {
@@ -6513,11 +6088,6 @@
      "UHS포토뉴스",
      "board",
      "https://www.uhs.ac.kr/portalBbs/uhs/5/list.do?layout=unknown"
-    ],
-    [
-     "입찰",
-     "board",
-     "https://www.uhs.ac.kr/portalBbs/uhs/7/list.do?layout=unknown"
     ],
     [
      "공지",
@@ -6555,7 +6125,7 @@
      "https://www.uhs.ac.kr/uhs/3086/subview.do"
     ]
    ],
-   "count": 21,
+   "count": 32,
    "checked": "2026-10-11"
   },
   "u-hsmu": {
@@ -6598,11 +6168,6 @@
     [
      "공지사항",
      "board",
-     "https://www.hsmu.ac.kr/web/contents/HSMU40100000.do"
-    ],
-    [
-     "공지사항",
-     "board",
      "https://www.hsmu.ac.kr/web/contents/HSMU30303003.do"
     ],
     [
@@ -6636,7 +6201,7 @@
      "https://www.hsmu.ac.kr/web/contents/HSMU30207010.do"
     ]
    ],
-   "count": 18,
+   "count": 20,
    "checked": "2026-10-11"
   },
   "u-kangwon": {
@@ -6677,11 +6242,6 @@
      "https://www.kangwon.ac.kr/ko/bbs/723/list.do"
     ],
     [
-     "장학",
-     "board",
-     "https://www.kangwon.ac.kr/ko/bbs/721/list.do"
-    ],
-    [
      "참여",
      "board",
      "https://www.kangwon.ac.kr/ko/bbs/753/list.do"
@@ -6707,17 +6267,12 @@
      "https://www.kangwon.ac.kr/ko/bbs/717/list.do"
     ],
     [
-     "학사",
-     "board",
-     "https://www.kangwon.ac.kr/ko/bbs/720/list.do"
-    ],
-    [
      "KNU SDGs Implementat",
      "board",
      "https://www.kangwon.ac.kr/ko/bbs/855/list.do"
     ]
    ],
-   "count": 105,
+   "count": 101,
    "checked": "2026-10-11"
   },
   "u-ut": {
@@ -6768,7 +6323,7 @@
      "https://www.ut.ac.kr/cop/bbs/BBSMSTR_000000000076/selectBoardList.do"
     ]
    ],
-   "count": 17,
+   "count": 31,
    "checked": "2026-10-11"
   },
   "u-kdu": {
@@ -6814,7 +6369,7 @@
      "https://www.kdu.ac.kr/home/sub.do?mncd=182"
     ]
    ],
-   "count": 12,
+   "count": 23,
    "checked": "2026-10-11"
   },
   "u-seowon": {
@@ -6875,7 +6430,7 @@
      "https://www.seowon.ac.kr/seowon/302/subview.do"
     ]
    ],
-   "count": 8,
+   "count": 35,
    "checked": "2026-10-11"
   },
   "u-semyung": {
@@ -6889,11 +6444,6 @@
      "학사지원",
      "board",
      "https://www.semyung.ac.kr/prog/vwBoard/bbs06/kor/sub04_01/list.do"
-    ],
-    [
-     "장학 및 학사안내",
-     "board",
-     "https://www.semyung.ac.kr/prog/vwBoard/bbs06/kor/sub08_02_03/list.do"
     ],
     [
      "수시모집",
@@ -6956,7 +6506,7 @@
      "https://www.semyung.ac.kr/cop/bbs/BBSMSTR_000000000931/selectBoardList.do"
     ]
    ],
-   "count": 28,
+   "count": 40,
    "checked": "2026-10-11"
   },
   "u-u1": {
@@ -6977,7 +6527,7 @@
      "https://www.u1.ac.kr/html/kr/info/info_0502.html"
     ]
    ],
-   "count": 3,
+   "count": 5,
    "checked": "2026-10-11"
   },
   "u-jwu": {
@@ -7048,7 +6598,7 @@
      "http://yebigun.jwu.ac.kr/site/deptSiteView.jwu"
     ]
    ],
-   "count": 5,
+   "count": 12,
    "checked": "2026-10-11"
   },
   "u-cju": {
@@ -7140,7 +6690,7 @@
      "https://ipsi.konyang.ac.kr/cop/bbs/BBSMSTR_000000000617/selectBoardList.do"
     ]
    ],
-   "count": 36,
+   "count": 51,
    "checked": "2026-10-11"
   },
   "u-kongju": {
@@ -7171,11 +6721,6 @@
      "https://www.kongju.ac.kr/bbs/KNU/2120/artclList.do?layout=unknown"
     ],
     [
-     "학생소식",
-     "board",
-     "https://www.kongju.ac.kr/bbs/KNU/2132/artclList.do?layout=unknown"
-    ],
-    [
      "행정소식",
      "board",
      "https://www.kongju.ac.kr/bbs/KNU/2133/artclList.do?layout=unknown"
@@ -7184,11 +6729,6 @@
      "행사안내",
      "board",
      "https://www.kongju.ac.kr/bbs/KNU/2134/artclList.do?layout=unknown"
-    ],
-    [
-     "채용",
-     "board",
-     "https://www.kongju.ac.kr/bbs/KNU/2165/artclList.do?layout=unknown"
     ],
     [
      "자료",
@@ -7204,11 +6744,6 @@
      "참여",
      "board",
      "https://www.kongju.ac.kr/KNU/16953/subview.do"
-    ],
-    [
-     "SNS",
-     "board",
-     "https://www.kongju.ac.kr/KNU/16689/subview.do"
     ],
     [
      "갤러리",
@@ -7262,16 +6797,6 @@
      "https://www.bu.ac.kr/bbs/web/1987/artclList.do?layout=unknown"
     ],
     [
-     "학사공지",
-     "board",
-     "https://www.bu.ac.kr/bbs/web/788/artclList.do?layout=unknown"
-    ],
-    [
-     "장학",
-     "board",
-     "https://www.bu.ac.kr/bbs/web/818/artclList.do?layout=unknown"
-    ],
-    [
      "기타",
      "board",
      "https://www.bu.ac.kr/bbs/web/837/artclList.do?layout=unknown"
@@ -7282,27 +6807,12 @@
      "https://www.bu.ac.kr/bbs/web/838/artclList.do?layout=unknown"
     ],
     [
-     "학사",
-     "board",
-     "https://www.bu.ac.kr/web/3442/subview.do"
-    ],
-    [
-     "Event in BaekSeok",
-     "board",
-     "https://www.bu.ac.kr/web/3486/subview.do"
-    ],
-    [
-     "S-Campus",
-     "board",
-     "https://www.bu.ac.kr/web/3495/subview.do"
-    ],
-    [
      "교수학습개발원",
      "board",
      "https://www.bu.ac.kr/web/6478/subview.do"
     ]
    ],
-   "count": 53,
+   "count": 59,
    "checked": "2026-10-11"
   },
   "u-sunmoon": {
@@ -7415,7 +6925,7 @@
      "https://www.hanseo.ac.kr/boardCnts/list.do?boardID=305&m=040108&s=hs"
     ]
    ],
-   "count": 9,
+   "count": 72,
    "checked": "2026-10-11"
   },
   "u-jesus": {
@@ -7431,69 +6941,9 @@
      "https://www.jesus.ac.kr/enter/inner.php?sMenu=A1000"
     ],
     [
-     "공지",
-     "board",
-     "https://www.jesus.ac.kr?menu=127"
-    ],
-    [
-     "소식",
-     "board",
-     "https://www.jesus.ac.kr?menu=168"
-    ],
-    [
-     "자료",
-     "board",
-     "https://www.jesus.ac.kr?menu=101"
-    ],
-    [
-     "정책",
-     "board",
-     "https://www.jesus.ac.kr?menu=113"
-    ],
-    [
-     "참여",
-     "board",
-     "https://www.jesus.ac.kr?menu=103"
-    ],
-    [
      "입학",
      "board",
      "https://www.jesus.ac.kr/enter/?menu=190"
-    ],
-    [
-     "T&L",
-     "board",
-     "https://www.jesus.ac.kr?menu=137"
-    ],
-    [
-     "UI소개",
-     "board",
-     "https://www.jesus.ac.kr?menu=164"
-    ],
-    [
-     "각종양식파일",
-     "board",
-     "https://www.jesus.ac.kr?menu=55"
-    ],
-    [
-     "입학",
-     "board",
-     "https://www.jesus.ac.kr/enter/inner.php?sMenu=B1000"
-    ],
-    [
-     "인사",
-     "board",
-     "https://www.jesus.ac.kr?menu=115"
-    ],
-    [
-     "입찰",
-     "board",
-     "https://www.jesus.ac.kr?menu=59"
-    ],
-    [
-     "장학",
-     "board",
-     "https://www.jesus.ac.kr?menu=176"
     ]
    ],
    "count": 0,
@@ -7543,17 +6993,12 @@
      "https://fund.jbnu.ac.kr/notice/233"
     ],
     [
-     "소식",
-     "board",
-     "https://fund.jbnu.ac.kr/notice/228"
-    ],
-    [
      "공지",
      "board",
      "https://www.jbnu.ac.kr/web/news/notice/sub02.do"
     ]
    ],
-   "count": 2,
+   "count": 31,
    "checked": "2026-10-11"
   },
   "u-jj": {
@@ -7619,7 +7064,7 @@
      "https://www.jj.ac.kr/jj/community/itbaro.do"
     ]
    ],
-   "count": 5,
+   "count": 90,
    "checked": "2026-10-11"
   },
   "u-mokpo": {
@@ -7690,7 +7135,7 @@
      "https://www.mokpo.ac.kr/www/1491/subview.do"
     ]
    ],
-   "count": 9,
+   "count": 67,
    "checked": "2026-10-11"
   },
   "u-mmu": {
@@ -7771,7 +7216,7 @@
      "https://www.mmu.ac.kr/main/board/439"
     ]
    ],
-   "count": 27,
+   "count": 49,
    "checked": "2026-10-11"
   },
   "u-scnu": {
@@ -7852,7 +7297,7 @@
      "https://www.scnu.ac.kr/SCNU/na/ntt/selectNttList.do?mi=1127&bbsId=1037"
     ]
    ],
-   "count": 25,
+   "count": 37,
    "checked": "2026-10-11"
   },
   "u-mcu": {
@@ -7878,29 +7323,14 @@
      "https://www.mcu.ac.kr/ipsi/"
     ],
     [
-     "공지 사항",
-     "board",
-     "https://www.mcu.ac.kr/bb/bbBoard.php?pageID=mcu0701000000&boardID=NOTICE"
-    ],
-    [
      "뉴스레터",
      "board",
      "https://www.mcu.ac.kr/bb/bbBoard.php?boardID=NEWLETTER&pageID=mcu0710000000"
     ],
     [
-     "학사 정보",
-     "board",
-     "https://www.mcu.ac.kr/bb/bbBoard.php?pageID=mcu0704000000&boardID=UNIVNOTICE"
-    ],
-    [
      "포토 갤러리",
      "board",
      "https://www.mcu.ac.kr/bb/bbBoard.php?boardID=PHOTO&pageID=mcu0702000000"
-    ],
-    [
-     "장학",
-     "board",
-     "https://www.mcu.ac.kr/bb/bbBoard.php?pageID=mcu0708000000&boardID=SCHOLARSHIP"
     ],
     [
      "자료",
@@ -7933,7 +7363,7 @@
      "https://www.mcu.ac.kr/bb/bbBoard.php?boardID=SELFEVALUATE&pageID=mcu0707000000"
     ]
    ],
-   "count": 15,
+   "count": 11,
    "checked": "2026-10-11"
   },
   "u-youngsan": {
@@ -7979,11 +7409,6 @@
      "https://youngsan.ac.kr/bbs/board.php?bo_table=4_4"
     ],
     [
-     "부설·부속기관",
-     "board",
-     "https://youngsan.ac.kr/bbs/board.php?bo_table=3_1"
-    ],
-    [
      "영산광장",
      "board",
      "https://www.youngsan.ac.kr/bbs/board.php?bo_table=4_6"
@@ -7992,11 +7417,6 @@
      "영산스테이",
      "board",
      "https://www.youngsan.ac.kr/bbs/board.php?bo_table=3_4"
-    ],
-    [
-     "영산광장",
-     "board",
-     "https://youngsan.ac.kr/bbs/board.php?bo_table=4_6"
     ]
    ],
    "count": 11,
@@ -8025,7 +7445,7 @@
      "https://www.kentech.ac.kr/submenu.do?menuurl=igf4lPPoSPxAWdZPVWcT7A%3d%3d&"
     ]
    ],
-   "count": 0,
+   "count": 11,
    "checked": "2026-10-11"
   },
   "u-kumoh": {
@@ -8091,7 +7511,7 @@
      "https://www.kumoh.ac.kr/ko/sub06_03_05_01.do"
     ]
    ],
-   "count": 55,
+   "count": 78,
    "checked": "2026-10-11"
   },
   "u-cu": {
@@ -8162,7 +7582,7 @@
      "https://www.cu.ac.kr/introduction/president/media"
     ]
    ],
-   "count": 101,
+   "count": 121,
    "checked": "2026-10-11"
   },
   "u-daegu": {
@@ -8203,7 +7623,7 @@
      "https://www.daegu.ac.kr/article/DG164/list"
     ]
    ],
-   "count": 28,
+   "count": 59,
    "checked": "2026-10-11"
   },
   "u-dgau": {
@@ -8310,11 +7730,6 @@
      "https://www.dhu.ac.kr/HOME/exchange/sub.htm?nav_code=exc1574831872"
     ],
     [
-     "입학",
-     "board",
-     "http://www.dhu.ac.kr/admission/"
-    ],
-    [
      "자료",
      "board",
      "https://www.dhu.ac.kr/HOME/dhulife/sub.htm?nav_code=dhu1572264280"
@@ -8360,7 +7775,7 @@
      "https://www.dhu.ac.kr/HOME/exchange"
     ]
    ],
-   "count": 22,
+   "count": 30,
    "checked": "2026-10-11"
   },
   "u-daeshin": {
@@ -8376,7 +7791,7 @@
      "https://www.daeshin.ac.kr/html/04_campus/02_3.php"
     ]
    ],
-   "count": 14,
+   "count": 13,
    "checked": "2026-10-11"
   },
   "u-dyu": {
@@ -8423,21 +7838,11 @@
     ],
     [
      "소식",
-     "rss",
-     "https://www.dyu.ac.kr/wp-content/plugins/kboard/rss.php"
-    ],
-    [
-     "소식",
-     "rss",
-     "https://www.dyu.ac.kr/feed/"
-    ],
-    [
-     "소식",
      "board",
      "https://www.dyu.ac.kr/plaza/news/information_protect/"
     ]
    ],
-   "count": 24,
+   "count": 27,
    "checked": "2026-10-11"
   },
   "u-postech": {
@@ -8493,7 +7898,7 @@
      "https://www.postech.ac.kr/kor/university-introduction/regulations_manual.do"
     ]
    ],
-   "count": 5,
+   "count": 105,
    "checked": "2026-10-11"
   },
   "u-kaya": {
@@ -8564,17 +7969,12 @@
      "https://www.kaya.ac.kr/Home/BBSList.mbz?action=MAPP_0000000441"
     ],
     [
-     "가야대학교공지사항",
-     "board",
-     "https://www.kaya.ac.kr/Home/Menu.do?action=MENU_0000000005"
-    ],
-    [
      "공지",
      "board",
      "https://www.kaya.ac.kr/Home/BBSList.mbz?action=MAPP_0000000335"
     ]
    ],
-   "count": 26,
+   "count": 31,
    "checked": "2026-10-11"
   },
   "u-ysu": {
@@ -8593,11 +7993,6 @@
      "입시홍보영상",
      "board",
      "http://www.ysu.ac.kr/kor/CMS/Board/Board.do?mCode=MN299"
-    ],
-    [
-     "수업",
-     "board",
-     "https://www.ysu.ac.kr/kor/CMS/Board/Board.do?mCode=MN292"
     ],
     [
      "공지사항",
@@ -8655,7 +8050,7 @@
      "http://www.ysu.ac.kr/kor/CMS/Board/Board.do?mCode=MN298"
     ]
    ],
-   "count": 15,
+   "count": 16,
    "checked": "2026-10-11"
   },
   "u-inje": {
@@ -8862,14 +8257,9 @@
      "소식",
      "board",
      "http://www.dnue.ac.kr/kor/CMS/Board/Board.do?mCode=MN041"
-    ],
-    [
-     "소식",
-     "board",
-     "https://www.dnue.ac.kr/kor/CMS/Board/Board.do?mCode=MN040"
     ]
    ],
-   "count": 44,
+   "count": 45,
    "checked": "2026-10-11"
   },
   "u-gnue": {
@@ -8911,26 +8301,6 @@
      "https://www.ginue.ac.kr/kor/CMS/Board/Board.do?mCode=MN130"
     ],
     [
-     "공지",
-     "board",
-     "http://www.ginue.ac.kr/kor/CMS/Board/Board.do?mCode=MN124"
-    ],
-    [
-     "장학",
-     "board",
-     "http://www.ginue.ac.kr/kor/CMS/Board/Board.do?mCode=MN126"
-    ],
-    [
-     "채용",
-     "board",
-     "http://www.ginue.ac.kr/kor/CMS/Board/Board.do?mCode=MN130"
-    ],
-    [
-     "학사",
-     "board",
-     "http://www.ginue.ac.kr/kor/CMS/Board/Board.do?mCode=MN125"
-    ],
-    [
      "학교뉴스",
      "board",
      "http://www.ginue.ac.kr/kor/CMS/Board/Board.do?mCode=MN127"
@@ -8961,7 +8331,7 @@
      "https://www.ginue.ac.kr/kor/CMS/Board/Board.do?mCode=MN159"
     ]
    ],
-   "count": 49,
+   "count": 52,
    "checked": "2026-10-11"
   },
   "u-cnue": {
@@ -9017,7 +8387,7 @@
      "https://www.cnue.ac.kr/portal/"
     ]
    ],
-   "count": 54,
+   "count": 39,
    "checked": "2026-10-11"
   },
   "u-cje": {
@@ -9026,11 +8396,6 @@
      "청주교육과 입학안내",
      "board",
      "https://www.cje.ac.kr/ipsi/"
-    ],
-    [
-     "입학",
-     "board",
-     "https://www.cje.ac.kr/ipsi/?menu_cd=000026"
     ],
     [
      "자료",
@@ -9092,11 +8457,6 @@
      "채용공지",
      "board",
      "http://www.cue.ac.kr/kor/CMS/Board/Board.do?mCode=MN297"
-    ],
-    [
-     "공지",
-     "board",
-     "http://www.cue.ac.kr/kor/CMS/Board/Board.do?mCode=MN070"
     ],
     [
      "인사",
@@ -9200,7 +8560,7 @@
      "https://www.kaist.ac.kr/kr/html/footer/08180103.html"
     ]
    ],
-   "count": 1,
+   "count": 17,
    "checked": "2026-10-11"
   },
   "u-unist": {
@@ -9271,7 +8631,7 @@
      "https://www.unist.ac.kr/unist/education/forms.do"
     ]
    ],
-   "count": 14,
+   "count": 34,
    "checked": "2026-10-11"
   },
   "u-khcu": {
@@ -9384,7 +8744,7 @@
      "https://www.cufs.ac.kr/bbs/list.do?bbsId=BBS000064&menuId=MENU000171"
     ]
    ],
-   "count": 37,
+   "count": 41,
    "checked": "2026-10-11"
   },
   "u-sdu": {
@@ -9411,7 +8771,7 @@
      "https://edu.iscu.ac.kr/edu.scu"
     ]
    ],
-   "count": 0,
+   "count": 3,
    "checked": "2026-10-11"
   },
   "u-world": {
@@ -9514,7 +8874,7 @@
      "https://www.bdu.ac.kr/bduhome/sub01_06_03.do"
     ]
    ],
-   "count": 18,
+   "count": 35,
    "checked": "2026-10-11"
   },
   "u-kycu": {
@@ -9573,14 +8933,9 @@
      "공지사항",
      "board",
      "https://www.kycu.ac.kr/cop/bbs/BBSMSTR_000000000231/selectBoardList.do"
-    ],
-    [
-     "학생생활안내",
-     "board",
-     "https://www.kycu.ac.kr/cop/bbs/BBSMSTR_000000000067/selectBoardList.do"
     ]
    ],
-   "count": 6,
+   "count": 21,
    "checked": "2026-10-11"
   },
   "u-gjcu": {
@@ -9592,7 +8947,7 @@
     ]
    ],
    "count": 2,
-   "checked": "2026-10-10"
+   "checked": "2026-10-11"
   },
   "u-dcu": {
    "routes": [
@@ -9637,7 +8992,7 @@
      "https://www.dcu.ac.kr/dcuLife/notice_0301.htm"
     ]
    ],
-   "count": 33,
+   "count": 35,
    "checked": "2026-10-11"
   },
   "u-yncu": {
@@ -9668,11 +9023,6 @@
      "https://www.yncu.ac.kr/pages/introduction/introduction_04.asp?bcode=introduction"
     ],
     [
-     "기타",
-     "board",
-     "https://www.yncu.ac.kr/pages/campus/campus_01_01.asp?bcode=notice&cate_id=01"
-    ],
-    [
      "공지",
      "board",
      "https://www.yncu.ac.kr/pages/introduction/introduction_06.asp?bcode=budget"
@@ -9683,7 +9033,7 @@
      "https://www.yncu.ac.kr/pages/introduction/introduction_02_07.asp?bcode=develop"
     ]
    ],
-   "count": 6,
+   "count": 14,
    "checked": "2026-10-11"
   },
   "u-dongyang": {
@@ -9724,7 +9074,7 @@
      "https://www.dongyang.ac.kr/dmu/4905/subview.do"
     ]
    ],
-   "count": 14,
+   "count": 18,
    "checked": "2026-10-11"
   },
   "u-snjc": {
@@ -9826,7 +9176,7 @@
      "https://www.sewu.ac.kr/sewu/intro/disclosure01.do"
     ]
    ],
-   "count": 1,
+   "count": 29,
    "checked": "2026-10-11"
   },
   "u-hywoman": {
@@ -9918,7 +9268,7 @@
      "https://www.dit.ac.kr/fs/"
     ]
    ],
-   "count": 9,
+   "count": 18,
    "checked": "2026-10-11"
   },
   "u-bist": {
@@ -9954,24 +9304,9 @@
      "https://ipsi.bist.ac.kr/ipsi/board/list.php?menu=408&board_id=interviewquestion&re=1"
     ],
     [
-     "입학",
-     "board",
-     "http://ipsi.bist.ac.kr/ipsi/board/list.php?menu=54&board_id=notice"
-    ],
-    [
      "자료",
      "board",
      "http://www.bist.ac.kr/univ/board/list.php?menu=274&board_id=mmaNotice&re=1"
-    ],
-    [
-     "장학",
-     "board",
-     "https://www.bist.ac.kr/univ/board/list.php?menu=234&board_id=scholrshipNotice"
-    ],
-    [
-     "학사",
-     "board",
-     "https://www.bist.ac.kr/univ/board/list.php?menu=220&board_id=haksaNotice"
     ],
     [
      "BIST",
@@ -9984,22 +9319,12 @@
      "http://www.bist.ac.kr/univ/board/list.php?menu=201&board_id=report&re=1"
     ],
     [
-     "언론보도",
-     "board",
-     "https://www.bist.ac.kr/univ/board/list.php?board_id=report&menu=201"
-    ],
-    [
-     "언론보도",
-     "board",
-     "https://www.bist.ac.kr/univ/board/list.php?menu=201&board_id=report"
-    ],
-    [
      "학사",
      "board",
      "https://www.bist.ac.kr/univ/board/list.php?menu=275&board_id=haksaData&re=1"
     ]
    ],
-   "count": 10,
+   "count": 27,
    "checked": "2026-10-11"
   },
   "u-bhu": {
@@ -10070,7 +9395,7 @@
      "https://www.bhu.ac.kr/www/board/33"
     ]
    ],
-   "count": 2,
+   "count": 15,
    "checked": "2026-10-11"
   },
   "u-bwc": {
@@ -10126,7 +9451,7 @@
      "https://www.bwc.ac.kr/sch/sub01/sub0106_05.asp"
     ]
    ],
-   "count": 8,
+   "count": 16,
    "checked": "2026-10-11"
   },
   "u-kmcu": {
@@ -10197,7 +9522,7 @@
      "https://www.kmcu.ac.kr/wellcounsel/"
     ]
    ],
-   "count": 17,
+   "count": 16,
    "checked": "2026-10-11"
   },
   "u-ghu": {
@@ -10226,11 +9551,6 @@
      "취업",
      "board",
      "https://www.ghu.ac.kr/EmploymentAnnouncement"
-    ],
-    [
-     "부회장 당선자 공고",
-     "board",
-     "https://www.ghu.ac.kr/Notice/read/105683"
     ],
     [
      "입찰",
@@ -10266,14 +9586,9 @@
      "이사회 회의록",
      "board",
      "https://www.ghu.ac.kr/RecordsOfTheBoardOfDirectors"
-    ],
-    [
-     "GHU광장",
-     "board",
-     "https://www.ghu.ac.kr/GHUSquare"
     ]
    ],
-   "count": 5,
+   "count": 14,
    "checked": "2026-10-11"
   },
   "u-seoyeong": {
@@ -10289,7 +9604,7 @@
      "https://www.seoyeong.ac.kr/syu/na/ntt/selectNttList.do?mi=2285&bbsId=49&bsType=all"
     ]
    ],
-   "count": 10,
+   "count": 20,
    "checked": "2026-10-11"
   },
   "u-cnc": {
@@ -10303,71 +9618,6 @@
      "학사",
      "board",
      "https://www.cnc.ac.kr/board/?board=notice&site=cnc&mn=48&sc_cate=47"
-    ],
-    [
-     "장학",
-     "board",
-     "https://www.cnc.ac.kr/board/?board=notice&site=cnc&mn=48&sc_cate=107"
-    ],
-    [
-     "교내채용",
-     "board",
-     "https://www.cnc.ac.kr/board/?board=notice&site=cnc&mn=48&sc_cate=50"
-    ],
-    [
-     "입찰",
-     "board",
-     "https://www.cnc.ac.kr/board/?board=notice&site=cnc&mn=48&sc_cate=51"
-    ],
-    [
-     "공지사항",
-     "board",
-     "https://cnc.ac.kr/board/?board=notice&site=cnc&mn=48&sc_cate=129"
-    ],
-    [
-     "공지사항",
-     "board",
-     "https://www.cnc.ac.kr/board/?board=notice&site=cnc&mn=48&sc_cate=46"
-    ],
-    [
-     "현장실습게시판",
-     "board",
-     "https://www.cnc.ac.kr/board/?board=notice&site=cnc&mn=105&sc_cate=49"
-    ],
-    [
-     "취·창업정보",
-     "board",
-     "https://www.cnc.ac.kr/board/?board=startups&site=cnc&mn=137"
-    ],
-    [
-     "자료",
-     "board",
-     "https://www.cnc.ac.kr/board/?board=j_notice&site=cnc&mn=133"
-    ],
-    [
-     "장학",
-     "board",
-     "https://www.cnc.ac.kr/board/?board=scholarship_data&site=cnc&mn=320"
-    ],
-    [
-     "학사",
-     "board",
-     "https://www.cnc.ac.kr/board/?board=academic_affairs&site=cnc&mn=103"
-    ],
-    [
-     "소식",
-     "board",
-     "https://www.cnc.ac.kr/board/?board=advice_photo&site=cnc&mn=126"
-    ],
-    [
-     "정책",
-     "board",
-     "https://www.cnc.ac.kr/board/?board=corporation&site=cnc&mn=86"
-    ],
-    [
-     "참여",
-     "board",
-     "https://www.cnc.ac.kr/board/?board=educational_s&site=cnc&mn=264"
     ]
    ],
    "count": 8,
@@ -10399,11 +9649,6 @@
      "입학",
      "board",
      "https://www.uc.ac.kr/ipsi/CMS/Board/Board.do?mCode=MN037"
-    ],
-    [
-     "학사공지",
-     "board",
-     "https://www.uc.ac.kr/kr/CMS/Board/Board.do?mCode=MN126"
     ],
     [
      "입학",
@@ -10451,7 +9696,7 @@
      "http://www.uc.ac.kr/kr/CMS/Board/Board.do?mCode=MN254"
     ]
    ],
-   "count": 11,
+   "count": 64,
    "checked": "2026-10-11"
   },
   "u-gtec": {
@@ -10467,7 +9712,7 @@
      "https://www.gtec.ac.kr/dorm"
     ]
    ],
-   "count": 8,
+   "count": 7,
    "checked": "2026-10-11"
   },
   "u-nonghyup": {
@@ -10508,7 +9753,7 @@
      "https://www.nonghyup.ac.kr/bbs/bbs_list.asp?tbl=m01027"
     ],
     [
-     "- 등록금심의위원회",
+     "등록금심의위원회",
      "board",
      "https://www.nonghyup.ac.kr/bbs/bbs_list.asp?tbl=m01026"
     ],
@@ -10541,14 +9786,9 @@
      "공지",
      "board",
      "https://www.nonghyup.ac.kr/bbs/bbs_list.asp?tbl=m01122"
-    ],
-    [
-     "공지",
-     "board",
-     "https://www.nonghyup.ac.kr/bbs/bbs_list.asp?tbl=present5"
     ]
    ],
-   "count": 13,
+   "count": 10,
    "checked": "2026-10-11"
   },
   "u-du": {
@@ -10576,22 +9816,12 @@
     [
      "대학안내",
      "board",
-     "https://www.du.ac.kr/submenu.do?menuUrl=%2ftI%2f%2bvkKlfvpLjPISK6VKQ%3d%3d&"
-    ],
-    [
-     "대학안내",
-     "board",
      "https://www.du.ac.kr/submenu.do?menuUrl=hNQ1f0E6I1zHOidlUhMd8A%3d%3d&"
     ],
     [
      "회의개최공고",
      "board",
      "https://www.du.ac.kr/submenu.do?menuUrl=GRhJVBrpVzZAVEZyutY3jQ%3d%3d&"
-    ],
-    [
-     "공지사항",
-     "board",
-     "https://www.du.ac.kr/submenu.do?menuord=5&submenuord=0&"
     ],
     [
      "등록금심의위원회",
@@ -10609,7 +9839,7 @@
      "https://www.du.ac.kr/submenu.do?menuUrl=lktmA6TpgpjUpNE2tkO4bw%3d%3d&"
     ]
    ],
-   "count": 12,
+   "count": 9,
    "checked": "2026-10-11"
   },
   "u-doowon": {
@@ -10676,11 +9906,6 @@
      "https://www.ansan.ac.kr/dental"
     ],
     [
-     "교육목표",
-     "board",
-     "https://www.ansan.ac.kr/emergency"
-    ],
-    [
      "대학공지",
      "board",
      "https://www.ansan.ac.kr/social"
@@ -10691,7 +9916,7 @@
      "https://www.ansan.ac.kr/wellnessfood"
     ]
    ],
-   "count": 7,
+   "count": 12,
    "checked": "2026-10-11"
   },
   "u-yeonsung": {
@@ -10700,11 +9925,6 @@
      "공지사항",
      "board",
      "https://www.yeonsung.ac.kr/cs-center/73/subview.do"
-    ],
-    [
-     "공지사항",
-     "board",
-     "https://www.yeonsung.ac.kr/bbs/cs-center/8/artclList.do?layout=unknown"
     ],
     [
      "콘텐츠접수(대표홈페이지)",
@@ -10793,7 +10013,7 @@
      "https://www.osan.ac.kr/?menuno=784"
     ]
    ],
-   "count": 12,
+   "count": 45,
    "checked": "2026-10-11"
   },
   "u-ysc": {
@@ -10874,7 +10094,7 @@
      "https://www.ysc.ac.kr/kor/CMS/Board/Board.do?mCode=MN300"
     ]
    ],
-   "count": 19,
+   "count": 22,
    "checked": "2026-10-11"
   },
   "u-yuhan": {
@@ -10925,16 +10145,6 @@
      "https://www.yuhan.ac.kr/bbs/data/list.do?menu_idx=3161"
     ],
     [
-     "예결산공고",
-     "board",
-     "https://www.yuhan.ac.kr/bbs/data/list.do?menu_idx=3055&amp;per_menu_idx=3051&amp;tabCnt=4"
-    ],
-    [
-     "정책",
-     "board",
-     "https://www.yuhan.ac.kr/bbs/data/list.do?menu_idx=3054"
-    ],
-    [
      "대학평의원회",
      "board",
      "https://www.yuhan.ac.kr/bbs/data/list.do?menu_idx=3052"
@@ -10955,7 +10165,7 @@
      "https://www.yuhan.ac.kr/bbs/data/list.do?menu_idx=7840"
     ]
    ],
-   "count": 29,
+   "count": 32,
    "checked": "2026-10-11"
   },
   "u-ck": {
@@ -11024,19 +10234,9 @@
      "기부금",
      "board",
      "https://www.ck.ac.kr/archives/category/university-status/contributions"
-    ],
-    [
-     "공지",
-     "board",
-     "https://www.ck.ac.kr/archives/category/ck-notice/general"
-    ],
-    [
-     "소식",
-     "board",
-     "https://www.ck.ac.kr/archives/237621"
     ]
    ],
-   "count": 7,
+   "count": 11,
    "checked": "2026-10-11"
   },
   "u-ktc": {
@@ -11065,16 +10265,6 @@
      "교직원채용",
      "board",
      "http://www.ktc.ac.kr/board/board010"
-    ],
-    [
-     "KTC뉴스",
-     "board",
-     "https://www.ktc.ac.kr/board/board005"
-    ],
-    [
-     "KTC뉴스",
-     "board",
-     "https://www.ktc.ac.kr/board/board007"
     ],
     [
      "공지",
@@ -11117,7 +10307,7 @@
      "http://www.ktc.ac.kr/board/BOARD013"
     ]
    ],
-   "count": 8,
+   "count": 23,
    "checked": "2026-10-11"
   },
   "u-hsc": {
@@ -11161,34 +10351,9 @@
      "성심학보",
      "board",
      "https://www.hsc.ac.kr/site/hsc/boardList.do?boardSeq=61&key=51"
-    ],
-    [
-     "소식",
-     "board",
-     "https://www.hsc.ac.kr/site/hsc/boardList.do?boardSeq=141&key=2161&category=행사안내"
-    ],
-    [
-     "입학",
-     "board",
-     "https://ipsi.hsc.ac.kr/ipsi/selectBbsNttList.do?bbsNo=463&key=1456&searchCtgry=일반과정"
-    ],
-    [
-     "소식",
-     "board",
-     "https://www.hsc.ac.kr/site/hsc/boardList.do?boardSeq=141&key=45"
-    ],
-    [
-     "학사",
-     "rss",
-     "https://nhis.hsc.ac.kr/websquare/websquare.jsp?w2xPath=/ui/system/login.xml"
-    ],
-    [
-     "학생정보시스템",
-     "rss",
-     "https://nhis.hsc.ac.kr/websquare/websquare.jsp?w2xPath=/ui/system/login_std.xml"
     ]
    ],
-   "count": 33,
+   "count": 37,
    "checked": "2026-10-11"
   },
   "u-ok": {
@@ -11350,7 +10515,7 @@
      "https://www.hj.ac.kr/hj/na/ntt/selectNttList.do?mi=4020704&bbsId=27"
     ]
    ],
-   "count": 16,
+   "count": 25,
    "checked": "2026-10-11"
   },
   "u-paekche": {
@@ -11411,7 +10576,7 @@
      "https://www.paekche.ac.kr/ict/pms/board.php?bo_table=main_room"
     ]
    ],
-   "count": 19,
+   "count": 30,
    "checked": "2026-10-11"
   },
   "u-kijeon": {
@@ -11477,7 +10642,7 @@
      "https://www.kijeon.ac.kr/kor/CMS/Board/Board.do?mCode=MN372"
     ]
    ],
-   "count": 32,
+   "count": 23,
    "checked": "2026-10-11"
   },
   "u-jvision": {
@@ -11491,71 +10656,6 @@
      "학사안내",
      "board",
      "https://www.jvision.ac.kr?menu=112"
-    ],
-    [
-     "장학제도",
-     "board",
-     "https://www.jvision.ac.kr?menu=125"
-    ],
-    [
-     "VioLAC 입학안내",
-     "board",
-     "https://www.jvision.ac.kr?menu=291"
-    ],
-    [
-     "교직원 채용 공고",
-     "board",
-     "https://www.jvision.ac.kr?menu=309"
-    ],
-    [
-     "레이어팝업 알림",
-     "board",
-     "https://www.jvision.ac.kr?menu=146"
-    ],
-    [
-     "레이어팝업 알림",
-     "board",
-     "https://www.jvision.ac.kr?menu=192"
-    ],
-    [
-     "인사",
-     "board",
-     "https://www.jvision.ac.kr?menu=201"
-    ],
-    [
-     "입찰",
-     "board",
-     "https://www.jvision.ac.kr?menu=193"
-    ],
-    [
-     "입학",
-     "board",
-     "https://www.jvision.ac.kr?menu=114"
-    ],
-    [
-     "채용",
-     "board",
-     "https://www.jvision.ac.kr?menu=118"
-    ],
-    [
-     "장학",
-     "board",
-     "https://www.jvision.ac.kr?menu=126"
-    ],
-    [
-     "학사",
-     "board",
-     "https://www.jvision.ac.kr?menu=113"
-    ],
-    [
-     "1990~1999",
-     "board",
-     "https://www.jvision.ac.kr?menu=244"
-    ],
-    [
-     "2000~2003",
-     "board",
-     "https://www.jvision.ac.kr?menu=243"
     ]
    ],
    "count": 9,
@@ -11695,7 +10795,7 @@
      "https://www.kbc.ac.kr/kor/CMS/Board/Board.do?mCode=MN166"
     ]
    ],
-   "count": 10,
+   "count": 23,
    "checked": "2026-10-11"
   },
   "u-tk": {
@@ -11756,7 +10856,7 @@
      "https://www.tk.ac.kr/bbs/board.php?bo_table=corporate"
     ]
    ],
-   "count": 40,
+   "count": 43,
    "checked": "2026-10-11"
   },
   "u-mkc": {
@@ -11787,19 +10887,9 @@
      "https://www.mkc.ac.kr/house/"
     ],
     [
-     "입학",
-     "board",
-     "https://www.mkc.ac.kr/ipsi/"
-    ],
-    [
      "소식",
      "rss",
      "https://www.mkc.ac.kr/wp-content/plugins/kboard/rss.php"
-    ],
-    [
-     "소식",
-     "rss",
-     "https://www.mkc.ac.kr/?feed=rss2"
     ],
     [
      "자료",
@@ -11827,17 +10917,12 @@
      "http://www.mkc.ac.kr/center"
     ],
     [
-     "학생생활관",
-     "board",
-     "http://www.mkc.ac.kr/house"
-    ],
-    [
      "공지",
      "board",
      "https://www.mkc.ac.kr/?page_id=737"
     ]
    ],
-   "count": 3,
+   "count": 23,
    "checked": "2026-10-11"
   },
   "u-pohang": {
@@ -11853,17 +10938,12 @@
      "https://ipsi.pohang.ac.kr/ipsi/sub.htm?nav_code=ips1756719244"
     ],
     [
-     "위원회 회의록",
-     "board",
-     "https://www.pohang.ac.kr/main/html.do?nav_code=mai1760809442"
-    ],
-    [
      "포대광장",
      "board",
      "https://www.pohang.ac.kr/main/html.do?nav_code=mai1758229380"
     ]
    ],
-   "count": 0,
+   "count": 11,
    "checked": "2026-10-11"
   },
   "u-hosan": {
@@ -11887,11 +10967,6 @@
      "진로·취업 온라인 강의",
      "board",
      "http://job.hosan.ac.kr/bbs/board.php?bo_table=movie"
-    ],
-    [
-     "공지사항",
-     "board",
-     "https://www.hosan.ac.kr/front/"
     ],
     [
      "공지",
@@ -11944,7 +11019,7 @@
      "https://www.hosan.ac.kr/front/board/list.php?code=resualt"
     ]
    ],
-   "count": 7,
+   "count": 26,
    "checked": "2026-10-11"
   },
   "u-koje": {
@@ -11990,7 +11065,7 @@
      "https://www.koje.ac.kr/www/board/17"
     ],
     [
-     "게시판",
+     "기타",
      "board",
      "https://www.koje.ac.kr/www/board/33?mc=232"
     ],
@@ -12003,11 +11078,6 @@
      "기부현황",
      "board",
      "https://www.koje.ac.kr/www/board/22"
-    ],
-    [
-     "기업지원 One-stop Servic",
-     "board",
-     "https://www.koje.ac.kr/www/board/33?mc=224"
     ],
     [
      "등록금심의위원회 회의록",
@@ -12025,7 +11095,7 @@
      "https://www.koje.ac.kr/www/board/18"
     ]
    ],
-   "count": 14,
+   "count": 16,
    "checked": "2026-10-11"
   },
   "u-gimhae": {
@@ -12041,7 +11111,7 @@
      "https://tcms.gimhae.ac.kr/career"
     ]
    ],
-   "count": 5,
+   "count": 10,
    "checked": "2026-10-11"
   },
   "u-yc": {
@@ -12077,11 +11147,6 @@
      "https://www.yc.ac.kr/www/yc-bid-notice.do"
     ],
     [
-     "공지",
-     "board",
-     "https://www.yc.ac.kr/www/yc-budget-settlement.do"
-    ],
-    [
      "학보게시판",
      "board",
      "https://www.yc.ac.kr/www/yc-gazette.do"
@@ -12107,7 +11172,7 @@
      "https://www.yc.ac.kr/www/yc-self-evaluation.do"
     ]
    ],
-   "count": 4,
+   "count": 18,
    "checked": "2026-10-11"
   },
   "u-cmu": {
@@ -12169,7 +11234,7 @@
      "https://www.bc.ac.kr/bcu/service/military02.do"
     ]
    ],
-   "count": 0,
+   "count": 32,
    "checked": "2026-10-11"
   },
   "u-bpu": {
@@ -12240,7 +11305,7 @@
      "https://www.bpu.ac.kr/Board/BoardList.aspx?BoardMstNo=50&CategoryNo=1"
     ]
    ],
-   "count": 0,
+   "count": 32,
    "checked": "2026-10-11"
   },
   "u-bscu": {
@@ -12266,11 +11331,6 @@
      "https://www.bscu.ac.kr/mainNotice/web/artclList.do?layout=unknown"
     ],
     [
-     "채용",
-     "board",
-     "https://www.bscu.ac.kr/bbs/job/842/artclList.do?layout=unknown"
-    ],
-    [
      "교수학습개발원",
      "board",
      "https://www.bscu.ac.kr/web/6033/subview.do"
@@ -12281,32 +11341,17 @@
      "http://www.bscu.ac.kr/web/2825/subview.do"
     ],
     [
-     "교직원메뉴 전체보기",
-     "board",
-     "https://www.bscu.ac.kr/web/2844/subview.do"
-    ],
-    [
      "동문/방문객",
      "board",
      "http://www.bscu.ac.kr/web/2826/subview.do"
     ],
     [
-     "방문객",
-     "board",
-     "https://www.bscu.ac.kr/web/2826/subview.do"
-    ],
-    [
      "병무 및 예비군 정보",
      "board",
      "https://www.bscu.ac.kr/web/2456/subview.do"
-    ],
-    [
-     "사용자메뉴",
-     "board",
-     "https://www.bscu.ac.kr/web/2823/subview.do"
     ]
    ],
-   "count": 0,
+   "count": 40,
    "checked": "2026-10-11"
   },
   "u-ccn": {
@@ -12357,11 +11402,6 @@
      "https://www.ccn.ac.kr/board.jsp?sID=0607"
     ],
     [
-     "학사",
-     "board",
-     "https://www.ccn.ac.kr/board.jsp?sID=0301"
-    ],
-    [
      "공지사항",
      "board",
      "https://www.ccn.ac.kr/board.jsp?sID=0501"
@@ -12370,11 +11410,6 @@
      "대학법인",
      "board",
      "https://www.ccn.ac.kr/board.jsp?sID=0107"
-    ],
-    [
-     "캠퍼스생활",
-     "board",
-     "https://www.ccn.ac.kr/board.jsp?sID=05"
     ],
     [
      "정책",
@@ -12387,7 +11422,7 @@
      "https://www.ccn.ac.kr/board.jsp?sID=0608"
     ]
    ],
-   "count": 0,
+   "count": 14,
    "checked": "2026-10-11"
   },
   "u-cdu": {
@@ -12398,7 +11433,7 @@
      "https://admission.cdu.ac.kr/mod/board/list.do?MID=ADM_09010000"
     ]
    ],
-   "count": 0,
+   "count": 1,
    "checked": "2026-10-11"
   },
   "u-ch": {
@@ -12414,7 +11449,7 @@
      "https://job.ch.ac.kr/CRP/CRP0200/CRP0201S.aspx?MC=CMN0401"
     ]
    ],
-   "count": 0,
+   "count": 1,
    "checked": "2026-10-11"
   },
   "u-changwon": {
@@ -12428,14 +11463,9 @@
      "채용 공지사항",
      "board",
      "https://dreamcatch.changwon.ac.kr/user/Bd/BdCm010L.do;jsessionid=365839EB8B6EF141BBC24E351D68CC40?BD_NO=1&CURRENT_MENU_CODE=MENU0040&TOP_MENU_CODE=MENU0006"
-    ],
-    [
-     "채용 공지사항",
-     "board",
-     "https://dreamcatch.changwon.ac.kr/user/Bd/BdCm010L.do;jsessionid=3FB3602D891293CD71483D57DFCEE27F?BD_NO=1&CURRENT_MENU_CODE=MENU0040&TOP_MENU_CODE=MENU0006"
     ]
    ],
-   "count": 0,
+   "count": 3,
    "checked": "2026-10-11"
   },
   "u-chungbuk": {
@@ -12516,7 +11546,7 @@
      "https://www.cbnu.ac.kr/www/selectBbsNttList.do?bbsNo=28&key=622"
     ]
    ],
-   "count": 0,
+   "count": 62,
    "checked": "2026-10-11"
   },
   "u-cku": {
@@ -12557,11 +11587,6 @@
      "https://www.cku.ac.kr/cku_kr/5787/subview.do"
     ],
     [
-     "학사공지",
-     "board",
-     "https://www.cku.ac.kr/bbs/cku_kr/1174/artclList.do?layout=unknown"
-    ],
-    [
      "참여",
      "board",
      "https://www.cku.ac.kr/cku/531/subview.do"
@@ -12597,7 +11622,7 @@
      "https://www.cku.ac.kr/cku_kr/5609/subview.do"
     ]
    ],
-   "count": 0,
+   "count": 31,
    "checked": "2026-10-11"
   },
   "u-daedong": {
@@ -12664,7 +11689,7 @@
      "https://www.daejin.ac.kr/daejin/859/subview.do"
     ]
    ],
-   "count": 0,
+   "count": 43,
    "checked": "2026-10-11"
   },
   "u-daelim": {
@@ -12730,22 +11755,12 @@
      "https://dept.daelim.ac.kr/cna/"
     ],
     [
-     "소식",
-     "board",
-     "https://dept.daelim.ac.kr/mvd/"
-    ],
-    [
      "자료",
      "board",
      "http://dept.daelim.ac.kr/lle/"
-    ],
-    [
-     "정책",
-     "board",
-     "https://dept.daelim.ac.kr/hfs/"
     ]
    ],
-   "count": 0,
+   "count": 17,
    "checked": "2026-10-11"
   },
   "u-ddu": {
@@ -12826,7 +11841,7 @@
      "https://www.ddu.ac.kr/bbs/MN000000000124/list.htm"
     ]
    ],
-   "count": 0,
+   "count": 39,
    "checked": "2026-10-11"
   },
   "u-dkc": {
@@ -12837,7 +11852,7 @@
      "http://job.dkc.ac.kr/bb/boardList.php?boardNM=job0201"
     ]
    ],
-   "count": 0,
+   "count": 9,
    "checked": "2026-10-11"
   },
   "u-dongnam": {
@@ -12863,7 +11878,7 @@
      "https://www.dongnam.ac.kr/main/378/subview.do"
     ]
    ],
-   "count": 0,
+   "count": 7,
    "checked": "2026-10-11"
   },
   "u-dst": {
@@ -12884,7 +11899,7 @@
      "http://ipsi.dst.ac.kr/ipsi/CMS/Board/Board.do?mCode=MN028"
     ]
    ],
-   "count": 0,
+   "count": 1,
    "checked": "2026-10-11"
   },
   "u-duksung": {
@@ -12906,7 +11921,7 @@
      "https://www.gangdong.ac.kr/gangdong/contents/MENU0312.do"
     ]
    ],
-   "count": 0,
+   "count": 5,
    "checked": "2026-10-11"
   },
   "u-ggu": {
@@ -12967,7 +11982,7 @@
      "https://www.ggu.ac.kr/sub010106"
     ]
    ],
-   "count": 0,
+   "count": 4,
    "checked": "2026-10-11"
   },
   "u-global": {
@@ -12978,7 +11993,7 @@
      "http://go.global.ac.kr/asp/info/info_01.asp"
     ]
    ],
-   "count": 0,
+   "count": 1,
    "checked": "2026-10-11"
   },
   "u-gnu": {
@@ -13059,7 +12074,7 @@
      "https://www.gnu.ac.kr/main/na/ntt/selectNttList.do?mi=17739&bbsId=4941"
     ]
    ],
-   "count": 0,
+   "count": 97,
    "checked": "2026-10-11"
   },
   "u-gumi": {
@@ -13131,7 +12146,7 @@
      "https://www.gw.ac.kr/po/portal/campuslife/activities/volunteer"
     ]
    ],
-   "count": 0,
+   "count": 29,
    "checked": "2026-10-11"
   },
   "u-hallym": {
@@ -13182,7 +12197,7 @@
      "https://www.hallym.ac.kr/hallym/959/subview.do"
     ]
    ],
-   "count": 0,
+   "count": 36,
    "checked": "2026-10-11"
   },
   "u-hanbat": {
@@ -13263,7 +12278,7 @@
      "https://www.hanbat.ac.kr/bbs/BBSMSTR_000000000050/list.do?mno=sub07_01"
     ]
    ],
-   "count": 0,
+   "count": 42,
    "checked": "2026-10-11"
   },
   "u-handong": {
@@ -13284,11 +12299,6 @@
      "https://www.handong.edu/kor/square/notice/bid/"
     ],
     [
-     "공지",
-     "board",
-     "https://www.handong.edu/kor/square/notice/"
-    ],
-    [
      "소식",
      "board",
      "https://www.handong.edu/kor/square/inform/news/"
@@ -13307,14 +12317,9 @@
      "한동 SNS",
      "board",
      "https://www.handong.edu/kor/square/inform/sns/"
-    ],
-    [
-     "한동광장",
-     "board",
-     "https://www.handong.edu/kor/square/"
     ]
    ],
-   "count": 0,
+   "count": 35,
    "checked": "2026-10-11"
   },
   "u-hansei": {
@@ -13325,7 +12330,7 @@
      "http://hsiec.hansei.ac.kr/eng/_rb/_list.html?Ncode=b1"
     ]
    ],
-   "count": 0,
+   "count": 3,
    "checked": "2026-10-11"
   },
   "u-hansung": {
@@ -13361,7 +12366,7 @@
      "https://www.hansung.ac.kr/hansung/6067/subview.do"
     ]
    ],
-   "count": 0,
+   "count": 29,
    "checked": "2026-10-11"
   },
   "u-hit": {
@@ -13402,7 +12407,7 @@
      "https://hit.ac.kr/square_hitboard_qna"
     ]
    ],
-   "count": 0,
+   "count": 26,
    "checked": "2026-10-11"
   },
   "u-hknu": {
@@ -13423,17 +12428,12 @@
      "https://hknu.ac.kr/kor/564/subview.do"
     ],
     [
-     "대학원공지",
-     "board",
-     "https://www.hknu.ac.kr/bbs/kor/72/artclList.do?layout=unknown"
-    ],
-    [
      "한경NEWS",
      "board",
      "https://www.hknu.ac.kr/bbs/kor/81/artclList.do?layout=unknown"
     ]
    ],
-   "count": 0,
+   "count": 20,
    "checked": "2026-10-11"
   },
   "u-hoseo": {
@@ -13495,7 +12495,7 @@
      "https://www.hs.ac.kr/kor/4960/subview.do"
     ]
    ],
-   "count": 0,
+   "count": 57,
    "checked": "2026-10-11"
   },
   "u-htus": {
@@ -13576,7 +12576,7 @@
      "https://www.htus.ac.kr/board/board.php?b_id=005"
     ]
    ],
-   "count": 0,
+   "count": 26,
    "checked": "2026-10-11"
   },
   "u-ikw": {
@@ -13617,16 +12617,6 @@
      "https://www.ikw.ac.kr/board/list.tc?mn=5143&mngNo=440&pageSeq=4078"
     ],
     [
-     "채용",
-     "board",
-     "https://www.ikw.ac.kr/board/list.tc?mn=2487&mngNo=95&pageSeq=1930"
-    ],
-    [
-     "학사",
-     "board",
-     "https://www.ikw.ac.kr/board/list.tc?mn=3289&mngNo=186&pageSeq=2172"
-    ],
-    [
      "비교과 전체보기",
      "board",
      "https://www.ikw.ac.kr/board/list.tc?mn=5152&mngNo=445&pageSeq=4087"
@@ -13640,14 +12630,9 @@
      "경운광장",
      "board",
      "https://www.ikw.ac.kr/page/link.tc?mn=2373&pageSeq=1717"
-    ],
-    [
-     "대학생활",
-     "board",
-     "https://www.ikw.ac.kr/page/link.tc?mn=2394&pageSeq=1715"
     ]
    ],
-   "count": 0,
+   "count": 67,
    "checked": "2026-10-11"
   },
   "u-induk": {
@@ -13658,7 +12643,7 @@
      "https://www.induk.ac.kr/JOB/index.do?MENU_ID=9999"
     ]
    ],
-   "count": 0,
+   "count": 2,
    "checked": "2026-10-11"
   },
   "u-jangan": {
@@ -13719,7 +12704,7 @@
      "https://www.jangan.ac.kr/jangan/433/subview.do"
     ]
    ],
-   "count": 0,
+   "count": 33,
    "checked": "2026-10-11"
   },
   "u-jeiu": {
@@ -13800,88 +12785,23 @@
      "https://www.jeiu.ac.kr/board/list.asp?BoardID=00039"
     ]
    ],
-   "count": 0,
+   "count": 31,
    "checked": "2026-10-11"
   },
   "u-jhc": {
    "routes": [
-    [
-     "예·결산공고",
-     "board",
-     "https://www.jhc.ac.kr/intro/int_05_01.aspx"
-    ],
     [
      "입학",
      "board",
      "http://ibsi.jhc.ac.kr/S01/S001_01.aspx"
     ],
     [
-     "K-헬스케어과",
-     "board",
-     "https://www.jhc.ac.kr/depart/dep_09_01.aspx"
-    ],
-    [
-     "대학본부",
-     "board",
-     "https://www.jhc.ac.kr/info/inf_01_01.aspx"
-    ],
-    [
-     "보건행정과",
-     "board",
-     "https://www.jhc.ac.kr/depart/dep_05_01.aspx"
-    ],
-    [
-     "부설기관",
-     "board",
-     "https://www.jhc.ac.kr/info/inf_03_01.aspx"
-    ],
-    [
-     "부속기관",
-     "board",
-     "https://www.jhc.ac.kr/info/inf_02_01.aspx"
-    ],
-    [
-     "뷰티디자인과",
-     "board",
-     "https://www.jhc.ac.kr/depart/dep_06_01.aspx"
-    ],
-    [
-     "사회복지과",
-     "board",
-     "https://www.jhc.ac.kr/depart/dep_08_01.aspx"
-    ],
-    [
      "인사",
      "board",
      "https://www.jhc.ac.kr/intro/int_01_01.aspx"
-    ],
-    [
-     "임상병리과",
-     "board",
-     "https://www.jhc.ac.kr/depart/dep_02_01.aspx"
-    ],
-    [
-     "입찰",
-     "board",
-     "https://www.jhc.ac.kr/intro/int_07_01.aspx"
-    ],
-    [
-     "참여",
-     "board",
-     "https://www.jhc.ac.kr/intro/int_14_01.aspx"
-    ],
-    [
-     "입학",
-     "board",
-     "http://ibsi.jhc.ac.kr/S03/S003_02.aspx"
-    ],
-    [
-     "정책",
-     "board",
-     "https://www.jhc.ac.kr/intro/int_10_01.aspx"
     ]
    ],
-   "count": 0,
+   "count": 5,
    "checked": "2026-10-11"
   },
   "u-kbsc": {
@@ -13922,7 +12842,7 @@
      "https://www.kbsc.ac.kr/korean/campus/service02.htm"
     ]
    ],
-   "count": 0,
+   "count": 18,
    "checked": "2026-10-11"
   },
   "u-kbu": {
@@ -13933,7 +12853,7 @@
      "https://manage.kbu.ac.kr/efms/CMS/Board/Board.do?mCode=MN031"
     ]
    ],
-   "count": 0,
+   "count": 2,
    "checked": "2026-10-11"
   },
   "u-kcn": {
@@ -14014,7 +12934,7 @@
      "https://www.kcn.ac.kr/activity/bus/busboard.do"
     ]
    ],
-   "count": 0,
+   "count": 23,
    "checked": "2026-10-11"
   },
   "u-kcu": {
@@ -14025,7 +12945,7 @@
      "https://go.kcu.ac/dscsn/notice/news?boardCode=1"
     ]
    ],
-   "count": 0,
+   "count": 2,
    "checked": "2026-10-11"
   },
   "u-kit": {
@@ -14122,7 +13042,7 @@
      "https://www.knou.ac.kr/knou/153/subview.do"
     ]
    ],
-   "count": 0,
+   "count": 23,
    "checked": "2026-10-11"
   },
   "u-knue": {
@@ -14203,7 +13123,7 @@
      "https://www.knue.ac.kr/pr/selectBbsNttList.do?bbsNo=250&key=1415"
     ]
    ],
-   "count": 0,
+   "count": 61,
    "checked": "2026-10-11"
   },
   "u-kookje": {
@@ -14227,11 +13147,6 @@
      "자료",
      "board",
      "http://dept.kookje.ac.kr/EDU"
-    ],
-    [
-     "K-POP전공(엔터테인먼트학부)(3년",
-     "board",
-     "http://dept.kookje.ac.kr/ENTERTAINMENT"
     ],
     [
      "K-뷰티학과2년제",
@@ -14264,27 +13179,12 @@
      "https://dept.kookje.ac.kr/sw/"
     ],
     [
-     "스포츠지도전공(스포츠학부)",
-     "board",
-     "http://dept.kookje.ac.kr/SportsHealthCare"
-    ],
-    [
-     "스포츠지도전공(스포츠학부)2년제",
-     "board",
-     "https://dept.kookje.ac.kr/SportsHealthCare/"
-    ],
-    [
      "안경광학과3년제",
      "board",
      "https://dept.kookje.ac.kr/optometry/"
-    ],
-    [
-     "자료",
-     "board",
-     "https://dept.kookje.ac.kr/edu/"
     ]
    ],
-   "count": 0,
+   "count": 8,
    "checked": "2026-10-11"
   },
   "u-koreatech": {
@@ -14355,7 +13255,7 @@
      "https://www.koreatech.ac.kr/menu.es?mid=a10807040000"
     ]
    ],
-   "count": 0,
+   "count": 30,
    "checked": "2026-10-11"
   },
   "u-kunjang": {
@@ -14426,7 +13326,7 @@
      "https://www.kunjang.ac.kr/home/main/board/bbsNormalList.do?encMenuId=6d6d6664525a7332646f5a65726a7a317070527153673d3d"
     ]
    ],
-   "count": 0,
+   "count": 15,
    "checked": "2026-10-11"
   },
   "u-kunsan": {
@@ -14450,11 +13350,6 @@
      "취업정보",
      "board",
      "https://www.kunsan.ac.kr/board/list.kunsan?boardId=BBS_0001301&menuCd=DOM_000014702002003000&contentsSid=8517"
-    ],
-    [
-     "국립군산대학교 입학처",
-     "board",
-     "https://www.kunsan.ac.kr/iphak"
     ],
     [
      "입찰",
@@ -14507,7 +13402,7 @@
      "https://www.kunsan.ac.kr/index.kunsan?menuCd=DOM_000000102005005000"
     ]
    ],
-   "count": 0,
+   "count": 32,
    "checked": "2026-10-11"
   },
   "u-kw": {
@@ -14531,11 +13426,6 @@
      "취업게시판",
      "board",
      "https://www.kw.ac.kr/ko/life/job.jsp"
-    ],
-    [
-     "공지",
-     "board",
-     "https://www.kw.ac.kr/ko/life/notice.jsp?srCategoryId=&mode=list&searchKey=1&searchVal="
     ],
     [
      "소식",
@@ -14563,7 +13453,7 @@
      "https://www.kw.ac.kr/ko/life/topScientist.jsp"
     ]
    ],
-   "count": 0,
+   "count": 58,
    "checked": "2026-10-11"
   },
   "u-kyungmin": {
@@ -14622,14 +13512,9 @@
      "신문방송국",
      "board",
      "https://www.kyungmin.ac.kr/homepage/page.do?menu=116"
-    ],
-    [
-     "정보광장",
-     "board",
-     "https://www.kyungmin.ac.kr/homepage/page.do?menu=63"
     ]
    ],
-   "count": 0,
+   "count": 9,
    "checked": "2026-10-11"
   },
   "u-mirae-yonsei": {
@@ -14670,11 +13555,6 @@
      "https://www.yonsei.ac.kr/wj/1399/subview.do"
     ],
     [
-     "채용",
-     "board",
-     "https://www.yonsei.ac.kr/wj/1370/subview.do"
-    ],
-    [
      "각종 신청서양식 모음",
      "board",
      "https://www.yonsei.ac.kr/wj/1447/subview.do"
@@ -14695,7 +13575,7 @@
      "https://www.yonsei.ac.kr/wj/1449/subview.do"
     ]
    ],
-   "count": 0,
+   "count": 32,
    "checked": "2026-10-11"
   },
   "u-mjc": {
@@ -14776,7 +13656,7 @@
      "https://www.mjc.ac.kr/bbs/data/list.do?menu_idx=2895"
     ]
    ],
-   "count": 0,
+   "count": 32,
    "checked": "2026-10-11"
   },
   "u-mju": {
@@ -14857,7 +13737,7 @@
      "https://www.mju.ac.kr/mjukr/5194/subview.do"
     ]
    ],
-   "count": 0,
+   "count": 82,
    "checked": "2026-10-11"
   },
   "u-msu": {
@@ -14873,7 +13753,7 @@
      "https://www.msu.ac.kr/base/board/list?boardManagementNo=1300&menuLevel=2&menuNo=471"
     ]
    ],
-   "count": 0,
+   "count": 1,
    "checked": "2026-10-11"
   },
   "u-pknu": {
@@ -14924,7 +13804,7 @@
      "https://www.pknu.ac.kr/main/45"
     ]
    ],
-   "count": 0,
+   "count": 53,
    "checked": "2026-10-11"
   },
   "u-police": {
@@ -14955,16 +13835,6 @@
      "http://www.police.ac.kr/police/police/master/44/boardList.do?mdex=police17"
     ],
     [
-     "자료",
-     "board",
-     "https://www.police.ac.kr/police/police/master/44/boardList.do?mdex=police17"
-    ],
-    [
-     "채용",
-     "board",
-     "https://www.police.ac.kr/police/police/master/60/boardList.do?mdex=police65"
-    ],
-    [
      "H3",
      "board",
      "http://police.ac.kr/police/police/master/74/boardList.do?mdex=police125"
@@ -14990,11 +13860,6 @@
      "https://www.police.ac.kr/police/police/master/67/boardList.do?mdex=police172"
     ],
     [
-     "언론보도",
-     "board",
-     "https://www.police.ac.kr/police/police/master/74/boardList.do?mdex=police125"
-    ],
-    [
      "정보",
      "board",
      "https://www.police.ac.kr/police/police/master/43/boardList.do?mdex=police13"
@@ -15005,7 +13870,7 @@
      "https://www.police.ac.kr/police/police/master/104/boardList.do?mdex=police140"
     ]
    ],
-   "count": 0,
+   "count": 3,
    "checked": "2026-10-11"
   },
   "u-ptu": {
@@ -15026,11 +13891,6 @@
      "https://www.ptu.ac.kr/www/417/subview.do"
     ],
     [
-     "채용",
-     "board",
-     "https://apply.ptu.ac.kr/bbs/apply/107/artclList.do?layout=unknown"
-    ],
-    [
      "참여",
      "board",
      "https://www.ptu.ac.kr/www/4090/subview.do"
@@ -15046,7 +13906,7 @@
      "https://www.ptu.ac.kr/www/4276/subview.do"
     ]
    ],
-   "count": 0,
+   "count": 24,
    "checked": "2026-10-11"
   },
   "u-pusan": {
@@ -15107,11 +13967,6 @@
      "https://www.pusan.ac.kr/kor/CMS/Board/Board.do?mCode=MN117"
     ],
     [
-     "PNU 리서치",
-     "board",
-     "http://www.pusan.ac.kr/kor/CMS/Board/Board.do?mCode=MN270"
-    ],
-    [
      "교수초빙",
      "board",
      "https://www.pusan.ac.kr/kor/CMS/Board/Board.do?mCode=MN103"
@@ -15127,7 +13982,7 @@
      "https://www.pusan.ac.kr/kor/CMS/Board/Board.do?mCode=MN260"
     ]
    ],
-   "count": 0,
+   "count": 137,
    "checked": "2026-10-11"
   },
   "u-saekyung": {
@@ -15168,7 +14023,7 @@
      "https://www.saekyung.ac.kr/information/plan.php"
     ]
    ],
-   "count": 0,
+   "count": 1,
    "checked": "2026-10-11"
   },
   "u-sangji": {
@@ -15194,7 +14049,7 @@
      "https://www.sangji.ac.kr/prog/bbsArticle/BBSMSTR_000000000199/list.do?cmsNoStr=1201"
     ]
    ],
-   "count": 0,
+   "count": 13,
    "checked": "2026-10-11"
   },
   "u-sc": {
@@ -15240,7 +14095,7 @@
      "https://www.sc.ac.kr/list/comm_30"
     ]
    ],
-   "count": 0,
+   "count": 32,
    "checked": "2026-10-11"
   },
   "u-sehan": {
@@ -15271,22 +14126,12 @@
      "https://www.sehan.ac.kr/sehan/161/subview.do"
     ],
     [
-     "장학",
-     "board",
-     "https://www.sehan.ac.kr/sehan/229/subview..do"
-    ],
-    [
      "대학 평의원회",
      "board",
      "https://www.sehan.ac.kr/sehan/175/subview.do"
-    ],
-    [
-     "대학평의원회",
-     "board",
-     "https://www.sehan.ac.kr/sehan/175/subview..do"
     ]
    ],
-   "count": 0,
+   "count": 25,
    "checked": "2026-10-11"
   },
   "u-sejong-korea": {
@@ -15332,7 +14177,7 @@
      "https://sejong.korea.ac.kr/koreaSejong/7783/subview.do"
     ]
    ],
-   "count": 0,
+   "count": 17,
    "checked": "2026-10-11"
   },
   "u-seojeong": {
@@ -15363,7 +14208,7 @@
      "https://seojeong.ac.kr/inter/community/notice.do"
     ]
    ],
-   "count": 0,
+   "count": 22,
    "checked": "2026-10-11"
   },
   "u-skhu": {
@@ -15414,11 +14259,6 @@
      "https://www.skhu.ac.kr/skhu/3144/subview.do"
     ],
     [
-     "내가 본성공회대",
-     "board",
-     "https://www.skhu.ac.kr/skhu/3144/subview..do"
-    ],
-    [
      "대학안전관리",
      "board",
      "https://www.skhu.ac.kr/skhu/942/subview.do"
@@ -15439,7 +14279,7 @@
      "https://www.skhu.ac.kr/skhu/974/subview.do"
     ]
    ],
-   "count": 0,
+   "count": 18,
    "checked": "2026-10-11"
   },
   "u-skuniv": {
@@ -15471,7 +14311,7 @@
      "https://www.snue.ac.kr/help/na/ntt/selectNttList.do?mi=3557&bbsId=3105"
     ]
    ],
-   "count": 0,
+   "count": 12,
    "checked": "2026-10-11"
   },
   "u-ssc": {
@@ -15487,7 +14327,7 @@
      "https://ipsi.ssc.ac.kr/guide/notice.do"
     ]
    ],
-   "count": 0,
+   "count": 2,
    "checked": "2026-10-11"
   },
   "u-suncheon": {
@@ -15506,11 +14346,6 @@
      "대학일자리플러스센터",
      "board",
      "https://www.suncheon.ac.kr/job/"
-    ],
-    [
-     "공지",
-     "board",
-     "https://www.suncheon.ac.kr/kor/0006/0009/"
     ],
     [
      "입찰",
@@ -15533,7 +14368,7 @@
      "https://www.suncheon.ac.kr/kor/0001/0009/0010"
     ]
    ],
-   "count": 0,
+   "count": 14,
    "checked": "2026-10-11"
   },
   "u-sunlin": {
@@ -15554,11 +14389,6 @@
      "https://www.sunlin.ac.kr/community/job_info"
     ],
     [
-     "소식",
-     "board",
-     "https://nanum.sunlin.ac.kr/nanum/news/media"
-    ],
-    [
      "공지",
      "board",
      "https://www.sunlin.ac.kr/introduction/corporation/corporate_notice"
@@ -15567,6 +14397,11 @@
      "입찰",
      "board",
      "https://www.sunlin.ac.kr/community/bid"
+    ],
+    [
+     "소식",
+     "board",
+     "https://nanum.sunlin.ac.kr/nanum/news/media"
     ],
     [
      "채용",
@@ -15614,7 +14449,7 @@
      "https://www.sunlin.ac.kr/community/disable"
     ]
    ],
-   "count": 0,
+   "count": 24,
    "checked": "2026-10-11"
   },
   "u-suwon": {
@@ -15665,16 +14500,6 @@
      "https://www.suwon.ac.kr/index.html?menuno=786"
     ],
     [
-     "고용서비스대학원",
-     "board",
-     "https://www.suwon.ac.kr/index.html?menuno=792"
-    ],
-    [
-     "공학대학원",
-     "board",
-     "https://www.suwon.ac.kr/index.html?menuno=787"
-    ],
-    [
      "교수동정",
      "board",
      "https://www.suwon.ac.kr/index.html?menuno=3014"
@@ -15685,17 +14510,12 @@
      "https://www.suwon.ac.kr/index.html?menuno=632"
     ],
     [
-     "글로벌창업대학원",
-     "board",
-     "https://www.suwon.ac.kr/index.html?menuno=2975"
-    ],
-    [
      "대학평의원회",
      "board",
      "https://www.suwon.ac.kr/index.html?menuno=635"
     ]
    ],
-   "count": 0,
+   "count": 43,
    "checked": "2026-10-11"
   },
   "u-swu": {
@@ -15726,7 +14546,7 @@
      "https://www.swu.ac.kr/swu/746/subview.do"
     ]
    ],
-   "count": 0,
+   "count": 45,
    "checked": "2026-10-11"
   },
   "u-ttc": {
@@ -15798,7 +14618,7 @@
      "https://tukorea.ac.kr/tukorea/1079/subview.do"
     ]
    ],
-   "count": 0,
+   "count": 60,
    "checked": "2026-10-11"
   },
   "u-wat": {
@@ -15832,11 +14652,6 @@
      "공지",
      "board",
      "https://www.wat.ac.kr/ko/notice/news/"
-    ],
-    [
-     "학사",
-     "board",
-     "https://www.wat.ac.kr/ko/academic/board/normal/"
     ],
     [
      "입찰",
@@ -15879,7 +14694,7 @@
      "https://www.wat.ac.kr/ko/employment/reference/"
     ]
    ],
-   "count": 0,
+   "count": 1,
    "checked": "2026-10-11"
   },
   "u-woosuk": {
@@ -15945,22 +14760,12 @@
      "https://dept.woosuk.ac.kr/wcareer/"
     ],
     [
-     "여대생커리어개발센터 홈페이지",
-     "board",
-     "https://dept.woosuk.ac.kr/wcareer"
-    ],
-    [
      "장애학생지원센터",
      "board",
      "https://dept.woosuk.ac.kr/dss/"
-    ],
-    [
-     "장애학생지원센터 홈페이지",
-     "board",
-     "https://dept.woosuk.ac.kr/dss"
     ]
    ],
-   "count": 0,
+   "count": 60,
    "checked": "2026-10-11"
   },
   "u-ycc": {
@@ -15976,7 +14781,7 @@
      "https://ipsi.ycc.ac.kr/ipsi/CMS/Board/Board.do?mCode=MN078"
     ]
    ],
-   "count": 0,
+   "count": 7,
    "checked": "2026-10-11"
   },
   "u-yewon": {
@@ -16012,7 +14817,7 @@
      "https://www.yewon.ac.kr/main/?menu=193"
     ]
    ],
-   "count": 0,
+   "count": 19,
    "checked": "2026-10-11"
   },
   "u-yonsei": {
@@ -16063,7 +14868,7 @@
      "https://www.yonsei.ac.kr/sc/300/subview.do"
     ]
    ],
-   "count": 0,
+   "count": 58,
    "checked": "2026-10-11"
   },
   "u-ytus": {
@@ -16082,11 +14887,6 @@
      "입찰/채용공고",
      "board",
      "https://www.ytus.ac.kr/board/LABKN"
-    ],
-    [
-     "학사",
-     "rss",
-     "https://sys.ytus.ac.kr/ytps/websquare/websquare.html?w2xPath=/ytps/login.xml"
     ],
     [
      "소식",
@@ -16129,11 +14929,6 @@
      "https://www.ytus.ac.kr/content/572"
     ],
     [
-     "언론속의 영신",
-     "board",
-     "https://www.ytus.ac.kr/content/203"
-    ],
-    [
      "열린광장",
      "board",
      "https://www.ytus.ac.kr/content/6"
@@ -16144,7 +14939,7 @@
      "https://www.ytus.ac.kr/content/137"
     ]
    ],
-   "count": 0,
+   "count": 34,
    "checked": "2026-10-11"
   },
   "u-yu": {
@@ -16170,11 +14965,6 @@
      "https://isa.yu.ac.kr/isa/board/notice.do"
     ],
     [
-     "입찰",
-     "rss",
-     "https://adm.yu.ac.kr/acportal/websquare/websquare.html?w2xPath=/acportal/com/cmmn/main/CmmnMainFrame.xml"
-    ],
-    [
      "정책",
      "board",
      "https://www.yu.ac.kr/main/academics/details-of-use-of-business-promotion-expenses.do"
@@ -16185,7 +14975,7 @@
      "https://www.yu.ac.kr/main/life/free-board.do"
     ]
    ],
-   "count": 0,
+   "count": 29,
    "checked": "2026-10-11"
   }
  }
