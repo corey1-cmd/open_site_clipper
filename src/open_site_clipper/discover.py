@@ -235,6 +235,12 @@ class _Session:
         if self.budget <= 0:
             self.last_reason = "요청 예산 소진"
             return None
+        left = getattr(self._fetch, "left", None)
+        if callable(left) and left() <= 0:
+            # 시간이 다 됐으면 robots.txt 도 새로 받지 않는다 — 새 호스트의 robots.txt 가
+            # 느리면 그것만으로 점검 한 묶음이 제한 시간을 넘겼다(경기대 실측)
+            self.last_reason = "시간 제한"
+            return None
         if self._check and not robots.allowed(url):
             self.blocked.append(url)
             self.last_reason = "robots.txt 차단"

@@ -13,6 +13,7 @@
 
 from __future__ import annotations
 
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -36,11 +37,16 @@ def _load(origin: str) -> RobotFileParser | None:
     )
     try:
         from . import aia
+        from .fetch import _read_capped, _SlowResponse
 
+        started = time.monotonic()
         with urllib.request.urlopen(req, timeout=_TIMEOUT, context=aia.context()) as resp:
             if resp.status != 200:
                 return None
-            raw = resp.read(512_000).decode("utf-8", errors="replace")
+            # 조금씩 흘리는 서버가 점검을 붙잡지 않게 전체 받기 시간도 묶는다(fetch 와 같은 규칙)
+            raw = _read_capped(resp, started, _TIMEOUT)[:512_000].decode("utf-8", errors="replace")
+    except _SlowResponse:
+        return None
     except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, OSError, ValueError):
         return None  # 규칙을 못 읽으면 막지 않는다(fail-open)
     lines = raw.splitlines()

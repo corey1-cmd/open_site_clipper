@@ -412,3 +412,22 @@ def test_english_notice_names_take_the_kind_from_the_address_and_bullets_go():
     )
     assert categories.tidy_label("- 학사공지") == "학사공지"
     assert categories.tidy_label("▶ 공지사항") == "공지사항"
+
+
+def test_discovery_stops_asking_once_the_time_is_up(monkeypatch):
+    """시간이 다 되면 새 호스트의 robots.txt 도 받지 않는다(느린 robots 가 묶음을 붙잡았다)."""
+    from open_site_clipper import robots
+
+    asked: list[str] = []
+    monkeypatch.setattr(robots, "allowed", lambda url: asked.append(url) or True)
+
+    class Expired:
+        def __call__(self, url: str) -> bytes | None:
+            raise AssertionError("시간이 지난 뒤에는 요청하지 않는다")
+
+        def left(self) -> float:
+            return 0.0
+
+    session = discover._Session(Expired(), True, 10)
+    assert session.get("https://slow.ac.kr/") is None
+    assert session.last_reason == "시간 제한" and asked == []
