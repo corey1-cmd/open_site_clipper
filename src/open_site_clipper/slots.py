@@ -64,6 +64,17 @@ _JUNK_RE = re.compile(
 )
 # 주소로 보는 공지 아닌 화면 — 행사 달력('eventCldr')·일정표
 _JUNK_URL_RE = re.compile(r"cldr|calendar|schedule|schdul", re.I)
+# 날짜 달린 목록이어도 학교 공지가 아닌 것 — 공개 의무 자료(업무추진비·기부금·회의록·결산),
+# 사진·영상 모음, 연설문·칼럼, 언론에 실린 기사 모음(글이 언론사로 이어진다). 실측(2026-10-11):
+# 부산대 경로 26개 중 13개가 '갤러리·회의록·숙박정보·말과 글'이었고, 성균관대·경희대·포스텍도
+# 업무추진비·연설문·최근 활동이 공지 대신 상한을 채웠다.
+_NOT_BOARD_RE = re.compile(
+    r"업무\s*추진비|기부금|결산|예\s*산|등록금\s*심의|회의록|평의원회|정보\s*공시|공시\s*정보|"
+    r"연설|말과\s*글|축사|칼럼|기고|갤러리|gallery|사진|포토|photo|영상|동영상|screen|웹진|webzine|"
+    r"뉴스\s*레터|newsletter|클리핑|언론\s*보도|언론에\s*비친|언론\s*속|최근\s*활동|숙박|전경|투어|"
+    r"자랑스러운|명예의\s*전당|역대|규정집|학칙",
+    re.I,
+)
 _MAIN_NOTICE = frozenset(
     {"공지사항", "공지", "일반공지", "전체공지", "대학공지", "통합공지", "notice", "notices"}
 )
@@ -97,12 +108,18 @@ def slot_of(text: str, targets: tuple[str, ...] = TARGETS) -> str:
 
 def not_notice(label: str, url: str = "") -> bool:
     """공지 게시판이 아닌 이름·주소 — 문의·상담·Q&A·일정·후기·분실물·개인정보 처리방침·자취방·
-    행사 달력('eventCldr')."""
+    행사 달력('eventCldr'), 공개 의무 자료·사진 모음·연설문·언론 기사 모음."""
     return bool(
         _NOT_NOTICE_RE.search(label or "")
         or _JUNK_RE.search(label or "")
+        or not_board(label)
         or (url and _JUNK_URL_RE.search(urllib.parse.urlsplit(url)._replace(fragment="").geturl()))
     )
+
+
+def not_board(label: str) -> bool:
+    """학교 공지가 아닌 목록 이름 — 업무추진비·기부금·회의록·갤러리·연설문·언론 보도 모음 …"""
+    return bool(_NOT_BOARD_RE.search(label or ""))
 
 
 def department(label: str) -> bool:

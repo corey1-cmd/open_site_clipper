@@ -317,3 +317,50 @@ def test_call_of_and_find_function():
     params, body = scriptlink.find_function([code], "article.view")
     assert params == ["seq"] and "location.href" in body
     assert scriptlink.find_function(["if (view(x)) { go(); }"], "view") is None
+
+
+def test_inline_click_handler_attr_data_gnu():
+    page = (
+        "<script>$(function(){ $(\".nttInfoBtn\").click(function() { var nttSn = $(this).attr('data-id'); "
+        '$("#bbsId").remove(); $("#srchForm").attr(\'action\', '
+        '"/main/na/ntt/selectNttInfo.do?mi=1070&bbsId=1021&nttSn="+nttSn).submit(); }); });</script>'
+        '<form name="srchForm" id="srchForm" method="post"><input id="bbsId" name="bbsId" value="1021"></form>'
+        + _table('<a href="javascript:" data-id="{no}" class="nttInfoBtn">' + TITLE + "</a>")
+    )
+    got = _first(page, "https://www.gnu.ac.kr/main/na/ntt/selectNttList.do?mi=1070&bbsId=1021")
+    assert (
+        got[0].url
+        == "https://www.gnu.ac.kr/main/na/ntt/selectNttInfo.do?mi=1070&bbsId=1021&nttSn=1000"
+    )
+
+
+def test_handler_calls_function_with_data_gw():
+    page = (
+        '<script>$(function(){ $(".btn-board-view").click(function(event) { goPage($(this).data("seq")); }); }); '
+        "function goPage(articleSeq) { var f = document.mForm; f.articleSeq.value = articleSeq; "
+        "f.target = ''; f.submit(); }</script>"
+        '<form name="mForm" id="mForm" action="/po/portal/community/notice" method="post">'
+        '<input name="pageIndex" value="1"><input name="mode" value=""><input name="articleSeq" value=""></form>'
+        + _table('<a href="#nolink" class="btn-board-view" data-seq="{no}">' + TITLE + "</a>")
+    )
+    got = _first(page, "https://www.gw.ac.kr/po/portal/community/notice")
+    assert got[0].url == "https://www.gw.ac.kr/po/portal/community/notice?articleSeq=1000"
+
+
+def test_location_search_and_unknown_helper_cufs():
+    page = (
+        '<script>function boView(no) { var rowInParam = ""; var nttNo = no; '
+        'if(no.indexOf("|") != -1){ rowInParam = "&rowNum="+no.split("|")[1]; nttNo = no.split("|")[0]; } '
+        'let queryString = location.search; let modifiedQueryString = removeQueryParam(queryString, "nttNo"); '
+        'location.href = "/bbs/view.do" + modifiedQueryString + "&nttNo=" + nttNo + rowInParam; }</script>'
+        + _table(
+            '<a href="javascript:void(0)" onclick="boView(\'{no}\')" class="txtLink02"/>'
+            + TITLE
+            + "</a>"
+        )
+    )
+    got = _first(page, "https://www.cufs.ac.kr/bbs/list.do?bbsId=BBS000063&menuId=MENU000170")
+    assert (
+        got[0].url
+        == "https://www.cufs.ac.kr/bbs/view.do?bbsId=BBS000063&menuId=MENU000170&nttNo=1000"
+    )

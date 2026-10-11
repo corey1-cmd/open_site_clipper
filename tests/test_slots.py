@@ -577,3 +577,24 @@ def test_department_boards_are_not_school_boards():
 def test_calendar_queries_and_cafeteria_menus_are_not_notices():
     assert slots.not_notice("학사", "https://www.eulji.ac.kr?menuno=8184&calendar_no=105&year=2026")
     assert slots.not_notice("공지사항-식당메뉴", "https://www.eulji.ac.kr?menuno=7331")
+
+
+def test_disclosure_galleries_and_press_clippings_are_not_school_notices():
+    for label in (
+        "업무추진비 내역",
+        "기부금 내역",
+        "예결산공고",
+        "대학평의원회 회의록",
+        "PNU GALLERY",
+        "PNU 갤러리",
+        "말과 글",
+        "연설문",
+        "교수칼럼 및 기고글",
+        "언론에 비친 PNU",
+        "숙박정보",
+        "최근 활동",
+    ):
+        assert slots.not_board(label), label
+        assert slots.not_notice(label), label
+    for label in ("공지사항", "학사공지", "장학금", "보도자료", "PNU FOCUS", "채용공고", "입찰"):
+        assert not slots.not_board(label), label

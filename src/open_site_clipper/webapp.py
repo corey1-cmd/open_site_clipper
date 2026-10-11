@@ -335,7 +335,11 @@ def collect_one(
     mode = "discover"
     notes: list[str] = []
     if cached and cached.get("routes"):
-        source = replace(source, routes=plan_routes(preset, cached["routes"]))
+        routes = cached["routes"]
+        if org.section == "학교":
+            # 예전 캐시에 남은 업무추진비·갤러리·회의록 같은 목록은 학교 공지가 아니다
+            routes = [r for r in routes if not slots.not_board(str(r[0]))]
+        source = replace(source, routes=plan_routes(preset, routes))
         mode = "cache"
     elif source.home:
         found, notes = govdiscover.enrich(

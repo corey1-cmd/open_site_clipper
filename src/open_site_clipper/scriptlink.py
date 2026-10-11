@@ -686,7 +686,8 @@ class _Run:
             if p in env:
                 v = env[p]
                 return None if v.startswith("\x00") else v
-            return self.ctx.globals.get(p)
+            got = self.ctx.globals.get(p)
+            return got if got is not None else ("" if lenient else None)
         m = re.fullmatch(
             r"(?:window\s*\.\s*|document\s*\.\s*)?location\s*\.\s*(pathname|search|href|host|origin)",
             p,
@@ -711,9 +712,9 @@ class _Run:
             if got is not None:
                 return got
             if lenient:
-                # 주소를 감싸는 도우미(kurl(url))는 그 주소로 — 확인 단계가 틀린 것을 걸러 낸다
-                real = [a for a in args if a and a != THIS]
-                return real[0] if len(args) == 1 and real else ""
+                # 정의를 못 읽는 도우미는 첫 인자를 그대로 — 주소를 감싸는 kurl(url)·쿼리를 다듬는
+                # removeQueryParam(qs, 'nttNo') 꼴이 대부분이다. 틀리면 확인 단계가 걸러 낸다.
+                return args[0] if args and args[0] != THIS else ""
             return None
         return "" if lenient else None
 
@@ -885,7 +886,11 @@ class _Run:
                     inner = _block(code, brace + 1)
                     i = brace + len(inner) + 2
                     continue
+            start = i
             stmt, i = _simple(code, i)
+            if i == start:  # 짝 없는 닫는 괄호 — 건너뛴다(제자리걸음 방지)
+                i += 1
+                continue
             if stmt and self.statement(stmt, env, depth, returns):
                 return True
         return False
@@ -1056,7 +1061,7 @@ class _Run:
             if idx is not None:
                 env[lhs] = f"\x00form:{idx}"
                 return
-            v = self.value(rhs, env, False, depth)
+            v = self.either(rhs, env, depth)
             if v is not None:
                 env[lhs] = v
 
@@ -1072,15 +1077,21 @@ class _Ctx:
     """한 목록 화면의 구조와 (필요할 때만 받는) 같은 사이트 스크립트."""
 
     def __init__(
-        self, parts: PageParts, page_url: str, fetch: Callable[[str], bytes | None] | None
+        self,
+        parts: PageParts,
+        page_url: str,
+        fetch: Callable[[str], bytes | None] | None,
+        allowed: Callable[[str], bool] | None = None,
     ):
         self.parts = parts
         self.page_url = page_url
         self.fetch = fetch
+        self.allowed = allowed
         self._external: list[str] | None = None
         self.globals = _globals(parts.scripts)
 
     def external(self) -> list[str]:
+        """같은 사이트의 스크립트 파일(라이브러리 빼고) — 함수를 페이지에서 못 찾을 때만 받는다."""
         if self._external is None:
             self._external = []
             if self.fetch is not None:
@@ -1091,6 +1102,8 @@ class _Ctx:
                     full = urllib.parse.urljoin(self.page_url, src)
                     if urllib.parse.urlsplit(full).hostname != host or _LIB_RE.search(src):
                         continue
+                    if self.allowed is not None and not self.allowed(full):
+                        continue  # robots.txt 가 막은 스크립트는 받지 않는다
                     code = _script_text(full, self.fetch)
                     if code:
                         self._external.append(code)
@@ -1207,7 +1220,7 @@ def _script_text(url: str, fetch: Callable[[str], bytes | None]) -> str:
     data = fetch(url)
     text = decode_text(data[:MAX_JS_BYTES]) if data else ""
     with _JS_LOCK:
-        if len(_JS_CACHE) > 64:
+        if len(_JS_CACHE) > 32:
             _JS_CACHE.clear()
         _JS_CACHE[url] = text
     return text
@@ -1373,7 +1386,7 @@ def resolve_rows(
     targets = [i for i, r in enumerate(rows) if getattr(r, "script", "")]
     if not targets or fetch is None:
         return rows
-    ctx = _Ctx(page_parts(decode_text(data)), list_url, fetch)
+    ctx = _Ctx(page_parts(decode_text(data)), list_url, fetch, allowed)
     host = urllib.parse.urlsplit(list_url).netloc.lower()
     titles = [r.title for r in rows]
     built: dict[int, dict[str, str]] = {}
@@ -1419,6 +1432,7 @@ def _verified_kind(
             return _VERIFIED[memo]
     first = idxs[0]
     checks = 0
+    judged = False  # 화면을 받아 보고 판단했는가(연결 실패·시간 제한이면 기억하지 않는다)
     found = ""
     for kind in KIND_ORDER:
         url = built[first].get(kind)
@@ -1428,10 +1442,12 @@ def _verified_kind(
             continue
         checks += 1
         others = [t for j, t in enumerate(titles) if j != first]
-        if looks_like_post(fetch(url), rows[first].title, others, listing):
+        page = fetch(url)
+        judged = judged or bool(page)
+        if looks_like_post(page, rows[first].title, others, listing):
             found = kind
             break
-    if checks:
+    if found or judged:
         with _VERIFIED_LOCK:
             _VERIFIED[memo] = found
     return found
