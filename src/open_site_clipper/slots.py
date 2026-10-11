@@ -250,6 +250,11 @@ class _Pool:
                 and _bare(urllib.parse.urlsplit(url).netloc) == page_host
             ):
                 slot, label = hub_slot, f"{hub_slot} {label}"
+            if slot == "공지" and label.isascii():
+                # 'Notice' 처럼 영문 이름이면 주소가 갈래를 말할 수 있다('/academic/academic-notice/')
+                by_url = categories.from_url(url, fallback="")
+                if by_url in self.targets and by_url != "공지":
+                    slot, label = by_url, f"{by_url} {label}"
             if fresh:
                 self.first[url] = (slot, label)
             if slot and _SYSTEM_RE.search(label) and not _BOARDISH_RE.search(label):
@@ -350,6 +355,12 @@ def fill(
         trace.append(f"사이트맵 {short(page)} 링크 {len(links)}")
         break
 
+    trace.append(
+        "후보 "
+        + " ".join(
+            f"{t}{len(pool.queue.get(t) or [])}/{len(pool.hubs.get(t) or [])}" for t in targets
+        )
+    )
     filled: dict[str, Route] = {}
     tests_left = dict.fromkeys(targets, TESTS_PER_SLOT)
     hubs_left = dict.fromkeys(targets, HUBS_PER_SLOT)

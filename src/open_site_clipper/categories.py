@@ -102,6 +102,8 @@ _LIST_TAIL_RE = re.compile(r"\s*[(\[]?\s*(?:게시판\s*)?목록\s*[)\]]?$")
 _TRAIL_BUTTON_RE = re.compile(
     r"(?:더\s*보기|바로\s*가기|\+)+$|\s+더$|(?<=[가-힣])more$|\s+more$", re.I
 )
+# 이름 앞의 글머리 — '- 학사공지'·'· 장학'·'▶ 공지사항'·'> 채용'
+_LEAD_BULLET_RE = re.compile(r"^[\-–·•▶▷►>»※\s]+")
 # '그림자의+밤' — 주소에서 온 이름의 '+'(공백).
 _PLUS_SPACE_RE = re.compile(r"(?<=[가-힣])\+(?=[가-힣])")
 
@@ -124,6 +126,7 @@ def tidy_label(text: str) -> str:
     남아, 갈래를 말하는 제목이 없는 글에 그 이름이 그대로 분류로 찍혔다.
     """
     flat = _PLUS_SPACE_RE.sub(" ", " ".join((text or "").split()))
+    flat = _LEAD_BULLET_RE.sub("", flat)  # 사이트맵의 '- 학사공지'·'· 장학공지'
     if _glued_meaningless(flat):  # '더 보기' — 떼기 전에 통째로 본다('보기'만 떼면 '더')
         return ""
     flat = strip_meaningless(flat)

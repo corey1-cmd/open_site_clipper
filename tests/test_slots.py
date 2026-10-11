@@ -392,3 +392,23 @@ def test_post_titles_in_a_latest_box_are_not_menus():
     assert slots.slot_of("2026학년도 입학안내") == ""
     assert probe.looks_like_article("https://www.kw.ac.kr/ko/life/notice.jsp?BoardMode=view&DUID=1")
     assert not probe.looks_like_article("https://www.kw.ac.kr/ko/life/notice.jsp?BoardMode=list")
+
+
+def test_english_notice_names_take_the_kind_from_the_address_and_bullets_go():
+    from open_site_clipper import categories
+
+    pool = slots._Pool("www.syu.ac.kr", slots.TARGETS, govdiscover.board_score)
+    pool.add(
+        "https://www.syu.ac.kr/",
+        [
+            ("/academic/academic-notice/", "Notice"),
+            ("/university-square/notice/campus-notice/", "공지사항"),
+        ],
+    )
+    assert pool.pop("학사") == ("학사 Notice", "https://www.syu.ac.kr/academic/academic-notice/")
+    assert pool.pop("공지") == (
+        "공지사항",
+        "https://www.syu.ac.kr/university-square/notice/campus-notice/",
+    )
+    assert categories.tidy_label("- 학사공지") == "학사공지"
+    assert categories.tidy_label("▶ 공지사항") == "공지사항"
