@@ -608,3 +608,9 @@ def test_qna_urls_department_intros_and_committee_minutes():
     assert not slots.qna_url("https://www.qnap.example.ac.kr/notice")
     for label in ("학과안내", "기금운용심의회", "ESG 아카이빙 콘텐츠", "MJC e-열린광장"):
         assert slots.not_notice(label), label
+
+
+def test_cafeteria_menu_posts():
+    assert slots.menu_post("학식 주간식단표(10월12일~10월15일)")
+    assert slots.menu_post("10월 3주 천원의 아침밥 메뉴 안내")
+    assert not slots.menu_post("2026학년도 2학기 장학금 신청 안내")

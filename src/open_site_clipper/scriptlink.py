@@ -595,6 +595,7 @@ class _Run:
         self.locations: list[str] = []
         self.steps = 0
         self._evaluating: set[str] = set()
+        self._form_calls = 0
 
     def done(self) -> bool:
         return bool(self.locations) or any(f.submitted for f in self.forms.values())
@@ -647,6 +648,17 @@ class _Run:
         if m:
             idx = int(m.group(1))
             return idx if idx < len(self.ctx.parts.forms) else None
+        m = re.fullmatch(r"([A-Za-z_$][\w$.]*)\s*\(\s*\)", ref)
+        if m and m.group(1) not in ("$", "jQuery") and self._form_calls < 3:
+            # 폼을 돌려주는 함수 — getForm().schIdx.value = idx(가야대)
+            found = self.ctx.function(m.group(1))
+            ret = re.search(r"\breturn\s+([^;}]+)", found[1]) if found else None
+            if ret:
+                self._form_calls += 1
+                try:
+                    return self.form_of(ret.group(1), {})
+                finally:
+                    self._form_calls -= 1
         m = re.fullmatch(
             r"[A-Za-z_$][\w$]*(?:\s*\.\s*[A-Za-z_$][\w$]*)*\s*\.\s*([A-Za-z_$][\w$]*)", ref
         )

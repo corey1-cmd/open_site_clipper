@@ -366,8 +366,8 @@ def collect_one(
     for n in sorted(notices, key=_newest_specific_first):
         if n.published is not None and n.published < cutoff:
             continue
-        if school and slots.qna_url(n.url):
-            continue  # 묻고 답하기 글(생활관 화면에 섞인 'd_qna' 글 — 백제예대)
+        if school and (slots.qna_url(n.url) or slots.menu_post(n.title)):
+            continue  # 묻고 답하기 글(생활관 화면의 'd_qna' — 백제예대)·식단표(강동대)
         # 같은 글이 피드·목록·두 게시판으로 겹쳐 들어온다 — 링크로 한 번, (제목, 날짜)로
         # 한 번 더 접는다. 먼저 온 것(갈래가 분명한 게시판의 것)을 남긴다.
         keys = (n.dedup_key(), _title_key(n))

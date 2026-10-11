@@ -125,6 +125,14 @@ def not_board(label: str) -> bool:
     return bool(_NOT_BOARD_RE.search(label or ""))
 
 
+_MENU_POST_RE = re.compile(r"식단\s*표|주간\s*식단|학식\s*메뉴|식당\s*메뉴|천원의\s*아침밥\s*메뉴")
+
+
+def menu_post(title: str) -> bool:
+    """식단표 글('학식 주간식단표(10월12일~)') — 학교 공지가 아니다(강동대 실측)."""
+    return bool(_MENU_POST_RE.search(title or ""))
+
+
 def qna_url(url: str) -> bool:
     """묻고 답하기·자주 묻는 질문 글 주소('bo_table=d_qna&wr_id=…') — 학교 공지가 아니다."""
     return bool(_QNA_URL_RE.search(url or ""))

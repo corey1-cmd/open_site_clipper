@@ -556,3 +556,17 @@ def test_qna_boards_are_not_notice_lists():
     )
     notice = _table("<a href='/v?{no}'>" + TITLE + "</a>").encode()
     assert not govweb.looks_like_qna(notice)
+
+
+def test_form_from_helper_returning_form_kaya():
+    page = (
+        "<script>function getForm(){ return document.searchVO; } "
+        'function fn_viewData(idx){ getForm().schIdx.value = idx; getForm().action = "/Home//BBSView.mbz"; '
+        "getForm().submit(); }</script>"
+        '<form name="searchVO" id="form" action="/Home//BBSList.mbz" method="get">'
+        '<input name="action" value="MAPP_0000000017"><input name="schIdx" value="0"></form>'
+        + _table("<a href=\"javascript:fn_viewData('{no}');\">" + TITLE + "</a>")
+    )
+    got = _first(page, "https://www.kaya.ac.kr/Home/BBSList.mbz?action=MAPP_0000000017")
+    assert got[0].url == "https://www.kaya.ac.kr/Home//BBSView.mbz?schIdx=1000"
+    assert any(c.url.endswith("BBSView.mbz?action=MAPP_0000000017&schIdx=1000") for c in got)
