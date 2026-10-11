@@ -291,7 +291,7 @@ def parse_items(html_bytes: bytes) -> list[list[tuple[str, str]]]:
 
 _QNA_MARK_RE = re.compile(
     r"답변\s*(?:대기|완료|중|예정)|비밀\s*글|비공개\s*(?:게시)?글|작성자만\s*(?:확인|볼)|"
-    r"처리\s*(?:중|완료)|qaPWChk|ChkBoardPasswd"
+    r"처리\s*(?:중|완료)|qaPWChk|ChkBoardPasswd|passcheck\("
 )
 QNA_MARKS = 3
 

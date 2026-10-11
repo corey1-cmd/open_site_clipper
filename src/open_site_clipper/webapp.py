@@ -670,6 +670,7 @@ def page_sample(
     fetcher: PageFetcher | None = None,
     delay: float = parallel.DEFAULT_DELAY,
     clock: Callable[[], float] = time.monotonic,
+    extra_funcs: tuple[str, ...] = (),
 ) -> dict:
     """점검용 — 목록 화면의 **구조**(제목 링크의 속성·폼·스크립트 함수)를 보여 준다.
 
@@ -820,7 +821,7 @@ def page_sample(
             if js:
                 codes.append((src[:120], decode_text(js)))
         funcs: dict = {}
-        for name in names[:6]:
+        for name in [*names[:6], *extra_funcs[:6]]:
             for src, code in codes:
                 got = scriptlink.find_function([code], name)
                 if got:
@@ -955,6 +956,7 @@ def verify(
     delay: float = parallel.DEFAULT_DELAY,
     titles: int = 0,
     urls: list[str] | None = None,
+    funcs: list[str] | None = None,
 ) -> list[dict]:
     """여러 기관을 동시에 모아 요약만 돌려준다 — 경로 캐시를 굽는 재료가 된다.
 
@@ -984,7 +986,12 @@ def verify(
         if stage == "page":
             try:
                 return page_sample(
-                    org_id, list(urls or []), budget=budget, fetcher=fetcher, delay=delay
+                    org_id,
+                    list(urls or []),
+                    budget=budget,
+                    fetcher=fetcher,
+                    delay=delay,
+                    extra_funcs=tuple(funcs or ()),
                 )
             except Exception as e:
                 return {"id": org_id, "name": catalog()[org_id].name, "error": repr(e)[:200]}
@@ -1074,6 +1081,7 @@ def respond(handler: BaseHTTPRequestHandler, route: str) -> None:
                 titles=min(max(_int(q.get("titles"), 0), 0), 200),
                 # stage=page: 볼 주소들('|' 로 구분) — 비우면 캐시한 게시판
                 urls=[u for u in q.get("urls", "").split("|") if u][:PAGE_URLS],
+                funcs=[f for f in q.get("fn", "").split(",") if f][:6],
             )
             status, cache = 200, CACHE_VERIFY
             if q.get("format") == "tsv":
