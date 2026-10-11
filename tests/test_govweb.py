@@ -631,3 +631,20 @@ def test_undated_attachment_lines_inside_a_dated_board_are_not_notices():
         ("학교법인 서원학원 정관", "synapView.do"),
         ("직제 규정", "synapView.do"),
     ]
+
+
+def test_icon_words_between_a_tag_and_the_title_are_dropped():
+    """전주대: '교외장학 New 첨부파일 2026 …'·'첨부파일 탄소로운 …' — 배지·첨부 아이콘 글자."""
+    for raw, want in [
+        (
+            "교외장학 New 첨부파일 2026 하반기 은평구민 장학생 선발 공고(~10. 28.)",
+            "교외장학 2026 하반기 은평구민 장학생 선발 공고(~10. 28.)",
+        ),
+        (
+            "첨부파일 탄소로운 제로웨이스트 워크숍 참여할 사람",
+            "탄소로운 제로웨이스트 워크숍 참여할 사람",
+        ),
+        ("교외장학 New 2026 장학생 선발", "교외장학 2026 장학생 선발"),
+        ("Happy New Year 행사 안내", "Happy New Year 행사 안내"),
+    ]:
+        assert govweb._clean_title(raw)[0] == want

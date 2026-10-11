@@ -6712,14 +6712,14 @@
      "https://www.kangwon.ac.kr/ko/bbs/855/list.do"
     ],
     [
-     "감염병 대응",
-     "board",
-     "https://www.kangwon.ac.kr/ko/bbs/722/list.do"
-    ],
-    [
      "공지",
      "board",
      "https://www.kangwon.ac.kr/ko/conts/503/directory.do"
+    ],
+    [
+     "소통광장",
+     "board",
+     "https://www.kangwon.ac.kr/ko/bbs/760/list.do"
     ]
    ],
    "count": 105,
@@ -7629,11 +7629,6 @@
      "https://www.jj.ac.kr/jj/community/jjboard01.do"
     ],
     [
-     "자취 · 하숙 · 원룸",
-     "board",
-     "https://www.jj.ac.kr/jj/community/jjboard05.do"
-    ],
-    [
      "IT바로바로센터",
      "board",
      "https://www.jj.ac.kr/jj/community/itbaro.do"
@@ -8175,16 +8170,6 @@
      "열린광장",
      "board",
      "https://www.cu.ac.kr/plaza/community/freein"
-    ],
-    [
-     "인터넷장터",
-     "board",
-     "https://www.cu.ac.kr/plaza/community/market"
-    ],
-    [
-     "하숙주거정보",
-     "board",
-     "https://www.cu.ac.kr/plaza/community/house"
     ],
     [
      "Message in media",
@@ -9154,11 +9139,6 @@
      "http://www.cue.ac.kr/kor/CMS/Board/Board.do?mCode=MN075"
     ],
     [
-     "주거/장터",
-     "board",
-     "http://www.cue.ac.kr/kor/CMS/Board/Board.do?mCode=MN077"
-    ],
-    [
      "소식",
      "board",
      "http://www.cue.ac.kr/kor/CMS/Board/Board.do?mCode=MN117"
@@ -9172,6 +9152,11 @@
      "CUE 진주교육대학교",
      "board",
      "http://www.cue.ac.kr/kor/CMS/Board/Board.do?mCode=MN076"
+    ],
+    [
+     "CUE 진주교육대학교",
+     "board",
+     "http://www.cue.ac.kr/kor/CMS/Board/Board.do?mCode=MN264"
     ]
    ],
    "count": 43,
@@ -10073,11 +10058,6 @@
      "고교(동아리)축구대회",
      "board",
      "https://www.bhu.ac.kr/www/board/24"
-    ],
-    [
-     "아나바다 장터",
-     "board",
-     "https://www.bhu.ac.kr/www/board/19"
     ],
     [
      "이사회 회의록",
@@ -13222,11 +13202,6 @@
      "https://www.hallym.ac.kr/hallym/1136/subview..do"
     ],
     [
-     "행사",
-     "board",
-     "https://www.hallym.ac.kr/eventCldr/hallym/artclList.do?layout=unknown"
-    ],
-    [
      "기부금 현황",
      "board",
      "https://www.hallym.ac.kr/hallym/972/subview.do"
@@ -13313,11 +13288,6 @@
      "https://www.hanbat.ac.kr/bbs/BBSMSTR_000000000063/list.do?mno=sub07_09"
     ],
     [
-     "온라인장터",
-     "board",
-     "https://www.hanbat.ac.kr/bbs/BBSMSTR_000000000067/list.do?mno=sub07_1004"
-    ],
-    [
      "입찰",
      "board",
      "https://www.hanbat.ac.kr/bbs/BBSMSTR_000000001138.do"
@@ -13331,6 +13301,11 @@
      "정보광장",
      "board",
      "https://www.hanbat.ac.kr/bbs/BBSMSTR_000000000064/list.do?mno=sub07_1001"
+    ],
+    [
+     "한밭LIVE",
+     "board",
+     "https://www.hanbat.ac.kr/bbs/BBSMSTR_000000000050/list.do?mno=sub07_01"
     ]
    ],
    "count": 0,

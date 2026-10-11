@@ -58,7 +58,12 @@ _DEPT_RE = re.compile(r"학과|학부|전공|대학원|연구소|센터")
 # '학부입학'은 학부 입학이라 끝이 '학부'인 것만 학과로 본다.
 _DEPARTMENT_RE = re.compile(r"(?:학과|학부|전공)$|학과\b|학과\s")
 # 게시판이어도 공지가 아닌 것 — 분실물, 개인정보 처리방침 판, 약관(일반 발견에도 쓴다)
-_JUNK_RE = re.compile(r"분실|습득|개인정보|처리방침|약관|저작권|사이트\s*맵|로그인", re.I)
+_JUNK_RE = re.compile(
+    r"분실|습득|개인정보|처리방침|약관|저작권|사이트\s*맵|로그인|자취|하숙|원룸|룸메이트|벼룩|중고|장터",
+    re.I,
+)
+# 주소로 보는 공지 아닌 화면 — 행사 달력('eventCldr')·일정표
+_JUNK_URL_RE = re.compile(r"cldr|calendar|schedule|schdul", re.I)
 _MAIN_NOTICE = frozenset(
     {"공지사항", "공지", "일반공지", "전체공지", "대학공지", "통합공지", "notice", "notices"}
 )
@@ -90,9 +95,14 @@ def slot_of(text: str, targets: tuple[str, ...] = TARGETS) -> str:
     return cat if cat in targets else ""
 
 
-def not_notice(label: str) -> bool:
-    """공지 게시판이 아닌 이름 — 문의·상담·Q&A·일정·후기·분실물·개인정보 처리방침."""
-    return bool(_NOT_NOTICE_RE.search(label or "") or _JUNK_RE.search(label or ""))
+def not_notice(label: str, url: str = "") -> bool:
+    """공지 게시판이 아닌 이름·주소 — 문의·상담·Q&A·일정·후기·분실물·개인정보 처리방침·자취방·
+    행사 달력('eventCldr')."""
+    return bool(
+        _NOT_NOTICE_RE.search(label or "")
+        or _JUNK_RE.search(label or "")
+        or (url and _JUNK_URL_RE.search(urllib.parse.urlsplit(url).path))
+    )
 
 
 def same_page(url: str, home_url: str) -> bool:

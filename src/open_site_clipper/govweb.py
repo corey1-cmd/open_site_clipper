@@ -61,6 +61,13 @@ _ATTACH_TAIL_RE = re.compile(
     r"\s*첨부\s*파일(?:이|은)?\s*(?:\d+\s*개\s*)?(?:있음|있습니다|있|존재)?\.?$"
 )
 _ATTACH_HEAD_RE = re.compile(r"^첨부\s*파일\s*있음\s*(?:열기)?\s*")
+# 제목 앞·말머리 뒤에 낀 아이콘 글자 — '교외장학 New 첨부파일 2026 …'·'첨부파일 [교육부] …'(전주대 실측).
+# 새 글 배지 'New' 는 한글 사이에 낀 것만 뗀다('Happy New Year' 는 그대로).
+# 제목 맨 앞이나 짧은 말머리 바로 뒤에서만 — 끝의 '… 첨부파일 있음' 꼬리는 따로 뗀다.
+_ICON_ATTACH_RE = re.compile(
+    r"^(\S{1,8}\s+)?(?:(?:NEW|New|새\s?글)\s+)?첨부\s*파일\s+(?!있|이|은)(?=\S)"
+)
+_ICON_NEW_RE = re.compile(r"(?<=[가-힣])\s+(?:NEW|New)\s+(?=[가-힣0-9\[【(「『])")
 # 두 번 이스케이프된 문자 참조 — '&lsquo;2026 산학연협력 EXPO&rsquo;'(신라대 실측).
 # 세미콜론까지 갖춘 것만 푼다('R&D'·'Q&A' 는 그대로). 잘린 꼬리('…&middo')는 뗀다.
 _ENTITY_RE = re.compile(r"&(?:#\d{1,7}|#x[0-9a-f]{1,6}|[a-z][a-z0-9]{1,7});", re.I)
@@ -180,6 +187,7 @@ def _clean_title(text: str) -> tuple[str, str]:
     unit = ""
     title = _unescape_twice(" ".join(_INVISIBLE_RE.sub("", text).split()))
     title = _ATTACH_HEAD_RE.sub("", title)
+    title = _ICON_NEW_RE.sub(" ", _ICON_ATTACH_RE.sub(r"\1", title)).strip()
     title = _BADGE_RE.sub("", title)
     m = _ORG_PREFIX_RE.match(title)
     if m:

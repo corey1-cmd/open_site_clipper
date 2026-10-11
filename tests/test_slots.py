@@ -558,3 +558,9 @@ def test_a_gateway_that_names_a_login_page_and_a_config_file_reaches_the_menu():
     )
     assert ("공지사항", "board", "https://www.halla.ac.kr/halla/9/subview.do") in routes
     assert not any("topLogin" in t for t in trace)
+
+
+def test_event_calendars_and_housing_boards_are_not_notice_boards():
+    assert slots.not_notice("행사", "https://www.hallym.ac.kr/eventCldr/hallym/artclList.do")
+    assert slots.not_notice("자취 · 하숙 · 원룸")
+    assert not slots.not_notice("공지사항", "https://www.x.ac.kr/kor/notice.do")
