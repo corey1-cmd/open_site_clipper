@@ -629,10 +629,152 @@ def media_sample(
     return {"id": org_id, "name": catalog()[org_id].name, "count": got["count"], "samples": samples}
 
 
-VERIFY_STAGES = ("discover", "media", "rows")  # 그 밖은 수집(collect)
+VERIFY_STAGES = ("discover", "media", "rows", "page")  # 그 밖은 수집(collect)
 ROWS_PER_ROUTE = 6
 ROWS_ROUTES = 8
 ROWS_CELL_CHARS = 40
+PAGE_URLS = 4
+PAGE_ANCHORS = 30
+_PAGE_DATE_RE = re.compile(r"20\d{2}[.\-/]\d{1,2}[.\-/]\d{1,2}")
+_PAGE_HINT_RE = re.compile(
+    r"""['"]((?:https?://|/|\./)?[\w\-./]*?(?:\.do|\.jsp|\.php|\.aspx?|/api/[\w/\-]*|ajax[\w/\-.]*|"""
+    r"""\.json)(?:\?[^'"\s]{0,120})?)['"]""",
+    re.I,
+)
+_PAGE_LIB_RE = re.compile(
+    r"jquery|bootstrap|swiper|slick|aos|gsap|lodash|moment|polyfill|analytics|gtag|kakao|naver|"
+    r"google|facebook|chart|datepicker|select2|owl|fancybox|lightbox|tweenmax|scrolltrigger|vue|react",
+    re.I,
+)
+
+
+def page_sample(
+    org_id: str,
+    urls: list[str],
+    *,
+    budget: float = DEFAULT_BUDGET,
+    fetcher: PageFetcher | None = None,
+    delay: float = parallel.DEFAULT_DELAY,
+    clock: Callable[[], float] = time.monotonic,
+) -> dict:
+    """점검용 — 목록 화면의 **구조**(제목 링크의 속성·폼·스크립트 함수)를 보여 준다.
+
+    제목이 스크립트 링크라 글 주소를 못 얻는 게시판, 목록이 스크립트로 그려지는 게시판을
+    고치려면 그 사이트가 글 주소를 어떻게 만드는지 봐야 한다. 링크 속성·폼의 숨은 값·
+    함수 코드만 돌려준다(본문 글자 없음). 목록 기관의 누리집 주소만 연다.
+    """
+    from . import govweb, scriptlink
+    from .k2web_parse import coerce_date, parse_rows
+
+    org = catalog()[org_id]
+    started = clock()
+    deadline = _Deadline(
+        _limited(fetcher or TrackingFetcher(), delay), started + budget, clock=clock
+    )
+    if not urls:
+        cached = (route_cache().get(org_id) or {}).get("routes") or []
+        urls = [r[2] for r in cached if r[1] == "board"]
+    out = []
+    for url in urls[:PAGE_URLS]:
+        item: dict = {"url": url}
+        out.append(item)
+        if not media_allowed(url):
+            item["error"] = "목록 기관 밖 사이트"
+            continue
+        if not robots.allowed(url):
+            item["error"] = "robots.txt 차단"
+            continue
+        data = deadline(url)
+        if not data:
+            item["error"] = deadline.why(url)
+            continue
+        text = decode_text(data)
+        parts = scriptlink.page_parts(text)
+        table, items = parse_rows(data), govweb.parse_items(data)
+
+        def dated(rows: list) -> int:
+            return sum(1 for r in rows if any(coerce_date(t) for t, _ in r))
+
+        item["bytes"] = len(data)
+        item["rows"] = [len(table), dated(table), len(items), dated(items)]
+        item["dates_in_html"] = len(_PAGE_DATE_RE.findall(text))
+        item["picked"] = [
+            [r.title[:50], r.url[:160], str(r.published or "")]
+            for r in govweb.parse_list(data, url)[:8]
+        ]
+        anchors, names = [], []
+        for a in parts.anchors:
+            if len(a.text) < 6:
+                continue
+            keep = {
+                k: v[:160]
+                for k, v in a.attrs.items()
+                if k in ("href", "onclick", "target") or k.startswith("data-")
+            }
+            anchors.append([a.text[:40], keep])
+            js = a.attrs.get("onclick", "")
+            if not js and a.attrs.get("href", "").lower().startswith("javascript"):
+                js = a.attrs["href"]
+            call = scriptlink.call_of(js) if js else None
+            if call and call[0] not in names:
+                names.append(call[0])
+            if len(anchors) >= PAGE_ANCHORS:
+                break
+        item["anchors"] = anchors
+        item["forms"] = [
+            {
+                "name": f.name,
+                "id": f.id,
+                "action": f.action[:120],
+                "method": f.method,
+                "inputs": [f"{n}={v[:30]}" for n, v, _i in f.inputs[:25] if n],
+            }
+            for f in parts.forms[:5]
+        ]
+        item["loose"] = [f"{n}={v[:30]}" for n, v, _i in parts.loose_inputs[:20] if n]
+        item["srcs"] = parts.srcs[:20]
+        funcs: dict = {}
+        missing = []
+        for name in names[:5]:
+            got = scriptlink.find_function(parts.scripts, name)
+            if got:
+                funcs[name] = {"params": got[0], "body": got[1][:700]}
+            else:
+                missing.append(name)
+        if missing:
+            host = urllib.parse.urlsplit(url).hostname
+            for src in parts.srcs:
+                full = urllib.parse.urljoin(url, src)
+                if (
+                    urllib.parse.urlsplit(full).hostname != host
+                    or _PAGE_LIB_RE.search(src)
+                    or not missing
+                ):
+                    continue
+                js = deadline(full)
+                if not js:
+                    continue
+                code = decode_text(js)
+                for name in list(missing):
+                    got = scriptlink.find_function([code], name)
+                    if got:
+                        funcs[name] = {"src": src[:120], "params": got[0], "body": got[1][:700]}
+                        missing.remove(name)
+        for name in missing:
+            funcs[name] = "정의 못 찾음"
+        item["funcs"] = funcs
+        hints: list[str] = []
+        for s in parts.scripts:
+            for m in _PAGE_HINT_RE.finditer(s):
+                if m.group(1) not in hints:
+                    hints.append(m.group(1)[:160])
+        item["hints"] = hints[:30]
+    return {
+        "id": org.id,
+        "name": org.name,
+        "elapsed": round(clock() - started, 1),
+        "pages": out,
+    }
 
 
 def rows_sample(
@@ -738,6 +880,7 @@ def verify(
     skip: int = 0,
     delay: float = parallel.DEFAULT_DELAY,
     titles: int = 0,
+    urls: list[str] | None = None,
 ) -> list[dict]:
     """여러 기관을 동시에 모아 요약만 돌려준다 — 경로 캐시를 굽는 재료가 된다.
 
@@ -762,6 +905,13 @@ def verify(
         if stage == "rows":
             try:
                 return rows_sample(org_id, budget=budget, fetcher=fetcher, delay=delay)
+            except Exception as e:
+                return {"id": org_id, "name": catalog()[org_id].name, "error": repr(e)[:200]}
+        if stage == "page":
+            try:
+                return page_sample(
+                    org_id, list(urls or []), budget=budget, fetcher=fetcher, delay=delay
+                )
             except Exception as e:
                 return {"id": org_id, "name": catalog()[org_id].name, "error": repr(e)[:200]}
         try:
@@ -848,6 +998,8 @@ def respond(handler: BaseHTTPRequestHandler, route: str) -> None:
                 stage=q.get("stage") if q.get("stage") in VERIFY_STAGES else "collect",
                 skip=max(0, _int(q.get("skip"), 0)),
                 titles=min(max(_int(q.get("titles"), 0), 0), 200),
+                # stage=page: 볼 주소들('|' 로 구분) — 비우면 캐시한 게시판
+                urls=[u for u in q.get("urls", "").split("|") if u][:PAGE_URLS],
             )
             status, cache = 200, CACHE_VERIFY
             if q.get("format") == "tsv":
