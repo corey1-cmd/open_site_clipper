@@ -722,7 +722,7 @@ def page_sample(
                 around.append(flat[max(0, at - 900) : at + 300])
         item["around"] = around
         titles = [" ".join(r.title.split())[:14] for r in picked if "#" in r.url]
-        anchors, names = [], []
+        anchors, names, classes = [], [], []
         for a in parts.anchors:
             if len(a.text) < 6:
                 continue
@@ -731,7 +731,7 @@ def page_sample(
             keep = {
                 k: v[:160]
                 for k, v in a.attrs.items()
-                if k in ("href", "onclick", "target") or k.startswith("data-")
+                if k in ("href", "onclick", "target", "class") or k.startswith("data-")
             }
             anchors.append([a.text[:40], keep])
             js = a.attrs.get("onclick", "")
@@ -740,14 +740,18 @@ def page_sample(
             call = scriptlink.call_of(js) if js else None
             if call and call[0] not in names:
                 names.append(call[0])
+            if not call:
+                for c in (a.attrs.get("class") or "").split():
+                    if c not in classes:
+                        classes.append(c)
             if len(anchors) >= PAGE_ANCHORS:
                 break
         item["anchors"] = anchors
         for snippet in around:
             for m in re.finditer(
-                r"""(?:onclick|href)\s*=\s*["']((?:javascript:)?[^"']{3,200})["']""", snippet
+                r"""(?:onclick|href)\s*=\s*(?:"([^"]{3,240})"|'([^']{3,240})')""", snippet
             ):
-                js = m.group(1)
+                js = m.group(1) or m.group(2) or ""
                 if js.startswith(("http", "/", "#", ".")) and "javascript" not in js:
                     continue
                 call = scriptlink.call_of(js)
@@ -765,36 +769,38 @@ def page_sample(
         ]
         item["loose"] = [f"{n}={v[:30]}" for n, v, _i in parts.loose_inputs[:20] if n]
         item["srcs"] = parts.srcs[:20]
+        # 사이트 스크립트(같은 호스트, 라이브러리 제외) — 함수 정의·클릭 처리기를 찾는다
+        codes: list[tuple[str, str]] = [("inline", s) for s in parts.scripts]
+        host = urllib.parse.urlsplit(url).hostname
+        fetched = 0
+        for src in parts.srcs:
+            full = urllib.parse.urljoin(url, src)
+            if urllib.parse.urlsplit(full).hostname != host or _PAGE_LIB_RE.search(src):
+                continue
+            if fetched >= 8:
+                break
+            js = deadline(full)
+            fetched += 1
+            if js:
+                codes.append((src[:120], decode_text(js)))
         funcs: dict = {}
-        missing = []
-        for name in names[:5]:
-            got = scriptlink.find_function(parts.scripts, name)
-            if got:
-                funcs[name] = {"params": got[0], "body": got[1][:700]}
+        for name in names[:6]:
+            for src, code in codes:
+                got = scriptlink.find_function([code], name)
+                if got:
+                    funcs[name] = {"src": src, "params": got[0], "body": got[1][:1200]}
+                    break
             else:
-                missing.append(name)
-        if missing:
-            host = urllib.parse.urlsplit(url).hostname
-            for src in parts.srcs:
-                full = urllib.parse.urljoin(url, src)
-                if (
-                    urllib.parse.urlsplit(full).hostname != host
-                    or _PAGE_LIB_RE.search(src)
-                    or not missing
-                ):
-                    continue
-                js = deadline(full)
-                if not js:
-                    continue
-                code = decode_text(js)
-                for name in list(missing):
-                    got = scriptlink.find_function([code], name)
-                    if got:
-                        funcs[name] = {"src": src[:120], "params": got[0], "body": got[1][:700]}
-                        missing.remove(name)
-        for name in missing:
-            funcs[name] = "정의 못 찾음"
+                funcs[name] = "정의 못 찾음"
         item["funcs"] = funcs
+        handlers = []
+        for cls in classes[:4]:
+            for src, code in codes:
+                for m in re.finditer(r"\." + re.escape(cls) + r"\b", code):
+                    handlers.append([cls, src, " ".join(code[m.start() : m.start() + 900].split())])
+                    if len(handlers) >= 6:
+                        break
+        item["handlers"] = handlers
         hints: list[str] = []
         for s in parts.scripts:
             for m in _PAGE_HINT_RE.finditer(s):
