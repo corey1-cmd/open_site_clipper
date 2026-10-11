@@ -426,7 +426,8 @@ def fill(
 
     def test(slot: str, label: str, url: str) -> None:
         data = fetch(url)
-        result = probe.classify(data, url, home_host=home_host)
+        # 스크립트로 목록을 불러오는 게시판도 목록으로 — 그 요청을 한 번 따라 해 본다(요청 1회 더)
+        result = probe.classify_page(data, url, home_host=home_host, fetch=fetch)
         tested[url] = result.verdict
         if result.collectible and result.dated >= SLOT_MIN_DATED:
             filled[slot] = (label, "board", url)
@@ -484,7 +485,7 @@ def fill(
                 continue
             if url not in tested:
                 # 갈래 화면 자체가 그 갈래의 목록인 경우 — 국민대 '교내채용'(공지 게시판의 채용 묶음)
-                result = probe.classify(data, url, home_host=home_host)
+                result = probe.classify_page(data, url, home_host=home_host, fetch=fetch)
                 tested[url] = result.verdict
                 if (
                     result.collectible

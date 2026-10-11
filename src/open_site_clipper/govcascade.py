@@ -29,7 +29,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field, replace
 from datetime import date
 
-from . import govweb, jsonapi, paging, parse, robots, scriptlink
+from . import ajaxlist, govweb, jsonapi, paging, parse, robots, scriptlink
 from .cascade import (
     FETCH_FAILED,
     NO_ITEMS,
@@ -127,8 +127,21 @@ def _parse_stage(
     """단계 종류에 맞는 파서로 넘긴다 — 파서는 전부 기존 것을 재사용한다.
 
     게시판 표에서 제목이 스크립트 링크인 글은 fetcher 가 있으면 사이트 스크립트에서 글 주소를
-    찾아(첫 글을 열어 확인) 바꾼다 — scriptlink.
+    찾아(첫 글을 열어 확인) 바꾼다 — scriptlink. 목록이 비어 있고 화면 스크립트가 목록을 따로
+    불러오면 그 요청을 따라 해 그린 목록을 읽는다 — ajaxlist.
     """
+    return _parse_board(source, stage, data, url, category, fetcher)[0]
+
+
+def _parse_board(
+    source: Source,
+    stage: str,
+    data: bytes,
+    url: str,
+    category: str,
+    fetcher: Callable[[str], bytes | None] | None = None,
+) -> tuple[list[Notice], bytes]:
+    """_parse_stage 와 같고, 실제로 읽은 화면(스크립트 목록을 그려 붙였으면 그것)도 돌려준다."""
     if stage in (RSS, KOREA):
         parsed = parse.parse_rss(data, agency=source.name, category=category, rights=source.rights)
         return [
@@ -142,19 +155,29 @@ def _parse_stage(
                 unit=source.site or source.name,
             )
             for n in parsed
-        ]
+        ], data
     if stage == DATAGO:
         rows = jsonapi.parse_items(
             data, paths=dict(source.api_paths), base_url=url, article_url=None
         )
-        return _rows_to_notices(source, rows, category)
+        return _rows_to_notices(source, rows, category), data
     # BOARD·ALT — 게시판 표(칸 순서 파서). CMS 가 달라도 표면 읽힌다.
     if govweb.looks_like_qna(data):
-        return []  # 묻고 답하기 게시판 — 공지가 아니다
+        return [], data  # 묻고 답하기 게시판 — 공지가 아니다
     rows = govweb.parse_list(data, url)
+    if len(rows) < MIN_LIST_ROWS and fetcher is not None and ajaxlist.MARK not in data:
+        # 목록이 비어 있다 — 화면을 연 뒤 스크립트가 목록을 따로 받아 그리는 게시판일 수 있다
+        drawn = ajaxlist.expand(data, url, fetcher, robots.allowed)
+        if drawn is not None:
+            more = govweb.parse_list(drawn, url)
+            if len(more) > len(rows) and not govweb.looks_like_qna(drawn):
+                data, rows = drawn, more
     if fetcher is not None:
         rows = scriptlink.resolve_rows(rows, data, url, fetcher, allowed=robots.allowed)
-    return _rows_to_notices(source, rows, category)
+    return _rows_to_notices(source, rows, category), data
+
+
+MIN_LIST_ROWS = 2  # 이보다 적게 읽힌 목록 화면은 스크립트 목록 요청을 찾아본다
 
 
 def categories(source: Source) -> list[str]:
@@ -297,7 +320,7 @@ def _try_stages(
                 Attempt(stage, url, reason=why(url) if callable(why) else FETCH_FAILED)
             )
             continue
-        notices = _parse_stage(source, stage, data, url, category, fetcher)
+        notices, data = _parse_board(source, stage, data, url, category, fetcher)
         notices = [replace(n, origin=origin_label(url, stage)) for n in notices]
         if not notices:
             result.attempts.append(Attempt(stage, url, reason=NO_ITEMS))
@@ -346,10 +369,19 @@ def _more_pages(
             break
         last = dated[-1]
         moved = False
-        for nxt in paging.next_urls(page_data, page_url, page_no, fetcher, robots.allowed):
+        drawn = ajaxlist.MARK in page_data
+        if drawn:
+            # 스크립트로 그린 목록 — 같은 목록 요청의 쪽 값만 바꿔 다시 그린다
+            nexts = [page_url]
+        else:
+            nexts = paging.next_urls(page_data, page_url, page_no, fetcher, robots.allowed)
+        for nxt in nexts:
             if not robots.allowed(nxt):
                 continue
-            more_data = fetcher(nxt)
+            if drawn:
+                more_data = ajaxlist.expand(page_data, url, fetcher, robots.allowed, page=page_no)
+            else:
+                more_data = fetcher(nxt)
             if not more_data:
                 continue
             more = _parse_stage(source, stage, more_data, nxt, category, fetcher)

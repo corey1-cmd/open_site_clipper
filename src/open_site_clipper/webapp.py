@@ -714,7 +714,23 @@ def page_sample(
         item["bytes"] = len(data)
         item["rows"] = [len(table), dated(table), len(items), dated(items)]
         item["dates_in_html"] = len(_PAGE_DATE_RE.findall(text))
+        # 날짜 달린 표 행의 칸(글자 앞 40자·링크) — 행은 있는데 글이 안 뽑히는 게시판을 가린다
+        item["table"] = [
+            [[t[:40], h[:140]] for t, h in r[:8]]
+            for r in table
+            if any(coerce_date(t) for t, _ in r)
+        ][:4]
         picked = govweb.parse_list(data, url)
+        if len(picked) < 2:
+            # 스크립트로 불러오는 목록(AJAX) — 요청을 따라 해 본 과정
+            from . import ajaxlist
+
+            trail: dict = {}
+            drawn = ajaxlist.expand(data, url, deadline, robots.allowed, explain=trail)
+            if drawn is not None:
+                picked = govweb.parse_list(drawn, url)
+                data = drawn
+            item["ajax"] = trail
         item["picked"] = [[r.title[:50], r.url[:160], str(r.published or "")] for r in picked[:8]]
         # 스크립트 링크 → 글 주소 후보와 확인 결과(첫 글 하나)
         scripted = [r for r in picked if r.script]

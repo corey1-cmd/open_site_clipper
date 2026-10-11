@@ -39,12 +39,31 @@ class Form:
     action: str = ""
     method: str = ""
     inputs: list[tuple[str, str, str]] = field(default_factory=list)  # (name, value, id)
+    # inputs 와 같은 순서의 종류('hidden'·'text'·'checkbox:checked'·'select' …) — serialize() 용
+    types: list[str] = field(default_factory=list)
 
 
 @dataclass(slots=True)
 class Anchor:
     attrs: dict[str, str]
     text: str
+
+
+@dataclass(slots=True)
+class Template:
+    """스크립트가 아닌 <script> — 줄 틀(text/x-jquery-tmpl · handlebars)이나 자료(JSON)."""
+
+    id: str
+    type: str
+    body: str
+
+
+# 실행되는 스크립트의 type — 그 밖('text/x-jquery-tmpl'·'text/template'·'application/json')은 틀·자료
+_JS_TYPE_RE = re.compile(
+    r"^(?:|text/javascript|application/javascript|module|text/ecmascript|"
+    r"application/ecmascript|text/jscript|text/babel)(?:\s*;.*)?$",
+    re.I,
+)
 
 
 class _PartsParser(HTMLParser):
@@ -55,10 +74,13 @@ class _PartsParser(HTMLParser):
         self.srcs: list[str] = []
         self.forms: list[Form] = []
         self.loose_inputs: list[tuple[str, str, str]] = []  # 폼 밖의 숨은 값
+        self.templates: list[Template] = []
         self._a: dict[str, str] | None = None
         self._a_text: list[str] = []
         self._script: list[str] | None = None
+        self._script_attrs: dict[str, str] = {}
         self._form: Form | None = None
+        self._select: int | None = None  # 지금 읽는 <select> 의 자리(폼 안)
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         a = {k.lower(): (v or "") for k, v in attrs}
@@ -69,7 +91,7 @@ class _PartsParser(HTMLParser):
         elif tag == "script":
             if a.get("src"):
                 self.srcs.append(a["src"].strip())
-            self._script = []
+            self._script, self._script_attrs = [], a
         elif tag == "form":
             self._form = Form(
                 name=a.get("name", ""),
@@ -80,10 +102,28 @@ class _PartsParser(HTMLParser):
             self.forms.append(self._form)
         elif tag in ("input", "select", "textarea"):
             item = (a.get("name", ""), a.get("value", ""), a.get("id", ""))
+            kind = a.get("type", "text").lower() if tag == "input" else tag
+            if "checked" in a:
+                kind += ":checked"
+            if "disabled" in a:
+                kind += ":disabled"
             if self._form is not None:
                 self._form.inputs.append(item)
+                self._form.types.append(kind)
+                self._select = len(self._form.inputs) - 1 if tag == "select" else None
             elif a.get("type", "").lower() == "hidden":
                 self.loose_inputs.append(item)
+        elif tag == "option" and self._form is not None and self._select is not None:
+            # 고른 값 — selected 가 붙은 것, 없으면 첫 option(브라우저와 같다)
+            at = self._select
+            name, _value, iid = self._form.inputs[at]
+            kind = self._form.types[at]
+            if "selected" in a and not kind.startswith("select:sel"):
+                self._form.inputs[at] = (name, a.get("value", ""), iid)
+                self._form.types[at] = "select:sel"
+            elif kind == "select":
+                self._form.inputs[at] = (name, a.get("value", ""), iid)
+                self._form.types[at] = "select:opt"
 
     def handle_data(self, data: str) -> None:
         if self._script is not None:
@@ -95,8 +135,17 @@ class _PartsParser(HTMLParser):
         if tag == "a" and self._a is not None:
             self._close_anchor()
         elif tag == "script" and self._script is not None:
-            self.scripts.append("".join(self._script))
+            body = "".join(self._script)
+            kind = self._script_attrs.get("type", "").strip()
+            if _JS_TYPE_RE.match(kind):
+                self.scripts.append(body)
+            else:
+                self.templates.append(
+                    Template(self._script_attrs.get("id", ""), kind.lower(), body)
+                )
             self._script = None
+        elif tag == "select":
+            self._select = None
         elif tag == "form":
             self._form = None
 
@@ -113,6 +162,7 @@ class PageParts:
     srcs: list[str]
     forms: list[Form]
     loose_inputs: list[tuple[str, str, str]]
+    templates: list[Template] = field(default_factory=list)
 
 
 def page_parts(html_text: str) -> PageParts:
@@ -122,7 +172,14 @@ def page_parts(html_text: str) -> PageParts:
         parser.close()
     except Exception:  # 깨진 HTML — 읽은 데까지
         pass
-    return PageParts(parser.anchors, parser.scripts, parser.srcs, parser.forms, parser.loose_inputs)
+    return PageParts(
+        parser.anchors,
+        parser.scripts,
+        parser.srcs,
+        parser.forms,
+        parser.loose_inputs,
+        parser.templates,
+    )
 
 
 # ── 함수 호출 읽기 ────────────────────────────────────────────────────────────

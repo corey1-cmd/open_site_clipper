@@ -490,7 +490,7 @@ def find_routes(
             notes.append(f"요청 예산 소진 — 후보 {len(candidates)}개 중 일부만 확인했습니다.")
             break
         got = session.get(url)
-        result = probe.classify(got, url, home_host=home_host)
+        result = probe.classify_page(got, url, home_host=home_host, fetch=session.get)
         if result.collectible:
             routes.append((refine_label(label, got, url), kind, url))
         else:
@@ -646,7 +646,7 @@ def _from_sitemap(
                 break
             seen.add(url)
             got = session.get(url)
-            result = probe.classify(got, url, home_host=home_host)
+            result = probe.classify_page(got, url, home_host=home_host, fetch=session.get)
             if result.collectible:
                 routes.append((refine_label(categories.from_url(url), got, url), "board", url))
         if routes:

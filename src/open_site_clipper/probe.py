@@ -242,3 +242,29 @@ def classify(data: bytes | None, url: str, *, home_host: str = "") -> Probe:
     if dated / len(rows) < MIN_DATED_RATIO:
         return Probe(url=url, verdict=INDEX, rows=len(rows), dated=dated)
     return Probe(url=url, verdict=LIST, rows=len(rows), dated=dated)
+
+
+def classify_page(
+    data: bytes | None,
+    url: str,
+    *,
+    home_host: str = "",
+    fetch=None,
+    allowed=None,
+) -> Probe:
+    """classify 와 같고, 글 줄이 없는 화면이면 스크립트로 불러오는 목록(AJAX)까지 본다.
+
+    목록을 화면을 연 뒤 따로 받아 그리는 게시판(중앙대·삼육보건대·동원대 실측)은 받은 화면만
+    보면 '안내 페이지'다. fetch 가 있으면 화면 스크립트의 목록 요청을 한 번 따라 해 본다
+    (요청이 없는 화면은 추가 요청 없음).
+    """
+    from . import ajaxlist
+
+    result = classify(data, url, home_host=home_host)
+    if result.verdict != STATIC or not data or fetch is None:
+        return result
+    drawn = ajaxlist.expand(data, url, fetch, allowed)
+    if drawn is None:
+        return result
+    again = classify(drawn, url, home_host=home_host)
+    return again if again.collectible else result
