@@ -77,6 +77,10 @@ def anchor_href(attrs: list[tuple[str, str | None]]) -> str:
     if onclick and scripted:
         return "javascript:" + onclick
     if scripted and not _SCRIPT_CALL_RE.match(href):
+        for key in ("data-link", "data-url", "data-href"):
+            target = (a.get(key) or "").strip()
+            if target.startswith(("http://", "https://", "/")) and not onclick:
+                return target  # 사이트가 그 칸의 주소로 적어 둔 것(부산디지털대 SNS 소식)
         data = [
             (k, (v or "").strip()) for k, v in attrs if k.startswith("data-") and (v or "").strip()
         ]

@@ -35,6 +35,7 @@ INDEX = "index"
 EXTERNAL = "external"
 HOME = "home"
 ARTICLE = "article"
+QNA = "qna"
 
 VERDICT_REASON = {
     LIST: "",
@@ -43,6 +44,7 @@ VERDICT_REASON = {
     EXTERNAL: "기관 밖 도메인 — 별도 출처로 등록해 수집하세요",
     HOME: "첫 화면(다른 홈·하위 사이트) — 최신글 묶음이라 게시판으로 쓰지 않음",
     ARTICLE: "글 한 건(상세 보기) 페이지 — 목록이 아님",
+    QNA: "묻고 답하는 게시판(답변대기·비밀글) — 공지가 아님",
 }
 
 # 글 한 건 주소 — '이전·다음 글' 목록 때문에 날짜 달린 목록처럼 보인다(실측: 그누보드
@@ -230,6 +232,8 @@ def classify(data: bytes | None, url: str, *, home_host: str = "") -> Probe:
         return Probe(url=url, verdict=ARTICLE)
     if not data:
         return Probe(url=url, verdict=STATIC)
+    if govweb.looks_like_qna(data):
+        return Probe(url=url, verdict=QNA)
 
     rows = govweb.parse_list(data, url)
     dated = sum(1 for r in rows if r.published is not None)

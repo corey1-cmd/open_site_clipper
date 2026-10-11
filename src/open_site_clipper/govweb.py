@@ -289,6 +289,27 @@ def parse_items(html_bytes: bytes) -> list[list[tuple[str, str]]]:
     return parser.rows
 
 
+_QNA_MARK_RE = re.compile(
+    r"답변\s*(?:대기|완료|중|예정)|비밀\s*글|비공개\s*글|qaPWChk|ChkBoardPasswd"
+)
+QNA_MARKS = 3
+
+
+def looks_like_qna(html_bytes: bytes) -> bool:
+    """묻고 답하는 게시판 화면인가 — '답변대기'·'답변완료'·비밀글 표시가 여러 줄에 있다.
+
+    문의 게시판(진주교대 'MN080'·부산가톨릭대 입시 Q&A)이 공지 갈래로 잡혀 학생 질문이 공지로
+    나왔다(실측 2026-10-11). 이름·주소에 Q&A 가 안 보여도 화면이 말해 준다.
+    """
+    from .fetch import decode_text
+
+    try:
+        text = decode_text(html_bytes)
+    except AttributeError:
+        return False
+    return len(_QNA_MARK_RE.findall(text)) >= QNA_MARKS
+
+
 def parse_list(html_bytes: bytes, base_url: str) -> list[Row]:
     """게시판 목록 HTML 에서 글 행을 뽑는다(링크 문법에 의존하지 않음).
 

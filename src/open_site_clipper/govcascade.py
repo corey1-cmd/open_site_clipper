@@ -149,6 +149,8 @@ def _parse_stage(
         )
         return _rows_to_notices(source, rows, category)
     # BOARD·ALT — 게시판 표(칸 순서 파서). CMS 가 달라도 표면 읽힌다.
+    if govweb.looks_like_qna(data):
+        return []  # 묻고 답하기 게시판 — 공지가 아니다
     rows = govweb.parse_list(data, url)
     if fetcher is not None:
         rows = scriptlink.resolve_rows(rows, data, url, fetcher, allowed=robots.allowed)

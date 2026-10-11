@@ -473,3 +473,86 @@ def test_action_set_without_readable_submit_is_still_a_candidate():
     )
     got = _first(page, "https://www.handong.edu/kor/square/inform/news/")
     assert got[0].url == "https://www.handong.edu/kor/square/inform/news/?mode=view&id=1000&group=0"
+
+
+def test_query_replace_helper_dongduk():
+    page = (
+        "<script>var queryString = '&schM=list&page=1&viewCount=10&id=&schBdcode=';"
+        'function fn_goView(id, notice, no, secret) { if(secret === "Y" && !""){ $("#schM").val("view"); '
+        "return false; } var tmpQuery = queryString; "
+        'tmpQuery = common_js.fn_replaceQueryString(tmpQuery, "schM", "view"); '
+        'tmpQuery = common_js.fn_replaceQueryString(tmpQuery, "id", id); '
+        'if(no){ tmpQuery = common_js.fn_replaceQueryString(tmpQuery, "etc1", no); } '
+        'if (notice) { tmpQuery += "&notice="+notice; } location.href="?" + tmpQuery; }</script>'
+        + _table(
+            "<a href=\"#none\" onclick=\"fn_goView('{no}', false, '9801', '')\">" + TITLE + "</a>"
+        )
+    )
+    got = _first(page, "https://www.dongduk.ac.kr/www/contents/kor-campus.do")
+    assert got[0].url == (
+        "https://www.dongduk.ac.kr/www/contents/kor-campus.do"
+        "?schM=view&page=1&viewCount=10&id=1000&schBdcode=&etc1=9801"
+    )
+
+
+def test_doubled_javascript_prefix_dongguk_news():
+    page = _table(
+        '<a href="#none" onclick="javascript:location.href=\'/article/SCHOOLNEWS/detail/{no}\'">'
+        + TITLE
+        + "</a>"
+    )
+    got = _first(page, "https://www.dongguk.edu/article/SCHOOLNEWS/list")
+    assert got[0].url == "https://www.dongguk.edu/article/SCHOOLNEWS/detail/1000"
+
+
+def test_closest_form_on_index_page_eulji():
+    js = (
+        "function submitForm(f, a, n) { frm = $(f).closest(\"form\"); frm.setHidden('act', a); "
+        "if (a == \"view\") { frm.setHidden('bbsno', n); frm.ajaxSubmit(options); return false; } }"
+    )
+    page = (
+        '<script src="/skin/board/notice/js/list.js"></script>'
+        '<form name="search"><input name="qt" value=""></form>'
+        '<form id="frontBoardVo" name="board" action="/index.html?menuno=4005" method="post">'
+        '<input name="siteno" value="47">'
+        + _table("<a href='###' onclick=\"return submitForm(this,'view',{no});\">" + TITLE + "</a>")
+        + "</form>"
+    )
+    got = _first(page, "https://www.eulji.ac.kr?menuno=4005", lambda url: js.encode())
+    assert got[0].url == "https://www.eulji.ac.kr/index.html?menuno=4005&act=view&bbsno=1000"
+
+
+def test_trailing_comma_arguments_du():
+    assert scriptlink.call_of("pop_pass_open('27924','N', 4515, );") == (
+        "pop_pass_open",
+        ["27924", "N", "4515"],
+    )
+
+
+def test_data_link_is_the_declared_item_address():
+    attrs = [
+        ("class", "js-show-popup"),
+        ("href", "#video1716"),
+        ("data-link", "https://m.blog.naver.com/x/1"),
+    ]
+    assert anchor_href(attrs) == "https://m.blog.naver.com/x/1"
+    attrs = [("href", "#"), ("onclick", "go(1)"), ("data-url", "/a/1")]
+    assert anchor_href(attrs) == "javascript:go(1)"
+
+
+def test_qna_boards_are_not_notice_lists():
+    from open_site_clipper import probe
+
+    rows = "".join(
+        f"<tr><td>{i}</td><td><a href='#n' onclick=\"openBoardChkPasswd(this,'view','20','{i}')\">질문 {i}번 문의드립니다</a>"
+        f"<img alt='비밀글'></td><td>답변대기</td><td>2026-10-0{i}</td></tr>"
+        for i in range(1, 6)
+    )
+    data = f"<table>{rows}</table>".encode()
+    assert govweb.looks_like_qna(data)
+    assert (
+        probe.classify(data, "https://www.cue.ac.kr/kor/CMS/Board/Board.do?mCode=MN080").verdict
+        == probe.QNA
+    )
+    notice = _table("<a href='/v?{no}'>" + TITLE + "</a>").encode()
+    assert not govweb.looks_like_qna(notice)

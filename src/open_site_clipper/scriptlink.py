@@ -127,7 +127,9 @@ def page_parts(html_text: str) -> PageParts:
 
 # ── 함수 호출 읽기 ────────────────────────────────────────────────────────────
 _CALL_RE = re.compile(r"([A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*)\s*\(")
-_ARG_RE = re.compile(r"""\s*(?:'((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.)*)"|(-?[\w.$]+))\s*(,|\))""")
+_ARG_RE = re.compile(
+    r"""\s*(?:'((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.)*)"|(-?[\w.$]+))\s*(,\s*\)|,|\))"""
+)
 _NOT_CALLS = frozenset({"void", "return", "if", "function", "alert", "confirm", "typeof"})
 
 
@@ -136,9 +138,7 @@ def call_of(js: str) -> tuple[str, list[str]] | None:
 
     인자가 글자·숫자가 아닌 것(this·event 같은 이름)은 이름 그대로 둔다. 못 읽으면 None.
     """
-    body = (js or "").strip()
-    if body.lower().startswith("javascript:"):
-        body = body[len("javascript:") :]
+    body = strip_js_prefix(js)
     for m in _CALL_RE.finditer(body):
         name = m.group(1)
         if name.split(".")[-1] in _NOT_CALLS:
@@ -154,10 +154,43 @@ def call_of(js: str) -> tuple[str, list[str]] | None:
             single, double, bare, end = am.groups()
             args.append(single if single is not None else double if double is not None else bare)
             pos = am.end()
-            if end == ")":
+            if end.endswith(")"):
                 return name, args
         # 인자를 끝까지 못 읽은 호출 — 다음 호출을 본다
     return None
+
+
+_QUERY_HELPER_RE = re.compile(
+    r"replace\w*(?:query|param)|(?:query|param)\w*replace|set\w*(?:query|param)|update\w*(?:query|param)",
+    re.I,
+)
+
+
+def _replace_query(query: str, key: str, value: str) -> str:
+    """'&schM=list&id=' 에서 key 의 값을 value 로(없으면 붙인다). 앞의 '?'·'&' 꼴은 그대로."""
+    if not key or key == THIS:
+        return query
+    lead = query[:1] if query[:1] in "?&" else ""
+    pairs = [p for p in query[len(lead) :].split("&") if p]
+    out, done = [], False
+    for p in pairs:
+        k = p.split("=", 1)[0]
+        if k == key:
+            out.append(f"{key}={value}")
+            done = True
+        else:
+            out.append(p)
+    if not done:
+        out.append(f"{key}={value}")
+    return lead + "&".join(out)
+
+
+def strip_js_prefix(js: str) -> str:
+    """'javascript:' 머리(겹쳐 붙은 것까지)를 뗀다 — onclick 안의 'javascript:' 는 JS 라벨일 뿐이다."""
+    body = (js or "").strip()
+    while body.lower().startswith("javascript:"):
+        body = body[len("javascript:") :].strip()
+    return body
 
 
 # ── 함수 정의 찾기 ────────────────────────────────────────────────────────────
@@ -728,6 +761,9 @@ class _Run:
             got = self.call_return(m.group(1), args, depth + 1)
             if got is not None:
                 return got
+            if _QUERY_HELPER_RE.search(m.group(1).split(".")[-1]) and len(args) >= 3:
+                # 쿼리 값을 바꾸는 도우미 — fn_replaceQueryString(q, 'schM', 'view')(동덕여대·화성의과학대)
+                return _replace_query(args[0], args[1], args[2])
             if lenient:
                 # 정의를 못 읽는 도우미는 첫 인자를 그대로 — 주소를 감싸는 kurl(url)·쿼리를 다듬는
                 # removeQueryParam(qs, 'nttNo') 꼴이 대부분이다. 틀리면 확인 단계가 걸러 낸다.
@@ -1191,18 +1227,32 @@ class _Ctx:
         return None
 
     def anchor_form(self) -> int | None:
-        """링크가 든 폼 — 목록 화면 자신으로 가는 폼 중 숨은 값이 가장 많은 것."""
+        """링크가 든 폼 — 목록 화면 자신으로 가는 폼 중 숨은 값이 가장 많은 것.
+
+        '?menuno=4005' 화면의 폼 action 이 '/index.html?menuno=4005' 인 사이트가 있어(을지대),
+        경로가 '' · '/' · '/index.*' 이면 같은 화면으로 본다. 그래도 없으면 같은 사이트로 가는
+        폼 중 검색창이 아닌 것.
+        """
         page = urllib.parse.urlsplit(self.page_url)
+
+        def same(path: str) -> bool:
+            return _index_path(path) == _index_path(page.path)
+
         best, size = None, -1
+        fallback, fsize = None, -1
         for i, f in enumerate(self.parts.forms):
             target = urllib.parse.urlsplit(
                 urllib.parse.urljoin(self.page_url, f.action or self.page_url)
             )
-            if target.path != page.path:
+            if target.netloc != page.netloc or re.search(
+                r"search|srch|total|login", f.name + f.id, re.I
+            ):
                 continue
-            if len(f.inputs) > size:
+            if same(target.path) and len(f.inputs) > size:
                 best, size = i, len(f.inputs)
-        return best
+            elif len(f.inputs) > fsize:
+                fallback, fsize = i, len(f.inputs)
+        return best if best is not None else fallback
 
     def locate_input(
         self, *, by_id: str = "", by_name: str = "", form: int | None = None
@@ -1238,6 +1288,14 @@ class _Ctx:
 
 
 MAX_EXTERNAL = 8
+
+
+def _index_path(path: str) -> str:
+    """'' · '/' · '/index.html' · '/main/index.do' 의 디렉터리 첫 화면을 같은 것으로."""
+    path = path or "/"
+    return re.sub(r"/(?:index|default|main)\.(?:html?|do|jsp|php|aspx?)$", "/", path)
+
+
 # 게시판 스크립트다운 이름 — 이것부터 받는다(고려대 portalBoardList.js 는 스무 번째였다)
 _BOARD_JS_RE = re.compile(r"board|bbs|list|article|notice|view|ntt|common", re.I)
 _LIB_RE = re.compile(
@@ -1313,7 +1371,7 @@ def candidates(script: str, ctx: _Ctx) -> list[Candidate]:
             if run.done():
                 break
     else:
-        code = script[len("javascript:") :] if script.lower().startswith("javascript:") else script
+        code = strip_js_prefix(script)
         run.execute(code, {"this": THIS}, 0)
         call = call_of(code)
         if not run.done() and not run.forms and call:
@@ -1397,7 +1455,8 @@ def _absolute(url: str, page: str) -> str:
     parts = urllib.parse.urlsplit(full)
     if parts.scheme not in ("http", "https") or not parts.netloc:
         return ""
-    return urllib.parse.urlunsplit(parts._replace(fragment=""))
+    query = re.sub(r"&{2,}", "&", parts.query).strip("&")  # '?&schM=view' → '?schM=view'
+    return urllib.parse.urlunsplit(parts._replace(query=query, fragment=""))
 
 
 def _with_query(base: str, pairs: list[tuple[str, str]]) -> str:
@@ -1447,6 +1506,10 @@ def _title_keys(title: str) -> list[str]:
         k = _flat(form)[:18]
         if len(k) >= 6 and k not in keys:
             keys.append(k)
+    # 짧은 제목 뒤에 칸 글자가 붙은 경우('… 원장 채용 공고 일반' — 분류 칸이 링크 안에 있다)
+    short = _flat(base)[:12]
+    if len(short) >= 8 and short not in keys:
+        keys.append(short)
     return keys
 
 
