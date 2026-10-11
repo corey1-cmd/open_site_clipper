@@ -134,6 +134,8 @@ class _Page(HTMLParser):
         self.title = ""
         self._href: str | None = None
         self._buf: list[str] = []
+        # 글자 없는 그림 링크(사이트맵·전체메뉴 아이콘)의 이름 — title·aria-label·img alt
+        self._hint: list[str] = []
         self._in_title = False
         # 진단용 — 왜 후보가 0개였는지 사람이 알 수 있게 센다.
         self.anchor_tags = 0  # <a> 태그 총수(href 유무 무관)
@@ -163,6 +165,9 @@ class _Page(HTMLParser):
                     href = ""
             if href:
                 self._href, self._buf = href, []
+                self._hint = [a.get("title", ""), a.get("aria-label", "")]
+        elif tag == "img" and self._href is not None:
+            self._hint.append(a.get("alt", ""))
         elif tag == "title":
             self._in_title = True
 
@@ -174,7 +179,10 @@ class _Page(HTMLParser):
 
     def handle_endtag(self, tag: str) -> None:
         if tag == "a" and self._href is not None:
-            self.anchors.append((self._href, " ".join("".join(self._buf).split())))
+            text = " ".join("".join(self._buf).split())
+            if not text:  # 보이는 글자가 없을 때만 — 글자가 있으면 그것이 이름이다
+                text = next((" ".join(h.split()) for h in self._hint if h.strip()), "")
+            self.anchors.append((self._href, text))
             self._href = None
         elif tag == "title":
             self._in_title = False

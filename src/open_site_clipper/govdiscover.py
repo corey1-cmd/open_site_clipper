@@ -22,7 +22,7 @@ import urllib.parse
 from collections.abc import Callable
 from functools import lru_cache
 
-from . import categories, govpaths, govweb, korean, probe
+from . import categories, govpaths, govweb, korean, probe, slots
 from . import discover as _discover
 from .categories import CATEGORY_HINTS, classify
 from .fetch import decode_text
@@ -228,16 +228,23 @@ def find_routes(
     budget: int = DEFAULT_BUDGET,
     max_candidates: int = 40,
     skip: int = 0,
+    targets: tuple[str, ...] = (),
+    trace: list[str] | None = None,
 ) -> tuple[list[tuple[str, str, str]], list[str]]:
     """기관 홈에서 (카테고리, 종류, 주소) 목록과 메모를 만든다.
 
     같은 카테고리에 여러 주소를 남기는 것이 핵심이다 — 캐스케이드가 앞에서부터
     시도하다가 robots 로 막히면 다음 주소로 넘어간다.
+
+    targets 를 주면(학교: 공지·학사·장학·입학·채용) 그 갈래마다 게시판을 먼저 찾아
+    채운다 — 사이트맵 화면과 갈래 화면(장학안내·입학처 홈)까지 연다(slots 참고).
+    trace 에는 무엇을 열고 무엇을 골랐는지 짧게 쌓인다(점검용).
     """
     if "://" not in home_url:
         home_url = "https://" + home_url
     routes: list[tuple[str, str, str]] = []
     notes: list[str] = []
+    trace = trace if trace is not None else []
     session = _discover._Session(fetcher, check_robots, budget)
 
     data = session.get(home_url) or b""
@@ -248,24 +255,40 @@ def find_routes(
     # 홈이 1KB 남짓이면 빈 응답이 아니라 **관문**일 수 있다(공정위·교육부·해수부 …).
     # meta refresh·location.href·frameset 이 가리키는 진짜 주소가 HTML 안에
     # 문자열로 들어 있으므로, JavaScript 를 실행하지 않고도 따라갈 수 있다.
-    for _hop in range(2):  # 관문이 관문을 가리키는 경우까지만
-        targets = govpaths.gateway_targets(data, home_url)
-        if not targets or session.budget <= 0:
+    # 학교는 입시 홍보 **인트로**가 흔하다 — 그림이 많아 관문보다 크고 '홈페이지 바로가기'
+    # 링크로 본 화면을 가리킨다. 링크가 몇 개 없는 화면이면 그 링크들도 시험해 **메뉴가
+    # 실린 화면**을 고른다(로그인·오류·manifest 로 끌려가던 것을 막는다).
+    for _hop in range(3):  # 관문 → 인트로 → 본 화면까지
+        if session.budget <= 0 or govpaths.menu_links(data, home_url) >= (
+            govpaths.MIN_ENTRY_ANCHORS
+        ):
             break
-        # 후보가 여럿이면 되는 것을 쓴다. 첫 후보에서 실패했다고 접으면
-        # 모바일 판별 스크립트처럼 주소를 두 개 이상 담은 관문을 놓친다.
-        moved, used = b"", ""
-        for cand in targets:
+        explicit = govpaths.gateway_targets(data, home_url)
+        intro = [
+            u
+            for u in govpaths.intro_targets(data, home_url, urllib.parse.urlsplit(home_url).netloc)
+            if u not in explicit
+        ]
+        moved, used, fallback = b"", "", None
+        for cand in (explicit + intro)[:5]:
             if session.budget <= 0:
                 break
             got = session.get(cand)
-            if got:
+            if not got:
+                failed_gateways.append(f"{cand}({session.last_reason})")
+                continue
+            if govpaths.menu_links(got, cand) >= govpaths.MIN_ENTRY_ANCHORS:
                 moved, used = got, cand
                 break
-            failed_gateways.append(f"{cand}({session.last_reason})")
+            if cand in explicit and fallback is None:
+                # 명시 관문(meta refresh·location)은 메뉴가 스크립트여도 따라간다(예전 동작)
+                fallback = (cand, got)
+        if not moved and fallback:
+            used, moved = fallback
         if not moved:
             break
         notes.append(f"관문 페이지를 따라갔습니다: {used}")
+        trace.append(f"관문·인트로 → {slots.short(used)}")
         home_url, data = used, moved  # home_host 는 아래에서 이 주소로 다시 계산된다
     if not data:
         # 홈을 못 읽어도 여기서 끝내지 않는다. 실패한 19개 부처가 정확히 이
@@ -358,6 +381,28 @@ def find_routes(
             notes.append(
                 f"홈에 링크가 {internal}개뿐이라 본문 속 주소 {len(mined)}개를 후보로 삼았습니다"
             )
+
+    # ②-2 갈래 채우기(학교) — 공지·학사·장학·입학·채용마다 게시판 하나씩. 홈 메뉴에 없으면
+    #      사이트맵 화면·갈래 화면(장학안내·입학처 홈)까지 연다. 시험한 주소는 아래에서 다시
+    #      열지 않는다.
+    tested: dict[str, str] = {}
+    if targets and data and session.budget > 0 and not skip:  # 이어서 찾을 때는 이미 했다
+        trace.append(f"홈 {slots.short(home_url)} 링크 {internal}")
+        for route in slots.fill(
+            session.get,
+            home_url,
+            page.anchors,
+            home_host,
+            board_score=board_score,
+            tested=tested,
+            trace=trace,
+            targets=targets,
+            max_requests=min(slots.MAX_REQUESTS, max(0, session.budget - 10)),
+        ):
+            if (route[0], route[2]) not in seen:
+                seen.add((route[0], route[2]))
+                routes.append(route)
+        candidates = [c for c in candidates if c[2] not in tested]
 
     # ③ 구조 테스트 — 후보를 열어 '날짜 붙은 목록'만 남긴다.
     # 상한(max_candidates)에 소개·정책 메뉴만 차서 정작 게시판까지 못 가던 문제가
@@ -456,6 +501,8 @@ def enrich(
     check_robots: bool = True,
     budget: int = DEFAULT_BUDGET,
     skip: int = 0,
+    targets: tuple[str, ...] = (),
+    trace: list[str] | None = None,
 ):
     """govorg 출처에 routes 가 비어 있으면 홈에서 발견해 채워 준다.
 
@@ -467,7 +514,13 @@ def enrich(
     if not source.home:
         return source, []
     found, notes = find_routes(
-        source.home, fetcher=fetcher, check_robots=check_robots, budget=budget, skip=skip
+        source.home,
+        fetcher=fetcher,
+        check_robots=check_robots,
+        budget=budget,
+        skip=skip,
+        targets=targets,
+        trace=trace,
     )
     if not found:
         return source, notes

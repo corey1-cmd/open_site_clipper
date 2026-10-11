@@ -36,7 +36,7 @@ from functools import lru_cache
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-from . import __version__, categories, govcascade, govdiscover, media, parallel, robots
+from . import __version__, categories, govcascade, govdiscover, media, parallel, robots, slots
 from .cascade import origin_label
 from .collect import KST
 from .fetch import TrackingFetcher, decode_text
@@ -65,6 +65,7 @@ MAX_DAYS = 90
 DEFAULT_BUDGET = float(os.environ.get("OSC_TIME_BUDGET", "240"))
 REDISCOVER_MIN_LEFT = 60.0  # 캐시 경로가 0건일 때 다시 찾으려면 이만큼은 남아야
 VERIFY_MAX_IDS = 20
+TRACE_LINES = 80  # 발견 점검(stage=discover)이 돌려주는 추적 줄 수
 TIME_UP = "시간 제한"
 
 # 캐시 지시 — 같은 기관을 여러 사람이 요청해도 30분 동안은 CDN 이 대신 답한다.
@@ -269,6 +270,11 @@ def _cascade(source: Source, fetch: PageFetcher) -> tuple[list[Notice], list[str
     return notices, failures, used
 
 
+def _targets(org: Org) -> tuple[str, ...]:
+    """학교는 갈래(공지·학사·장학·입학·채용)마다 게시판을 채운다 — 정부 기관은 지금대로."""
+    return slots.TARGETS if org.section == "학교" else ()
+
+
 def collect_one(
     org_id: str,
     *,
@@ -300,14 +306,18 @@ def collect_one(
         source = replace(source, routes=plan_routes(preset, cached["routes"]))
         mode = "cache"
     elif source.home:
-        found, notes = govdiscover.enrich(replace(source, routes=()), fetcher=deadline)
+        found, notes = govdiscover.enrich(
+            replace(source, routes=()), fetcher=deadline, targets=_targets(org)
+        )
         source = replace(source, routes=plan_routes(preset, found.routes))
         mode = "discover" if not preset else "preset"
 
     notices, failures, used = _cascade(source, deadline)
     if mode == "cache" and not notices and deadline.left() > REDISCOVER_MIN_LEFT:
         # 캐시해 둔 게시판이 바뀌었을 수 있다 — 홈에서 다시 찾는다.
-        found, notes = govdiscover.enrich(replace(org.source, routes=()), fetcher=deadline)
+        found, notes = govdiscover.enrich(
+            replace(org.source, routes=()), fetcher=deadline, targets=_targets(org)
+        )
         source = replace(source, routes=plan_routes(preset, found.routes))
         notices, failures, used = _cascade(source, deadline)
         mode = "rediscover"
@@ -664,7 +674,14 @@ def discover_only(
     deadline = _Deadline(
         _limited(fetcher or TrackingFetcher(), delay), started + budget, clock=clock
     )
-    found, notes = govdiscover.enrich(replace(org.source, routes=()), fetcher=deadline, skip=skip)
+    trace: list[str] = []
+    found, notes = govdiscover.enrich(
+        replace(org.source, routes=()),
+        fetcher=deadline,
+        skip=skip,
+        targets=_targets(org),
+        trace=trace,
+    )
     return {
         "id": org.id,
         "name": org.name,
@@ -672,6 +689,7 @@ def discover_only(
         "timed_out": deadline.left() <= 0,
         "found": [list(r) for r in found.routes],
         "notes": notes[:6],
+        "trace": [t[:160] for t in trace[:TRACE_LINES]],
     }
 
 

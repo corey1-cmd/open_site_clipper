@@ -188,8 +188,43 @@ GATEWAY_MAX_BYTES = 4096
 # 관문 페이지 안의 주소 문자열 — 변수로 조립하는 경우까지 잡으려면 패턴이 아니라
 # **문자열 전체**를 봐야 한다. 관문은 작아서(4KB 이하) 후보가 몇 개 안 된다.
 _URL_LITERAL_RE = re.compile(r'["\'](/[A-Za-z0-9_\-./?=&%]{2,120})["\']')
-# 주소로 보이지만 실제 페이지가 아닌 것들 — 자원 파일·앵커.
-_NOT_A_PAGE = (".css", ".js", ".png", ".jpg", ".gif", ".ico", ".svg", ".woff", ".map")
+# 주소로 보이지만 실제 페이지가 아닌 것들 — 자원 파일·앵커. manifest.json 을 홈으로
+# 따라간 학교가 있었다(서울기독대 — React 앱의 관문 문자열).
+_NOT_A_PAGE = (
+    ".css",
+    ".js",
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".gif",
+    ".ico",
+    ".svg",
+    ".woff",
+    ".woff2",
+    ".map",
+    ".json",
+    ".webmanifest",
+    ".xml",
+    ".txt",
+    ".pdf",
+    ".hwp",
+    ".zip",
+    ".mp4",
+)
+# 인트로 화면에서 본 화면으로 가는 링크의 글자 — 이것부터 시험한다.
+_INTRO_TEXT_RE = re.compile(
+    r"홈페이지|바로\s*가기|메인|main|home|입장|enter|skip|건너뛰기|한국어|국문|korean|/kor?\b",
+    re.I,
+)
+# 다른 말 화면 — 인트로에서 따라가면 영문 사이트를 홈으로 삼게 된다.
+_FOREIGN_RE = re.compile(
+    r"english|\beng\b|/en/|/eng/|/en\b|中文|chinese|日本|japanese|/cn/|/jp/|/chn/|/jpn/|/ch/",
+    re.I,
+)
+# 홈이 아닌 화면 — 로그인·오류·개인정보 방침
+_NOT_HOME_RE = re.compile(r"login|logout|error|privacy|policy|member|join|sso|auth", re.I)
+# 입시 홈페이지 — 인트로에 대학 홈과 나란히 걸리지만 홈은 아니다
+_ADMISSION_RE = re.compile(r"입시|입학|ipsi|iphak|admission", re.I)
 
 
 def gateway_targets(data: bytes, base_url: str) -> list[str]:
@@ -232,6 +267,83 @@ def gateway_targets(data: bytes, base_url: str) -> list[str]:
         for m in _URL_LITERAL_RE.finditer(text):
             add(m.group(1))
     return out[:3]  # 후보가 많아도 앞의 셋까지만
+
+
+def intro_targets(data: bytes, base_url: str, home_host: str) -> list[str]:
+    """인트로 화면에서 **본 화면일 만한 주소** — 크기와 상관없이 본다.
+
+    입시 홍보 인트로('intro.jsp'·'intro_260902.html')는 그림이 많아 관문 크기(4KB)를
+    넘고, '홈페이지 바로가기' 링크나 onclick 의 location.href 로 본 화면을 가리킨다.
+    이것을 따라가지 않으면 링크 두세 개짜리 인트로를 홈으로 알고 끝난다(광운대·
+    한신대·강원도립대 … 실측). 고르는 것은 부르는 쪽이 한다(메뉴가 실린 화면만).
+    """
+    if not data:
+        return []
+    text = _decode(data)
+    out: list[str] = []
+    seen = {base_url.split("#", 1)[0]}
+
+    def add(raw: str) -> None:
+        target = urllib.parse.urljoin(base_url, raw.strip()).split("#", 1)[0]
+        parts = urllib.parse.urlsplit(target)
+        if target in seen or parts.scheme not in ("http", "https"):
+            return
+        if parts.path.lower().endswith(_NOT_A_PAGE) or probe.is_external(target, home_host):
+            return
+        if _FOREIGN_RE.search(target) or _NOT_HOME_RE.search(parts.path):
+            return
+        seen.add(target)
+        out.append(target)
+
+    for pattern in (_META_REFRESH_RE, _JS_LOCATION_RE, _FRAME_SRC_RE):
+        for m in pattern.finditer(text):
+            add(m.group(1))
+    from . import discover as _discover
+
+    page = _discover._Page()
+    try:
+        page.feed(_discover.strip_noise(text))
+    except Exception:
+        return out[:5]
+    links = [(h, t) for h, t in page.anchors if not _FOREIGN_RE.search(t or "")]
+    base_host = urllib.parse.urlsplit(base_url).netloc.lower().removeprefix("www.")
+
+    def rank(link: tuple[str, str]) -> tuple[int, int, int]:
+        # 대학 본 화면이 먼저 — 입시 홈페이지(하위 사이트)는 홈이 아니라 갈래 화면이다
+        href, text = link
+        host = urllib.parse.urlsplit(urllib.parse.urljoin(base_url, href)).netloc.lower()
+        return (
+            1 if _ADMISSION_RE.search(text or "") or _ADMISSION_RE.search(host) else 0,
+            0 if host.removeprefix("www.") == base_host else 1,
+            0 if _INTRO_TEXT_RE.search(text or "") else 1,
+        )
+
+    links.sort(key=rank)
+    for href, _text in links:
+        add(href)
+    return out[:5]
+
+
+def menu_links(data: bytes | None, url: str) -> int:
+    """화면에 실린 같은 사이트 링크 수 — 메뉴가 실린 진짜 화면인지 가늠한다."""
+    if not data:
+        return 0
+    from . import discover as _discover
+
+    page = _discover._Page()
+    try:
+        page.feed(_discover.strip_noise(_decode(data)))
+    except Exception:
+        return 0
+    host = urllib.parse.urlsplit(url).netloc
+    n = 0
+    for href, _text in page.anchors:
+        target = urllib.parse.urljoin(url, href)
+        if urllib.parse.urlsplit(target).scheme in ("http", "https") and not probe.is_external(
+            target, host
+        ):
+            n += 1
+    return n
 
 
 def _looks_like_gateway(text: str) -> bool:
