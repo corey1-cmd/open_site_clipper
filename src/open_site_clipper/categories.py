@@ -97,6 +97,11 @@ def strip_meaningless(text: str) -> str:
 _GLUE_WORDS = tuple(sorted({w.replace(" ", "") for w in MEANINGLESS}, key=len, reverse=True))
 # '공지사항(목록)' · '뉴스룸 게시판목록' · '일반공지목록' — 페이지 제목에 붙는 '목록' 꼬리.
 _LIST_TAIL_RE = re.compile(r"\s*[(\[]?\s*(?:게시판\s*)?목록\s*[)\]]?$")
+# '학사더보기'·'등록/장학더보기'·'학사 더'·'공지사항+' — 이름 끝에 붙은 단추 글자.
+# 홀로 쓴 '더'는 띄어 쓴 것만 뗀다('리더'의 '더'는 이름이다).
+_TRAIL_BUTTON_RE = re.compile(
+    r"(?:더\s*보기|바로\s*가기|\+)+$|\s+더$|(?<=[가-힣])more$|\s+more$", re.I
+)
 # '그림자의+밤' — 주소에서 온 이름의 '+'(공백).
 _PLUS_SPACE_RE = re.compile(r"(?<=[가-힣])\+(?=[가-힣])")
 
@@ -124,6 +129,9 @@ def tidy_label(text: str) -> str:
     flat = strip_meaningless(flat)
     if not flat or _glued_meaningless(flat):
         return ""
+    trimmed = _TRAIL_BUTTON_RE.sub("", flat).strip()
+    if len(trimmed) >= 2:
+        flat = trimmed
     return _LIST_TAIL_RE.sub("", flat).strip()  # '게시판목록' 뿐이면 이름이 없는 것
 
 

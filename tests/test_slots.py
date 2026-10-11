@@ -280,3 +280,86 @@ def test_an_intro_address_with_a_dozen_banner_links_is_not_the_home():
     intro = f'<html><body>{banners}<a href="/www/main/main.asp">홈페이지 바로가기</a></body></html>'
     assert govpaths.needs_hop(intro.encode(), "https://www.puts.ac.kr/www/main/intro/intro.asp")
     assert not govpaths.needs_hop(intro.encode(), "https://www.puts.ac.kr/www/main/main.asp")
+
+
+def test_a_board_page_that_loads_its_list_by_script_gives_up_the_list_address():
+    """K2Web 메뉴 화면은 목록을 스크립트로 부른다 — 소스 속 artclList 주소를 시험한다."""
+    subview = (
+        "<html><body><h2>장학공지</h2><div id='list'></div>"
+        "<script>jf_load('/bbs/gana/2182/artclList.do', 'list');</script></body></html>"
+    )
+    pages = {
+        "https://www.gana.ac.kr/gana/index.do": (
+            "<html><body>"
+            + "".join(f'<a href="/gana/{i}/subview.do">메뉴{i}</a>' for i in range(12))
+            + '<a href="/gana/9001/subview.do">장학공지</a></body></html>'
+        ),
+        "https://www.gana.ac.kr/gana/9001/subview.do": subview,
+        "https://www.gana.ac.kr/bbs/gana/2182/artclList.do": BOARD,
+    }
+
+    def get(url: str) -> bytes | None:
+        page = pages.get(url)
+        return page.encode() if page else None
+
+    trace: list[str] = []
+    home = "https://www.gana.ac.kr/gana/index.do"
+    found = slots.fill(
+        get,
+        home,
+        slots.anchors(pages[home].encode()),
+        "www.gana.ac.kr",
+        board_score=govdiscover.board_score,
+        tested={},
+        trace=trace,
+        mine=govdiscover.mine_url_literals,
+    )
+    assert ("장학공지", "board", "https://www.gana.ac.kr/bbs/gana/2182/artclList.do") in found
+    assert any("화면 속 목록 주소" in t for t in trace)
+
+
+def test_login_systems_and_recruiting_words_alone_are_not_hubs():
+    pool = slots._Pool("www.gana.ac.kr", slots.TARGETS, govdiscover.board_score)
+    pool.add(
+        "https://www.gana.ac.kr/kor/index.do",
+        [
+            ("https://portal.gana.ac.kr/", "학사정보시스템"),
+            ("https://sugang.gana.ac.kr/", "수강신청"),
+            ("https://rotc.gana.ac.kr/", "학군단 생활/모집"),
+            ("https://job.gana.ac.kr/", "진로취업센터"),
+        ],
+    )
+    assert pool.pop_hub("학사") is None
+    assert pool.pop_hub("채용") == ("진로취업센터", "https://job.gana.ac.kr/")
+    assert pool.pop_hub("채용") is None
+
+
+def test_board_names_lose_glued_more_buttons():
+    from open_site_clipper import categories, probe
+
+    assert categories.tidy_label("학사더보기") == "학사"
+    assert categories.tidy_label("등록/장학더보기") == "등록/장학"
+    assert categories.tidy_label("학사 더") == "학사"
+    assert categories.tidy_label("리더") == "리더"
+    assert probe.looks_like_article(
+        "http://gangseo.ac.kr/kcua/boardView?menuCode=MC0508&boardNum=1"
+    )
+    assert not probe.looks_like_article("http://gangseo.ac.kr/kcua/boardList?menuCode=BC0702")
+
+
+def test_k2web_menu_pages_are_boards_but_their_encoded_article_views_are_not():
+    import base64
+    import urllib.parse
+
+    from open_site_clipper import probe
+
+    def enc(inner: str) -> str:
+        return base64.b64encode(urllib.parse.quote(inner).encode()).decode()
+
+    menu = "https://www.hufs.ac.kr/hufs/11281/subview.do"
+    assert not probe.looks_like_article(menu)  # 메뉴 화면 — 목록이 박혀 있다
+    assert probe.looks_like_article(menu + "?enc=" + enc("fnct1|@@|/bbs/hufs/2180/1/artclView.do"))
+    assert not probe.looks_like_article(
+        menu + "?enc=" + enc("fnct1|@@|/bbs/hufs/2180/artclList.do")
+    )
+    assert probe.looks_like_article("https://www.x.ac.kr/board/view.do?id=1")

@@ -64,6 +64,13 @@ _MAIN_NOTICE = frozenset(
 )
 # 날짜 달린 목록이어도 공지보다 자료에 가까운 것 — 뒤로 미룬다
 _LOW_VALUE_RE = re.compile(r"자료|서식|양식|규정", re.I)
+# 로그인해야 쓰는 시스템·신청 화면 — 게시판도 갈래 화면도 아니다('학사정보시스템'·'수강신청')
+_SYSTEM_RE = re.compile(r"시스템|포털|portal|system|신청|로그인|login|e-?book|sso", re.I)
+# 채용 갈래 화면은 이 말이 있어야 — '모집'만으로는 아니다('학군단 생활/모집'·'신입생 모집')
+_JOB_HUB_RE = re.compile(r"채용|취업|일자리|진로|인재개발|구인|구직|job|career|recruit", re.I)
+# 화면 안에 박힌 K2Web 목록 주소 — 메뉴 화면(subview.do)이 목록을 스크립트로 불러올 때
+_K2_LIST_RE = re.compile(r"(?:https?://[^\"'\s<>]+)?/bbs/[A-Za-z0-9_\-]+/\d+/artclList\.do", re.I)
+MINED_PER_SLOT = 2  # 안내 화면으로 판정된 게시판 이름의 화면에서 캐 볼 목록 주소 수
 
 
 def slot_of(text: str, targets: tuple[str, ...] = TARGETS) -> str:
@@ -167,8 +174,19 @@ class _Pool:
         heapq.heappush(self.queue.setdefault(slot, []), (-s, self.order, label, url))
         return True
 
+    def push_first(self, slot: str, label: str, url: str) -> bool:
+        """바로 다음에 시험할 후보 — 게시판 이름의 화면 속에서 캔 목록 주소."""
+        if url in self.queued:
+            return False
+        self.queued.add(url)
+        self.order += 1
+        heapq.heappush(self.queue.setdefault(slot, []), (-1000, self.order, label, url))
+        return True
+
     def push_hub(self, slot: str, label: str, url: str) -> None:
         if url in self.hub_seen or _DEPARTMENT_RE.search(label):
+            return
+        if slot == "채용" and not _JOB_HUB_RE.search(label):
             return
         self.hub_seen.add(url)
         self.order += 1
@@ -219,6 +237,8 @@ class _Pool:
                 slot, label = hub_slot, f"{hub_slot} {label}"
             if fresh:
                 self.first[url] = (slot, label)
+            if slot and _SYSTEM_RE.search(label) and not _BOARDISH_RE.search(label):
+                continue  # 로그인 시스템·신청 화면
             if slot == "공지" and _bare(urllib.parse.urlsplit(url).netloc) != _bare(self.home_host):
                 # 하위 사이트(취업지원센터·학생 커뮤니티)의 '공지사항'은 대학 공지가 아니다 —
                 # 공지 자리는 본교 주소만. 그 게시판은 일반 발견이 따로 줍는다.
@@ -245,6 +265,29 @@ class _Pool:
         return grown
 
 
+def list_literals(data: bytes, url: str, home_host: str, mine=None) -> list[str]:
+    """화면 소스 안의 목록 주소 — 게시판 이름인데 목록이 스크립트로 그려질 때.
+
+    K2Web 메뉴 화면(subview.do)은 목록을 `/bbs/{사이트}/{번호}/artclList.do` 로 불러오고,
+    그 주소가 소스에 문자열로 들어 있다. 다른 CMS 는 mine(본문 속 게시판 주소 캐기)으로.
+    """
+    try:
+        text = decode_text(data)
+    except Exception:
+        return []
+    out: list[str] = []
+    here = url.split("#", 1)[0]
+    for m in _K2_LIST_RE.finditer(text):
+        target = urllib.parse.urljoin(url, m.group(0))
+        if target not in out and target != here and not probe.is_external(target, home_host):
+            out.append(target)
+    if mine is not None:
+        for target in mine(data, url, home_host):
+            if target not in out and target != here:
+                out.append(target)
+    return out[:MINED_PER_SLOT]
+
+
 def short(url: str, limit: int = 70) -> str:
     """추적 기록용 — 호스트·경로·쿼리를 짧게."""
     parts = urllib.parse.urlsplit(url)
@@ -263,6 +306,7 @@ def fill(
     trace: list[str],
     targets: tuple[str, ...] = TARGETS,
     max_requests: int = MAX_REQUESTS,
+    mine=None,
 ) -> list[Route]:
     """갈래마다 게시판 하나씩 — 찾은 (이름, "board", 주소)를 갈래 순서대로 돌려준다.
 
@@ -291,6 +335,7 @@ def fill(
     filled: dict[str, Route] = {}
     tests_left = dict.fromkeys(targets, TESTS_PER_SLOT)
     hubs_left = dict.fromkeys(targets, HUBS_PER_SLOT)
+    mined_left = dict.fromkeys(targets, MINED_PER_SLOT)
 
     def test(slot: str, label: str, url: str) -> None:
         data = fetch(url)
@@ -304,6 +349,15 @@ def fill(
         if data and result.verdict in (probe.STATIC, probe.INDEX):
             kept[url] = data
             pool.push_hub(slot, label, url)
+            if mined_left[slot] > 0 and _BOARDISH_RE.search(label):
+                # '장학공지'인데 목록이 없다 — 스크립트로 불러오는 목록 주소가 소스에 있을 수 있다
+                for target in list_literals(data, url, home_host, mine):
+                    if target in tested or mined_left[slot] <= 0:
+                        continue
+                    if pool.push_first(slot, label, target):
+                        mined_left[slot] -= 1
+                        tests_left[slot] += 1
+                        trace.append(f"{slot} 화면 속 목록 주소 {short(target)}")
 
     while spent < max_requests:
         progressed = False

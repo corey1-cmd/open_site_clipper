@@ -20,6 +20,8 @@ STATIC·INDEX·EXTERNAL 은 건너뛰되 **사유를 남긴다**(조용한 실�
 
 from __future__ import annotations
 
+import base64
+import binascii
 import re
 import urllib.parse
 from dataclasses import dataclass
@@ -49,7 +51,14 @@ _ARTICLE_QUERY_RE = re.compile(
     r"(?:^|&)(?:wr_id|articleno|contentno|nttsn|bbsidx)=\d|(?:^|&)(?:mode|action|act|type|cmd)=(?:view|read|r|detail)(?:&|$)",
     re.I,
 )
-_ARTICLE_PATH_RE = re.compile(r"(?:artclview|view\.(?:do|jsp|php|asp)$|/blog/[^/]+/?$)", re.I)
+# '/kcua/boardView?menuCode=…&boardNum=1545' 처럼 확장자 없는 글 보기 주소도(강서대 실측).
+# K2Web 메뉴 화면 'subview.do' 는 글이 아니라 목록이 박힌 메뉴다 — 'view.do' 로 끝나도 뺀다
+# (그동안 이것 때문에 K2Web 학교의 메뉴 게시판이 후보에서 통째로 빠졌다).
+_ARTICLE_PATH_RE = re.compile(
+    r"(?:artclview|(?<!sub)view\.(?:do|jsp|php|asp)$|/blog/[^/]+/?$|"
+    r"(?:board|article|bbs|notice|post)view$)",
+    re.I,
+)
 
 
 def not_a_board(url: str) -> bool:
@@ -67,11 +76,30 @@ def looks_like_search(url: str) -> bool:
     return bool(_SEARCH_PATH_RE.search(path))
 
 
+def _k2_encoded_view(parts: urllib.parse.SplitResult) -> bool:
+    """K2Web 'subview.do?enc=…' 가 글 보기인가 — enc 는 base64 로 싼 안쪽 주소다.
+
+    'fnct1|@@|/bbs/hufs/2180/12345/artclView.do?…' 면 글 한 건, artclList 면 목록 쪽수.
+    """
+    if not parts.path.lower().endswith("subview.do"):
+        return False
+    for key, value in urllib.parse.parse_qsl(parts.query):
+        if key.lower() != "enc" or not value:
+            continue
+        raw = value.strip()
+        try:
+            inner = base64.b64decode(raw + "=" * (-len(raw) % 4), altchars=b"-_")
+        except (ValueError, binascii.Error):
+            return False
+        return b"artclview" in urllib.parse.unquote_to_bytes(inner).lower()
+    return False
+
+
 def looks_like_article(url: str) -> bool:
     """게시판 목록이 아니라 글 한 건(상세 보기) 주소인가."""
     parts = urllib.parse.urlsplit(url)
     path = parts.path.split(";", 1)[0]
-    if _ARTICLE_PATH_RE.search(path):
+    if _ARTICLE_PATH_RE.search(path) or _k2_encoded_view(parts):
         return True
     return bool(_ARTICLE_QUERY_RE.search(parts.query))
 

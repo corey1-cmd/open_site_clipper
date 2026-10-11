@@ -416,6 +416,7 @@ def find_routes(
             trace=trace,
             targets=targets,
             max_requests=min(slots.MAX_REQUESTS, max(0, session.budget - 10)),
+            mine=mine_url_literals,
         ):
             if (route[0], route[2]) not in seen:
                 seen.add((route[0], route[2]))
