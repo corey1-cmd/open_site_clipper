@@ -711,6 +711,35 @@ def page_sample(
         item["dates_in_html"] = len(_PAGE_DATE_RE.findall(text))
         picked = govweb.parse_list(data, url)
         item["picked"] = [[r.title[:50], r.url[:160], str(r.published or "")] for r in picked[:8]]
+        # 스크립트 링크 → 글 주소 후보와 확인 결과(첫 글 하나)
+        scripted = [r for r in picked if r.script]
+        if scripted:
+            first = scripted[0]
+            ctx = scriptlink._Ctx(parts, url, deadline, robots.allowed)
+            others = [r.title for r in picked if r is not first]
+            checks = []
+            for cand in scriptlink.candidates(first.script, ctx)[:4]:
+                check: dict = {"kind": cand.kind, "url": cand.url[:220]}
+                if not robots.allowed(cand.url):
+                    check["error"] = "robots.txt 차단"
+                else:
+                    got = deadline(cand.url)
+                    check["bytes"] = len(got or b"")
+                    if got:
+                        page = scriptlink._flat(decode_text(got))
+                        check["title_in"] = scriptlink._flat(first.title)[:18] in page
+                        check["others_in"] = sum(
+                            1 for t in others if len(t) >= 6 and scriptlink._flat(t)[:18] in page
+                        )
+                        check["post"] = scriptlink.looks_like_post(got, first.title, others, data)
+                    else:
+                        check["error"] = deadline.why(cand.url)
+                checks.append(check)
+            item["resolve"] = {
+                "script": first.script[:200],
+                "title": first.title[:40],
+                "checks": checks,
+            }
         # 글 주소를 못 얻은 행(목록#제목) — 제목 둘레의 마크업(링크·행의 속성)을 그대로 보인다
         flat = " ".join(text.split())
         around = []
