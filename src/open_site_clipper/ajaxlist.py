@@ -28,6 +28,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 
 from . import scriptlink, tmpl
+from .fetch import POST_MARK
 from .k2web_parse import coerce_date
 
 MARK = b"\n<!--osc:ajax-->\n"  # 원래 화면과 그려 붙인 목록의 경계(다음 쪽을 다시 그릴 때 쓴다)
@@ -39,7 +40,8 @@ _NOISE_RE = re.compile(
     r"categor|comment|reply|repl[ey]|menu|banner|popup|popzone|login|logout|auth|chk|check|"
     r"count|cnt\b|stat|popular|keyword|shorturl|file|down|upload|zip|like|recommend|visit|"
     r"delete|insert|update|save|write|regist|pwd|passw|captcha|sms|wonseo|mypage|"
-    r"calendar|schedule|weather|survey|poll|vote|chatbot|tab(?:list|content)",
+    r"calendar|schedule|weather|survey|poll|vote|chatbot|tab(?:list|content)|proc\b|proc\.|"
+    r"restore|copy|move",
     re.I,
 )
 _PAGE_KEY_RE = re.compile(
@@ -548,21 +550,34 @@ def expand(
         url = call.request_url(page)
         if not url:
             continue
-        step: dict = {"url": url[:300]}
-        if explain is not None:
-            explain.setdefault("tried", []).append(step)
         if allowed is not None and not allowed(url):
-            step["error"] = "robots.txt 차단"
+            if explain is not None:
+                explain.setdefault("tried", []).append(
+                    {"url": url[:300], "error": "robots.txt 차단"}
+                )
             continue
-        got = fetch(url)
-        step["bytes"] = len(got or b"")
-        if not got:
-            why = getattr(fetch, "why", None)
-            step["error"] = why(url) if callable(why) else "응답 없음"
-            continue
-        rows = render(got, call, parts, step)
-        step["rendered"] = len(re.findall(r"<(?:tr|li)\b", rows, re.I))
-        if rows:
-            # 원래 화면이 EUC-KR 이어도 한 글자 체계로 — 이어 붙인 뒤 깨지지 않게 다시 UTF-8 로
-            return text.encode("utf-8") + MARK + rows.encode("utf-8")
+        key = (urllib.parse.urlsplit(url).netloc, urllib.parse.urlsplit(url).path)
+        # GET 이 먼저 — 사이트가 POST 로 보내고 GET 으로는 목록을 안 주면(405·빈 응답) 같은 POST 로
+        tries = [url]
+        if call.method == "post":
+            tries = [url + POST_MARK] if _METHOD.get(key) == "post" else [url, url + POST_MARK]
+        for target in tries:
+            step: dict = {"url": target[:300]}
+            if explain is not None:
+                explain.setdefault("tried", []).append(step)
+            got = fetch(target)
+            step["bytes"] = len(got or b"")
+            if not got:
+                why = getattr(fetch, "why", None)
+                step["error"] = why(target) if callable(why) else "응답 없음"
+                continue
+            rows = render(got, call, parts, step)
+            step["rendered"] = len(re.findall(r"<(?:tr|li)\b", rows, re.I))
+            if rows:
+                _METHOD[key] = "post" if target.endswith(POST_MARK) else "get"
+                # 원래 화면이 EUC-KR 이어도 한 글자 체계로 — 이어 붙인 뒤 깨지지 않게 다시 UTF-8 로
+                return text.encode("utf-8") + MARK + rows.encode("utf-8")
     return None
+
+
+_METHOD: dict[tuple[str, str], str] = {}  # (호스트, 경로) → 목록을 준 방식(get·post)

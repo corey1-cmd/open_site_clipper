@@ -39,6 +39,16 @@ REQUEST_HEADERS = {
     "Connection": "close",
 }
 
+# 게시판 화면이 스크립트로 보내는 **목록 요청**을 그 화면과 같은 POST 로 보낼 때 주소 끝에 붙이는
+# 표시(ajaxlist). '#…' 는 서버로 가지 않는 조각이라, 주소만 주고받는 페처 사슬(시간 제한·간격·
+# robots 판정)을 그대로 지나 여기서만 읽힌다. 쿼리를 본문으로 옮겨 보낸다.
+POST_MARK = "#osc-post"
+_POST_HEADERS = {
+    **REQUEST_HEADERS,
+    "Accept": "application/json, text/javascript, text/html;q=0.9, */*;q=0.5",
+    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+}
+
 
 def _decompress(data: bytes, headers) -> bytes:
     """압축 응답을 푼다.
@@ -108,11 +118,23 @@ def fetch_detail(
     if not (url.startswith("http://") or url.startswith("https://")):
         # http(s)만 허용 — file://·ftp:// 등 로컬/우회 스킴 차단(SSRF 방지).
         return None, "지원하지 않는 주소 형식"
+    post = url.endswith(POST_MARK)
+    if post:
+        url = url[: -len(POST_MARK)]
     # 게시판 링크에는 공백·한글이 날것으로 들어 있기도 하다('/files/2025 인증서.pdf').
     # 그대로 보내면 urllib 이 예외를 던져 기관 전체가 멈췄다(실측) — 안전하게 인코딩한다.
     url = safe_url(url)
     try:
-        req = urllib.request.Request(url, headers=REQUEST_HEADERS)
+        if post:
+            parts = urllib.parse.urlsplit(url)
+            req = urllib.request.Request(
+                urllib.parse.urlunsplit(parts._replace(query="", fragment="")),
+                data=parts.query.encode("ascii", "ignore"),
+                headers=_POST_HEADERS,
+                method="POST",
+            )
+        else:
+            req = urllib.request.Request(url, headers=REQUEST_HEADERS)
     except ValueError:
         return None, "잘못된 주소"
     attempts = 2 if retry else 1

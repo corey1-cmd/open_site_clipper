@@ -339,3 +339,63 @@ def test_euc_kr_page_stays_readable_after_rows_are_added():
     data = ajaxlist.expand(page, CAU, _cau_fetch([]))
     assert data is not None
     assert "공지사항" in data.decode("utf-8")
+
+
+def test_post_only_list_request_is_sent_as_the_same_post():
+    """GET 에 405 를 주는 목록 요청(동원대) — 사이트가 POST 로 보내면 같은 POST 로 다시."""
+    from open_site_clipper.fetch import POST_MARK
+
+    payload = {"resultList": [{"bIdx": 9, "title": "포스트로만 오는 공지", "regDate": "2026-10-11"},
+                              {"bIdx": 8, "title": "두 번째 포스트 공지", "regDate": "2026-10-10"}]}
+    seen: list[str] = []
+
+    def fetch(url):
+        seen.append(url)
+        if urllib.parse.urlsplit(url).path != "/bbs/ajax/boardList.do":
+            return None
+        return json.dumps(payload, ensure_ascii=False).encode() if url.endswith(POST_MARK) else None
+
+    ajaxlist._METHOD.clear()
+    data = ajaxlist.expand(TW_PAGE.encode(), TW, fetch)
+    assert data is not None and len(govweb.parse_list(data, TW)) == 2
+    assert not seen[0].endswith(POST_MARK) and seen[1].endswith(POST_MARK)
+    seen.clear()
+    ajaxlist.expand(TW_PAGE.encode(), TW, fetch)  # 한 번 POST 로 통한 요청은 바로 POST
+    assert len(seen) == 1 and seen[0].endswith(POST_MARK)
+
+
+def test_fetch_detail_sends_marked_urls_as_form_posts():
+    import http.server
+    import threading
+
+    from open_site_clipper import fetch as fetch_mod
+
+    got: dict = {}
+
+    class Handler(http.server.BaseHTTPRequestHandler):
+        def do_POST(self):
+            n = int(self.headers.get("Content-Length") or 0)
+            got.update(path=self.path, body=self.rfile.read(n).decode(), ctype=self.headers["Content-Type"])
+            body = b'{"list": []}'
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def log_message(self, *a):
+            pass
+
+    server = http.server.HTTPServer(("127.0.0.1", 0), Handler)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    try:
+        url = f"http://127.0.0.1:{server.server_port}/ajax/list.do?pageNo=1&MENU_ID=100{fetch_mod.POST_MARK}"
+        data, why = fetch_mod.fetch_detail(url, timeout=5)
+    finally:
+        server.shutdown()
+    assert why == "" and data == b'{"list": []}'
+    assert got == {
+        "path": "/ajax/list.do",
+        "body": "pageNo=1&MENU_ID=100",
+        "ctype": "application/x-www-form-urlencoded; charset=UTF-8",
+    }

@@ -720,8 +720,15 @@ def page_sample(
             for r in table
             if any(coerce_date(t) for t, _ in r)
         ][:4]
+        item["templates"] = [
+            [t.id, t.type, " ".join(t.body.split())[:900]] for t in parts.templates[:6]
+        ]
         picked = govweb.parse_list(data, url)
         if len(picked) < 2:
+            # 글이 안 뽑히는 화면 — 날짜 둘레의 마크업(목록 한 줄의 모양)
+            flat_all = " ".join(text.split())
+            dates = list(_PAGE_DATE_RE.finditer(flat_all))
+            item["raw"] = [flat_all[max(0, m.start() - 700) : m.end() + 150] for m in dates[1:3]]
             # 스크립트로 불러오는 목록(AJAX) — 요청을 따라 해 본 과정
             from . import ajaxlist
 
