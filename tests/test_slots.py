@@ -431,3 +431,47 @@ def test_discovery_stops_asking_once_the_time_is_up(monkeypatch):
     session = discover._Session(Expired(), True, 10)
     assert session.get("https://slow.ac.kr/") is None
     assert session.last_reason == "시간 제한" and asked == []
+
+
+def test_menu_pages_that_look_like_index_pages_are_boards_not_homes():
+    from open_site_clipper import probe
+
+    for url in (
+        "https://www.pknu.ac.kr/main/163",
+        "https://www.yewon.ac.kr/main/?menu=192",
+        "https://www.suwon.ac.kr/index.html?menuno=674",
+        "https://www.induk.ac.kr/KR/cms/frCmnCon/index.do?MENU_ID=1960",
+        "https://www.chu.ac.kr/main/sub07/sub01_01.php",
+    ):
+        assert not probe.looks_like_home(url), url
+    for url in (
+        "https://www.humanrights.go.kr/base/main/view",
+        "https://www.pknu.ac.kr/main",
+        "https://www.kookje.ac.kr/kor/?pCode=main",
+    ):
+        assert probe.looks_like_home(url), url
+
+
+def test_gateways_that_move_by_config_file_or_to_a_new_domain_are_followed():
+    gateway = (
+        b'<script>var host = window.location.host; var jsonFilePath = "/siteDomain/"+host+".json";'
+        b"fetch(jsonFilePath).then(r => r.json());</script>"
+    )
+    assert govpaths.config_urls(gateway, "https://www.halla.ac.kr/") == [
+        "https://www.halla.ac.kr/siteDomain/www.halla.ac.kr.json"
+    ]
+    cfg = b'{"siteId":"halla","mainUrl":"/halla/index.do","ga":"https://www.googletagmanager.com/gtag/js"}'
+    assert govpaths.literal_targets(cfg, "https://www.halla.ac.kr/") == [
+        "https://www.halla.ac.kr/halla/index.do"
+    ]
+    moved = (
+        b"<html><head><title>Redirect</title><script>(function(){ var target = "
+        b'"https://www.cbnu.ac.kr/www/index.do"; location.replace(target); })();</script></head></html>'
+    )
+    assert govpaths.gateway_targets(moved, "https://www.chungbuk.ac.kr/") == [
+        "https://www.cbnu.ac.kr/www/index.do"
+    ]
+    assert govpaths.site_root_guesses("https://www.hansung.ac.kr") == (
+        "/hansung/index.do",
+        "/hansung/main.do",
+    )

@@ -115,7 +115,10 @@ def test_school_list_is_clean():
         assert s["kind"] == "govorg" and s["org"] == s["name"]
         assert s["group"] in SCHOOL_TYPES, s
         assert s["region"] in REGIONS, s
-        assert re.fullmatch(r"https://[a-z0-9.-]+\.[a-z]{2,}", s["home"]), s["home"]
+        # 대개 사이트 뿌리 — 뿌리가 'site move' 스크립트뿐인 곳은 첫 화면 경로까지(연세대 /sc/index.do)
+        assert re.fullmatch(
+            r"https://[a-z0-9.-]+\.[a-z]{2,}(/[a-z0-9_-]+/index\.do)?", s["home"]
+        ), s["home"]
     # 2026 통합·폐교된 학교가 다시 들어오지 않게
     names = {s["name"] for s in schools}
     assert not names & {"강릉원주대학교", "원광보건대학교", "광양보건대학교", "동주대학교"}

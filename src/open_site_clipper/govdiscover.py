@@ -325,6 +325,34 @@ def find_routes(
         else:
             notes.append(f"홈페이지를 열지 못했습니다({why}) — 다른 경로로 계속합니다: {home_url}")
 
+    # 홈에 메뉴가 없다(스크립트로 옮겨 가는 'site move' 안내·스크립트로 그리는 홈) — 관문이
+    # 부르는 설정 파일, 그다음 '/{사이트}/index.do' 같은 진입점에서 메뉴가 실린 화면을 찾는다.
+    if (
+        data
+        and session.budget > 0
+        and govpaths.menu_links(data, home_url) < govpaths.MIN_ENTRY_ANCHORS
+    ):
+        found_entry: tuple[str, bytes] | None = None
+        for cfg in govpaths.config_urls(data, home_url)[:1]:
+            for cand in govpaths.literal_targets(session.get(cfg), home_url)[:3]:
+                got = session.get(cand)
+                if got and not govpaths.needs_hop(got, cand):
+                    found_entry = (cand, got)
+                    break
+        if found_entry is None:
+            url, got = govpaths.find_entry(
+                home_url,
+                fetcher=session.get,
+                budget=min(6, session.budget),
+                first=govpaths.site_root_guesses(home_url),
+            )
+            if got:
+                found_entry = (url, got)
+        if found_entry:
+            notes.append(f"메뉴가 실린 화면을 찾았습니다: {found_entry[0]}")
+            trace.append(f"진입점 → {slots.short(found_entry[0])}")
+            home_url, data = found_entry
+
     page = _discover._Page()
     try:
         page.feed(_discover.strip_noise(decode_text(data)))

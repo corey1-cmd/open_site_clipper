@@ -129,7 +129,11 @@ def _adopt(url: str, fetcher: Callable[[str], bytes | None], host: str, routes: 
 
 
 def find_entry(
-    home_url: str, *, fetcher: Callable[[str], bytes | None], budget: int = 8
+    home_url: str,
+    *,
+    fetcher: Callable[[str], bytes | None],
+    budget: int = 8,
+    first: tuple[str, ...] = (),
 ) -> tuple[str, bytes]:
     """'/' 가 빈 응답일 때 **진짜 홈**을 찾는다.
 
@@ -143,7 +147,9 @@ def find_entry(
     from . import discover as _discover
 
     bases = host_variants(home_url)
-    entries = [p for _f, paths, is_entry in families() if is_entry for p in paths]
+    entries = list(first) + [
+        p for _f, paths, is_entry in families() if is_entry for p in paths if p not in first
+    ]
     left = budget
     for base in bases:
         for path in entries:
@@ -162,6 +168,63 @@ def find_entry(
             if len(page.anchors) >= MIN_ENTRY_ANCHORS:  # 메뉴가 실린 진짜 페이지
                 return url, data
     return "", b""
+
+
+def site_root_guesses(home_url: str) -> tuple[str, ...]:
+    """K2Web 처럼 '/{사이트}/index.do' 가 첫 화면인 학교 — 사이트 이름은 대개 도메인 첫 조각이다
+    (www.hansung.ac.kr → /hansung/index.do). 홈이 스크립트로 옮겨 가는 안내만 낼 때 쓴다."""
+    host = urllib.parse.urlsplit(home_url).netloc.lower().split(":", 1)[0]
+    labels = [x for x in host.split(".") if x and x != "www"]
+    if not labels or not labels[0].isalnum():
+        return ()
+    return (f"/{labels[0]}/index.do", f"/{labels[0]}/main.do")
+
+
+# 관문 스크립트가 호스트 이름으로 설정 파일을 불러 옮겨 갈 곳을 정한다:
+#   var jsonFilePath = "/siteDomain/" + host + ".json"   (한라대·성결대·서일대 실측)
+_CONFIG_PATH_RE = re.compile(
+    r"""["'](/[\w\-./]*/)["']\s*\+\s*(?:window\.)?(?:location\.)?host(?:name)?\s*\+\s*["']([\w.\-]*\.json)["']""",
+    re.I,
+)
+_LITERAL_ANY_RE = re.compile(r"""["'](/[^"'\s<>]{2,200}|https?://[^"'\s<>]{4,200})["']""")
+
+
+def config_urls(data: bytes | None, base_url: str) -> list[str]:
+    """관문이 호스트 이름으로 부르는 설정 파일 주소(있으면)."""
+    if not data:
+        return []
+    host = urllib.parse.urlsplit(base_url).netloc
+    out: list[str] = []
+    for m in _CONFIG_PATH_RE.finditer(_decode(data)):
+        url = urllib.parse.urljoin(base_url, m.group(1) + host + m.group(2))
+        if url not in out:
+            out.append(url)
+    return out
+
+
+def literal_targets(data: bytes | None, base_url: str) -> list[str]:
+    """설정 파일(JSON) 속 주소 문자열 — 같은 기관이나 국내 기관 도메인의 화면 주소만."""
+    if not data:
+        return []
+    out: list[str] = []
+    for m in _LITERAL_ANY_RE.finditer(_decode(data).replace("\\/", "/")):
+        url = urllib.parse.urljoin(base_url, m.group(1)).split("#", 1)[0]
+        path = urllib.parse.urlsplit(url).path.lower()
+        if path.endswith(_NOT_A_PAGE) or url in out or not _institutional(url, base_url):
+            continue
+        out.append(url)
+    return out
+
+
+def _institutional(url: str, base_url: str) -> bool:
+    """같은 기관 도메인이거나 국내 기관 도메인(.ac.kr·.go.kr …) — 도메인을 옮긴 학교(충북대 →
+    cbnu.ac.kr)는 따라가되 분석·광고 스크립트 주소로는 가지 않는다."""
+    host = urllib.parse.urlsplit(url).netloc.lower()
+    if not host:
+        return False
+    if not probe.is_external(url, urllib.parse.urlsplit(base_url).netloc):
+        return True
+    return host.endswith((".ac.kr", ".go.kr", ".re.kr", ".or.kr", ".kr"))
 
 
 def _decode(data: bytes) -> str:
@@ -187,7 +250,9 @@ GATEWAY_MAX_BYTES = 4096
 
 # 관문 페이지 안의 주소 문자열 — 변수로 조립하는 경우까지 잡으려면 패턴이 아니라
 # **문자열 전체**를 봐야 한다. 관문은 작아서(4KB 이하) 후보가 몇 개 안 된다.
-_URL_LITERAL_RE = re.compile(r'["\'](/[A-Za-z0-9_\-./?=&%]{2,120})["\']')
+_URL_LITERAL_RE = re.compile(
+    r'["\'](/[A-Za-z0-9_\-./?=&%]{2,120}|https?://[A-Za-z0-9_\-.:/?=&%]{4,160})["\']'
+)
 # 주소로 보이지만 실제 페이지가 아닌 것들 — 자원 파일·앵커. manifest.json 을 홈으로
 # 따라간 학교가 있었다(서울기독대 — React 앱의 관문 문자열).
 _NOT_A_PAGE = (
@@ -265,7 +330,10 @@ def gateway_targets(data: bytes, base_url: str) -> list[str]:
     #    거기서 아무 주소나 집으면 엉뚱한 곳으로 끌려간다(실제로 그랬다).
     if not out and _looks_like_gateway(text):
         for m in _URL_LITERAL_RE.finditer(text):
-            add(m.group(1))
+            raw = m.group(1)
+            if raw.startswith("http") and not _institutional(raw, base_url):
+                continue  # 분석·광고 스크립트 주소
+            add(raw)
     return out[:3]  # 후보가 많아도 앞의 셋까지만
 
 

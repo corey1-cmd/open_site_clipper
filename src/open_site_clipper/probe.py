@@ -125,6 +125,14 @@ _SITE_ROOTS = frozenset(
     }
 )
 _HOME_WORDS = frozenset({"main", "index", "home"})
+# '/main/' 아래에서 첫 화면으로 보는 끝 조각 — 그 밖('/main/163'·'/main/sub07/…')은 메뉴 화면
+_MAIN_TAILS = frozenset({"view", "index", "main", "home", "default"})
+# 메뉴·게시판을 고르는 쿼리 — 'menuno=' · 'MENU_ID=' · 'menu=' · 'mId=' · 'mCode=' · 'bsIdx=' …
+_MENU_QUERY_RE = re.compile(
+    r"(?:^|&)(?:menu[_-]?(?:no|id|cd|code|seq|sn)?|m_?id|mcode|mno|page_?(?:id|cd|no)|"
+    r"bs_?idx|bbs_?(?:id|no|cd)|board_?(?:id|no|cd)|cate\w*)=[^&]+",
+    re.I,
+)
 _HOME_STEM_RE = re.compile(r"^(?:index|main|home|default)|(?:index|main)$", re.I)
 
 
@@ -144,9 +152,16 @@ def looks_like_home(url: str) -> bool:
             return True
     if not segs:
         return not parts.query  # '/' — 쿼리 없는 사이트 뿌리
-    if "main" in (s.lower() for s in segs[:-1]):
-        return True  # /base/main/view
+    # 'index.do?MENU_ID=2030'·'index.html?menuno=674'·'/main/?menu=192' — 주소 모양은 첫 화면이어도
+    # 쿼리가 메뉴를 고르면 그 메뉴 화면이다. 모든 화면이 이 꼴인 학교가 많아 게시판이 통째로
+    # '첫 화면'으로 빠졌다(수원대·인덕대·신구대·예원예대 실측).
+    if _MENU_QUERY_RE.search(parts.query):
+        return False
     stem = segs[-1].rsplit(".", 1)[0]
+    if "main" in (s.lower() for s in segs[:-1]) and (
+        stem.lower() in _MAIN_TAILS or _HOME_STEM_RE.search(stem)
+    ):
+        return True  # /base/main/view · /ilos/main/main_form.acl ('/main/163' 메뉴는 아니다)
     if _HOME_STEM_RE.search(stem):
         return True
     # '/ko/' · '/eng/' · '/www/' 처럼 언어·사이트 이름 한 조각 = 하위 사이트 뿌리
