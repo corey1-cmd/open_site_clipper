@@ -443,3 +443,33 @@ def test_title_keys_skip_short_heads_but_not_shared_suffixes():
         + ("타고난 나의 기본 설정인 기질 이해</h2></html>".encode())
     )
     assert scriptlink.looks_like_post(page, titles[0], titles[1:])
+
+
+def test_global_constant_built_from_other_constants():
+    js = (
+        "var article = { view(seq) { article.searchForm.action = `${ARTICLE_BASE_URL}/${ARTICLE_CODE}/`+seq; "
+        "article.searchForm.submit(); } };"
+    )
+    page = (
+        "<script>const SITE_CODE = 'kor'; const ARTICLE_BASE_URL = `/${SITE_CODE}/article`; "
+        "const ARTICLE_CODE = 'notice_bob';</script>"
+        '<script src="/js/site/article/Article.js"></script>'
+        '<form name="searchForm" id="searchForm" action="/kor/article/notice_bob"></form>'
+        + _table('<a href="#" onclick="article.view(\'{no}\'); return false;">' + TITLE + "</a>")
+    )
+    got = _first(
+        page,
+        "https://www.pcu.ac.kr/kor/article/notice_bob",
+        lambda url: js.encode() if url.endswith("Article.js") else None,
+    )
+    assert got[0].url == "https://www.pcu.ac.kr/kor/article/notice_bob/1000"
+
+
+def test_action_set_without_readable_submit_is_still_a_candidate():
+    page = (
+        "<script>function onView(url){ frmBbs.action = url; dcpPaging(1); }</script>"
+        '<form name="frmBbs" action="?mode=list" method="post"><input name="group" value="0"></form>'
+        + _table("<a href=\"javascript:onView('?mode=view&id={no}&group=0')\">" + TITLE + "</a>")
+    )
+    got = _first(page, "https://www.handong.edu/kor/square/inform/news/")
+    assert got[0].url == "https://www.handong.edu/kor/square/inform/news/?mode=view&id=1000&group=0"

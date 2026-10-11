@@ -22,6 +22,7 @@ from __future__ import annotations
 import html
 import re
 import threading
+import time
 import urllib.parse
 from collections.abc import Callable
 from dataclasses import dataclass, field, replace
@@ -560,6 +561,7 @@ class _Run:
         self.forms: dict[int, _FormState] = {}
         self.locations: list[str] = []
         self.steps = 0
+        self._evaluating: set[str] = set()
 
     def done(self) -> bool:
         return bool(self.locations) or any(f.submitted for f in self.forms.values())
@@ -694,6 +696,14 @@ class _Run:
                 v = env[p]
                 return None if v.startswith("\x00") else v
             got = self.ctx.globals.get(p)
+            if got is None and p in self.ctx.global_exprs and p not in self._evaluating:
+                self._evaluating.add(p)
+                try:
+                    got = self.value(self.ctx.global_exprs[p], {}, False, depth + 1)
+                finally:
+                    self._evaluating.discard(p)
+                if got is not None:
+                    self.ctx.globals[p] = got
             return got if got is not None else ("" if lenient else None)
         m = re.fullmatch(
             r"(?:window\s*\.\s*|document\s*\.\s*)?location\s*\.\s*(pathname|search|href|host|origin)",
@@ -1113,6 +1123,7 @@ class _Ctx:
         self.allowed = allowed
         self._external: list[str] | None = None
         self.globals = _globals(parts.scripts)
+        self.global_exprs = _global_exprs(parts.scripts)
 
     def external(self) -> list[str]:
         """같은 사이트의 스크립트 파일(라이브러리 빼고) — 함수를 페이지에서 못 찾을 때만 받는다."""
@@ -1135,6 +1146,8 @@ class _Ctx:
                 for code in self._external:
                     for k, v in _globals([code]).items():
                         self.globals.setdefault(k, v)
+                    for k, v in _global_exprs([code]).items():
+                        self.global_exprs.setdefault(k, v)
         return self._external
 
     def function(self, name: str) -> tuple[list[str], str] | None:
@@ -1241,6 +1254,20 @@ _JS_LOCK = threading.Lock()
 MAX_JS_BYTES = 800_000
 
 
+_GLOBAL_EXPR_RE = re.compile(
+    r"(?:^|[;\n])\s*(?:var|let|const)\s+([A-Za-z_$][\w$]*)\s*=\s*([^;\n]{1,300})"
+)
+
+
+def _global_exprs(codes: list[str]) -> dict[str, str]:
+    """'const ARTICLE_BASE_URL = `/${SITE}/article`' 처럼 식으로 둔 전역 상수 — 쓸 때 계산한다."""
+    out: dict[str, str] = {}
+    for code in codes:
+        for m in _GLOBAL_EXPR_RE.finditer(code):
+            out.setdefault(m.group(1), m.group(2).strip())
+    return out
+
+
 def _globals(codes: list[str]) -> dict[str, str]:
     out: dict[str, str] = {}
     for code in codes:
@@ -1303,9 +1330,11 @@ def _to_candidates(run: _Run, ctx: _Ctx) -> list[Candidate]:
         if url:
             out.append(Candidate("loc", url))
             break
-    for state in run.forms.values():
-        if not state.submitted:
-            continue
+    states = [s for s in run.forms.values() if s.submitted]
+    if not states and not out:
+        # 제출하는 함수를 못 읽었어도 action 을 바꿨다면 그 주소 — 확인 단계가 거른다
+        states = [s for s in run.forms.values() if s.action]
+    for state in states:
         form = ctx.parts.forms[state.index] if state.index >= 0 else Form()
         action = state.action if state.action is not None else form.action
         base = _absolute(action or page, page)
@@ -1380,6 +1409,8 @@ def _with_query(base: str, pairs: list[tuple[str, str]]) -> str:
 
 
 # ── 확인: 첫 글 하나를 열어 그 글인지 본다 ───────────────────────────────────
+_FAILED: dict[tuple, float] = {}  # 연결 실패·시간 제한으로 확인 못 한 꼴 → 그때(잠시 쉬었다 다시)
+FAILED_TTL = 600.0
 _VERIFIED: dict[tuple, str] = {}  # (호스트, 함수 이름, 후보 꼴들) → 통한 꼴('' = 안 통함)
 _VERIFIED_LOCK = threading.Lock()
 _SPACE_RE = re.compile(r"\s+")
@@ -1540,6 +1571,9 @@ def _verified_kind(
     with _VERIFIED_LOCK:
         if memo in _VERIFIED:
             return _VERIFIED[memo]
+        failed_at = _FAILED.get(memo)
+        if failed_at is not None and time.monotonic() - failed_at < FAILED_TTL:
+            return ""  # 방금 열지 못한 꼴 — 잠시 다시 열지 않는다
     first = idxs[0]
     checks = 0
     judged = False  # 화면을 받아 보고 판단했는가(연결 실패·시간 제한이면 기억하지 않는다)
@@ -1560,11 +1594,15 @@ def _verified_kind(
     if found or judged:
         with _VERIFIED_LOCK:
             _VERIFIED[memo] = found
+    elif checks:
+        with _VERIFIED_LOCK:
+            _FAILED[memo] = time.monotonic()
     return found
 
 
 def reset_cache() -> None:
     with _VERIFIED_LOCK:
         _VERIFIED.clear()
+        _FAILED.clear()
     with _JS_LOCK:
         _JS_CACHE.clear()

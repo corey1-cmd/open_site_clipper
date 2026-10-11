@@ -824,7 +824,7 @@ def page_sample(
             for src, code in codes:
                 got = scriptlink.find_function([code], name)
                 if got:
-                    funcs[name] = {"src": src, "params": got[0], "body": got[1][:1200]}
+                    funcs[name] = {"src": src, "params": got[0], "body": got[1][:4000]}
                     break
             else:
                 funcs[name] = "정의 못 찾음"
