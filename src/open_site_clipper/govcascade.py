@@ -27,8 +27,9 @@ import re
 import urllib.parse
 from collections.abc import Callable
 from dataclasses import dataclass, field, replace
+from datetime import date
 
-from . import govweb, jsonapi, parse, robots, scriptlink
+from . import govweb, jsonapi, paging, parse, robots, scriptlink
 from .cascade import (
     FETCH_FAILED,
     NO_ITEMS,
@@ -276,8 +277,12 @@ def _try_stages(
     *,
     fetcher: Callable[[str], bytes | None],
     check_robots: bool,
+    since: date | None = None,
 ) -> RouteResult:
-    """(단계, 주소)를 차례로 시도해 첫 성공에서 멈춘다 — collect_category 와 같은 규칙."""
+    """(단계, 주소)를 차례로 시도해 첫 성공에서 멈춘다 — collect_category 와 같은 규칙.
+
+    since 를 주면 게시판 표(BOARD·ALT)의 첫 쪽 글이 모두 그날 이후일 때 다음 쪽을 이어 읽는다.
+    """
     result = RouteResult(category, kind, stages[0][1] if stages else "")
     for stage, url in stages:
         if stage == DATAGO and not source.api_paths:
@@ -298,10 +303,62 @@ def _try_stages(
         if not notices:
             result.attempts.append(Attempt(stage, url, reason=NO_ITEMS))
             continue
+        if since is not None and stage in (BOARD, ALT):
+            notices = _more_pages(source, stage, data, url, category, notices, fetcher, since)
         result.attempts.append(Attempt(stage, url, count=len(notices)))
         result.url, result.stage, result.notices = url, stage, notices
         return result
     return result
+
+
+MAX_MORE_PAGES = 4  # 첫 쪽 뒤로 더 읽는 쪽 수(기간 안의 글이 이어질 때만)
+MIN_DATED_ON_PAGE = 3
+
+
+def _more_pages(
+    source: Source,
+    stage: str,
+    data: bytes,
+    url: str,
+    category: str,
+    notices: list[Notice],
+    fetcher: Callable[[str], bytes | None],
+    since: date,
+) -> list[Notice]:
+    """쪽의 마지막 글(가장 오래된 일반 글)까지 기간 안이면 다음 쪽을 읽어 붙인다.
+
+    위쪽 고정 공지는 오래되어도 상관없다 — 쪽의 맨 아래 글만 본다. 새 쪽의 글이 앞 쪽의 마지막
+    글보다 새것뿐이면(다른 게시판·같은 쪽이 나온 것) 거기서 멈춘다.
+    """
+    out = list(notices)
+    seen = {n.url for n in notices}
+    page_data, page_url, page = data, url, notices
+    for page_no in range(2, 2 + MAX_MORE_PAGES):
+        dated = [n.published for n in page if n.published]
+        if len(dated) < MIN_DATED_ON_PAGE or dated[-1] < since:
+            break
+        last = dated[-1]
+        moved = False
+        for nxt in paging.next_urls(page_data, page_url, page_no, fetcher, robots.allowed):
+            if not robots.allowed(nxt):
+                continue
+            more_data = fetcher(nxt)
+            if not more_data:
+                continue
+            more = _parse_stage(source, stage, more_data, nxt, category, fetcher)
+            more = [replace(n, origin=origin_label(url, stage)) for n in more]
+            new = [n for n in more if n.url not in seen]
+            older = [n for n in new if n.published and n.published <= last]
+            if not new or len(older) * 2 < len([n for n in new if n.published]):
+                continue  # 새 글이 없거나 앞 쪽보다 새 글뿐 — 이 주소는 다음 쪽이 아니다
+            seen.update(n.url for n in new)
+            out.extend(new)
+            page_data, page_url, page = more_data, nxt, more
+            moved = True
+            break
+        if not moved:
+            break
+    return out
 
 
 def collect_routes(
@@ -309,6 +366,7 @@ def collect_routes(
     *,
     fetcher: Callable[[str], bytes | None],
     check_robots: bool = True,
+    since: date | None = None,
 ) -> list[RouteResult]:
     """**경로마다** 모은다 — 같은 이름의 게시판이 여럿이어도 전부 본다.
 
@@ -327,7 +385,15 @@ def collect_routes(
         stage = kind if kind in (RSS, BOARD, DATAGO) else BOARD
         stages = [(stage, url)] + [(ALT, alt) for alt in alt_urls(url) if alt not in seen]
         results.append(
-            _try_stages(source, category, kind, stages, fetcher=fetcher, check_robots=check_robots)
+            _try_stages(
+                source,
+                category,
+                kind,
+                stages,
+                fetcher=fetcher,
+                check_robots=check_robots,
+                since=since,
+            )
         )
     if source.korea_feed and not any(r.ok and r.category == KOREA_CATEGORY for r in results):
         url = korea_url(source.korea_feed)

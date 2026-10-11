@@ -249,7 +249,7 @@ def _url_key(url: str) -> str:
 
 
 def _cascade(
-    source: Source, fetch: PageFetcher
+    source: Source, fetch: PageFetcher, since: date | None = None
 ) -> tuple[list[Notice], list[str], list[list[str]], list[int]]:
     """경로마다 모아 공지·실패 사유·**실제로 나온 경로(다듬은 이름)**를 돌려준다.
 
@@ -262,7 +262,7 @@ def _cascade(
     used: list[list[str]] = []
     ok_cats: set[str] = set()
     tried: dict[str, list[str]] = {}
-    for res in govcascade.collect_routes(source, fetcher=fetch):
+    for res in govcascade.collect_routes(source, fetcher=fetch, since=since):
         if not res.ok:
             tried.setdefault(res.category, []).append(res.trail() or "해당 없음")
             continue
@@ -348,19 +348,19 @@ def collect_one(
         source = replace(source, routes=plan_routes(preset, found.routes))
         mode = "discover" if not preset else "preset"
 
-    notices, failures, used, origins = _cascade(source, deadline)
+    today = today or datetime.now(KST).date()
+    cutoff = today - timedelta(days=days)
+    notices, failures, used, origins = _cascade(source, deadline, cutoff)
     if mode == "cache" and not notices and deadline.left() > REDISCOVER_MIN_LEFT:
         # 캐시해 둔 게시판이 바뀌었을 수 있다 — 홈에서 다시 찾는다.
         found, notes = govdiscover.enrich(
             replace(org.source, routes=()), fetcher=deadline, targets=_targets(org)
         )
         source = replace(source, routes=plan_routes(preset, found.routes))
-        notices, failures, used, origins = _cascade(source, deadline)
+        notices, failures, used, origins = _cascade(source, deadline, cutoff)
         mode = "rediscover"
     used = _contributing(notices, origins, used)
 
-    today = today or datetime.now(KST).date()
-    cutoff = today - timedelta(days=days)
     rows, seen = [], set()
     school = org.section == "학교"
     for n in sorted(notices, key=_newest_specific_first):
