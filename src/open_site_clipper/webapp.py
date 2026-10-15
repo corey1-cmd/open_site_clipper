@@ -636,7 +636,7 @@ def media_sample(
     return {"id": org_id, "name": catalog()[org_id].name, "count": got["count"], "samples": samples}
 
 
-VERIFY_STAGES = ("discover", "media", "rows", "page")  # 그 밖은 수집(collect)
+VERIFY_STAGES = ("discover", "media", "rows", "page", "robots")  # 그 밖은 수집(collect)
 ROWS_PER_ROUTE = 6
 ROWS_ROUTES = 8
 ROWS_CELL_CHARS = 40
@@ -886,6 +886,21 @@ def page_sample(
     }
 
 
+def robots_sample(org_id: str, *, urls: list[str] | None = None) -> dict:
+    """점검용 — 홈·캐시한 게시판 주소의 robots.txt 판정과 근거(RFC 9309 해석·예전 해석).
+
+    robots.txt 로 막혀 못 모으는 학교가 사이트의 뜻대로 막힌 것인지(규칙), 해석이 달라 막힌
+    것인지(가장 긴 규칙·와일드카드) 가린다. robots.txt 만 받는다(화면은 열지 않는다).
+    """
+    org = catalog()[org_id]
+    cached = (route_cache().get(org_id) or {}).get("routes") or []
+    targets = [org.home, *[r[2] for r in cached], *(urls or [])]
+    out = []
+    for url in list(dict.fromkeys(targets))[:8]:
+        out.append({"url": url} | robots.explain(url))
+    return {"id": org.id, "name": org.name, "checks": out}
+
+
 def rows_sample(
     org_id: str,
     *,
@@ -1016,6 +1031,11 @@ def verify(
         if stage == "rows":
             try:
                 return rows_sample(org_id, budget=budget, fetcher=fetcher, delay=delay)
+            except Exception as e:
+                return {"id": org_id, "name": catalog()[org_id].name, "error": repr(e)[:200]}
+        if stage == "robots":
+            try:
+                return robots_sample(org_id, urls=list(urls or []))
             except Exception as e:
                 return {"id": org_id, "name": catalog()[org_id].name, "error": repr(e)[:200]}
         if stage == "page":
