@@ -479,6 +479,7 @@ _LOC_CALL_RE = re.compile(
 _OPEN_RE = re.compile(r"^(?:window\s*\.\s*)?open\s*\(")
 # 조건을 알 수 없을 때 '주소를 만드는' 블록인지 — 아니면 경고·되돌아가기뿐인 관문으로 본다
 _EFFECT_RE = re.compile(r"location|submit|\.action|window\.open|\.val\(|\.value|setHidden|attr\(")
+_CALLBACK_RE = re.compile(r"function\s*[\w$]*\s*\([^)]*\)\s*\{|\([^()]*\)\s*=>\s*\{")
 MAX_STEPS = 600
 MAX_DEPTH = 4
 
@@ -795,6 +796,13 @@ class _Run:
                 return None
             safe = "" if m.group(1) == "encodeURIComponent" else "/:?&=#"
             return urllib.parse.quote(inner, safe=safe)
+        m = re.fullmatch(r"(.+?)\s*\.\s*serialize\(\s*\)", p, re.S)
+        if m:
+            # $('#frm').serialize() — 폼의 값(바꾼 값 반영)을 쿼리 글로(jQuery 와 같은 인코딩)
+            idx = self.form_of(m.group(1), env)
+            if idx is not None:
+                return self.serialize(idx)
+            return "" if lenient else None
         m = re.fullmatch(
             r"(?:String|Number|parseInt|parseFloat|\$\.trim|jQuery\.trim)\s*\((.*)\)", p, re.S
         )
@@ -853,6 +861,26 @@ class _Run:
                 return args[0] if args and args[0] != THIS else ""
             return None
         return "" if lenient else None
+
+    def serialize(self, idx: int) -> str:
+        """폼 값들(바꾼 값 반영) → 'a=1&b=%EA%B0%80' — 고르지 않은 체크·단추·사용 안 함은 뺀다."""
+        form = self.ctx.parts.forms[idx]
+        sets = dict(self.forms[idx].sets) if idx in self.forms else {}
+        pairs = []
+        for i, (name, value, _iid) in enumerate(form.inputs):
+            kind = form.types[i] if i < len(form.types) else "text"
+            base = kind.split(":", 1)[0]
+            if (
+                not name
+                or ":disabled" in kind
+                or base in ("submit", "button", "image", "reset", "file")
+            ):
+                continue
+            if base in ("checkbox", "radio") and ":checked" not in kind:
+                continue
+            pairs.append((name, sets.pop(name, value)))
+        pairs += list(sets.items())
+        return urllib.parse.urlencode(pairs)
 
     def args(self, src: str, env: dict[str, str], depth: int) -> list[str]:
         if not src.strip():
@@ -1058,7 +1086,23 @@ class _Run:
         return False
 
     def statement(self, s: str, env: dict[str, str], depth: int, returns: list[str] | None) -> bool:
-        """단순 문장 하나 — return 이면 True."""
+        """단순 문장 하나 — return 이면 True. 문장 속 콜백(성공 처리 함수)도 따라간다."""
+        if self._statement(s, env, depth, returns):
+            return True
+        if not self.done() and depth < MAX_DEPTH and ("function" in s or "=>" in s):
+            # '$.ajax({ …, success: function(data){ location.href = … } })' — 확인 요청의 답을 받은
+            # 뒤에 글로 가는 게시판(삼육보건대 bbsChecking). 답은 모르니 주소를 만드는 쪽을 따른다.
+            for m in _CALLBACK_RE.finditer(s):
+                body = _block(s, m.end())
+                if _EFFECT_RE.search(body):
+                    self.execute(body, dict(env), depth + 1)
+                    if self.done():
+                        break
+        return False
+
+    def _statement(
+        self, s: str, env: dict[str, str], depth: int, returns: list[str] | None
+    ) -> bool:
         if s == "return" or s.startswith(("return ", "return(", "return!")):
             rest = s[len("return") :].strip()
             if rest:

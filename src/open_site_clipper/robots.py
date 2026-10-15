@@ -170,29 +170,41 @@ def _load(origin: str) -> Rules | None:
     req = urllib.request.Request(
         f"{origin}/robots.txt", headers={"User-Agent": USER_AGENT}, method="GET"
     )
-    try:
-        from . import aia
-        from .fetch import _decompress, _read_capped, _SlowResponse
+    from . import aia
+    from .fetch import _decompress, _read_capped, _SlowResponse
 
-        started = time.monotonic()
-        with urllib.request.urlopen(req, timeout=_TIMEOUT, context=aia.context()) as resp:
-            if resp.status != 200:
-                _STATUS[origin] = str(resp.status)
-                return None
-            # 조금씩 흘리는 서버가 점검을 붙잡지 않게 전체 받기 시간도 묶는다(fetch 와 같은 규칙)
-            data = _decompress(
-                _read_capped(resp, started, _TIMEOUT), getattr(resp, "headers", None)
-            )
-            raw = data[:MAX_ROBOTS_BYTES].decode("utf-8", errors="replace")
-    except _SlowResponse:
-        _STATUS[origin] = "너무 느림"
-        return None
-    except urllib.error.HTTPError as e:
-        _STATUS[origin] = str(e.code)
-        return None  # 4xx·5xx — 규칙을 못 읽으면 막지 않는다(fail-open)
-    except (urllib.error.URLError, TimeoutError, OSError, ValueError) as e:
-        _STATUS[origin] = f"못 받음({str(getattr(e, 'reason', e))[:40]})"
-        return None
+    url = f"{origin}/robots.txt"
+    raw = ""
+    for attempt in range(2):
+        try:
+            started = time.monotonic()
+            ctx = aia.legacy_context() if aia.is_legacy(url) else aia.context()
+            with urllib.request.urlopen(req, timeout=_TIMEOUT, context=ctx) as resp:
+                if resp.status != 200:
+                    _STATUS[origin] = str(resp.status)
+                    return None
+                # 조금씩 흘리는 서버가 점검을 붙잡지 않게 전체 받기 시간도 묶는다(fetch 와 같은 규칙)
+                data = _decompress(
+                    _read_capped(resp, started, _TIMEOUT), getattr(resp, "headers", None)
+                )
+                raw = data[:MAX_ROBOTS_BYTES].decode("utf-8", errors="replace")
+            break
+        except _SlowResponse:
+            _STATUS[origin] = "너무 느림"
+            return None
+        except urllib.error.HTTPError as e:
+            _STATUS[origin] = str(e.code)
+            return None  # 4xx·5xx — 규칙을 못 읽으면 막지 않는다(fail-open)
+        except (urllib.error.URLError, TimeoutError, OSError, ValueError) as e:
+            text = str(getattr(e, "reason", e)).lower()
+            # 중간 인증서를 안 보내는 서버·옛 TLS 서버 — 화면을 받을 때와 같이 고쳐 한 번 더
+            # (robots.txt 만 못 받아 '규칙 없음'으로 넘어가면 사이트의 규칙을 놓친다)
+            if attempt == 0 and "certificate" in text and aia.repair(url):
+                continue
+            if attempt == 0 and aia.needs_legacy(text) and aia.mark_legacy(url):
+                continue
+            _STATUS[origin] = f"못 받음({str(getattr(e, 'reason', e))[:40]})"
+            return None
     if raw.lstrip()[:15].lower().startswith(("<!doctype", "<html")):
         _STATUS[origin] = "200 HTML(규칙 아님)"
         return None  # robots.txt 자리에 HTML 화면을 주는 서버 — 규칙이 없다

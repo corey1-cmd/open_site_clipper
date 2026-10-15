@@ -663,3 +663,29 @@ def test_whole_row_onclick_gives_the_title_cell_its_script():
     assert [r.url for r in rows] == [
         f"https://www.r.ac.kr/notice/view.do?no={i}" for i in range(1, 4)
     ]
+
+
+def test_link_after_a_check_request_callback_and_serialized_form_shu():
+    """'확인 요청 → 성공 처리에서 글로' — 콜백 안의 location 과 $('#frm').serialize()(삼육보건대)."""
+    items = "".join(
+        f'<li><div class="infoArea"><a href="" class="noticeTitle" data-idno="{13910 + i}" data-lvl="2" '
+        f'data-url="N"><p>{i}번째 공지 제목입니다</p></a><span class="date">2026-10-0{i + 1}</span></div></li>'
+        for i in range(4)
+    )
+    page = (
+        f"<ul>{items}</ul>"
+        '<form id="sendForm" method="post"><input type="hidden" name="MENU_ID" value="1800">'
+        '<input type="hidden" name="BBS_SEQ" value=""><input type="hidden" name="P_BBS_SEQ" value=""></form>'
+        '<script>$(document).on("click","div.infoArea > a.noticeTitle",function(){'
+        ' var bbs_seq = $(this).data("idno"); var link_yn = $(this).data("url"); var url = $(this).attr("href");'
+        ' $(this).attr("href","#;"); $("#sendForm input:hidden[name=BBS_SEQ]").val(bbs_seq);'
+        ' fn_comm_ajax({ url : "/ajaxf/FrBoardSvc/bbsChecking.do", data : $("#sendForm").serialize(),'
+        ' dataType : "json", success : function(data) { if(data == 1){ if(link_yn=="Y"){ location.href=url; }'
+        ' else{ location.href = "/cms/FrBoardCon/boardView.do?"+encodeURI($("#sendForm").serialize()); } }'
+        ' else if(data == 2){ alert("권한이 없습니다."); } } }); });</script>'
+    )
+    got = _first(page, "https://www.shu.ac.kr/cms/FrCon/index.do?MENU_ID=1800")
+    assert got[0] == scriptlink.Candidate(
+        "loc",
+        "https://www.shu.ac.kr/cms/FrBoardCon/boardView.do?MENU_ID=1800&BBS_SEQ=13910&P_BBS_SEQ=",
+    )
