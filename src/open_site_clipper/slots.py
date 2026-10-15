@@ -369,6 +369,14 @@ def list_literals(data: bytes, url: str, home_host: str, mine=None) -> list[str]
     return out[:MINED_PER_SLOT]
 
 
+def _side_admission(slot: str, label: str) -> bool:
+    """'입학' 갈래에 대학원(법학전문·법무·국제대학원) 입학 게시판 — 학부 입학 공지가 아니다.
+
+    고려대 입학 갈래가 '법무대학원 입학안내'로 채워졌다(실측). 다른 것이 없으면 대안으로만 쓴다.
+    """
+    return slot == "입학" and "대학원" in label
+
+
 def short(url: str, limit: int = 70) -> str:
     """추적 기록용 — 호스트·경로·쿼리를 짧게."""
     parts = urllib.parse.urlsplit(url)
@@ -431,12 +439,16 @@ def fill(
         # 스크립트로 목록을 불러오는 게시판도 목록으로 — 그 요청을 한 번 따라 해 본다(요청 1회 더)
         result = probe.classify_page(data, url, home_host=home_host, fetch=fetch)
         tested[url] = result.verdict
-        if result.collectible and result.dated >= SLOT_MIN_DATED:
+        if (
+            result.collectible
+            and result.dated >= SLOT_MIN_DATED
+            and not _side_admission(slot, label)
+        ):
             filled[slot] = (label, "board", url)
             trace.append(f"{slot} ○ {label} {short(url)} ({result.dated}/{result.rows})")
             return
         if result.collectible:
-            if _BOARDISH_RE.search(label) and slot not in weak:
+            if _BOARDISH_RE.search(label) and slot not in weak and not _side_admission(slot, label):
                 weak[slot] = (label, "board", url)
             else:
                 released.add(url)  # 갈래로는 안 쓰지만 목록이긴 하다 — 일반 발견이 다시 볼 수 있게

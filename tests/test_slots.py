@@ -627,3 +627,14 @@ def test_club_boards_and_forms_are_not_school_notices():
         assert slots.not_board(label), label
     for label in ("공지사항", "학사 입사생 공지사항", "교직원 채용공고", "취업지원부 공지"):
         assert not slots.not_board(label), label
+
+
+def test_deep_index_pages_are_sections_not_homes_and_grad_admissions_do_not_fill_the_slot():
+    from open_site_clipper import probe
+
+    assert not probe.looks_like_home("https://www.kookmin.ac.kr/user/kmuNews/notice/10/index.do")
+    assert probe.looks_like_home("https://www.korea.ac.kr/sites/ko/index.do")
+    assert probe.looks_like_home("https://x.ac.kr/kor/index.do")
+    assert slots._side_admission("입학", "법무대학원 입학안내")
+    assert not slots._side_admission("입학", "입학 공지사항")
+    assert not slots._side_admission("공지", "대학원 공지")

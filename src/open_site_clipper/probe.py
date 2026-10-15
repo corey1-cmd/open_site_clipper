@@ -136,6 +136,7 @@ _MENU_QUERY_RE = re.compile(
     re.I,
 )
 _HOME_STEM_RE = re.compile(r"^(?:index|main|home|default)|(?:index|main)$", re.I)
+DEEP_INDEX = 3  # 앞 경로 조각이 이만큼 이상이면 index·main 이어도 갈래 화면
 
 
 def looks_like_home(url: str) -> bool:
@@ -165,7 +166,10 @@ def looks_like_home(url: str) -> bool:
     ):
         return True  # /base/main/view · /ilos/main/main_form.acl ('/main/163' 메뉴는 아니다)
     if _HOME_STEM_RE.search(stem):
-        return True
+        # 깊은 경로의 index.do 는 갈래(게시판) 첫 화면이다 — '/user/kmuNews/notice/10/index.do'
+        # (국민대 공지·교내채용)가 첫 화면으로 빠져 대표 게시판을 놓쳤다. 첫 화면은 얕다
+        # ('/index.do' · '/kor/index.do' · '/sites/ko/index.do').
+        return len(segs) - 1 < DEEP_INDEX
     # '/ko/' · '/eng/' · '/www/' 처럼 언어·사이트 이름 한 조각 = 하위 사이트 뿌리
     return len(segs) == 1 and segs[0].lower() in _SITE_ROOTS and not parts.query
 
