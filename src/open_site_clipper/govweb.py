@@ -227,7 +227,8 @@ class _ItemParser(HTMLParser):
         self.rows: list[list[tuple[str, str]]] = []
         self._stack: list[list[tuple[str, str]]] = []  # 열린 <li> 마다 칸 목록
         self._buf: list[str] = []
-        self._href: list[str] = []  # 열린 <a> 의 주소(중첩 대비 스택)
+        self._href: list[str] = []  # 열린 <a>(또는 onclick 단추)의 주소(중첩 대비 스택)
+        self._open: list[str] = []  # 그 요소 이름들 — 닫는 태그가 맞을 때만 뗀다
         self._skip = 0
         self._glyph: list[str] = []  # 열린 아이콘 글꼴 요소(그 안 글자는 읽지 않는다)
 
@@ -248,8 +249,9 @@ class _ItemParser(HTMLParser):
             self._glyph.append(tag)
         if tag == "li":
             self._stack.append([])
-        elif tag == "a":
+        elif tag == "a" or (tag == "button" and anchor_href(attrs)):
             self._href.append(anchor_href(attrs))
+            self._open.append(tag)
 
     def handle_startendtag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         self._flush()
@@ -266,11 +268,12 @@ class _ItemParser(HTMLParser):
             return
         if self._glyph and tag == self._glyph[-1]:
             self._glyph.pop()
-        elif tag in ("li", "a"):
+        elif tag in ("li", "a", "button"):
             self._glyph = []
         self._flush()
-        if tag == "a" and self._href:
+        if tag in ("a", "button") and self._href and self._open and self._open[-1] == tag:
             self._href.pop()
+            self._open.pop()
         elif tag == "li" and self._stack:
             row = self._stack.pop()
             if row:

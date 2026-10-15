@@ -345,8 +345,12 @@ def test_post_only_list_request_is_sent_as_the_same_post():
     """GET 에 405 를 주는 목록 요청(동원대) — 사이트가 POST 로 보내면 같은 POST 로 다시."""
     from open_site_clipper.fetch import POST_MARK
 
-    payload = {"resultList": [{"bIdx": 9, "title": "포스트로만 오는 공지", "regDate": "2026-10-11"},
-                              {"bIdx": 8, "title": "두 번째 포스트 공지", "regDate": "2026-10-10"}]}
+    payload = {
+        "resultList": [
+            {"bIdx": 9, "title": "포스트로만 오는 공지", "regDate": "2026-10-11"},
+            {"bIdx": 8, "title": "두 번째 포스트 공지", "regDate": "2026-10-10"},
+        ]
+    }
     seen: list[str] = []
 
     def fetch(url):
@@ -375,7 +379,9 @@ def test_fetch_detail_sends_marked_urls_as_form_posts():
     class Handler(http.server.BaseHTTPRequestHandler):
         def do_POST(self):
             n = int(self.headers.get("Content-Length") or 0)
-            got.update(path=self.path, body=self.rfile.read(n).decode(), ctype=self.headers["Content-Type"])
+            got.update(
+                path=self.path, body=self.rfile.read(n).decode(), ctype=self.headers["Content-Type"]
+            )
             body = b'{"list": []}'
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
@@ -399,3 +405,121 @@ def test_fetch_detail_sends_marked_urls_as_form_posts():
         "body": "pageNo=1&MENU_ID=100",
         "ctype": "application/x-www-form-urlencoded; charset=UTF-8",
     }
+
+
+# 실측 꼴(2026-10-12): 중앙대 FR_CON — 구분자를 바꾼 jquery.tmpl('{%= … %}') · <li> 목록 ·
+# 도우미(fn_comm_ajax)가 방식을 감추고 폼은 POST(삼육보건대)
+FR = "https://www.f.ac.kr/cms/FrCon/index.do?MENU_ID=1800"
+FR_PAGE = (
+    "<ul id='tbody'></ul>"
+    "<form id='sendForm' method='post'><input type='hidden' name='pageNo' value=''>"
+    "<input type='hidden' name='MENU_ID' value='1800'><input type='hidden' name='BOARD_SEQ' value='29'></form>"
+    '<script type="text/x-jquery-tmpl" id="listTemplate">'
+    '<li class="{%if NOTICE_YN == \'Y\'%} typeNoti{%/if%}" id="board_{%= BBS_SEQ%}"> <div class="txtL">'
+    "{%if NOTICE_YN == 'Y'%} <span class=\"mark_noti\">[공지]</span> {%/if%}"
+    " <a href=\"javascript:fn_goDetail('{%= BBS_SEQ%}','{%= LINK_URL_YN%}','{%= LINK_URL%}','{%= SECRET_YN%}')\">"
+    '{%= SUBJECT%}</a> </div> <span class="txtR"><span class="date">{%= WRITE_DT%}</span></span></li>'
+    "</script>"
+    '<script>function fn_list(){ fn_comm_ajax({ url : "/ajaxf/FrBoardSvc/bbsViewList.do",'
+    ' data : $("#sendForm").serialize(), dataType : "json", success : function(data) {'
+    ' fn_comm_setList("#tbody", data, "#listTemplate", "#noListTemplate"); } }); }'
+    "function fn_goDetail(seq, yn, url, secret){ location.href = '/cms/FrCon/BoardView.do?MENU_ID=1800&BBS_SEQ=' + seq; }"
+    "</script>"
+)
+
+
+def test_percent_delimited_template_li_rows_and_post_form_helper():
+    from open_site_clipper.fetch import POST_MARK
+
+    payload = {
+        "data": {
+            "list": [
+                {
+                    "BBS_SEQ": 501,
+                    "SUBJECT": "학사 일정 변경 안내",
+                    "NOTICE_YN": "Y",
+                    "LINK_URL_YN": "N",
+                    "LINK_URL": None,
+                    "SECRET_YN": "N",
+                    "WRITE_DT": "2026.10.10",
+                },
+                {
+                    "BBS_SEQ": 500,
+                    "SUBJECT": "장학금 신청 기간 안내",
+                    "NOTICE_YN": "N",
+                    "LINK_URL_YN": "N",
+                    "LINK_URL": None,
+                    "SECRET_YN": "N",
+                    "WRITE_DT": "2026.10.09",
+                },
+            ]
+        }
+    }
+    seen: list[str] = []
+
+    def fetch(url):
+        seen.append(url)
+        if urllib.parse.urlsplit(url).path != "/ajaxf/FrBoardSvc/bbsViewList.do":
+            return None
+        # GET 에는 빈 응답을 주는 서버 — POST 여야 목록을 준다
+        return (
+            json.dumps(payload, ensure_ascii=False).encode() if url.endswith(POST_MARK) else b"{}"
+        )
+
+    ajaxlist._METHOD.clear()
+    parts = scriptlink.page_parts(FR_PAGE)
+    (call,) = ajaxlist.find_calls(scriptlink._Ctx(parts, FR, None))
+    assert call.method == "post"  # 도우미는 방식을 감췄지만 폼이 POST
+    data = ajaxlist.expand(FR_PAGE.encode(), FR, fetch)
+    assert data is not None and seen[-1].endswith(POST_MARK)
+    rows = govweb.parse_list(data, FR)
+    assert [(r.title, str(r.published)) for r in rows] == [
+        ("학사 일정 변경 안내", "2026-10-10"),
+        ("장학금 신청 기간 안내", "2026-10-09"),
+    ]
+    assert rows[0].script.startswith("javascript:fn_goDetail('501','N','','N')")
+
+
+def test_untemplated_rows_take_every_list_of_the_same_shape_and_skip_image_links():
+    page = (
+        "<form id='form'><input type='hidden' id='bsIdx' name='bsIdx' value='8'></form>"
+        "<script>var goPage = function(page){ $.ajax({ type:'post', url:'/bbs/ajax/boardList.do',"
+        " dataType:'json', data:{ menuId:'933', bsIdx: $('#bsIdx').val(), page: page },"
+        " success: function(json){ setPageList(json); } }); };</script>"
+    )
+    payload = {
+        "noticeList": [
+            {
+                "B_IDX": "1",
+                "SUBJECT": "고정된 중간고사 공고",
+                "WRITE_DATE": "2026-09-23",
+                "THUMB_URL": "/cmmn/viewImage.do?idx=1",
+            }
+        ],
+        "resultList": [
+            {
+                "B_IDX": "3",
+                "SUBJECT": "취업역량 강화반 모집",
+                "WRITE_DATE": "2026-10-07",
+                "THUMB_URL": "/cmmn/viewImage.do?idx=3",
+            },
+            {
+                "B_IDX": "2",
+                "SUBJECT": "독감 예방접종 안내",
+                "WRITE_DATE": "2026-09-29",
+                "THUMB_URL": "",
+            },
+        ],
+    }
+    url = "https://www.tw.ac.kr/bbs/board.do?bsIdx=8&menuId=933"
+    data = ajaxlist.expand(
+        page.encode(), url, lambda u: json.dumps(payload, ensure_ascii=False).encode()
+    )
+    rows = govweb.parse_list(data, url)
+    assert [r.title for r in rows] == [
+        "고정된 중간고사 공고",
+        "취업역량 강화반 모집",
+        "독감 예방접종 안내",
+    ]
+    assert all("viewImage" not in r.url for r in rows)  # 그림 주소는 글 주소가 아니다
+    assert all(r.url.startswith(url + "#") for r in rows)  # 글 주소를 모르면 목록#제목

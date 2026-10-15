@@ -38,8 +38,17 @@ class _Node:
     names: tuple[str, ...] = ()  # {{each(i, v) list}} 의 이름들
 
 
+_PCT_RE = re.compile(r"\{%(.*?)%\}", re.S)
+
+
+def _normalize(source: str) -> str:
+    """'{%= BBS_SEQ%}' · '{%if X%}…{%/if%}' — 구분자를 바꾼 jquery.tmpl(중앙대·삼육보건대 FR_CON)."""
+    return _PCT_RE.sub(lambda m: "{{" + m.group(1) + "}}", source) if "{%" in source else source
+
+
 def parse(source: str) -> list[_Node]:
     """틀 글 → 마디 나무. 짝이 안 맞는 닫기는 무시한다(깨진 틀도 읽은 데까지)."""
+    source = _normalize(source)
     root: list[_Node] = []
     stack: list[_Node] = []
 
@@ -107,7 +116,7 @@ def parse(source: str) -> list[_Node]:
 def placeholders(source: str) -> set[str]:
     """틀이 꺼내 쓰는 값 이름들(맨 앞 조각) — 어느 틀이 이 목록의 것인지 고를 때 쓴다."""
     out: set[str] = set()
-    for m in _TAG_RE.finditer(source):
+    for m in _TAG_RE.finditer(_normalize(source)):
         expr = next((g for g in m.groups() if g is not None), "")
         for name in re.findall(r"(?<![\w$.@'\"])([A-Za-z_][\w]*)", expr):
             if name not in _WORDS:

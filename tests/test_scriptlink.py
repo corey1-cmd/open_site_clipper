@@ -597,3 +597,69 @@ def test_auth_helper_with_unknown_branches_does_not_block_view_nambu():
         lambda url: js.encode() if "common-util" in url else None,
     )
     assert got[0].url == "https://www.nambu.ac.kr/board/NAMBU_BOARD_0003/boardView.do?bdId=BD1000"
+
+
+# ── 제목이 단추·줄 클릭인 게시판(2026-10-12) ──────────────────────────────────
+def test_title_button_with_onclick_dgist():
+    page = (
+        "<script>function fn_search_detail(nttId) { document.searchForm.nttId.value = nttId; "
+        'document.searchForm.action = "/bbs/BBSMSTR_000000000184/view.do"; document.searchForm.submit(); }</script>'
+        '<form name="searchForm" id="searchForm" action="/bbs/BBSMSTR_000000000184/list.do" method="post">'
+        '<input name="pageIndex" value="1"><input name="nttId" value=""></form>'
+        + _table(
+            '<button onclick="fn_search_detail(\'B{no}\'); return false;" class="link">'
+            '<div class="bbs-subject-con"><strong class="bbs-subject-txt">'
+            + TITLE
+            + "</strong></div></button>"
+        )
+    )
+    url = "https://www.dgist.ac.kr/bbs/BBSMSTR_000000000184/list.do"
+    rows = govweb.parse_list(page.encode(), url)
+    assert len(rows) == 4 and rows[0].title == "0번째 학사 공지사항 안내입니다"
+    got = _first(page, url)
+    assert got[0] == scriptlink.Candidate(
+        "form_set", "https://www.dgist.ac.kr/bbs/BBSMSTR_000000000184/view.do?nttId=B1000"
+    )
+
+
+def test_clickable_row_with_data_attributes_bnue():
+    rows = "".join(
+        f'<tr style="cursor: pointer;" data-board-id="BOARD_000000104" data-wr-id="" data-idx="{44830 + i}">'
+        f'<td class="board_number">{2700 + i}</td><td>안내</td><td class="left title"><p>'
+        f'<span class="label">공지</span> <button class="board_title_btn" aria-label="보기">{i}번째 공지 제목입니다'
+        f'</button></p></td><td>미래교육원</td><td class="date">2026-10-0{i + 1} 11:38:13</td></tr>'
+        for i in range(4)
+    )
+    page = (
+        '<form name="searchFrm" id="searchFrm" action="/board/community01_01" method="get">'
+        '<input type="hidden" name="_method" value="get"><input type="hidden" name="boardId" value="BOARD_000000104">'
+        '<input type="hidden" name="pageIndex" value="1"></form>'
+        f"<table><tbody>{rows}</tbody></table>"
+        '<script>$(function(){ $("tbody tr[data-wr-id]").click(function(event) {'
+        " if($(event.target).is('input:checkbox')){ return; }"
+        ' $("form[name=searchFrm]").attr("method", "get").attr("action", "/board/detail/community01_01/"'
+        '+$(this).data("idx")).submit(); return false; }); });</script>'
+    )
+    url = "https://www.bnue.ac.kr/board/community01_01"
+    parsed = govweb.parse_list(page.encode(), url)
+    assert [r.title for r in parsed][:2] == ["0번째 공지 제목입니다", "1번째 공지 제목입니다"]
+    got = _first(page, url)
+    assert got[0] == scriptlink.Candidate(
+        "form_bare", "https://www.bnue.ac.kr/board/detail/community01_01/44830"
+    )
+
+
+def test_whole_row_onclick_gives_the_title_cell_its_script():
+    page = (
+        "<table>"
+        + "".join(
+            f"<tr onclick=\"location.href='/notice/view.do?no={i}'\"><td>{i}</td><td>{i}번째 행 전체 클릭 공지</td>"
+            f"<td>2026-10-0{i + 1}</td></tr>"
+            for i in range(1, 4)
+        )
+        + "</table>"
+    )
+    rows = govweb.parse_list(page.encode(), "https://www.r.ac.kr/notice/list.do")
+    assert [r.url for r in rows] == [
+        f"https://www.r.ac.kr/notice/view.do?no={i}" for i in range(1, 4)
+    ]

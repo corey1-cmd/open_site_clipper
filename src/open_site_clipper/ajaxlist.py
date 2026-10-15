@@ -14,9 +14,11 @@
     $.post('/board/list.do', { boardId: 'B1' }, function (json) { … })
     $('#list').load('/board/listAjax.do', $('#frm').serialize())
 
-요청은 GET 으로 보낸다(값은 쿼리로). 사이트가 POST 로 보내는 요청도 대개 GET 으로 같은
-목록을 준다 — 주지 않으면 그 게시판은 지금처럼 0건으로 남는다. robots.txt 판정은 요청
-주소마다 다시 받는다.
+요청은 먼저 GET 으로 보낸다(값은 쿼리로). 사이트가 POST 로 보내는 요청이 GET 으로는 목록을
+주지 않으면(405·빈 응답 — 동원대·삼육보건대 실측) 사이트와 같은 POST 로 한 번 더 보낸다(값은
+본문으로, fetch.POST_MARK). 목록을 읽는 요청만 따라 한다 — 쓰기·지우기·옮기기 요청, 다른
+사이트로 가는 요청, 이 화면의 게시판 값을 싣지 않는 곁다리 요청(최신글 위젯)은 보내지 않는다.
+robots.txt 판정은 요청 주소마다 다시 받는다.
 """
 
 from __future__ import annotations
@@ -157,8 +159,10 @@ def _calls_in(code: str, ctx: scriptlink._Ctx) -> list[Call]:
                 continue
             url_expr = opts.get("url", "")
             data_expr = opts.get("data", "")
+            # 방식을 적지 않은 호출 — jQuery 는 GET, 사이트 도우미(fn_comm_ajax)는 속을 모른다('?')
+            default = "'get'" if short == "ajax" else "'?'"
             method = (
-                run.value(opts.get("type") or opts.get("method") or "'get'", {}, True, 0) or "get"
+                run.value(opts.get("type") or opts.get("method") or default, {}, True, 0) or "?"
             ).lower()
             kind = (run.value(opts.get("dataType", "''"), {}, True, 0) or "").lower()
             is_html = kind == "html"
@@ -200,6 +204,12 @@ def _make_call(
     pairs = _pairs_of(data_expr, code, run, ctx)
     if pairs is None:
         return None
+    if method == "?":
+        # 폼을 통째로 싣는 요청은 그 폼의 방식을 따른다(<form method="post"> — 삼육보건대)
+        sm = re.search(r"(.+?)\s*\.\s*serialize", data_expr)
+        idx = run.form_of(sm.group(1), {}) if sm else None
+        if idx is not None and ctx.parts.forms[idx].method in ("get", "post"):
+            method = ctx.parts.forms[idx].method
     listy = bool(re.search(r"list", tail, re.I))
     hinted = bool(_HINT_RE.search(hints))
     if not (_primary(data_expr, pairs, url, ctx.page_url) and (listy or hinted)):
@@ -325,7 +335,12 @@ def _payload(data: bytes) -> object | None:
 
 _TITLE_KEY_RE = re.compile(r"title|subject|sj$|ttl|nttsj|제목", re.I)
 _DATE_KEY_RE = re.compile(r"date|dt$|dttm|regdt|reg_?dt|wdate|created|insert|pnttm|writ|등록", re.I)
-_LINK_KEY_RE = re.compile(r"url|link|href", re.I)
+_LINK_KEY_RE = re.compile(
+    r"^(?:link|url|href|link_?url|detail_?url|view_?url|article_?url|post_?url|\w*_link)$", re.I
+)
+_NOT_LINK_RE = re.compile(
+    r"img|image|thumb|photo|file|banner|icon|viewimage|\.(?:jpe?g|png|gif)", re.I
+)
 _BODY_KEY_RE = re.compile(r"content|contents|cn$|body|text|summary|desc|html", re.I)
 
 
@@ -379,7 +394,7 @@ def _pick_template(
     parts: scriptlink.PageParts, call: Call, keys: set[str]
 ) -> scriptlink.Template | None:
     """응답을 그릴 틀 — 성공 처리에서 부르는 틀(id·변수), 없으면 항목 이름을 가장 많이 쓰는 틀."""
-    tmpls = [t for t in parts.templates if t.id and ("{{" in t.body or "${" in t.body)]
+    tmpls = [t for t in parts.templates if t.id and re.search(r"\{\{|\$\{|\{%", t.body)]
     if not tmpls:
         return None
     by_id = {t.id: t for t in tmpls}
@@ -445,7 +460,31 @@ def render(
                 return _wrap(out)
         rows = [tmpl.render(nodes, item) for item in items[:MAX_ROWS]]
         return _wrap("".join(rows))
-    return _wrap("".join(_auto_row(item) for item in items[:MAX_ROWS]))
+    # 틀이 없다 — 같은 모양의 목록(고정 공지 noticeList + 글 resultList)을 응답 순서대로 모두
+    same = [(p, li) for p, li in lists if len(keys & set(li[0])) * 10 >= len(keys) * 6]
+    order = _paths_in_order(payload)
+    same.sort(key=lambda pl: order.index(pl[0]) if pl[0] in order else len(order))
+    rows_html = "".join(_auto_row(item) for _p, li in same for item in li[:MAX_ROWS])
+    return _wrap(rows_html) if rows_html else ""
+
+
+def _paths_in_order(payload: object) -> list[str]:
+    """응답 안 배열들의 경로 — 나오는 차례대로."""
+    out: list[str] = []
+
+    def walk(obj: object, path: str, depth: int) -> None:
+        if depth > 5:
+            return
+        if isinstance(obj, list):
+            out.append(path)
+            for i, x in enumerate(obj[:2]):
+                walk(x, f"{path}.{i}" if path else str(i), depth + 1)
+        elif isinstance(obj, dict):
+            for k, v in obj.items():
+                walk(v, f"{path}.{k}" if path else k, depth + 1)
+
+    walk(payload, "", 0)
+    return out
 
 
 def _auto_row(item: dict) -> str:
@@ -473,6 +512,7 @@ def _auto_row(item: dict) -> str:
             if _LINK_KEY_RE.search(k)
             and isinstance(v, str)
             and v.startswith(("http://", "https://", "/"))
+            and not _NOT_LINK_RE.search(k + " " + v)
         ),
         "javascript:void(0)",
     )
@@ -559,7 +599,7 @@ def expand(
         key = (urllib.parse.urlsplit(url).netloc, urllib.parse.urlsplit(url).path)
         # GET 이 먼저 — 사이트가 POST 로 보내고 GET 으로는 목록을 안 주면(405·빈 응답) 같은 POST 로
         tries = [url]
-        if call.method == "post":
+        if call.method in ("post", "?"):
             tries = [url + POST_MARK] if _METHOD.get(key) == "post" else [url, url + POST_MARK]
         for target in tries:
             step: dict = {"url": target[:300]}

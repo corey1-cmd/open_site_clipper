@@ -92,6 +92,44 @@ def anchor_href(attrs: list[tuple[str, str | None]]) -> str:
     return href
 
 
+_POINTER_RE = re.compile(r"cursor\s*:\s*pointer", re.I)
+_CLICKY_CLASS_RE = re.compile(r"link|click|pointer|clickable|goview|view", re.I)
+
+
+def row_mark(
+    row_attrs: list[tuple[str, str | None]], el_attrs: list[tuple[str, str | None]]
+) -> str:
+    """글 줄(<tr>) 자체에 걸린 클릭 — 제목이 링크가 아닌 단추(<button>)·글자일 때 쓴다.
+
+    `<tr onclick="fn_view('12')">` 면 그 스크립트, `<tr data-idx="44837" style="cursor:pointer">` 처럼
+    줄의 data-* 에 글 번호가 있고 처리기가 'tbody tr[data-wr-id]' 로 붙는 게시판(부산교대 실측)이면
+    data-* 표시(빈 값도 — 선택자가 이름만 본다)에 단추·줄의 클래스를 단다. 아니면 "".
+    """
+    r = {k: (v or "") for k, v in row_attrs}
+    onclick = r.get("onclick", "").strip()
+    if onclick:
+        return "javascript:" + onclick
+    data = [(k, (v or "").strip()) for k, v in row_attrs if k.startswith("data-")]
+    if not data:
+        return ""
+    import urllib.parse
+
+    classes = " ".join(
+        c for c in ((dict(el_attrs).get("class") or "").strip(), r.get("class", "").strip()) if c
+    )
+    return DATA_MARK + urllib.parse.urlencode(data + ([("class", classes)] if classes else []))
+
+
+def clicky_row(row_attrs: list[tuple[str, str | None]]) -> bool:
+    """줄 전체가 눌리는 모양인가 — onclick, 또는 data-* 와 손가락 커서·눌림 클래스."""
+    r = {k: (v or "") for k, v in row_attrs}
+    if r.get("onclick", "").strip():
+        return True
+    return any(k.startswith("data-") for k in r) and bool(
+        _POINTER_RE.search(r.get("style", "")) or _CLICKY_CLASS_RE.search(r.get("class", ""))
+    )
+
+
 # 글자로 그리는 아이콘 글꼴(Material) — 'lock'·'chevron_forward' 같은 글자가 제목에
 # 붙는다('lock졸업예정자 누적석차 조회' — 강원대 실측). 이 요소 안의 글자는 읽지 않는다.
 GLYPH_CLASSES = ("material-icons", "material-symbols")
@@ -139,6 +177,7 @@ class _RowParser(HTMLParser):
         self._links: list[tuple[int, int, str]] = []  # 글자 있는 링크 (시작, 끝, 주소)
         self._open_link: tuple[int, str] | None = None
         self._glyph: list[str] = []
+        self._tr: list[tuple[str, str | None]] = []  # 지금 줄(<tr>)의 속성
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         if tag in ("tr", "td", "th"):
@@ -146,7 +185,7 @@ class _RowParser(HTMLParser):
         if tag not in _VOID_TAGS and is_glyph(attrs):
             self._glyph.append(tag)
         if tag == "tr":
-            self._row = []
+            self._row, self._tr = [], attrs
         elif tag in ("td", "th") and self._row is not None:
             self._cell, self._href, self._size = [], "", 0
             self._links, self._open_link = [], None
@@ -155,6 +194,13 @@ class _RowParser(HTMLParser):
             if href and not self._href:
                 self._href = href
             self._open_link = (self._size, href)
+        elif tag == "button" and self._cell is not None and self._open_link is None:
+            # 제목이 단추인 게시판 — 단추의 onclick·data-*, 없으면 줄(<tr>)에 걸린 클릭(DGIST·부산교대)
+            href = anchor_href(attrs) or row_mark(self._tr, attrs)
+            if href:
+                if not self._href:
+                    self._href = href
+                self._open_link = (self._size, href)
 
     def handle_data(self, data: str) -> None:
         if self._cell is not None and not self._glyph:
@@ -166,7 +212,7 @@ class _RowParser(HTMLParser):
             self._glyph.pop()
         elif tag in ("tr", "td", "th", "a"):
             self._glyph = []
-        if tag == "a" and self._open_link is not None and self._cell is not None:
+        if tag in ("a", "button") and self._open_link is not None and self._cell is not None:
             start, href = self._open_link
             self._open_link = None
             if "".join(self._cell)[start:].strip():
@@ -175,8 +221,19 @@ class _RowParser(HTMLParser):
             self._end_cell()
         elif tag == "tr" and self._row is not None:
             if self._row:
+                if not any(h for _t, h in self._row) and clicky_row(self._tr):
+                    # 줄 전체가 눌리는 게시판(<tr onclick>) — 가장 긴 글자 칸(날짜·숫자 말고)이 제목
+                    mark = row_mark(self._tr, [])
+                    texts = [
+                        (len(t), i)
+                        for i, (t, _h) in enumerate(self._row)
+                        if t and not coerce_date(t) and not _NUM_RE.match(t)
+                    ]
+                    if mark and texts:
+                        i = max(texts)[1]
+                        self._row[i] = (self._row[i][0], mark)
                 self.rows.append(self._row)
-            self._row = None
+            self._row, self._tr = None, []
 
     def _end_cell(self) -> None:
         assert self._cell is not None and self._row is not None

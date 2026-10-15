@@ -1120,7 +1120,9 @@ class _Run:
         if m:
             sel = m.group(1).strip()
             im = re.fullmatch(r"#([\w-]+)", sel)
-            nm = re.search(r"""\[\s*name\s*=\s*['"]?([\w-]+)['"]?\s*\]$""", sel)
+            # 'form[name=searchFrm]' 은 폼 자신이다 — 그 안의 입력칸('#frm [name=x]')이 아니다(부산교대)
+            whole = re.fullmatch(r"""form\s*\[\s*(?:name|id)\s*=\s*['"]?[\w-]+['"]?\s*\]""", sel)
+            nm = None if whole else re.search(r"""\[\s*name\s*=\s*['"]?([\w-]+)['"]?\s*\]$""", sel)
             if im and form is None:
                 sel_id = im.group(1)
             elif nm:
@@ -1289,13 +1291,16 @@ class _Ctx:
     def function(self, name: str) -> tuple[list[str], str] | None:
         return find_function(self.parts.scripts, name) or find_function(self.external(), name)
 
-    def handlers(self, classes: list[str]) -> list[tuple[list[str], str]]:
-        """'.cls' 에 걸린 클릭 처리기들의 몸통 — 그 클래스를 감싼 함수, 없으면 바로 뒤의 함수."""
+    def handlers(self, classes: list[str], attrs: list[str] = ()) -> list[tuple[list[str], str]]:
+        """'.cls'·'[data-x]' 에 걸린 클릭 처리기들의 몸통 — 감싼 함수, 없으면 바로 뒤의 함수."""
         out: list[tuple[list[str], str]] = []
         fn_re = re.compile(r"function\s*[\w$]*\s*\(([^)]*)\)\s*\{|\(([^)]*)\)\s*=>\s*\{")
+        marks = [r"\." + re.escape(c) + r"(?![\w-])" for c in classes]
+        # 'tbody tr[data-wr-id]' 처럼 data-* 이름으로 고르는 처리기(부산교대)
+        marks += [r"\[\s*" + re.escape(a) + r"(?![\w-])" for a in attrs]
         for code in [*self.parts.scripts, *self.external()]:
-            for cls in classes:
-                for m in re.finditer(r"\." + re.escape(cls) + r"\b", code):
+            for mark in marks:
+                for m in re.finditer(mark, code):
                     picked = None
                     # $('.cls').click(function(){…}) · .on('click', '.cls', function(e){…}) — 바로 뒤
                     fm = fn_re.search(code, m.end(), m.end() + 300)
@@ -1452,21 +1457,28 @@ def _script_text(url: str, fetch: Callable[[str], bytes | None]) -> str:
 # ── 한 링크 → 후보 주소들 ────────────────────────────────────────────────────
 def _data_of(script: str) -> tuple[dict[str, str], list[str]]:
     """'#data:data-id=5&class=btn+view' → ({'id': '5'}, ['btn', 'view'])."""
+    data, classes, _names = _data_parts(script)
+    return data, classes
+
+
+def _data_parts(script: str) -> tuple[dict[str, str], list[str], list[str]]:
+    """_data_of 에 data-* 속성 이름들('data-wr-id')까지 — 이름으로 고르는 처리기를 찾는다."""
     pairs = urllib.parse.parse_qsl(script[len(DATA_MARK) :], keep_blank_values=True)
     data = {_norm_key(k[len("data-") :]): v for k, v in pairs if k.startswith("data-")}
     classes = next((v.split() for k, v in pairs if k == "class"), [])
-    return data, classes
+    names = [k for k, _v in pairs if k.startswith("data-")]
+    return data, classes, names
 
 
 def candidates(script: str, ctx: _Ctx) -> list[Candidate]:
     """제목 링크의 스크립트(또는 data-* 표시) → 글 주소 후보들(꼴마다 하나)."""
     run = _Run(ctx, {})
     if script.startswith(DATA_MARK):
-        data, classes = _data_of(script)
-        if not data or not classes:
+        data, classes, names = _data_parts(script)
+        if not any(data.values()) or not (classes or names):
             return []
         run.data = data
-        for _params, body in ctx.handlers(classes):
+        for _params, body in ctx.handlers(classes, names):
             run.execute(body, {"this": THIS}, 1)
             if run.done():
                 break
@@ -1656,8 +1668,8 @@ def looks_like_post(
 
 def _signature(script: str) -> str:
     if script.startswith(DATA_MARK):
-        _data, classes = _data_of(script)
-        return "data:" + ".".join(sorted(classes))
+        _data, classes, names = _data_parts(script)
+        return "data:" + ".".join(sorted(classes)) + "|" + ".".join(sorted(names))
     call = call_of(script)
     return call[0] if call else "inline"
 
