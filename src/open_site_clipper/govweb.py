@@ -317,7 +317,15 @@ def looks_like_qna(html_bytes: bytes) -> bool:
         text = decode_text(html_bytes)
     except AttributeError:
         return False
-    return len(_QNA_MARK_RE.findall(text)) >= QNA_MARKS
+    # 스크립트·줄 틀·주석 속 글은 화면에 보이는 줄이 아니다 — FR_CON 의 줄 틀은 '비밀글' 아이콘을
+    # 늘 품고 있어 공지 게시판이 묻고 답하기로 보였다(신구대 공지·장학·채용 실측)
+    visible = _HIDDEN_RE.sub(" ", text)
+    return len(_QNA_MARK_RE.findall(visible)) >= QNA_MARKS
+
+
+_HIDDEN_RE = re.compile(
+    r"<script\b[^>]*>.*?</script\s*>|<!--.*?-->|<template\b[^>]*>.*?</template\s*>", re.S | re.I
+)
 
 
 def parse_list(html_bytes: bytes, base_url: str) -> list[Row]:

@@ -556,6 +556,15 @@ def test_qna_boards_are_not_notice_lists():
     )
     notice = _table("<a href='/v?{no}'>" + TITLE + "</a>").encode()
     assert not govweb.looks_like_qna(notice)
+    # 줄 틀(스크립트) 속 '비밀글' 아이콘은 화면의 줄이 아니다 — 신구대 FR_CON 공지가 묻고 답하기로 보였다
+    tmpl_icons = (
+        '<script type="text/x-jquery-tmpl" id="listTemplate">'
+        + "{%if SECRET_YN == 'Y' %}<i>비밀글</i>{%/if%} " * 4
+        + "</script><!-- 비밀글 답변대기 처리중 -->"
+    )
+    assert not govweb.looks_like_qna(
+        (tmpl_icons + _table("<a href='/v?{no}'>" + TITLE + "</a>")).encode()
+    )
 
 
 def test_form_from_helper_returning_form_kaya():
