@@ -52,6 +52,10 @@ _LIST_TAIL_HINTS = ("list", "List")
 OPTIMAL_DEPTH = 3  # 실측상 게시판 목록은 대개 이 깊이다(관문은 더 얕고 상세는 더 깊다)
 
 
+# 첫 화면을 그대로 목록으로 쓰는 경로의 종류 — 게시판을 찾지 못한 학교의 마지막 수단(수집은 게시판과 같다)
+HOME_KIND = "home"
+
+
 @lru_cache(maxsize=1)
 def _romanized_hints() -> tuple[str, ...]:
     """카테고리 사전의 한글 단어를 로마자로 옮긴 별칭들.
@@ -543,6 +547,18 @@ def find_routes(
         routes.extend(found)
         notes.extend(why)
 
+    if not routes and data and targets:
+        # ⑥ 마지막 수단(학교) — 첫 화면의 최신 글 묶음. robots.txt 가 첫 화면만 열어 둔 학교
+        #    ('Disallow: / · Allow: /$' — 순천향대·계원예대·마산대 실측)는 게시판을 열 수 없다.
+        #    첫 화면의 날짜 달린 글 줄은 여러 게시판이 섞여 있지만 없는 것보다 낫다(글 화면은
+        #    열지 않고 링크만 건다).
+        #    경로 종류를 'home' 으로 두어 '첫 화면은 게시판이 아니다'는 거르기를 지나게 한다.
+        rows = govweb.parse_list(data, home_url)
+        dated = sum(1 for r in rows if r.published)
+        if dated >= slots.SLOT_MIN_DATED and not govweb.looks_like_qna(data):
+            routes.append(("소식", HOME_KIND, home_url))
+            notes.append(f"게시판을 찾지 못해 첫 화면의 최신 글({dated}건)을 씁니다: {home_url}")
+            trace.append(f"첫 화면 최신 글 {slots.short(home_url)} ({dated}/{len(rows)})")
     if not routes:
         notes.append(
             f"게시판·피드 링크를 찾지 못했습니다 — 진단: 응답 {len(data) // 1024}KB"

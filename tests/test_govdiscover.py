@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import json
+from urllib.parse import urlsplit
 
 from open_site_clipper import collect, govdiscover, robots, sources
 from open_site_clipper.sources import Source
@@ -255,3 +256,19 @@ def test_refine_label_trusts_a_named_board():
     assert govdiscover.refine_label("공지", menu, "https://u.ac.kr/b") == "공지"
     # 이름을 모를 때('기타'·'READ')만 내용으로 짓는다
     assert govdiscover.refine_label("기타", minutes, "https://u.ac.kr/b") == "학사"
+
+
+def test_school_home_latest_posts_are_the_last_resort(monkeypatch):
+    """robots.txt 가 첫 화면만 연 학교('Disallow: / · Allow: /$') — 첫 화면의 최신 글이라도."""
+    home = "https://www.only-home.ac.kr/"
+    rows = "".join(
+        f'<li><a href="/bbs/view.do?id={i}">{i}번째 학사 공지사항입니다</a><span>2026-10-0{i}</span></li>'
+        for i in range(1, 6)
+    )
+    pages = {
+        home: f"<html><body><ul>{rows}</ul><a href='/sub/menu.do'>대학소개</a></body></html>".encode()
+    }
+    monkeypatch.setattr(robots, "allowed", lambda url, **k: urlsplit(url).path in ("", "/"))
+    routes, notes = govdiscover.find_routes(home, fetcher=pages.get, targets=("공지", "학사"))
+    assert routes == [("소식", govdiscover.HOME_KIND, home)]
+    assert any("첫 화면의 최신 글" in n for n in notes)
