@@ -343,7 +343,7 @@ def test_euc_kr_page_stays_readable_after_rows_are_added():
 
 def test_post_only_list_request_is_sent_as_the_same_post():
     """GET 에 405 를 주는 목록 요청(동원대) — 사이트가 POST 로 보내면 같은 POST 로 다시."""
-    from open_site_clipper.fetch import POST_MARK
+    from open_site_clipper.fetch import ajax_method
 
     payload = {
         "resultList": [
@@ -357,15 +357,17 @@ def test_post_only_list_request_is_sent_as_the_same_post():
         seen.append(url)
         if urllib.parse.urlsplit(url).path != "/bbs/ajax/boardList.do":
             return None
-        return json.dumps(payload, ensure_ascii=False).encode() if url.endswith(POST_MARK) else None
+        return (
+            json.dumps(payload, ensure_ascii=False).encode() if ajax_method(url) == "post" else None
+        )
 
     ajaxlist._METHOD.clear()
     data = ajaxlist.expand(TW_PAGE.encode(), TW, fetch)
     assert data is not None and len(govweb.parse_list(data, TW)) == 2
-    assert not seen[0].endswith(POST_MARK) and seen[1].endswith(POST_MARK)
+    assert ajax_method(seen[0]) == "get" and ajax_method(seen[1]) == "post"
     seen.clear()
     ajaxlist.expand(TW_PAGE.encode(), TW, fetch)  # 한 번 POST 로 통한 요청은 바로 POST
-    assert len(seen) == 1 and seen[0].endswith(POST_MARK)
+    assert len(seen) == 1 and ajax_method(seen[0]) == "post"
 
 
 def test_fetch_detail_sends_marked_urls_as_form_posts():
@@ -380,7 +382,11 @@ def test_fetch_detail_sends_marked_urls_as_form_posts():
         def do_POST(self):
             n = int(self.headers.get("Content-Length") or 0)
             got.update(
-                path=self.path, body=self.rfile.read(n).decode(), ctype=self.headers["Content-Type"]
+                path=self.path,
+                body=self.rfile.read(n).decode(),
+                ctype=self.headers["Content-Type"],
+                xhr=self.headers["X-Requested-With"],
+                referer=self.headers["Referer"],
             )
             body = b'{"list": []}'
             self.send_response(200)
@@ -393,9 +399,14 @@ def test_fetch_detail_sends_marked_urls_as_form_posts():
             pass
 
     server = http.server.HTTPServer(("127.0.0.1", 0), Handler)
+    port = server.server_port
     threading.Thread(target=server.serve_forever, daemon=True).start()
     try:
-        url = f"http://127.0.0.1:{server.server_port}/ajax/list.do?pageNo=1&MENU_ID=100{fetch_mod.POST_MARK}"
+        url = fetch_mod.ajax_url(
+            f"http://127.0.0.1:{server.server_port}/ajax/list.do?pageNo=1&MENU_ID=100",
+            "post",
+            f"http://127.0.0.1:{server.server_port}/board.do?MENU_ID=100",
+        )
         data, why = fetch_mod.fetch_detail(url, timeout=5)
     finally:
         server.shutdown()
@@ -404,6 +415,8 @@ def test_fetch_detail_sends_marked_urls_as_form_posts():
         "path": "/ajax/list.do",
         "body": "pageNo=1&MENU_ID=100",
         "ctype": "application/x-www-form-urlencoded; charset=UTF-8",
+        "xhr": "XMLHttpRequest",
+        "referer": f"http://127.0.0.1:{port}/board.do?MENU_ID=100",
     }
 
 
@@ -429,7 +442,7 @@ FR_PAGE = (
 
 
 def test_percent_delimited_template_li_rows_and_post_form_helper():
-    from open_site_clipper.fetch import POST_MARK
+    from open_site_clipper.fetch import ajax_method
 
     payload = {
         "data": {
@@ -463,7 +476,9 @@ def test_percent_delimited_template_li_rows_and_post_form_helper():
             return None
         # GET 에는 빈 응답을 주는 서버 — POST 여야 목록을 준다
         return (
-            json.dumps(payload, ensure_ascii=False).encode() if url.endswith(POST_MARK) else b"{}"
+            json.dumps(payload, ensure_ascii=False).encode()
+            if ajax_method(url) == "post"
+            else b"{}"
         )
 
     ajaxlist._METHOD.clear()
@@ -471,7 +486,7 @@ def test_percent_delimited_template_li_rows_and_post_form_helper():
     (call,) = ajaxlist.find_calls(scriptlink._Ctx(parts, FR, None))
     assert call.method == "post"  # 도우미는 방식을 감췄지만 폼이 POST
     data = ajaxlist.expand(FR_PAGE.encode(), FR, fetch)
-    assert data is not None and seen[-1].endswith(POST_MARK)
+    assert data is not None and ajax_method(seen[-1]) == "post"
     rows = govweb.parse_list(data, FR)
     assert [(r.title, str(r.published)) for r in rows] == [
         ("학사 일정 변경 안내", "2026-10-10"),

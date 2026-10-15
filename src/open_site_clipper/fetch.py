@@ -39,15 +39,27 @@ REQUEST_HEADERS = {
     "Connection": "close",
 }
 
-# 게시판 화면이 스크립트로 보내는 **목록 요청**을 그 화면과 같은 POST 로 보낼 때 주소 끝에 붙이는
-# 표시(ajaxlist). '#…' 는 서버로 가지 않는 조각이라, 주소만 주고받는 페처 사슬(시간 제한·간격·
-# robots 판정)을 그대로 지나 여기서만 읽힌다. 쿼리를 본문으로 옮겨 보낸다.
-POST_MARK = "#osc-post"
-_POST_HEADERS = {
+# 게시판 화면이 스크립트로 보내는 **목록 요청**(ajaxlist)을 그 화면이 보내는 꼴 그대로 보낼 때
+# 주소 끝에 붙이는 표시 — '#osc-ajax-post~<화면 주소>'. '#…' 는 서버로 가지 않는 조각이라, 주소만
+# 주고받는 페처 사슬(시간 제한·간격·robots 판정)을 그대로 지나 여기서만 읽힌다. 화면의 스크립트가
+# 보내는 것과 같은 머리(X-Requested-With·Referer)를 싣고, POST 면 쿼리를 본문으로 옮긴다.
+# UA 는 그대로 우리 이름이다.
+AJAX_MARK = "#osc-ajax-"
+_AJAX_HEADERS = {
     **REQUEST_HEADERS,
     "Accept": "application/json, text/javascript, text/html;q=0.9, */*;q=0.5",
-    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+    "X-Requested-With": "XMLHttpRequest",
 }
+
+
+def ajax_url(url: str, method: str, referer: str = "") -> str:
+    """목록 요청 주소에 방식(get·post)과 그 요청을 보내는 화면 주소를 표시한다."""
+    return f"{url.split('#', 1)[0]}{AJAX_MARK}{method}~{urllib.parse.quote(referer, safe='')}"
+
+
+def ajax_method(url: str) -> str:
+    """표시된 목록 요청의 방식('get'·'post'), 표시가 없으면 ""."""
+    return url.split(AJAX_MARK, 1)[1].split("~", 1)[0] if AJAX_MARK in url else ""
 
 
 def _decompress(data: bytes, headers) -> bytes:
@@ -118,21 +130,30 @@ def fetch_detail(
     if not (url.startswith("http://") or url.startswith("https://")):
         # http(s)만 허용 — file://·ftp:// 등 로컬/우회 스킴 차단(SSRF 방지).
         return None, "지원하지 않는 주소 형식"
-    post = url.endswith(POST_MARK)
-    if post:
-        url = url[: -len(POST_MARK)]
+    method, referer = "", ""
+    if AJAX_MARK in url:
+        url, _, tag = url.partition(AJAX_MARK)
+        method, _, ref = tag.partition("~")
+        referer = urllib.parse.unquote(ref)
     # 게시판 링크에는 공백·한글이 날것으로 들어 있기도 하다('/files/2025 인증서.pdf').
     # 그대로 보내면 urllib 이 예외를 던져 기관 전체가 멈췄다(실측) — 안전하게 인코딩한다.
     url = safe_url(url)
     try:
-        if post:
+        if method:
+            headers = dict(_AJAX_HEADERS)
+            if referer.startswith(("http://", "https://")):
+                headers["Referer"] = safe_url(referer)
             parts = urllib.parse.urlsplit(url)
-            req = urllib.request.Request(
-                urllib.parse.urlunsplit(parts._replace(query="", fragment="")),
-                data=parts.query.encode("ascii", "ignore"),
-                headers=_POST_HEADERS,
-                method="POST",
-            )
+            if method == "post":
+                headers["Content-Type"] = "application/x-www-form-urlencoded; charset=UTF-8"
+                req = urllib.request.Request(
+                    urllib.parse.urlunsplit(parts._replace(query="", fragment="")),
+                    data=parts.query.encode("ascii", "ignore"),
+                    headers=headers,
+                    method="POST",
+                )
+            else:
+                req = urllib.request.Request(url, headers=headers)
         else:
             req = urllib.request.Request(url, headers=REQUEST_HEADERS)
     except ValueError:

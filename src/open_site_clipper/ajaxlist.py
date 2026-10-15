@@ -16,7 +16,7 @@
 
 요청은 먼저 GET 으로 보낸다(값은 쿼리로). 사이트가 POST 로 보내는 요청이 GET 으로는 목록을
 주지 않으면(405·빈 응답 — 동원대·삼육보건대 실측) 사이트와 같은 POST 로 한 번 더 보낸다(값은
-본문으로, fetch.POST_MARK). 목록을 읽는 요청만 따라 한다 — 쓰기·지우기·옮기기 요청, 다른
+본문으로, fetch.ajax_url). 목록을 읽는 요청만 따라 한다 — 쓰기·지우기·옮기기 요청, 다른
 사이트로 가는 요청, 이 화면의 게시판 값을 싣지 않는 곁다리 요청(최신글 위젯)은 보내지 않는다.
 robots.txt 판정은 요청 주소마다 다시 받는다.
 """
@@ -30,7 +30,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 
 from . import scriptlink, tmpl
-from .fetch import POST_MARK
+from .fetch import ajax_method, ajax_url
 from .k2web_parse import coerce_date
 
 MARK = b"\n<!--osc:ajax-->\n"  # 원래 화면과 그려 붙인 목록의 경계(다음 쪽을 다시 그릴 때 쓴다)
@@ -597,10 +597,12 @@ def expand(
                 )
             continue
         key = (urllib.parse.urlsplit(url).netloc, urllib.parse.urlsplit(url).path)
-        # GET 이 먼저 — 사이트가 POST 로 보내고 GET 으로는 목록을 안 주면(405·빈 응답) 같은 POST 로
-        tries = [url]
+        # GET 이 먼저 — 사이트가 POST 로 보내고 GET 으로는 목록을 안 주면(405·빈 응답) 같은 POST 로.
+        # 화면의 스크립트처럼 X-Requested-With·Referer(이 화면)를 싣는다(fetch.ajax_url)
+        tries = [ajax_url(url, "get", page_url)]
         if call.method in ("post", "?"):
-            tries = [url + POST_MARK] if _METHOD.get(key) == "post" else [url, url + POST_MARK]
+            post = ajax_url(url, "post", page_url)
+            tries = [post] if _METHOD.get(key) == "post" else [*tries, post]
         for target in tries:
             step: dict = {"url": target[:300]}
             if explain is not None:
@@ -614,7 +616,7 @@ def expand(
             rows = render(got, call, parts, step)
             step["rendered"] = len(re.findall(r"<(?:tr|li)\b", rows, re.I))
             if rows:
-                _METHOD[key] = "post" if target.endswith(POST_MARK) else "get"
+                _METHOD[key] = ajax_method(target)
                 # 원래 화면이 EUC-KR 이어도 한 글자 체계로 — 이어 붙인 뒤 깨지지 않게 다시 UTF-8 로
                 return text.encode("utf-8") + MARK + rows.encode("utf-8")
     return None
