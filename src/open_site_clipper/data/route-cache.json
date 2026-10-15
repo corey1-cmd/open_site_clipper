@@ -2918,6 +2918,26 @@
     [
      "공지사항",
      "board",
+     "https://www.kookmin.ac.kr/user/kmuNews/notice/index.do"
+    ],
+    [
+     "학사공지",
+     "board",
+     "https://www.kookmin.ac.kr/user/kmuNews/notice/4/index.do"
+    ],
+    [
+     "장학공지",
+     "board",
+     "https://www.kookmin.ac.kr/user/kmuNews/notice/7/index.do"
+    ],
+    [
+     "교내채용",
+     "board",
+     "https://www.kookmin.ac.kr/user/kmuNews/notice/10/index.do"
+    ],
+    [
+     "공지사항",
+     "board",
      "http://startup.kookmin.ac.kr/board/notice/"
     ],
     [
@@ -2936,29 +2956,39 @@
      "http://kist.kookmin.ac.kr/?page_id=323"
     ],
     [
-     "공지사항",
-     "board",
-     "http://research.kookmin.ac.kr/information/notice/"
-    ],
-    [
-     "기타신규사업공지",
-     "board",
-     "http://research.kookmin.ac.kr/information/application/"
-    ],
-    [
      "생명윤리 자료실",
      "board",
      "http://research.kookmin.ac.kr/ethic/ethic_form/"
     ],
     [
-     "공지",
+     "입찰",
      "board",
-     "http://research.kookmin.ac.kr/information/ntis"
+     "https://www.kookmin.ac.kr/user/kmuNews/notice/9/index.do"
     ],
     [
-     "WiFi",
+     "입학",
      "board",
-     "http://kist.kookmin.ac.kr/?page_id=67"
+     "https://www.kookmin.ac.kr/user/kmuNews/notice/3/index.do"
+    ],
+    [
+     "채용",
+     "board",
+     "https://www.kookmin.ac.kr/user/kmuNews/notice/11/index.do"
+    ],
+    [
+     "K*Tube",
+     "board",
+     "https://www.kookmin.ac.kr/comm/board/user/591feea0eb1c2f3fa2205c64b3fad310/index.do"
+    ],
+    [
+     "SNS이벤트",
+     "board",
+     "https://www.kookmin.ac.kr/comm/board/user/2b7a286d345d4a0f37f04a026e56ac9e/index.do"
+    ],
+    [
+     "국민NEW&HOT",
+     "board",
+     "https://www.kookmin.ac.kr/comm/board/user/505778f2d4a04163de6ee5fee35d9bb9/index.do"
     ]
    ],
    "count": 30,
@@ -3997,11 +4027,6 @@
      "공지",
      "board",
      "https://hanyang.ac.kr/news/notice/noticeList.do?searchDivCd=001"
-    ],
-    [
-     "소식",
-     "home",
-     "https://www.hanyang.ac.kr"
     ]
    ],
    "count": 26,
@@ -7166,11 +7191,6 @@
      "자료",
      "board",
      "https://lily.sunmoon.ac.kr/Page2/UnivLife/VirusNotice.aspx"
-    ],
-    [
-     "소식",
-     "home",
-     "https://lily.sunmoon.ac.kr/"
     ]
    ],
    "count": 19,
@@ -8464,11 +8484,6 @@
      "공지사항",
      "board",
      "https://www.inje.ac.kr/sotong/board/list.asp?m=2"
-    ],
-    [
-     "소식",
-     "home",
-     "https://www.inje.ac.kr"
     ]
    ],
    "count": 6,
@@ -9353,9 +9368,59 @@
   "u-hycu": {
    "routes": [
     [
+     "일반공지",
+     "board",
+     "https://www.hycu.ac.kr/user/coGrNews/go/index.do?currentPageNo=1&perPage=&catCd=0002&coGrType=&searchType=0001&searchValue="
+    ],
+    [
+     "학사공지",
+     "board",
+     "https://www.hycu.ac.kr/user/coGrNews/go/index.do?currentPageNo=1&perPage=&catCd=0001&coGrType=&searchType=0001&searchValue="
+    ],
+    [
+     "입학공지",
+     "board",
+     "https://go.hycu.ac.kr/comm/board/user/6ad46ecae5847cf635eda7a29872efca/index.do"
+    ],
+    [
      "자료",
      "board",
      "https://cube.hycu.ac.kr/lu/course/course/listCourse.do?cateCode=03"
+    ],
+    [
+     "소식",
+     "board",
+     "https://www.hycu.ac.kr/user/coGrNews/go/index.do"
+    ],
+    [
+     "공지",
+     "board",
+     "https://www.hycu.ac.kr/comm/board/user/ace4998e07b5e580e2713e2a71bf3f37/index.do"
+    ],
+    [
+     "미디어∙홍보",
+     "board",
+     "https://www.hycu.ac.kr/comm/board/user/2ecb368433bbae0e79d591eb4931fe10/index.do"
+    ],
+    [
+     "대학생활",
+     "board",
+     "https://www.hycu.ac.kr/user/unGdLife/go/event/index.do"
+    ],
+    [
+     "청탁금지법",
+     "board",
+     "https://www.hycu.ac.kr/comm/board/user/86c9204dfc767d8b22a955289a372ba8/index.do"
+    ],
+    [
+     "HYCU SNS",
+     "board",
+     "https://www.hycu.ac.kr/user/unGdIntr/www/index.do"
+    ],
+    [
+     "교수초빙",
+     "board",
+     "https://www.hycu.ac.kr/user/ivEmpm/prof/index.do"
     ]
    ],
    "count": 0,
@@ -11208,11 +11273,6 @@
      "소식",
      "board",
      "https://www.hj.ac.kr/hj/na/ntt/selectNttList.do?mi=4020704&bbsId=27"
-    ],
-    [
-     "소식",
-     "home",
-     "https://www.hj.ac.kr/hj/main.do"
     ]
    ],
    "count": 25,
@@ -11528,11 +11588,6 @@
      "KBC HOT FOCUS",
      "board",
      "https://www.kbc.ac.kr/kor/CMS/Board/Board.do?mCode=MN166"
-    ],
-    [
-     "소식",
-     "home",
-     "https://www.kbc.ac.kr"
     ]
    ],
    "count": 23,
@@ -12313,6 +12368,11 @@
      "학사 사업단소식",
      "board",
      "https://sw.changwon.ac.kr/bbs/board.php?bo_table=news"
+    ],
+    [
+     "채용 공지사항",
+     "board",
+     "https://dreamcatch.changwon.ac.kr/user/Bd/BdCm010L.do;jsessionid=171711A3BE866C13EB41D56C689936B9?BD_NO=1&CURRENT_MENU_CODE=MENU0040&TOP_MENU_CODE=MENU0006"
     ],
     [
      "채용 공지사항",
