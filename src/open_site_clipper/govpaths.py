@@ -235,7 +235,8 @@ def _decode(data: bytes) -> str:
 
 # 관문 페이지가 실제 주소를 알려 주는 방식들 — 전부 HTML 안에 문자열로 있다.
 _META_REFRESH_RE = re.compile(
-    r'<meta[^>]+http-equiv\s*=\s*["\']?refresh["\']?[^>]*content\s*=\s*["\']?[^"\'>;]*;\s*url\s*=\s*([^"\'>\s]+)',
+    # url 값을 따옴표로 한 번 더 싸는 꼴도 — CONTENT="0;url='/kor'"(송곡대 실측)
+    r'<meta[^>]+http-equiv\s*=\s*["\']?refresh["\']?[^>]*content\s*=\s*["\']?[^"\'>;]*;\s*url\s*=\s*["\']?([^"\'>\s]+)',
     re.I,
 )
 _JS_LOCATION_RE = re.compile(

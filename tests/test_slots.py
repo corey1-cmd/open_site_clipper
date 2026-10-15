@@ -614,3 +614,16 @@ def test_cafeteria_menu_posts():
     assert slots.menu_post("학식 주간식단표(10월12일~10월15일)")
     assert slots.menu_post("10월 3주 천원의 아침밥 메뉴 안내")
     assert not slots.menu_post("2026학년도 2학기 장학금 신청 안내")
+
+
+def test_club_boards_and_forms_are_not_school_notices():
+    for label in (
+        "S.C.F.(기독교동아리)",
+        "S·G·T·C(테니스부)",
+        "볼링블링(볼링부)",
+        "President's Speech",
+        "GKS Application Form",
+    ):
+        assert slots.not_board(label), label
+    for label in ("공지사항", "학사 입사생 공지사항", "교직원 채용공고", "취업지원부 공지"):
+        assert not slots.not_board(label), label
