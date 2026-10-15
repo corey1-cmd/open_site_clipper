@@ -273,6 +273,17 @@ def find_routes(
 
     data = session.get(home_url) or b""
     home_reason = session.last_reason if not data else ""
+    if not data and home_reason == "robots.txt 차단":
+        # 첫 화면은 막고 몇 갈래만 열어 둔 사이트 — robots.txt 가 적어 둔 입구로 들어간다
+        from . import robots as _robots
+
+        for entry in _robots.allowed_entries(home_url)[:3]:
+            got = session.get(entry)
+            if got:
+                notes.append(f"첫 화면은 robots.txt 가 막아, 열어 둔 입구로 들어갑니다: {entry}")
+                trace.append(f"robots 가 연 입구 → {slots.short(entry)}")
+                home_url, data, home_reason = entry, got, ""
+                break
     first_home, first_data = home_url, data  # 관문을 따라가도 원래 홈의 문자열은 버리지 않는다
     failed_gateways: list[str] = []
 

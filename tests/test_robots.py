@@ -134,3 +134,16 @@ def test_explain_reports_the_winning_rule_and_the_old_reading(monkeypatch):
     # 비교용 예전 판정 — 표준 라이브러리의 해석은 파이썬 판마다 다르다(3.12 는 먼저 적힌 규칙)
     assert isinstance(got["stdlib"], bool)
     assert got["robots"].startswith("200")
+
+
+def test_allowed_entries_are_the_plain_allow_paths(monkeypatch):
+    rules = (
+        b"User-agent: *\nDisallow: /\nAllow: /portal/\nAllow: /representation/\n"
+        b"Allow: /board/list.jsp?*id=3&\nAllow: /favicon.ico\nAllow: /$\nAllow: /main/\n"
+    )
+    monkeypatch.setattr(robots.urllib.request, "urlopen", lambda *a, **k: _Resp(rules))
+    assert robots.allowed_entries("https://www.jbsc.ac.kr/") == [
+        "https://www.jbsc.ac.kr/main/",
+        "https://www.jbsc.ac.kr/portal/",
+        "https://www.jbsc.ac.kr/representation/",
+    ]

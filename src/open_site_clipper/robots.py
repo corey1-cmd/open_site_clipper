@@ -265,6 +265,36 @@ def explain(url: str, *, user_agent: str = USER_AGENT) -> dict:
     return out
 
 
+_ASSET_RE = re.compile(
+    r"\.(?:css|js|ico|png|jpe?g|gif|svg|webp|woff2?|ttf|xml|txt|json|pdf)$", re.I
+)
+_ENTRY_WORD_RE = re.compile(r"main|index|portal|home|intro|/kor?/", re.I)
+
+
+def allowed_entries(url: str, *, user_agent: str = USER_AGENT) -> list[str]:
+    """첫 화면이 막혔을 때 들어갈 입구 — robots.txt 가 **열어 둔** 경로들(와일드카드 없는 Allow).
+
+    'Disallow: / · Allow: /portal/ · Allow: /main/' 처럼 첫 화면은 막고 몇 갈래만 연 학교(전북과학대·
+    한영대 실측)는 사이트가 직접 '여기는 와도 된다'고 적어 둔 것이다. 그 경로를 첫 화면 대신 연다.
+    """
+    origin = _origin(url)
+    parser = _parser_for(url) if origin else None
+    if parser is None:
+        return []
+    out: list[str] = []
+    for g in parser.groups_for(user_agent):
+        for allow, pattern in g.rules:
+            if not allow or "*" in pattern or pattern.endswith("$") or pattern == "/":
+                continue
+            if _ASSET_RE.search(pattern):
+                continue
+            full = origin + pattern
+            if full not in out and parser.can_fetch(user_agent, full):
+                out.append(full)
+    out.sort(key=lambda u: (0 if _ENTRY_WORD_RE.search(u) else 1, len(u)))
+    return out
+
+
 def sitemap_urls(url: str) -> list[str]:
     """robots.txt 에 적힌 사이트맵 주소들(추가 요청 없음).
 
